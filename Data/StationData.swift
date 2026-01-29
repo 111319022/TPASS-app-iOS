@@ -67,13 +67,13 @@ extension StationData {
         "善導寺": "Shandao Temple",
         "忠孝新生": "Zhongxiao Xinsheng",
         "忠孝敦化": "Zhongxiao Dunhua",
-        "國父紀念館": "Sun Yat-Sen Memorial Hall",
+        "國父紀念館": "S.Y.S Memorial Hall",
         "市政府": "Taipei City Hall",
         "永春": "Yongchun",
         "後山埤": "Houshanpi",
         "昆陽": "Kunyang",
         "南港": "Nangang",
-        "南港展覽館": "Nangang Exhibition Center",
+        "南港展覽館": "Nangang Exhibit. Center",
 
         // R (Tamsui-Xinyi)
         "象山": "Xiangshan",
@@ -82,7 +82,7 @@ extension StationData {
         "大安": "Daan",
         "大安森林公園": "Daan Park",
         "東門": "Dongmen",
-        "中正紀念堂": "Chiang Kai-Shek Memorial Hall",
+        "中正紀念堂": "C.K.S. Memorial Hall",
         "台大醫院": "NTU Hospital",
         "中山": "Zhongshan",
         "雙連": "Shuanglian",
@@ -106,7 +106,7 @@ extension StationData {
 
         // G (Songshan-Xindian)
         "新店": "Xindian",
-        "新店區公所": "Xindian District Office",
+        "新店區公所": "Xindian Dist. Office",
         "七張": "Qizhang",
         "小碧潭": "Xiaobitan",
         "大坪林": "Dapinglin",
@@ -156,7 +156,7 @@ extension StationData {
         "六張犁": "Liuzhangli",
         "科技大樓": "Technology Building",
         "忠孝復興": "Zhongxiao Fuxing",
-        "中山國中": "Zhongshan Junior High School",
+        "中山國中": "Zhongshan Jr. High School",
         "松山機場": "Songshan Airport",
         "大直": "Dazhi",
         "劍南路": "Jiannan Rd.",
