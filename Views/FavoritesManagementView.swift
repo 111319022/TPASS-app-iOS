@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct FavoritesManagementView: View {
+        @EnvironmentObject var localizationManager: LocalizationManager
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.dismiss) var dismiss
@@ -51,10 +52,10 @@ struct FavoritesManagementView: View {
                         Image(systemName: "star.slash")
                             .font(.system(size: 48))
                             .foregroundColor(themeManager.secondaryTextColor)
-                        Text("尚無常用或通勤路線")
+                        Text(localizationManager.localized("favorites_empty_title"))
                             .font(.headline)
                             .foregroundColor(themeManager.primaryTextColor)
-                        Text("長按行程可加入常用或通勤路線，方便快速新增")
+                        Text(localizationManager.localized("favorites_empty_desc"))
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                             .multilineTextAlignment(.center)
@@ -63,106 +64,14 @@ struct FavoritesManagementView: View {
                 } else {
                     List {
                         if !viewModel.favorites.isEmpty {
-                            Section(header: sectionHeader("常用路線")) {
+                            Section(header: sectionHeader(localizationManager.localized("favoriteRoutes"))) {
                                 ForEach(viewModel.favorites) { fav in
-                                    Button(action: {
-                                        let routeName = fav.displayTitle
-                                        viewModel.quickAddTrip(from: fav)
-                                        dismiss()
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            onQuickAdd?(routeName)
-                                        }
-                                    }) {
-                                        HStack(spacing: 12) {
-                                            // 圖示
-                                            ZStack {
-                                                Circle()
-                                                    .fill(themeManager.transportColor(fav.type).opacity(0.15))
-                                                    .frame(width: 40, height: 40)
-                                                Image(systemName: fav.type.systemIconName)
-                                                    .font(.system(size: 16))
-                                                    .foregroundColor(themeManager.transportColor(fav.type))
-                                            }
-                                            
-                                            // 路線資訊
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(fav.displayTitle)
-                                                    .font(.system(.body, design: .default))
-                                                    .fontWeight(.semibold)
-                                                    .foregroundColor(themeManager.primaryTextColor)
-                                                
-                                                HStack(spacing: 8) {
-                                                    Text("$\(fav.price)")
-                                                        .font(.caption)
-                                                        .foregroundColor(themeManager.secondaryTextColor)
-                                                    
-                                                    if fav.isFree {
-                                                        Text("免費")
-                                                            .font(.caption)
-                                                            .fontWeight(.semibold)
-                                                            .foregroundColor(.green)
-                                                            .padding(.horizontal, 6)
-                                                            .padding(.vertical, 2)
-                                                            .background(Color.green.opacity(0.15))
-                                                            .cornerRadius(4)
-                                                    }
-                                                    
-                                                    if fav.isTransfer {
-                                                        Text("轉乘")
-                                                            .font(.caption)
-                                                            .fontWeight(.semibold)
-                                                            .foregroundColor(themeManager.accentColor)
-                                                            .padding(.horizontal, 6)
-                                                            .padding(.vertical, 2)
-                                                            .background(themeManager.accentColor.opacity(0.15))
-                                                            .cornerRadius(4)
-                                                    }
-                                                }
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            // 快速新增按鈕
-                                            Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 24))
-                                                .foregroundColor(themeManager.accentColor)
-                                        }
-                                        .padding(.vertical, 12)
-                                        .padding(.horizontal, 16)
-                                        .background(rowBackground)
-                                        .cornerRadius(12)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
-                                        )
-                                        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            viewModel.removeFavorite(fav)
-                                            swipedFavIds.remove(fav.id)
-                                        } label: {
-                                            Label("刪除", systemImage: "trash.fill")
-                                        }
-                                    }
-                                    // 長按刪除
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            viewModel.removeFavorite(fav)
-                                            swipedFavIds.remove(fav.id)
-                                        } label: {
-                                            Label("刪除", systemImage: "trash")
-                                        }
-                                    }
+                                    favoriteButtonWithActions(fav)
                                 }
                             }
                         } else {
-                            Section(header: sectionHeader("常用路線")) {
-                                Text("長按行程以選擇新增至「常用路線」")
+                            Section(header: sectionHeader(localizationManager.localized("favoriteRoutes"))) {
+                                Text(localizationManager.localized("favorites_empty_favorites_only_desc"))
                                     .font(.caption)
                                     .foregroundColor(themeManager.secondaryTextColor)
                                     .listRowBackground(themeManager.cardBackgroundColor)
@@ -172,75 +81,14 @@ struct FavoritesManagementView: View {
                         }
                         
                         if !viewModel.commuterRoutes.isEmpty {
-                            Section(header: sectionHeader("通勤路線")) {
+                            Section(header: sectionHeader(localizationManager.localized("commuterRoutes"))) {
                                 ForEach(viewModel.commuterRoutes) { route in
-                                    Button(action: {
-                                        let routeName = route.name
-                                        viewModel.quickAddCommuterRoute(route)
-                                        showToast(message: "已新增通勤：\(routeName)")
-                                        dismiss()
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            onQuickAddCommuter?(routeName)
-                                        }
-                                    }) {
-                                        HStack(spacing: 12) {
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(route.name)
-                                                    .font(.system(.body, design: .default))
-                                                    .fontWeight(.semibold)
-                                                    .foregroundColor(themeManager.primaryTextColor)
-                                                Text("\(route.tripCount) 筆")
-                                                    .font(.caption)
-                                                    .foregroundColor(themeManager.secondaryTextColor)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "square.and.pencil")
-                                                .font(.system(size: 20))
-                                                .foregroundColor(themeManager.secondaryTextColor)
-                                        }
-                                        .padding(.vertical, 12)
-                                        .padding(.horizontal, 16)
-                                        .background(rowBackground)
-                                        .cornerRadius(12)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
-                                        )
-                                        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            viewModel.removeCommuterRoute(route)
-                                            swipedCommuterIds.remove(route.id)
-                                        } label: {
-                                            Label("刪除", systemImage: "trash.fill")
-                                        }
-                                    }
-                                    .contextMenu {
-                                        Button {
-                                            editingCommuterRoute = route
-                                        } label: {
-                                            Label("編輯", systemImage: "square.and.pencil")
-                                        }
-                                        
-                                        Button(role: .destructive) {
-                                            viewModel.removeCommuterRoute(route)
-                                            swipedCommuterIds.remove(route.id)
-                                        } label: {
-                                            Label("刪除通勤路線", systemImage: "trash")
-                                        }
-                                    }
+                                    commuterRouteButtonWithActions(route)
                                 }
                             }
                         } else {
-                            Section(header: sectionHeader("通勤路線")) {
-                                Text("長按行程以選擇新增至「通勤路線」")
+                            Section(header: sectionHeader(localizationManager.localized("commuterRoutes"))) {
+                                Text(localizationManager.localized("favorites_empty_commuter_only_desc"))
                                     .font(.caption)
                                     .foregroundColor(themeManager.secondaryTextColor)
                                     .listRowBackground(themeManager.cardBackgroundColor)
@@ -254,11 +102,11 @@ struct FavoritesManagementView: View {
                     .background(Color.clear)
                 }
             }
-            .navigationTitle("常用路線")
+            .navigationTitle(localizationManager.localized("favoriteRoutes"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button(localizationManager.localized("done")) {
                         dismiss()
                     }
                     .font(.system(.body, design: .default))
@@ -294,7 +142,169 @@ struct FavoritesManagementView: View {
             withAnimation { showToast = false }
         }
     }
+    
+    @ViewBuilder
+    private func favoriteButtonWithActions(_ fav: FavoriteRoute) -> some View {
+        Button(action: {
+            let routeName = fav.displayTitle
+            viewModel.quickAddTrip(from: fav)
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onQuickAdd?(routeName)
+            }
+        }) {
+            favoriteRowView(fav, rowBackground: rowBackground)
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                viewModel.removeFavorite(fav)
+                swipedFavIds.remove(fav.id)
+            } label: {
+                Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+            }
+        }
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.removeFavorite(fav)
+                swipedFavIds.remove(fav.id)
+            } label: {
+                Label(localizationManager.localized("delete"), systemImage: "trash")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func commuterRouteButtonWithActions(_ route: CommuterRoute) -> some View {
+        Button(action: {
+            let routeName = route.name
+            viewModel.quickAddCommuterRoute(route)
+            showToast(message: localizationManager.localizedFormat("favorites_added_commuter", routeName))
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onQuickAddCommuter?(routeName)
+            }
+        }) {
+            commuterRouteRowView(route)
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                viewModel.removeCommuterRoute(route)
+                swipedCommuterIds.remove(route.id)
+            } label: {
+                Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+            }
+        }
+        .contextMenu {
+            Button {
+                editingCommuterRoute = route
+            } label: {
+                Label(localizationManager.localized("edit"), systemImage: "square.and.pencil")
+            }
+            
+            Button(role: .destructive) {
+                viewModel.removeCommuterRoute(route)
+                swipedCommuterIds.remove(route.id)
+            } label: {
+                Label(localizationManager.localized("delete"), systemImage: "trash")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func commuterRouteRowView(_ route: CommuterRoute) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(route.name)
+                    .font(.system(.body, design: .default))
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.primaryTextColor)
+                Text(localizationManager.localizedFormat("count_trips", route.tripCount))
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 20))
+                .foregroundColor(themeManager.secondaryTextColor)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(rowBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
+    }
 
+    @ViewBuilder
+    private func favoriteRowView(_ fav: FavoriteRoute, rowBackground: Color) -> some View {
+        HStack(spacing: 12) {
+            favoriteIconView(fav.type)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(fav.displayTitle)
+                    .font(.system(.body, design: .default))
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                HStack(spacing: 8) {
+                    Text("$\(fav.price)")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    
+                    if fav.isFree {
+                        Text(localizationManager.localized("free_trip"))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(4)
+                    }
+                    
+                    if fav.isTransfer {
+                        Text(localizationManager.localized("transfer"))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(themeManager.accentColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(themeManager.accentColor.opacity(0.15))
+                            .cornerRadius(4)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 24))
+                .foregroundColor(themeManager.accentColor)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(rowBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
+    }
+    
     @ViewBuilder
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
@@ -305,109 +315,152 @@ struct FavoritesManagementView: View {
             .padding(.top, 12)
             .padding(.bottom, 6)
     }
-}
-
-struct CommuterRouteDetailView: View {
-    @EnvironmentObject var viewModel: AppViewModel
-    @EnvironmentObject var themeManager: ThemeManager
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.colorScheme) var colorScheme
     
-    let routeId: UUID
-    
-    private var route: CommuterRoute? {
-        viewModel.commuterRoutes.first(where: { $0.id == routeId })
-    }
-    
-    private var screenBackground: Color {
-        switch themeManager.currentTheme {
-        case .muji:
-            return Color(hex: "#f5f0eb")
-        case .light:
-            return Color(uiColor: .systemGroupedBackground)
-        case .dark:
-            return Color(uiColor: .secondarySystemBackground)
-        case .system:
-            return colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemGroupedBackground)
+    @ViewBuilder
+    private func favoriteIconView(_ type: TransportType) -> some View {
+        ZStack {
+            Circle()
+                .fill(themeManager.transportColor(type).opacity(0.15))
+                .frame(width: 40, height: 40)
+            Image(systemName: type.systemIconName)
+                .font(.system(size: 16))
+                .foregroundColor(themeManager.transportColor(type))
         }
     }
     
-    private var rowBackground: Color {
-        themeManager.cardBackgroundColor.opacity(themeManager.currentTheme == .dark ? 0.88 : 1)
-    }
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Rectangle()
-                    .fill(screenBackground)
-                    .ignoresSafeArea()
+    @ViewBuilder
+    private func favoriteDetailView(_ fav: FavoriteRoute) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(fav.displayTitle)
+                .font(.system(.body, design: .default))
+                .fontWeight(.semibold)
+                .foregroundColor(themeManager.primaryTextColor)
+            
+            HStack(spacing: 8) {
+                Text("$\(fav.price)")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
                 
-                if let route = route, !route.trips.isEmpty {
-                    List {
-                        ForEach(route.trips) { trip in
-                            HStack(spacing: 12) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(trip.displayTitle)
-                                        .font(.system(.body, design: .default))
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Text(trip.timeString)
+                if fav.isFree {
+                    Text(localizationManager.localized("free"))
+                        .font(.caption)
+                        .foregroundColor(.green)
+                }
+                
+                if fav.isTransfer {
+                    Text(localizationManager.localized("transfer"))
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - CommuterRouteDetailView
+struct CommuterRouteDetailView: View {
+        @EnvironmentObject var localizationManager: LocalizationManager
+        @EnvironmentObject var viewModel: AppViewModel
+        @EnvironmentObject var themeManager: ThemeManager
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.colorScheme) var colorScheme
+        
+        let routeId: UUID
+        
+        private var route: CommuterRoute? {
+            viewModel.commuterRoutes.first(where: { $0.id == routeId })
+        }
+        
+        private var screenBackground: Color {
+            switch themeManager.currentTheme {
+            case .muji:
+                return Color(hex: "#f5f0eb")
+            case .light:
+                return Color(uiColor: .systemGroupedBackground)
+            case .dark:
+                return Color(uiColor: .secondarySystemBackground)
+            case .system:
+                return colorScheme == .dark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemGroupedBackground)
+            }
+        }
+        
+        private var rowBackground: Color {
+            themeManager.cardBackgroundColor.opacity(themeManager.currentTheme == .dark ? 0.88 : 1)
+        }
+        
+        var body: some View {
+            NavigationView {
+                ZStack {
+                    Rectangle()
+                        .fill(screenBackground)
+                        .ignoresSafeArea()
+                    
+                    if let route = route, !route.trips.isEmpty {
+                        List {
+                            ForEach(route.trips) { trip in
+                                HStack(spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(trip.displayTitle)
+                                            .font(.system(.body, design: .default))
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(themeManager.primaryTextColor)
+                                        Text(trip.timeString)
+                                            .font(.caption)
+                                            .foregroundColor(themeManager.secondaryTextColor)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text("$\(trip.price)")
                                         .font(.caption)
                                         .foregroundColor(themeManager.secondaryTextColor)
                                 }
-                                
-                                Spacer()
-                                
-                                Text("$\(trip.price)")
-                                    .font(.caption)
-                                    .foregroundColor(themeManager.secondaryTextColor)
-                            }
-                            .padding(.vertical, 4)
-                            .background(rowBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
-                            )
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
-                                } label: {
-                                    Label("刪除", systemImage: "trash")
+                                .padding(.vertical, 4)
+                                .background(rowBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
+                                )
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
+                                    } label: {
+                                        Label(localizationManager.localized("delete"), systemImage: "trash")
+                                    }
                                 }
                             }
                         }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
+                    } else {
+                        VStack(spacing: 12) {
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 36))
+                                .foregroundColor(themeManager.secondaryTextColor)
+                            Text(localizationManager.localized("commuter_route_empty"))
+                                .font(.headline)
+                                .foregroundColor(themeManager.primaryTextColor)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
-                } else {
-                    VStack(spacing: 12) {
-                        Image(systemName: "list.bullet")
-                            .font(.system(size: 36))
-                            .foregroundColor(themeManager.secondaryTextColor)
-                        Text("此通勤路線尚無項目")
-                            .font(.headline)
-                            .foregroundColor(themeManager.primaryTextColor)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-            }
-            .navigationTitle(route?.name ?? "通勤路線")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
-                        dismiss()
+                .navigationTitle(route?.name ?? localizationManager.localized("commuter_route"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(localizationManager.localized("done")) {
+                            dismiss()
+                        }
+                        .font(.system(.body, design: .default))
+                        .foregroundColor(themeManager.accentColor)
                     }
-                    .font(.system(.body, design: .default))
-                    .foregroundColor(themeManager.accentColor)
                 }
             }
         }
     }
-}
+

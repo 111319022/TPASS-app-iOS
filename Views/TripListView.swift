@@ -4,7 +4,9 @@ struct TripListView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.modelContext) var modelContext
     
     // 統一的水平邊距，確保所有元素對齊
     private let horizontalPagePadding: CGFloat = 20
@@ -33,11 +35,11 @@ struct TripListView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text("加入通勤路線")
+                Text(localizationManager.localized("choose_commuter"))
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 
-                Text("選擇現有通勤路線或新增")
+                Text(localizationManager.localized("choose_commuter_desc"))
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
                 
@@ -50,7 +52,7 @@ struct TripListView: View {
                             Button(action: {
                                 if let trip = pendingCommuterTrip {
                                     viewModel.addToCommuterRoute(from: trip, name: name)
-                                    showToast(message: "已加入通勤：\(name)")
+                                    showToast(message: localizationManager.localizedFormat("commuter_added", name))
                                 }
                                 pendingCommuterTrip = nil
                                 showCommuterRoutePicker = false
@@ -82,7 +84,7 @@ struct TripListView: View {
                     showCommuterNamePrompt = true
                     showCommuterRoutePicker = false
                 }) {
-                    Text("新增其他")
+                    Text(localizationManager.localized("add_other"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(themeManager.accentColor.opacity(0.12))
@@ -95,7 +97,7 @@ struct TripListView: View {
                 Button(action: {
                     showCommuterRoutePicker = false
                 }) {
-                    Text("取消")
+                    Text(localizationManager.localized("cancel"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(themeManager.cardBackgroundColor.opacity(0.9))
@@ -123,7 +125,7 @@ struct TripListView: View {
                 VStack(spacing: 0) {
                     // Header
                     HStack {
-                        Text("行程紀錄")
+                        Text(localizationManager.localized("tripList"))
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .foregroundColor(themeManager.primaryTextColor)
@@ -143,8 +145,10 @@ struct TripListView: View {
                     
                     if viewModel.groupedTrips.isEmpty {
                         VStack(spacing: 12) {
-                            Spacer(minLength: 80)
-                            Text("目前沒有行程紀錄")
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 36))
+                                .foregroundColor(themeManager.secondaryTextColor)
+                            Text(localizationManager.localized("noTripsRecorded"))
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
                                 .frame(maxWidth: .infinity)
@@ -157,81 +161,7 @@ struct TripListView: View {
                                 Section {
                                     // 行程列表
                                     ForEach(group.trips) { trip in
-                                        Button {
-                                            selectedTripToEdit = trip
-                                        } label: {
-                                            TripRowView(trip: trip)
-                                        }
-                                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                        .listRowSeparator(.hidden)
-                                        .listRowBackground(Color.clear)
-                                        .padding(.vertical, 4)
-                                        .buttonStyle(StaticButtonStyle())
-                                        .contextMenu {
-                                            tripContextMenuContent(trip: trip)
-                                        }
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(role: .destructive) {
-                                                viewModel.deleteTrip(trip)
-                                                showToast(message: "已刪除行程")
-                                            } label: {
-                                                Label("刪除", systemImage: "trash.fill")
-                                            }
-                                            .tint(.red)
-                                        }
-                                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                            Button {
-                                                guard !isProcessingSwipeAction else { return }
-                                                isProcessingSwipeAction = true
-                                                let wasTransfer = trip.isTransfer
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                                                    var tx = Transaction(animation: nil)
-                                                    withTransaction(tx) {
-                                                        viewModel.toggleTransfer(trip)
-                                                    }
-                                                    showToast(message: wasTransfer ? "已取消轉乘" : "已標記轉乘")
-                                                    isProcessingSwipeAction = false
-                                                }
-                                            } label: {
-                                                Label(trip.isTransfer ? "取消" : "補轉乘", systemImage: trip.isTransfer ? "link.badge.plus" : "link")
-                                            }
-                                            .tint(themeManager.accentColor)
-                                            .disabled(isProcessingSwipeAction)
-                                            
-                                            Button {
-                                                guard !isProcessingSwipeAction else { return }
-                                                isProcessingSwipeAction = true
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                                                    var tx = Transaction(animation: nil)
-                                                    withTransaction(tx) {
-                                                        viewModel.duplicateTrip(trip)
-                                                    }
-                                                    showToast(message: "已複製行程")
-                                                    isProcessingSwipeAction = false
-                                                }
-                                            } label: {
-                                                Label("複製", systemImage: "doc.on.doc.fill")
-                                            }
-                                            .tint(themeManager.accentColor)
-                                            .disabled(isProcessingSwipeAction)
-                                            
-                                            Button {
-                                                guard !isProcessingSwipeAction else { return }
-                                                isProcessingSwipeAction = true
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                                                    var tx = Transaction(animation: nil)
-                                                    withTransaction(tx) {
-                                                        viewModel.createReturnTrip(trip)
-                                                    }
-                                                    showToast(message: "已新增回程")
-                                                    isProcessingSwipeAction = false
-                                                }
-                                            } label: {
-                                                Label("回程", systemImage: "arrow.uturn.backward")
-                                            }
-                                            .tint(themeManager.accentColor)
-                                            .disabled(isProcessingSwipeAction)
-                                        }
+                                        tripRowWithActions(trip)
                                     }
                                 } header: {
                                     // 🔥 關鍵修正：日期 Header 放在 Section header
@@ -240,11 +170,11 @@ struct TripListView: View {
                                         group: group,
                                         onDuplicate: {
                                             viewModel.duplicateDayTrips(from: group.date)
-                                            showToast(message: "已複製 \(group.date) 行程到今日")
+                                            showToast(message: localizationManager.localizedFormat("copied_day", group.date))
                                         },
                                         onDelete: {
                                             viewModel.deleteDayTrips(on: group.date)
-                                            showToast(message: "已刪除 \(group.date) 行程")
+                                            showToast(message: localizationManager.localizedFormat("deleted_day", group.date))
                                         }
                                     )
                                         .frame(maxWidth: .infinity)
@@ -274,7 +204,7 @@ struct TripListView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "plus")
                                 .font(.system(size: 20, weight: .bold))
-                            Text("記一筆")
+                            Text(localizationManager.localized("addTrip_btn"))
                                 .font(.system(size: 18, weight: .bold))
                         }
                         .foregroundColor(.white)
@@ -315,14 +245,14 @@ struct TripListView: View {
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showAddTripSheet) {
                 AddTripView(onSuccess: {
-                    showToast(message: "行程已新增")
+                    showToast(message: localizationManager.localized("trip_added"))
                 })
             }
             .sheet(isPresented: $showFavoritesSheet) {
                 FavoritesManagementView(onQuickAdd: { routeName in
-                    showToast(message: "已新增：\(routeName)")
+                    showToast(message: localizationManager.localizedFormat("favorites_added", routeName))
                 }, onQuickAddCommuter: { routeName in
-                    showToast(message: "已新增通勤：\(routeName)")
+                    showToast(message: localizationManager.localizedFormat("favorites_added_commuter", routeName))
                 })
             }
             .sheet(item: $selectedTripToEdit) { trip in
@@ -330,68 +260,62 @@ struct TripListView: View {
                     .presentationDetents([.height(650)])
                     .presentationDragIndicator(.hidden)
             }
-            .alert("複製整日", isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
-                Button("取消", role: .cancel) { pendingDuplicateDate = nil }
-                Button("複製整日") {
+            .alert(localizationManager.localized("duplicate_day"), isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
+                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDuplicateDate = nil }
+                Button(localizationManager.localized("duplicate_day")) {
                     if let date = pendingDuplicateDate {
                         viewModel.duplicateDayTrips(from: date)
-                        showToast(message: "已複製 \(date) 行程到今日")
+                        showToast(message: localizationManager.localizedFormat("copied_day", date))
                     }
                     pendingDuplicateDate = nil
                 }
             } message: {
                 if let date = pendingDuplicateDate {
-                    Text("確定要複製 \(date) 的整日行程？")
+                    Text(localizationManager.localizedFormat("confirm_duplicate", date))
                 }
             }
-            .alert("刪除整日", isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
-                Button("取消", role: .cancel) { pendingDeleteDate = nil }
-                Button("刪除整日", role: .destructive) {
+            .alert(localizationManager.localized("delete_day"), isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
+                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDeleteDate = nil }
+                Button(localizationManager.localized("delete_day"), role: .destructive) {
                     if let date = pendingDeleteDate {
                         viewModel.deleteDayTrips(on: date)
-                        showToast(message: "已刪除 \(date) 行程")
+                        showToast(message: localizationManager.localizedFormat("deleted_day", date))
                     }
                     pendingDeleteDate = nil
                 }
             } message: {
                 if let date = pendingDeleteDate {
-                    Text("確定要刪除 \(date) 的整日行程？")
+                    Text(localizationManager.localizedFormat("confirm_delete_day", date))
                 }
             }
-            .alert("加入通勤路線", isPresented: $showCommuterNamePrompt) {
-                TextField("例如：去公司", text: $commuterRouteName)
-                Button("取消", role: .cancel) {
+            .alert(localizationManager.localized("choose_commuter"), isPresented: $showCommuterNamePrompt) {
+                TextField(localizationManager.localized("commuter_name_placeholder"), text: $commuterRouteName)
+                Button(localizationManager.localized("cancel"), role: .cancel) {
                     pendingCommuterTrip = nil
                     commuterRouteName = ""
                 }
-                Button("加入") {
+                Button(localizationManager.localized("add_commuter")) {
                     let trimmed = commuterRouteName.trimmingCharacters(in: .whitespacesAndNewlines)
                     if let trip = pendingCommuterTrip, !trimmed.isEmpty {
                         viewModel.addToCommuterRoute(from: trip, name: trimmed)
-                        showToast(message: "已加入通勤：\(trimmed)")
+                        showToast(message: localizationManager.localizedFormat("commuter_added", trimmed))
                     }
                     pendingCommuterTrip = nil
                     commuterRouteName = ""
                 }
             } message: {
-                Text("請輸入通勤路線名稱")
+                Text(localizationManager.localized("commuter_name_prompt"))
             }
             
         }
         .onAppear {
-            if let user = auth.currentUser {
-                viewModel.start(userId: user.id)
-                if viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
-                    viewModel.selectedCycle = firstCycle
-                }
+            if let user = auth.currentUser, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
+                viewModel.selectedCycle = firstCycle
             }
         }
         .onChange(of: auth.currentUser) { user in
-            if let user = user {
-                viewModel.start(userId: user.id)
-                if viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
-                    viewModel.selectedCycle = firstCycle
-                }
+            if let user = user, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
+                viewModel.selectedCycle = firstCycle
             }
         }
     }
@@ -407,12 +331,101 @@ struct TripListView: View {
     }
     
     @ViewBuilder
+    private func tripRowWithActions(_ trip: Trip) -> some View {
+        Button {
+            selectedTripToEdit = trip
+        } label: {
+            TripRowView(trip: trip)
+        }
+        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .padding(.vertical, 4)
+        .buttonStyle(StaticButtonStyle())
+        .contextMenu {
+            tripContextMenuContent(trip: trip)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            tripTrailingSwipeAction(trip)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            tripLeadingSwipeActions(trip)
+        }
+    }
+    
+    @ViewBuilder
+    private func tripTrailingSwipeAction(_ trip: Trip) -> some View {
+        Button(role: .destructive) {
+            viewModel.deleteTrip(trip)
+            showToast(message: localizationManager.localized("trip_deleted"))
+        } label: {
+            Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+        }
+        .tint(.red)
+    }
+    
+    @ViewBuilder
+    private func tripLeadingSwipeActions(_ trip: Trip) -> some View {
+        Button {
+            guard !isProcessingSwipeAction else { return }
+            isProcessingSwipeAction = true
+            let wasTransfer = trip.isTransfer
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                var tx = Transaction(animation: nil)
+                withTransaction(tx) {
+                    viewModel.toggleTransfer(trip)
+                }
+                showToast(message: wasTransfer ? localizationManager.localized("transfer_cancelled") : localizationManager.localized("transfer_added"))
+                isProcessingSwipeAction = false
+            }
+        } label: {
+            Label(trip.isTransfer ? localizationManager.localized("cancel_transfer") : localizationManager.localized("add_transfer"), systemImage: trip.isTransfer ? "link.badge.plus" : "link")
+        }
+        .tint(themeManager.accentColor)
+        .disabled(isProcessingSwipeAction)
+        
+        Button {
+            guard !isProcessingSwipeAction else { return }
+            isProcessingSwipeAction = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                var tx = Transaction(animation: nil)
+                withTransaction(tx) {
+                    viewModel.duplicateTrip(trip)
+                }
+                showToast(message: localizationManager.localized("trip_duplicated"))
+                isProcessingSwipeAction = false
+            }
+        } label: {
+            Label(localizationManager.localized("duplicate_trip"), systemImage: "doc.on.doc.fill")
+        }
+        .tint(themeManager.accentColor)
+        .disabled(isProcessingSwipeAction)
+        
+        Button {
+            guard !isProcessingSwipeAction else { return }
+            isProcessingSwipeAction = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                var tx = Transaction(animation: nil)
+                withTransaction(tx) {
+                    viewModel.createReturnTrip(trip)
+                }
+                showToast(message: localizationManager.localized("trip_added"))
+                isProcessingSwipeAction = false
+            }
+        } label: {
+            Label(localizationManager.localized("return_trip"), systemImage: "arrow.uturn.backward")
+        }
+        .tint(themeManager.accentColor)
+        .disabled(isProcessingSwipeAction)
+    }
+    
+    @ViewBuilder
     func tripContextMenuContent(trip: Trip) -> some View {
         Button {
             viewModel.addToFavorites(from: trip)
-            showToast(message: "已加入常用路線")
+            showToast(message: localizationManager.localized("favorite_route_added"))
         } label: {
-            Label("加入常用路線", systemImage: "star")
+            Label(localizationManager.localized("add_to_favorites"), systemImage: "star")
         }
         
         Button {
@@ -424,39 +437,39 @@ struct TripListView: View {
                 showCommuterRoutePicker = true
             }
         } label: {
-            Label("加入通勤路線", systemImage: "briefcase.fill")
+            Label(localizationManager.localized("add_to_commuter"), systemImage: "briefcase.fill")
         }
         
         Divider()
         
         Button {
             viewModel.toggleTransfer(trip)
-            showToast(message: trip.isTransfer ? "已取消轉乘" : "已標記轉乘")
+            showToast(message: trip.isTransfer ? localizationManager.localized("transfer_cancelled") : localizationManager.localized("transfer_added"))
         } label: {
-            Label(trip.isTransfer ? "取消轉乘" : "補轉乘", systemImage: trip.isTransfer ? "link.badge.minus" : "link")
+            Label(trip.isTransfer ? localizationManager.localized("cancel_transfer") : localizationManager.localized("add_transfer"), systemImage: trip.isTransfer ? "link.badge.minus" : "link")
         }
         
         Button {
             viewModel.duplicateTrip(trip)
-            showToast(message: "已複製行程")
+            showToast(message: localizationManager.localized("trip_duplicated"))
         } label: {
-            Label("複製", systemImage: "doc.on.doc.fill")
+            Label(localizationManager.localized("duplicate_trip"), systemImage: "doc.on.doc.fill")
         }
         
         Button {
             viewModel.createReturnTrip(trip)
-            showToast(message: "已新增回程")
+            showToast(message: localizationManager.localized("trip_added"))
         } label: {
-            Label("回程", systemImage: "arrow.uturn.backward")
+            Label(localizationManager.localized("return_trip"), systemImage: "arrow.uturn.backward")
         }
         
         Divider()
         
         Button(role: .destructive) {
             viewModel.deleteTrip(trip)
-            showToast(message: "已刪除行程")
+            showToast(message: localizationManager.localized("trip_deleted"))
         } label: {
-            Label("刪除", systemImage: "trash.fill")
+            Label(localizationManager.localized("delete"), systemImage: "trash.fill")
         }
     }
 }
@@ -467,6 +480,7 @@ struct CycleSelectorView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     
     var cardBackground: Color {
@@ -485,8 +499,8 @@ struct CycleSelectorView: View {
     var body: some View {
         Menu {
             Button { viewModel.selectedCycle = nil } label: {
-                if viewModel.selectedCycle == nil { Label("本月週期 (自動)", systemImage: "checkmark") }
-                else { Text("本月週期 (自動)") }
+                if viewModel.selectedCycle == nil { Label(localizationManager.localized("currentCycleAuto"), systemImage: "checkmark") }
+                else { Text(localizationManager.localized("currentCycleAuto")) }
             }
             Divider()
             if let cycles = auth.currentUser?.cycles {
@@ -524,6 +538,7 @@ struct CycleSelectorView: View {
 
 struct DailyHeaderView: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     let group: DailyTripGroup
     let onDuplicate: () -> Void
@@ -571,16 +586,16 @@ struct DailyHeaderView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(StaticButtonStyle())
-                .confirmationDialog("整日操作", isPresented: $showActions, titleVisibility: .visible) {
-                    Button("複製整日") {
+                .confirmationDialog(localizationManager.localized("day_actions_title"), isPresented: $showActions, titleVisibility: .visible) {
+                    Button(localizationManager.localized("duplicate_day")) {
                         onDuplicate()
                     }
-                    Button("刪除整日", role: .destructive) {
+                    Button(localizationManager.localized("delete_day"), role: .destructive) {
                         onDelete()
                     }
-                    Button("取消", role: .cancel) { }
+                    Button(localizationManager.localized("cancel"), role: .cancel) { }
                 } message: {
-                    Text("要對 \(group.date) 做什麼？")
+                    Text(localizationManager.localizedFormat("day_actions", group.date))
                 }
             }
             .padding(.horizontal, 20).padding(.vertical, 8)
@@ -594,6 +609,7 @@ struct DailyHeaderView: View {
 
 struct TripRowView: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     let trip: Trip
     
     var body: some View {
@@ -617,7 +633,7 @@ struct TripRowView: View {
                     
                     let details = [
                         trip.routeId.isEmpty ? nil : trip.routeId,
-                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(trip.startStation) → \(trip.endStation)"
+                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(StationData.shared.displayStationName(trip.startStation, languageCode: localizationManager.currentLanguage.rawValue)) → \(StationData.shared.displayStationName(trip.endStation, languageCode: localizationManager.currentLanguage.rawValue))"
                     ].compactMap { $0 }.joined(separator: " ")
                     
                     if !details.isEmpty {
@@ -638,10 +654,10 @@ struct TripRowView: View {
                         .foregroundColor(themeManager.secondaryTextColor)
                     
                     if trip.isFree {
-                        TagView(icon: "dollarsign.circle.fill", text: "免費", color: .green)
+                        TagView(icon: "dollarsign.circle.fill", text: localizationManager.localized("free_trip"), color: .green)
                     }
                     if trip.isTransfer {
-                        TagView(icon: "link", text: "轉乘", color: themeManager.accentColor)
+                        TagView(icon: "link", text: localizationManager.localized("transfer"), color: themeManager.accentColor)
                     }
                     if !trip.note.isEmpty {
                         TagView(icon: "note.text", text: "", color: .orange)
@@ -657,7 +673,10 @@ struct TripRowView: View {
                     .bold()
                     .foregroundColor(trip.paidPrice == 0 ? themeManager.accentColor : themeManager.primaryTextColor)
                 if trip.paidPrice != trip.originalPrice {
-                    Text("原價 $\(trip.originalPrice)").font(.caption2).strikethrough().foregroundColor(themeManager.secondaryTextColor)
+                    Text("\(localizationManager.localized("original_price_label")) $\(trip.originalPrice)")
+                        .font(.caption2)
+                        .strikethrough()
+                        .foregroundColor(themeManager.secondaryTextColor)
                 }
             }
         }

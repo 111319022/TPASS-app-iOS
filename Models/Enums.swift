@@ -8,15 +8,17 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     
     var displayName: String {
+        let key: String
         switch self {
-        case .mrt: return "北捷"
-        case .bus: return "公車"
-        case .coach: return "客運"
-        case .tra: return "台鐵"
-        case .tymrt: return "機捷"
-        case .lrt: return "輕軌"
-        case .bike: return "Ubike"
+        case .mrt: key = "mrt"
+        case .bus: key = "bus"
+        case .coach: key = "coach"
+        case .tra: key = "tra"
+        case .tymrt: key = "tymrt"
+        case .lrt: key = "lrt"
+        case .bike: key = "bike"
         }
+        return LocalizationManager.shared.localized(key)
     }
     
     var color: Color {
@@ -50,10 +52,7 @@ enum Identity: String, Codable, CaseIterable {
     case student = "student"
     
     var label: String {
-        switch self {
-        case .adult: return "全票"
-        case .student: return "學生"
-        }
+        LocalizationManager.shared.localized("identity_\(rawValue)")
     }
     
     var transferDiscount: Int {

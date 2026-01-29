@@ -57,8 +57,8 @@ class NotificationManager: ObservableObject {
         guard enabled else { return }
         
         let content = UNMutableNotificationContent()
-        content.title = "今天搭車了嗎？🚌"
-        content.body = "記得記錄今天的行程，看看離回本還有多遠！"
+        content.title = LocalizationManager.shared.localized("notification_daily_title")
+        content.body = LocalizationManager.shared.localized("notification_daily_body")
         content.sound = .default
         
         let calendar = Calendar.current
@@ -89,8 +89,8 @@ class NotificationManager: ObservableObject {
         // 1. 到期前 3 天提醒
         if let threeDaysBefore = calendar.date(byAdding: .day, value: -3, to: endDate), threeDaysBefore > Date() {
             let content = UNMutableNotificationContent()
-            content.title = "TPASS 即將到期 📅"
-            content.body = "您的定期票將在 3 天後到期，記得評估是否續購喔！"
+            content.title = LocalizationManager.shared.localized("notification_cycle_expiring_title")
+            content.body = LocalizationManager.shared.localized("notification_cycle_expiring_body")
             content.sound = .default
             
             // 設定在早上 9:00 提醒
@@ -105,8 +105,8 @@ class NotificationManager: ObservableObject {
         // 邏輯：到期隔天早上提醒使用者設定新週期
         if let dayAfterEnd = calendar.date(byAdding: .day, value: 1, to: endDate), dayAfterEnd > Date() {
             let content = UNMutableNotificationContent()
-            content.title = "新的週期開始了！🚀"
-            content.body = "如果您已續購 TPASS，請記得在 App 內設定新週期，開始新的回本挑戰！"
+            content.title = LocalizationManager.shared.localized("notification_cycle_new_title")
+            content.body = LocalizationManager.shared.localized("notification_cycle_new_body")
             content.sound = .default
             
             // 設定在早上 8:30 提醒

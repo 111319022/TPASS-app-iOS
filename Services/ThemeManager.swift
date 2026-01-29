@@ -4,12 +4,41 @@ import UIKit // 🔥 必須引入
 
 // MARK: - 主題定義
 enum AppTheme: String, CaseIterable, Identifiable {
-    case system = "跟隨系統"
-    case light = "淺色模式"
-    case dark = "深色模式"
-    case muji = "暖色風格"
+    case system = "system"
+    case light = "light"
+    case dark = "dark"
+    case muji = "muji"
+
+    // 相容舊版（曾以中文 rawValue 持久化）
+    init?(rawValue: String) {
+        switch rawValue {
+        case "system", "跟隨系統":
+            self = .system
+        case "light", "淺色模式":
+            self = .light
+        case "dark", "深色模式":
+            self = .dark
+        case "muji", "暖色風格":
+            self = .muji
+        default:
+            return nil
+        }
+    }
     
     var id: String { self.rawValue }
+
+    var localizationKey: String {
+        switch self {
+        case .system: return "theme_system"
+        case .light: return "theme_light"
+        case .dark: return "theme_dark"
+        case .muji: return "theme_muji"
+        }
+    }
+
+    var displayName: String {
+        LocalizationManager.shared.localized(localizationKey)
+    }
 }
 
 // MARK: - 主題管理器

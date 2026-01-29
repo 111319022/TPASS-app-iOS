@@ -6,21 +6,18 @@ import SwiftData
 struct TPASS_app_iOSApp: App {
     @StateObject var authService = AuthService.shared
     @StateObject var appViewModel = AppViewModel()
-    
-    // 🔥 引入 ThemeManager
     @StateObject var themeManager = ThemeManager.shared
+    @StateObject var localizationManager = LocalizationManager.shared
     
     // 🔥 設定 SwiftData ModelContainer
     let modelContainer: ModelContainer
     
     init() {
         do {
-            // 先禁用 CloudKit 自動同步，只使用本地儲存
+            // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
+            let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false, cloudKitDatabase: .none)
-            modelContainer = try ModelContainer(
-                for: TripModel.self, FavoriteRouteModel.self, UserSettingsModel.self,
-                configurations: config
-            )
+            modelContainer = try ModelContainer(for: schema, configurations: config)
         } catch {
             fatalError("無法建立 ModelContainer: \(error)")
         }
@@ -39,23 +36,41 @@ struct TPASS_app_iOSApp: App {
             }
             .environmentObject(authService)
             .environmentObject(appViewModel)
-            .environmentObject(themeManager) // 🔥 注入環境變數
-            // 🔥 關鍵：強制套用 Light/Dark/Muji 模式
+            .environmentObject(themeManager)
+            .environmentObject(localizationManager)
             .preferredColorScheme(themeManager.colorScheme)
-            // 🔥 嘗試將強調色套用到全域 (影響 TabBar, NavigationBar 等)
             .accentColor(themeManager.accentColor)
             .animation(.easeInOut(duration: 0.25), value: authService.isRestoringSession)
             .animation(.easeInOut(duration: 0.25), value: authService.isSignedIn)
-            // 🔔 首次登入成功後請求通知權限（只詢問一次）
+            
+            // 2. 監聽登入狀態並啟動 ViewModel + 執行遷移
             .onChange(of: authService.isSignedIn) { signedIn in
-                guard signedIn else { return }
-                let key = "didPromptNotificationPermission"
-                if !UserDefaults.standard.bool(forKey: key) {
-                    NotificationManager.shared.requestAuthorization()
-                    UserDefaults.standard.set(true, forKey: key)
+                if signedIn, let userId = authService.currentUser?.id {
+                    // 登入成功時，傳入 Context 讓 ViewModel 開始搬資料
+                    Task { @MainActor in
+                        appViewModel.start(modelContext: modelContainer.mainContext, userId: userId)
+                    }
+                    
+                    // 處理通知權限
+                    let key = "didPromptNotificationPermission"
+                    if !UserDefaults.standard.bool(forKey: key) {
+                        NotificationManager.shared.requestAuthorization()
+                        UserDefaults.standard.set(true, forKey: key)
+                    }
                 }
             }
-            .modelContainer(modelContainer) // 🔥 注入 SwiftData
+            
+            // 3. 處理自動登入的情況
+            .onAppear {
+                if authService.isSignedIn, let userId = authService.currentUser?.id {
+                    Task { @MainActor in
+                        appViewModel.start(modelContext: modelContainer.mainContext, userId: userId)
+                    }
+                }
+            }
+            
+            // 4. 注入容器
+            .modelContainer(modelContainer)
         }
     }
 }

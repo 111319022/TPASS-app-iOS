@@ -5,7 +5,8 @@ import CloudKit
 struct BackupManagementView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var appViewModel: AppViewModel
-    @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var cloudKitService = CloudKitSyncService.shared
 
     @State private var isLoadingBackups = false
@@ -34,9 +35,9 @@ struct BackupManagementView: View {
     var body: some View {
         Form {
             // MARK: - 上傳備份區塊
-            Section(header: Text("上傳本地數據到 iCloud")) {
+            Section(header: Text(localizationManager.localized("backup_upload_section_title"))) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("將目前的行程、常用路線與週期備份到 iCloud")
+                    Text(localizationManager.localized("backup_upload_section_desc"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
@@ -51,7 +52,7 @@ struct BackupManagementView: View {
                                 Image(systemName: "arrow.up.circle.fill")
                                     .foregroundColor(.blue)
                             }
-                            Text("立即上傳備份")
+                            Text(localizationManager.localized("backup_upload_now"))
                                 .font(.headline)
                                 .foregroundColor(themeManager.primaryTextColor)
                             Spacer()
@@ -65,7 +66,7 @@ struct BackupManagementView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                                 .font(.caption)
-                            Text("最後上傳：\(formatDate(lastSync))")
+                            Text(localizationManager.localizedFormat("backup_last_upload", formatDate(lastSync)))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -76,7 +77,7 @@ struct BackupManagementView: View {
             
             // MARK: - 下載備份區塊
             Section(header: HStack {
-                Text("從 iCloud 恢復備份")
+                Text(localizationManager.localized("backup_restore_section_title"))
                 Spacer()
                 if isLoadingBackups {
                     ProgressView()
@@ -125,7 +126,7 @@ struct BackupManagementView: View {
                                     HStack {
                                         Image(systemName: "arrow.down.circle.fill")
                                             .foregroundColor(.green)
-                                        Text("恢復")
+                                        Text(localizationManager.localized("backup_restore"))
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
@@ -143,7 +144,7 @@ struct BackupManagementView: View {
                                     HStack {
                                         Image(systemName: "trash.fill")
                                             .foregroundColor(.red)
-                                        Text("刪除")
+                                        Text(localizationManager.localized("delete"))
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
@@ -162,28 +163,28 @@ struct BackupManagementView: View {
             }
             
             // MARK: - 備份說明
-            Section(footer: Text("• 上傳：將本地數據備份到 iCloud\n• 恢復：選擇 iCloud 上的備份版本還原本地數據\n• 所有操作均為手動執行，不會自動同步")) {
+            Section(footer: Text(localizationManager.localized("backup_footer"))) {
                 EmptyView()
             }
         }
-        .navigationTitle("備份管理")
+        .navigationTitle(localizationManager.localized("backup_nav_title"))
         .navigationBarTitleDisplayMode(.inline)
         .background(themeManager.backgroundColor)
         .scrollContentBackground(.hidden)
         .sheet(isPresented: $showUploadConfirm) {
             VStack(spacing: 16) {
                 Capsule().frame(width: 40, height: 5).foregroundColor(.secondary.opacity(0.3))
-                Text("上傳備份到 iCloud")
+                Text(localizationManager.localized("backup_sheet_title"))
                     .font(.title3.bold())
                     .foregroundColor(themeManager.primaryTextColor)
-                Text("將上傳 \(getCurrentDataSummary())")
+                Text(localizationManager.localizedFormat("backup_sheet_desc", getCurrentDataSummary()))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                 HStack(spacing: 12) {
-                    Label("\(tripCount) 行程", systemImage: "figure.walk")
-                    Label("\(favoriteCount) 常用路線", systemImage: "star.fill")
-                    Label("\(cycleCount) 週期", systemImage: "calendar")
+                    Label(localizationManager.localizedFormat("backup_trip_count", tripCount), systemImage: "figure.walk")
+                    Label(localizationManager.localizedFormat("backup_favorite_count", favoriteCount), systemImage: "star.fill")
+                    Label(localizationManager.localizedFormat("backup_cycle_count", cycleCount), systemImage: "calendar")
                 }
                 .font(.footnote)
                 .foregroundColor(.secondary)
@@ -192,7 +193,7 @@ struct BackupManagementView: View {
                     showUploadConfirm = false
                     Task { await performUpload() }
                 } label: {
-                    Text("上傳")
+                    Text(localizationManager.localized("backup_upload"))
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -200,7 +201,7 @@ struct BackupManagementView: View {
                         .background(themeManager.accentColor)
                         .cornerRadius(12)
                 }
-                Button("取消", role: .cancel) {
+                Button(localizationManager.localized("cancel"), role: .cancel) {
                     showUploadConfirm = false
                 }
                 .foregroundColor(.secondary)
@@ -214,9 +215,9 @@ struct BackupManagementView: View {
             switch action {
             case .restore(let backupId):
                 return Alert(
-                    title: Text("確認恢復"),
-                    message: Text("恢復後會清除目前裝置上的資料並以此備份覆蓋，請先確認本機最新資料已備份"),
-                    primaryButton: .destructive(Text("確認恢復")) {
+                    title: Text(localizationManager.localized("backup_confirm_restore_title")),
+                    message: Text(localizationManager.localized("backup_confirm_restore_message")),
+                    primaryButton: .destructive(Text(localizationManager.localized("backup_confirm_restore_action"))) {
                         Task { await performRestore(backupId: backupId) }
                     },
                     secondaryButton: .cancel()
@@ -224,22 +225,22 @@ struct BackupManagementView: View {
                 
             case .delete(let backupId):
                 return Alert(
-                    title: Text("確認刪除"),
-                    message: Text("此操作將永久刪除 iCloud 上的備份，無法恢復"),
-                    primaryButton: .destructive(Text("確認刪除")) {
+                    title: Text(localizationManager.localized("backup_confirm_delete_title")),
+                    message: Text(localizationManager.localized("backup_confirm_delete_message")),
+                    primaryButton: .destructive(Text(localizationManager.localized("backup_confirm_delete_action"))) {
                         Task { await performDelete(backupId: backupId) }
                     },
                     secondaryButton: .cancel()
                 )
             }
         }
-        .alert(successTitle.isEmpty ? "操作成功" : successTitle, isPresented: $showSuccessAlert) {
-            Button("確定") {}
+        .alert(successTitle.isEmpty ? localizationManager.localized("backup_operation_success") : successTitle, isPresented: $showSuccessAlert) {
+            Button(localizationManager.localized("confirm")) {}
         } message: {
             Text(successMessage)
         }
-        .alert("操作失敗", isPresented: $showErrorAlert) {
-            Button("確定") {}
+        .alert(localizationManager.localized("backup_operation_failed"), isPresented: $showErrorAlert) {
+            Button(localizationManager.localized("confirm")) {}
         } message: {
             Text(errorMessage)
         }
@@ -264,7 +265,7 @@ struct BackupManagementView: View {
     }
     
     private func getCurrentDataSummary() -> String {
-        "\(tripCount) 筆行程、\(favoriteCount) 個常用路線、\(cycleCount) 個週期"
+        localizationManager.localizedFormat("backup_summary", tripCount, favoriteCount, cycleCount)
     }
     
     private func loadBackupHistory() async {
@@ -302,13 +303,13 @@ struct BackupManagementView: View {
             await loadBackupHistory()
             
             await MainActor.run {
-                self.successTitle = "上傳成功"
-                self.successMessage = "備份已上傳到 iCloud\n\(getCurrentDataSummary())"
+                self.successTitle = localizationManager.localized("backup_upload_success_title")
+                self.successMessage = localizationManager.localizedFormat("backup_upload_success_message", getCurrentDataSummary())
                 self.showSuccessAlert = true
             }
         } catch {
             await MainActor.run {
-                errorMessage = "上傳失敗：\(error.localizedDescription)"
+                errorMessage = localizationManager.localizedFormat("backup_upload_failed", error.localizedDescription)
                 showErrorAlert = true
             }
         }
@@ -333,14 +334,14 @@ struct BackupManagementView: View {
                     auth.saveLocalUser()
                 }
                 
-                self.successTitle = "恢復成功"
-                self.successMessage = "備份已恢復\n行程: \(restored.trips.count)\n常用路線: \(restored.favorites.count)\n週期: \(restored.cycles.count)"
+                self.successTitle = localizationManager.localized("backup_restore_success_title")
+                self.successMessage = localizationManager.localizedFormat("backup_restore_success_message", restored.trips.count, restored.favorites.count, restored.cycles.count)
                 self.showSuccessAlert = true
             }
             print("✅ 備份恢復成功 - Trips: \(restored.trips.count), Favorites: \(restored.favorites.count), Cycles: \(restored.cycles.count)")
         } catch {
             await MainActor.run {
-                errorMessage = "❌ 恢復失敗\n\(error.localizedDescription)"
+                errorMessage = localizationManager.localizedFormat("backup_restore_failed", error.localizedDescription)
                 showErrorAlert = true
             }
             print("❌ 備份恢復失敗: \(error.localizedDescription)")
@@ -357,8 +358,8 @@ struct BackupManagementView: View {
             try await cloudKitService.deleteBackup(backupId: backupId)
             
             await MainActor.run {
-                self.successTitle = "刪除成功"
-                self.successMessage = "備份已成功刪除"
+                self.successTitle = localizationManager.localized("backup_delete_success_title")
+                self.successMessage = localizationManager.localized("backup_delete_success_message")
                 self.showSuccessAlert = true
             }
             
@@ -368,7 +369,7 @@ struct BackupManagementView: View {
             await loadBackupHistory()
         } catch {
             await MainActor.run {
-                errorMessage = "❌ 刪除失敗\n\(error.localizedDescription)"
+                errorMessage = localizationManager.localizedFormat("backup_delete_failed", error.localizedDescription)
                 showErrorAlert = true
             }
             print("❌ 備份刪除失敗: \(error.localizedDescription)")

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - 教學頁面
 struct TutorialView: View {
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     var body: some View {
         ZStack {
@@ -15,7 +16,7 @@ struct TutorialView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // 教學標題
-                    Text("行程紀錄")
+                    Text(localizationManager.localized("tutorial_trip_history_title"))
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(themeManager.primaryTextColor)
@@ -24,23 +25,23 @@ struct TutorialView: View {
                     // 教學截圖區域
                     VStack(spacing: 30) {
                         // 第一張教學圖
-                        tutorialImageCard(imageName: "tutorial_1", title: "新增資料")
+                        tutorialImageCard(imageName: "tutorial_1", title: localizationManager.localized("tutorial_card_add_data"))
                         
                         // 第二張教學圖
-                        tutorialImageCard(imageName: "tutorial_2", title: "更多功能")
+                        tutorialImageCard(imageName: "tutorial_2", title: localizationManager.localized("tutorial_card_more_features"))
                         
                         // 第三張教學圖
-                        tutorialImageCard(imageName: "tutorial_3", title: "快速刪除（左滑）")
+                        tutorialImageCard(imageName: "tutorial_3", title: localizationManager.localized("tutorial_card_quick_delete"))
                         
                         // 第四張教學圖
-                        tutorialImageCard(imageName: "tutorial_4", title: "快速新增（右滑）")
+                        tutorialImageCard(imageName: "tutorial_4", title: localizationManager.localized("tutorial_card_quick_add"))
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 40)
                 }
             }
         }
-        .navigationTitle("教學")
+        .navigationTitle(localizationManager.localized("tutorial"))
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -70,7 +71,7 @@ struct TutorialView: View {
                         Image(systemName: "photo")
                             .font(.system(size: 60))
                             .foregroundColor(.gray.opacity(0.3))
-                        Text("請上傳 \(imageName)")
+                        Text(localizationManager.localizedFormat("tutorial_upload_image", imageName))
                             .font(.caption)
                             .foregroundColor(.gray)
                     }

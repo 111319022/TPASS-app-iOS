@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 final class AuthService: NSObject, ObservableObject {
     static let shared = AuthService()
 
@@ -15,17 +16,22 @@ final class AuthService: NSObject, ObservableObject {
     
     // MARK: - 本地用戶管理
     func loadLocalUser() {
-        if let data = UserDefaults.standard.data(forKey: "local_user"),
-           let user = try? JSONDecoder().decode(User.self, from: data) {
-            DispatchQueue.main.async {
-                self.currentUser = user
-                self.isRestoringSession = false
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.isRestoringSession = false
-            }
+        print("🔐 [Auth] Restoring local session...")
+        isRestoringSession = true
+        defer { isRestoringSession = false }
+
+        guard let data = UserDefaults.standard.data(forKey: "local_user") else {
+            currentUser = nil
+            return
         }
+
+        guard let user = try? JSONDecoder().decode(User.self, from: data) else {
+            currentUser = nil
+            return
+        }
+
+        currentUser = user
+        print("🔐 [Auth] Local session restored: signedIn=\(isSignedIn)")
     }
     
     func saveLocalUser() {
@@ -42,10 +48,9 @@ final class AuthService: NSObject, ObservableObject {
             cycles: [],
             identity: identity
         )
-        DispatchQueue.main.async {
-            self.currentUser = user
-            self.saveLocalUser()
-        }
+        currentUser = user
+        saveLocalUser()
+        isRestoringSession = false
     }
     
     // MARK: - 用戶設定更新（本地保存）

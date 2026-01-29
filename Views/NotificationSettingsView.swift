@@ -5,6 +5,7 @@ import Combine
 struct NotificationSettingsView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     @StateObject private var notifManager = NotificationManager.shared
     
     // 持久化儲存設定
@@ -19,14 +20,14 @@ struct NotificationSettingsView: View {
             if !notifManager.isAuthorized {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("尚未開啟通知權限")
+                        Text(localizationManager.localized("notification_permission_title"))
                             .font(.headline)
                             .foregroundColor(.red)
-                        Text("請至 iPhone 的「設定」>「TPASS.calc」開啟通知，才能接收提醒。")
+                        Text(localizationManager.localized("notification_permission_desc"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Button("前往設定") {
+                        Button(localizationManager.localized("notification_go_to_settings")) {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }
@@ -39,8 +40,8 @@ struct NotificationSettingsView: View {
             }
             
             // 1. 每日提醒
-            Section(header: Text("每日習慣"), footer: Text("養成每日記錄的好習慣，數據更準確。")) {
-                Toggle("每日記帳提醒", isOn: $isDailyReminderEnabled)
+            Section(header: Text(localizationManager.localized("notification_daily_section_title")), footer: Text(localizationManager.localized("notification_daily_section_footer"))) {
+                Toggle(localizationManager.localized("notification_daily_toggle"), isOn: $isDailyReminderEnabled)
                     .onChange(of: isDailyReminderEnabled) { enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
@@ -49,7 +50,7 @@ struct NotificationSettingsView: View {
                     }
                 
                 if isDailyReminderEnabled {
-                    DatePicker("提醒時間", selection: $dailyReminderTime, displayedComponents: .hourAndMinute)
+                    DatePicker(localizationManager.localized("notification_daily_time"), selection: $dailyReminderTime, displayedComponents: .hourAndMinute)
                         .onChange(of: dailyReminderTime) { newTime in
                             notifManager.scheduleDailyReminder(enabled: true, time: newTime)
                         }
@@ -57,8 +58,8 @@ struct NotificationSettingsView: View {
             }
             
             // 2. 週期提醒
-            Section(header: Text("週期管理"), footer: Text("在月票到期前提醒您，並在過期後提醒設定新週期。")) {
-                Toggle("月票到期與續購提醒", isOn: $isCycleReminderEnabled)
+            Section(header: Text(localizationManager.localized("cycleManagement")), footer: Text(localizationManager.localized("notification_cycle_section_footer"))) {
+                Toggle(localizationManager.localized("notification_cycle_toggle"), isOn: $isCycleReminderEnabled)
                     .onChange(of: isCycleReminderEnabled) { enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
@@ -69,7 +70,7 @@ struct NotificationSettingsView: View {
                     }
             }
         }
-        .navigationTitle("通知設定")
+        .navigationTitle(localizationManager.localized("notification_settings_title"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CommuterRoutePickerOverlay: View {
+        @EnvironmentObject var localizationManager: LocalizationManager
     @Binding var isPresented: Bool
     @ObservedObject var viewModel: AppViewModel
     var onSelectExisting: ((String) -> Void)?
@@ -13,11 +14,11 @@ struct CommuterRoutePickerOverlay: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text("加入通勤路線")
+                Text(localizationManager.localized("choose_commuter"))
                     .font(.headline)
                     .foregroundColor(.black)
                 
-                Text("選擇現有通勤路線或新增")
+                Text(localizationManager.localized("choose_commuter_desc"))
                     .font(.caption)
                     .foregroundColor(.gray)
                 
@@ -47,7 +48,7 @@ struct CommuterRoutePickerOverlay: View {
                     onAddNew?()
                     isPresented = false
                 }) {
-                    Text("新增其他")
+                    Text(localizationManager.localized("add_other"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color(UIColor.systemBlue).opacity(0.1))
@@ -60,7 +61,7 @@ struct CommuterRoutePickerOverlay: View {
                 Button(action: {
                     isPresented = false
                 }) {
-                    Text("取消")
+                    Text(localizationManager.localized("cancel"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color(UIColor.systemGray6))

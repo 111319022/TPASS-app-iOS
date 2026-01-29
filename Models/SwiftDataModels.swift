@@ -1,13 +1,14 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
-// MARK: - Trip Model (SwiftData)
+// MARK: - 1. Trip（行程）@Model
 @Model
-final class TripModel {
-    var id: String
+final class Trip {
+    @Attribute(.unique) var id: String
     var userId: String
     var createdAt: Date
-    var typeRaw: String // TransportType.rawValue
+    var type: TransportType
     var originalPrice: Int
     var paidPrice: Int
     var isTransfer: Bool
@@ -17,11 +18,32 @@ final class TripModel {
     var routeId: String
     var note: String
     
-    init(id: String, userId: String, createdAt: Date, typeRaw: String, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String) {
+    // 計算屬性（保持與舊版相容，讓 UI 不用改）
+    @Transient var dateStr: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy/MM/dd"
+        return f.string(from: createdAt)
+    }
+    
+    @Transient var timeStr: String {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f.string(from: createdAt)
+    }
+    
+    @Transient var listDetails: String {
+        let components = [
+            routeId.isEmpty ? nil : routeId,
+            (startStation.isEmpty || endStation.isEmpty) ? nil : "\(startStation) → \(endStation)"
+        ]
+        return components.compactMap { $0 }.joined(separator: " ")
+    }
+    
+    init(id: String = UUID().uuidString, userId: String, createdAt: Date = Date(), type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String) {
         self.id = id
         self.userId = userId
         self.createdAt = createdAt
-        self.typeRaw = typeRaw
+        self.type = type
         self.originalPrice = originalPrice
         self.paidPrice = paidPrice
         self.isTransfer = isTransfer
@@ -31,50 +53,13 @@ final class TripModel {
         self.routeId = routeId
         self.note = note
     }
-    
-    // 轉換為 Trip (方便顯示)
-    func toTrip() -> Trip? {
-        guard let type = TransportType(rawValue: typeRaw) else { return nil }
-        return Trip(
-            id: id,
-            userId: userId,
-            createdAt: createdAt,
-            type: type,
-            originalPrice: originalPrice,
-            paidPrice: paidPrice,
-            isTransfer: isTransfer,
-            isFree: isFree,
-            startStation: startStation,
-            endStation: endStation,
-            routeId: routeId,
-            note: note
-        )
-    }
-    
-    // 從 Trip 創建
-    static func from(_ trip: Trip) -> TripModel {
-        return TripModel(
-            id: trip.id,
-            userId: trip.userId,
-            createdAt: trip.createdAt,
-            typeRaw: trip.type.rawValue,
-            originalPrice: trip.originalPrice,
-            paidPrice: trip.paidPrice,
-            isTransfer: trip.isTransfer,
-            isFree: trip.isFree,
-            startStation: trip.startStation,
-            endStation: trip.endStation,
-            routeId: trip.routeId,
-            note: trip.note
-        )
-    }
 }
 
-// MARK: - FavoriteRoute Model (SwiftData)
+// MARK: - 2. FavoriteRoute（常用路線）@Model
 @Model
-final class FavoriteRouteModel {
-    var id: String
-    var typeRaw: String
+final class FavoriteRoute {
+    @Attribute(.unique) var id: UUID
+    var type: TransportType
     var startStation: String
     var endStation: String
     var routeId: String
@@ -82,9 +67,19 @@ final class FavoriteRouteModel {
     var isTransfer: Bool
     var isFree: Bool
     
-    init(id: String, typeRaw: String, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool) {
+    @Transient var title: String {
+        if type == .bus || type == .coach {
+            return LocalizationManager.shared.localizedFormat("route_title_bus", routeId, type.displayName)
+        } else {
+            return "\(startStation) → \(endStation)"
+        }
+    }
+    
+    @Transient var displayTitle: String { title }
+
+    init(id: UUID = UUID(), type: TransportType, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool) {
         self.id = id
-        self.typeRaw = typeRaw
+        self.type = type
         self.startStation = startStation
         self.endStation = endStation
         self.routeId = routeId
@@ -92,46 +87,74 @@ final class FavoriteRouteModel {
         self.isTransfer = isTransfer
         self.isFree = isFree
     }
-    
-    // 轉換為 FavoriteRoute
-    func toFavoriteRoute() -> FavoriteRoute? {
-        guard let type = TransportType(rawValue: typeRaw),
-              let uuid = UUID(uuidString: id) else { return nil }
-        return FavoriteRoute(
-            id: uuid,
-            type: type,
-            startStation: startStation,
-            endStation: endStation,
-            routeId: routeId,
-            price: price,
-            isTransfer: isTransfer,
-            isFree: isFree
-        )
+}
+
+// MARK: - 3. CommuterRoute（通勤路線）@Model
+@Model
+final class CommuterRoute {
+    @Attribute(.unique) var id: UUID
+    var name: String
+    var trips: [CommuterTripTemplate]
+
+    init(id: UUID = UUID(), name: String, trips: [CommuterTripTemplate]) {
+        self.id = id
+        self.name = name
+        self.trips = trips
     }
     
-    // 從 FavoriteRoute 創建
-    static func from(_ fav: FavoriteRoute) -> FavoriteRouteModel {
-        return FavoriteRouteModel(
-            id: fav.id.uuidString,
-            typeRaw: fav.type.rawValue,
-            startStation: fav.startStation,
-            endStation: fav.endStation,
-            routeId: fav.routeId,
-            price: fav.price,
-            isTransfer: fav.isTransfer,
-            isFree: fav.isFree
-        )
+    @Transient var tripCount: Int { trips.count }
+}
+
+// MARK: - CommuterTripTemplate（通勤行程模板）Struct
+// 維持 Struct，因為它只是「模板資料」，不需要獨立存在資料庫
+struct CommuterTripTemplate: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var type: TransportType
+    var startStation: String
+    var endStation: String
+    var routeId: String
+    var price: Int
+    var isTransfer: Bool
+    var isFree: Bool
+    var note: String
+    var timeSeconds: Int
+    
+    var displayTitle: String {
+        if type == .bus || type == .coach {
+            return LocalizationManager.shared.localizedFormat("route_title_bus", routeId, type.displayName)
+        } else {
+            return "\(startStation) → \(endStation)"
+        }
+    }
+    
+    var timeString: String {
+        let h = timeSeconds / 3600
+        let m = (timeSeconds % 3600) / 60
+        let s = timeSeconds % 60
+        return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+    
+    func isSameTemplate(as other: CommuterTripTemplate) -> Bool {
+        return type == other.type &&
+        startStation == other.startStation &&
+        endStation == other.endStation &&
+        routeId == other.routeId &&
+        price == other.price &&
+        isTransfer == other.isTransfer &&
+        isFree == other.isFree &&
+        note == other.note &&
+        timeSeconds == other.timeSeconds
     }
 }
 
 // MARK: - User Settings Model (SwiftData)
 @Model
 final class UserSettingsModel {
-    var userId: String
+    @Attribute(.unique) var userId: String
     var identity: String // Identity.rawValue
-    var isCloudSyncEnabled: Bool // 🔥 用戶是否開啟 iCloud 同步
-    var hasMigratedFromFirebase: Bool // 是否已從 Firebase 遷移
-    var hasMigratedFromLocal: Bool // 是否已從本地遷移
+    var isCloudSyncEnabled: Bool
+    var hasMigratedFromFirebase: Bool
+    var hasMigratedFromLocal: Bool
     
     init(userId: String, identity: String, isCloudSyncEnabled: Bool = true, hasMigratedFromFirebase: Bool = false, hasMigratedFromLocal: Bool = false) {
         self.userId = userId

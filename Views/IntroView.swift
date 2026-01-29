@@ -2,6 +2,7 @@ import SwiftUI
 
 struct IntroView: View {
     @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var localizationManager: LocalizationManager
     @State private var currentTab = 0
     @State private var selectedIdentity: Identity = .adult
     
@@ -24,10 +25,10 @@ struct IntroView: View {
                         .tag(0)
                     
                     // Page 2~5: 功能介紹
-                    FeatureCard(icon: "bus.fill", color: Color(hex: "#d97761"), title: "通勤，也要精打細算", desc: "專為基北北桃通勤族打造。\n1200 買下去，到底有沒有回本？\n讓我們幫你算清楚。").tag(1)
-                    FeatureCard(icon: "function", color: Color(hex: "#2ecc71"), title: "智慧轉乘與優惠", desc: "自動扣除轉乘優惠 ($8/$6)。\n支援「常客優惠」階梯回饋\n與「TPASS 2.0」運具補貼計算。").tag(2)
-                    FeatureCard(icon: "calendar", color: Color(hex: "#f39c12"), title: "彈性週期設定", desc: "不限於每月 1 號！\n自訂月票啟用日，\n自動計算 30 天效期內的每一筆回饋。").tag(3)
-                    FeatureCard(icon: "chart.xyaxis.line", color: Color(hex: "#e17055"), title: "深度數據儀表板", desc: "全新推出「通勤熱力圖」與「回本競速」。\n視覺化分析您的平日/假日貢獻，\n與每一筆支出的詳細結構。").tag(4)
+                    FeatureCard(icon: "bus.fill", color: Color(hex: "#d97761"), title: localizationManager.localized("intro_feature_1_title"), desc: localizationManager.localized("intro_feature_1_desc")).tag(1)
+                    FeatureCard(icon: "function", color: Color(hex: "#2ecc71"), title: localizationManager.localized("intro_feature_2_title"), desc: localizationManager.localized("intro_feature_2_desc")).tag(2)
+                    FeatureCard(icon: "calendar", color: Color(hex: "#f39c12"), title: localizationManager.localized("intro_feature_3_title"), desc: localizationManager.localized("intro_feature_3_desc")).tag(3)
+                    FeatureCard(icon: "chart.xyaxis.line", color: Color(hex: "#e17055"), title: localizationManager.localized("intro_feature_4_title"), desc: localizationManager.localized("intro_feature_4_desc")).tag(4)
                     
                     // Page 6: 身分選擇後開始使用
                     StartCard(selectedIdentity: $selectedIdentity)
@@ -67,11 +68,13 @@ struct IntroView: View {
 
 // MARK: - 1. 歡迎卡片
 struct WelcomeCard: View {
+    @EnvironmentObject var localizationManager: LocalizationManager
+
     var body: some View {
         VStack {
             VStack(spacing: 10) {
                 Spacer()
-                Text("歡迎來到\nTPASS回本計算機")
+                Text(localizationManager.localized("intro_welcome_title"))
                     .font(.system(size: 32, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(hex: "#2c3e50"))
@@ -91,7 +94,7 @@ struct WelcomeCard: View {
                 Spacer()
                 
                 HStack {
-                    Text("滑動查看更多")
+                    Text(localizationManager.localized("intro_swipe_more"))
                     Image(systemName: "arrow.right")
                 }
                 .font(.caption).foregroundColor(Color(hex: "#7f8c8d")).opacity(0.8)
@@ -109,6 +112,7 @@ struct WelcomeCard: View {
 // MARK: - 身分選擇與開始卡片
 struct StartCard: View {
     @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var localizationManager: LocalizationManager
     @Binding var selectedIdentity: Identity
     
     var body: some View {
@@ -120,16 +124,16 @@ struct StartCard: View {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 36)).foregroundColor(.white)
                 }
                 
-                Text("開始使用")
+                Text(localizationManager.localized("intro_start_title"))
                     .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
                 
-                Text("請選擇您的票種身分\n這將影響轉乘優惠的計算")
+                Text(localizationManager.localized("intro_choose_identity_desc"))
                     .font(.subheadline).multilineTextAlignment(.center).foregroundColor(.gray)
                 
                 // 身分選擇
                 HStack(spacing: 12) {
-                    IdentityOption(type: .adult, isSelected: selectedIdentity == .adult, icon: "person.fill", title: "全票 (成人)", subtitle: "轉乘折 $8") { selectedIdentity = .adult }
-                    IdentityOption(type: .student, isSelected: selectedIdentity == .student, icon: "graduationcap.fill", title: "學生票", subtitle: "轉乘折 $6") { selectedIdentity = .student }
+                    IdentityOption(type: .adult, isSelected: selectedIdentity == .adult, icon: "person.fill", title: localizationManager.localized("intro_identity_adult_title"), subtitle: localizationManager.localizedFormat("intro_identity_transfer_discount", Identity.adult.transferDiscount)) { selectedIdentity = .adult }
+                    IdentityOption(type: .student, isSelected: selectedIdentity == .student, icon: "graduationcap.fill", title: localizationManager.localized("intro_identity_student_title"), subtitle: localizationManager.localizedFormat("intro_identity_transfer_discount", Identity.student.transferDiscount)) { selectedIdentity = .student }
                 }
                 .frame(height: 100)
                 
@@ -140,7 +144,7 @@ struct StartCard: View {
                     // 創建匿名用戶並設定身分
                     auth.createAnonymousUser(identity: selectedIdentity)
                 } label: {
-                    Text("開始使用")
+                    Text(localizationManager.localized("intro_start_button"))
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -150,7 +154,7 @@ struct StartCard: View {
                         .shadow(color: Color(hex: "#d97761").opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 
-                Text("資料將儲存在您的裝置上")
+                Text(localizationManager.localized("intro_data_stored_local"))
                     .font(.caption)
                     .foregroundColor(.gray)
             }

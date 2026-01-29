@@ -5,9 +5,10 @@ import SwiftData
 struct SettingsView: View {
     @EnvironmentObject var auth: AuthService
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var localizationManager = LocalizationManager.shared
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \TripModel.createdAt, order: .reverse) private var allTripModels: [TripModel]
-    @Query private var allFavoriteRouteModels: [FavoriteRouteModel]
+    @Query(sort: \Trip.createdAt, order: .reverse) private var allTripModels: [Trip]
+    @Query private var allFavoriteRoutes: [FavoriteRoute]
     @StateObject private var cloudKitService = CloudKitSyncService.shared
     
     @State private var showClearDataAlert = false
@@ -21,46 +22,56 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 // MARK: - 1. 外觀與風格
-                Section(header: Text("外觀與風格")) {
-                    Picker("主題選擇", selection: $themeManager.currentTheme) {
+                Section(header: Text(localizationManager.localized("appearance"))) {
+                    Picker(localizationManager.localized("theme"), selection: $themeManager.currentTheme) {
                         ForEach(AppTheme.allCases) { theme in
-                            Text(theme.rawValue).tag(theme)
+                            Text(localizationManager.localized(theme.localizationKey)).tag(theme)
                         }
                     }
                     .pickerStyle(.automatic)
                     
                     HStack {
-                        Text("目前風格預覽").foregroundColor(themeManager.primaryTextColor)
+                        Text(localizationManager.localized("currentTheme")).foregroundColor(themeManager.primaryTextColor)
                         Spacer()
                         Circle().fill(themeManager.accentColor).frame(width: 20, height: 20)
                     }
                     .padding(.vertical, 4)
                 }
                 
+                // MARK: - 語言設定
+                Section(header: Text(localizationManager.localized("language"))) {
+                    Picker(localizationManager.localized("language"), selection: $localizationManager.currentLanguage) {
+                        ForEach(Language.allCases, id: \.self) { language in
+                            Text(language.displayName).tag(language)
+                        }
+                    }
+                    .pickerStyle(.automatic)
+                }
+                
                 // MARK: - 2. TPASS 設定
-                Section(header: Text("TPASS 設定")) {
+                Section(header: Text(localizationManager.localized("tpassSettings"))) {
                     // 身分選擇
                     Picker(selection: Binding(
                         get: { auth.currentUser?.identity ?? .adult },
                         set: { auth.updateIdentity($0) }
                     )) {
                         ForEach(Identity.allCases, id: \.self) { identity in
-                            Text(identity.label).tag(identity)
+                            Text(localizationManager.localized("identity_\(identity.rawValue)")).tag(identity)
                         }
                     } label: {
                         HStack {
                             Image(systemName: "person.text.rectangle").foregroundColor(.blue)
-                            Text("票種身分")
+                            Text(localizationManager.localized("ticketType"))
                         }
                     }
                     
                     // TPASS 地區方案選擇
-                    NavigationLink(destination: TPASSRegionSelectionView()) {
+                    NavigationLink(destination: TPASSRegionSelectionView(localizationManager: localizationManager)) {
                         HStack {
                             Image(systemName: "map.circle.fill").foregroundColor(.purple)
-                            Text("TPASS 地區方案")
+                            Text(localizationManager.localized("region"))
                             Spacer()
-                            Text("基北北桃 $1,200")
+                            Text(localizationManager.localized("region_jiapei"))
                                 .foregroundColor(.secondary)
                                 .font(.subheadline)
                         }
@@ -68,14 +79,14 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - 3. 偏好設定
-                Section(header: Text("偏好設定")) {
+                Section(header: Text(localizationManager.localized("preferences"))) {
                     // 通知設定入口
                     NavigationLink(destination: NotificationSettingsView()) {
                         HStack {
                             Image(systemName: "bell.badge.circle.fill").foregroundColor(.red)
-                            Text("通知提醒")
+                            Text(localizationManager.localized("notifications"))
                             Spacer()
-                            Text(UserDefaults.standard.bool(forKey: "isDailyReminderEnabled") ? "已開啟" : "未開啟")
+                            Text(UserDefaults.standard.bool(forKey: "isDailyReminderEnabled") ? localizationManager.localized("enabled") : localizationManager.localized("disabled"))
                                 .foregroundColor(.secondary)
                                 .font(.subheadline)
                         }
@@ -83,23 +94,23 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - 4. 資料管理 (iCloud 備份)
-                Section(header: Text("資料管理 (iCloud 備份)")) {
+                Section(header: Text(localizationManager.localized("dataManagement"))) {
                     NavigationLink(destination: BackupManagementView()) {
                         HStack {
                             Image(systemName: "icloud.fill")
                                 .foregroundColor(.blue)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("管理備份")
+                                Text(localizationManager.localized("manageBackup"))
                                     .font(.headline)
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
                                 if let lastSync = cloudKitService.lastSyncDate {
-                                    Text("最後備份：\(formatDate(lastSync))")
+                                    Text(localizationManager.localized("lastBackup") + "：\(formatDate(lastSync))")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 } else {
-                                    Text("尚未備份")
+                                    Text(localizationManager.localized("neverBackup"))
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -115,9 +126,9 @@ struct SettingsView: View {
                 
                 // MARK: - 5. 週期管理
                 Section(header: HStack {
-                    Text("週期管理")
+                    Text(localizationManager.localized("cycleManagement"))
                     Spacer()
-                    Button("新增") { showAddCycleSheet = true }
+                    Button(localizationManager.localized("add")) { showAddCycleSheet = true }
                         .font(.caption)
                         .foregroundColor(themeManager.accentColor)
                 }) {
@@ -133,12 +144,12 @@ struct SettingsView: View {
                                         auth.deleteCycle(cycle)
                                     }
                                 } label: {
-                                    Label("刪除", systemImage: "trash")
+                                    Label(localizationManager.localized("delete"), systemImage: "trash")
                                 }
                             }
                         }
                     } else {
-                        Text("尚無設定週期，將使用自然月計算")
+                        Text(localizationManager.localized("noCycleSet"))
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -149,7 +160,7 @@ struct SettingsView: View {
                     NavigationLink(destination: TutorialView()) {
                         HStack {
                             Spacer()
-                            Text("教學")
+                            Text(localizationManager.localized("tutorial"))
                             Spacer()
                         }
                     }
@@ -157,10 +168,10 @@ struct SettingsView: View {
                 }
                 
                 Section {
-                    NavigationLink(destination: AboutAppView()) {
+                    NavigationLink(destination: AboutAppView(localizationManager: localizationManager)) {
                         HStack {
                             Spacer()
-                            Text("關於 App")
+                            Text(localizationManager.localized("aboutApp"))
                             Spacer()
                         }
                     }
@@ -175,39 +186,39 @@ struct SettingsView: View {
                             if isClearingData {
                                 ProgressView()
                             }
-                            Text("清除所有資料")
+                            Text(localizationManager.localized("clearAllData"))
                             Spacer()
                         }
                     }
                     .disabled(isClearingData)
                 }
             }
-            .navigationTitle("設定")
+            .navigationTitle(localizationManager.localized("settings"))
             .scrollIndicators(.hidden)
             .background(themeManager.backgroundColor)
             .scrollContentBackground(.hidden)
         }
-        .alert("確定要清除所有資料嗎？", isPresented: $showClearDataAlert) {
-            Button("取消", role: .cancel) {}
-            Button("清除", role: .destructive) {
+        .alert(localizationManager.localized("confirmClearData"), isPresented: $showClearDataAlert) {
+            Button(localizationManager.localized("cancel"), role: .cancel) {}
+            Button(localizationManager.localized("delete"), role: .destructive) {
                 Task { await clearAllData() }
             }
         } message: {
-            Text("這將清除所有行程記錄、常用路線與設定，且無法復原")
+            Text(localizationManager.localized("clearDataWarning"))
         }
         .sheet(isPresented: $showAddCycleSheet) {
             NavigationView {
                 Form {
-                    DatePicker("開始日期", selection: $newCycleStart, displayedComponents: .date)
-                    DatePicker("結束日期", selection: $newCycleEnd, displayedComponents: .date)
+                    DatePicker(localizationManager.localized("startDate"), selection: $newCycleStart, displayedComponents: .date)
+                    DatePicker(localizationManager.localized("endDate"), selection: $newCycleEnd, displayedComponents: .date)
                 }
-                .navigationTitle("新增週期")
+                .navigationTitle(localizationManager.localized("addCycle"))
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("取消") { showAddCycleSheet = false }
+                        Button(localizationManager.localized("cancel")) { showAddCycleSheet = false }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("儲存") {
+                        Button(localizationManager.localized("save")) {
                             auth.addCycle(start: newCycleStart, end: newCycleEnd)
                             
                             let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
@@ -241,7 +252,7 @@ struct SettingsView: View {
         
         // 1) 清除 SwiftData 資料
         allTripModels.forEach { modelContext.delete($0) }
-        allFavoriteRouteModels.forEach { modelContext.delete($0) }
+        allFavoriteRoutes.forEach { modelContext.delete($0) }
         if let userSettings = try? modelContext.fetch(FetchDescriptor<UserSettingsModel>()) {
             userSettings.forEach { modelContext.delete($0) }
         }
@@ -268,30 +279,31 @@ struct SettingsView: View {
 // MARK: - 關於 App 子頁面
 struct AboutAppView: View {
     @StateObject private var themeManager = ThemeManager.shared
+    let localizationManager: LocalizationManager
     
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text("版本")
+                    Text(localizationManager.localized("version"))
                     Spacer()
                     Text(appVersion)
                         .foregroundColor(.secondary)
                 }
                 HStack {
-                    Text("作者")
+                    Text(localizationManager.localized("author"))
                     Spacer()
                     Text("Raaay")
                         .foregroundColor(.secondary)
                 }
             } footer: {
-                Text("© TPASS.calc. All rights reserved.")
+                Text(localizationManager.localized("copyright"))
                     .font(.caption)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top)
             }
         }
-        .navigationTitle("關於 App")
+        .navigationTitle(localizationManager.localized("aboutAppTitle"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)
@@ -308,16 +320,17 @@ struct AboutAppView: View {
 struct TPASSRegionSelectionView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var themeManager = ThemeManager.shared
+    let localizationManager: LocalizationManager
     
     var body: some View {
         Form {
-            Section(header: Text("目前適用方案")) {
+            Section(header: Text(localizationManager.localized("current_plan"))) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("基北北桃都會通")
+                        Text(localizationManager.localized("plan_jiapei_name"))
                             .font(.headline)
                             .foregroundColor(themeManager.primaryTextColor)
-                        Text("適用範圍：基隆、台北、新北、桃園")
+                        Text(localizationManager.localized("plan_jiapei_scope"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -330,19 +343,19 @@ struct TPASSRegionSelectionView: View {
                 }
             }
             
-            Section(footer: Text("更多地區方案（如中彰投苗、南高屏）將於後續版本陸續開放，敬請期待。")) {
+            Section(footer: Text(localizationManager.localized("more_plans_footer"))) {
                 HStack {
-                    Text("其他地區")
+                    Text(localizationManager.localized("other_regions"))
                         .foregroundColor(themeManager.primaryTextColor)
                     Spacer()
-                    Text("即將推出")
+                    Text(localizationManager.localized("comingSoon"))
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
                 .opacity(0.5)
             }
         }
-        .navigationTitle("選擇地區方案")
+        .navigationTitle(localizationManager.localized("region_selection_title"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)

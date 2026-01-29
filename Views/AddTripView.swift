@@ -5,6 +5,7 @@ struct AddTripView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     
     var onSuccess: (() -> Void)? = nil
     
@@ -101,7 +102,7 @@ struct AddTripView: View {
                             
                             // 🔥 A. 路線編號：公車 OR 客運 都要顯示
                             if selectedType == .bus || selectedType == .coach {
-                                TextField("輸入路線編號 (例: \(selectedType == .bus ? "307" : "1610"))", text: $routeId)
+                                TextField(localizationManager.localizedFormat("route_example", selectedType == .bus ? "307" : "1610"), text: $routeId)
                                     .padding(12)
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
@@ -115,7 +116,7 @@ struct AddTripView: View {
                             if selectedType != .bus {
                                 VStack(spacing: 0) {
                                     StationInputRow(
-                                        label: "起點",
+                                        label: localizationManager.localized("start_point"),
                                         type: selectedType,
                                         lineCode: $startLineCode,
                                         stationName: $startStation
@@ -124,7 +125,7 @@ struct AddTripView: View {
                                     Divider().opacity(0.5).padding(.leading, 12)
                                     
                                     StationInputRow(
-                                        label: "終點",
+                                        label: localizationManager.localized("end_point"),
                                         type: selectedType,
                                         lineCode: $endLineCode,
                                         stationName: $endStation
@@ -142,7 +143,7 @@ struct AddTripView: View {
                                 Text("$")
                                     .font(.headline)
                                     .foregroundColor(themeManager.secondaryTextColor)
-                                TextField("金額", text: $price)
+                                TextField(localizationManager.localized("price_placeholder"), text: $price)
                                     .keyboardType(.numberPad)
                                     .font(.title3.bold())
                                     .foregroundColor(themeManager.primaryTextColor)
@@ -156,7 +157,7 @@ struct AddTripView: View {
                             Button(action: { isTransfer.toggle() }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: isTransfer ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
-                                    Text("轉乘 (-\(currentIdentity.transferDiscount))")
+                                    Text("\(localizationManager.localized("transfer")) (-\(currentIdentity.transferDiscount))")
                                         .font(.subheadline)
                                         .fontWeight(.bold)
                                         .lineLimit(1)
@@ -175,7 +176,7 @@ struct AddTripView: View {
                             Button(action: { isFree.toggle() }) {
                                 HStack {
                                     Image(systemName: isFree ? "gift.fill" : "gift")
-                                    Text("免費")
+                                    Text(localizationManager.localized("free_trip"))
                                         .font(.subheadline)
                                         .fontWeight(.medium)
                                 }
@@ -186,7 +187,7 @@ struct AddTripView: View {
                                 .cornerRadius(8)
                             }
                             
-                            TextField("備註 (可選)...", text: $note)
+                            TextField(localizationManager.localized("notes_placeholder_add"), text: $note)
                                 .padding(10)
                                 .background(inputBackgroundColor)
                                 .cornerRadius(8)
@@ -197,7 +198,7 @@ struct AddTripView: View {
                         
                         // MARK: - 5. 按鈕
                         Button(action: saveTrip) {
-                            Text("加入計算")
+                            Text(localizationManager.localized("submit_button"))
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -213,7 +214,7 @@ struct AddTripView: View {
                     .padding(20)
                 }
             }
-            .navigationTitle("新增行程")
+            .navigationTitle(localizationManager.localized("add_trip_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -345,6 +346,7 @@ struct StationInputRow: View {
     @Binding var lineCode: String
     @Binding var stationName: String
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     
     var body: some View {
         HStack(spacing: 0) {
@@ -357,7 +359,7 @@ struct StationInputRow: View {
                             lineCode = line.code
                             stationName = ""
                         }) {
-                            Text(line.name)
+                            Text(StationData.shared.displayLineName(line.name, languageCode: localizationManager.currentLanguage.rawValue))
                                 .foregroundColor(themeManager.primaryTextColor)
                         }
                     }
@@ -369,14 +371,14 @@ struct StationInputRow: View {
                             .padding(.leading, 12)
                         Spacer()
                         if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
-                            Text(line.name)
+                            Text(StationData.shared.displayLineName(line.name, languageCode: localizationManager.currentLanguage.rawValue))
                                 .font(.subheadline)
                                 .fontWeight(.bold)
                                 .foregroundColor(line.color)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                         } else {
-                            Text("選擇路線")
+                            Text(localizationManager.localized("select_route"))
                                 .font(.subheadline)
                                 .foregroundColor(themeManager.primaryTextColor)
                         }
@@ -396,14 +398,16 @@ struct StationInputRow: View {
                 Menu {
                     if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
                         ForEach(line.stations, id: \.self) { station in
-                            Button(station) { stationName = station }
+                            Button(action: { stationName = station }) {
+                                Text(StationData.shared.displayStationName(station, languageCode: localizationManager.currentLanguage.rawValue))
+                            }
                         }
                     } else {
-                        Text("請先選路線")
+                        Text(localizationManager.localized("select_route_first"))
                     }
                 } label: {
                     HStack {
-                        Text(stationName.isEmpty ? "選擇車站" : stationName)
+                        Text(stationName.isEmpty ? localizationManager.localized("select_station") : StationData.shared.displayStationName(stationName, languageCode: localizationManager.currentLanguage.rawValue))
                             .foregroundColor(stationName.isEmpty ? themeManager.secondaryTextColor : themeManager.primaryTextColor)
                         Spacer()
                         Image(systemName: "chevron.down")
@@ -424,7 +428,7 @@ struct StationInputRow: View {
                 
                 Divider()
                 
-                TextField("輸入\(label)站名", text: $stationName)
+                TextField(localizationManager.localizedFormat("enter_station_name", label), text: $stationName)
                     .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity)
                     .foregroundColor(themeManager.primaryTextColor)

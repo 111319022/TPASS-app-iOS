@@ -63,7 +63,7 @@ class CloudKitSyncService: ObservableObject {
         // 1) 確認 iCloud 可用
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: "iCloud 帳號不可用，請檢查登入狀態"])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable_check_signin")])
         }
         
         // 2) 使用時間戳作為備份 ID
@@ -138,7 +138,7 @@ class CloudKitSyncService: ObservableObject {
         print("📊 上傳完成 - 成功: \(successCount), 失敗: \(failCount)")
         
         if failCount > 0 {
-            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: "部分記錄上傳失敗 (\(failCount) 筆)"])
+            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localizedFormat("cloudkit_partial_upload_failed", failCount)])
         }
         
         // 7) 更新最後同步時間
@@ -155,7 +155,7 @@ class CloudKitSyncService: ObservableObject {
     func fetchBackupHistory() async throws -> [BackupRecord] {
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: "iCloud 帳號不可用"])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
         }
         
         return try await withCheckedThrowingContinuation { continuation in
@@ -227,7 +227,7 @@ class CloudKitSyncService: ObservableObject {
 
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: "iCloud 帳號不可用"])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
         }
 
         print("🔄 開始恢復備份 ID: \(backupId)")
@@ -319,7 +319,7 @@ class CloudKitSyncService: ObservableObject {
         
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: "iCloud 帳號不可用"])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
         }
         
         var recordIDsToDelete: [CKRecord.ID] = []

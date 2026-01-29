@@ -17,10 +17,7 @@
 		FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB05D3002F2203F90084F64D /* Assets.xcassets */; };
 		FB05D3062F2211430084F64D /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3052F2211410084F64D /* ThemeManager.swift */; };
 		FB05D3082F2240110084F64D /* EditTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3072F22400D0084F64D /* EditTripView.swift */; };
-		FB05D30D2F2244B80084F64D /* Trip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D30C2F2244B80084F64D /* Trip.swift */; };
 		FB05D3112F2314EE0084F64D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3102F2314EC0084F64D /* User.swift */; };
-		FB05D3132F2347660084F64D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FB05D3122F2347660084F64D /* GoogleService-Info.plist */; };
-		FB05D3152F2354480084F64D /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3142F2354400084F64D /* EditProfileView.swift */; };
 		FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3162F25B9A90084F64D /* NotificationManager.swift */; };
 		FB05D3192F25B9CC0084F64D /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */; };
 		FB0D94642F20BE2100B687D3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94632F20BE2100B687D3 /* GoogleSignIn */; };
@@ -43,6 +40,8 @@
 		FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948B2F20C4C200B687D3 /* SettingsView.swift */; };
 		FB0D94922F20E43800B687D3 /* StationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948E2F20E2D700B687D3 /* StationData.swift */; };
 		FB0D94932F20E43E00B687D3 /* FareData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948F2F20E2EC00B687D3 /* FareData.swift */; };
+		FB2B50B92F2AFBCF0087EC83 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */; };
+		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,10 +56,7 @@
 		FB05D3042F220E790084F64D /* TPASS-app-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TPASS-app-iOS.entitlements"; sourceTree = "<group>"; };
 		FB05D3052F2211410084F64D /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		FB05D3072F22400D0084F64D /* EditTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTripView.swift; sourceTree = "<group>"; };
-		FB05D30C2F2244B80084F64D /* Trip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip.swift; sourceTree = "<group>"; };
 		FB05D3102F2314EC0084F64D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		FB05D3122F2347660084F64D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		FB05D3142F2354400084F64D /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		FB05D3162F25B9A90084F64D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,6 +72,8 @@
 		FB0D948B2F20C4C200B687D3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FB0D948E2F20E2D700B687D3 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
 		FB0D948F2F20E2EC00B687D3 /* FareData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FareData.swift; sourceTree = "<group>"; };
+		FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,7 +101,6 @@
 			children = (
 				FB05D3042F220E790084F64D /* TPASS-app-iOS.entitlements */,
 				FB05D3002F2203F90084F64D /* Assets.xcassets */,
-				FB05D3122F2347660084F64D /* GoogleService-Info.plist */,
 				FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */,
 				FB0D94612F20BD5800B687D3 /* TPASS-app-iOS-Info.plist */,
 				FB0D94592F20BC7000B687D3 /* Views */,
@@ -128,7 +125,6 @@
 		FB0D94562F20BC4F00B687D3 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				FB05D30C2F2244B80084F64D /* Trip.swift */,
 				FB0D945B2F20BC9200B687D3 /* Enums.swift */,
 				FB05D3102F2314EC0084F64D /* User.swift */,
 				FB009D752F27111B00E30499 /* SwiftDataModels.swift */,
@@ -141,6 +137,7 @@
 			children = (
 				FB05D3162F25B9A90084F64D /* NotificationManager.swift */,
 				FB05D3052F2211410084F64D /* ThemeManager.swift */,
+				FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */,
 				FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */,
 				FB0D94602F20BD3800B687D3 /* AuthService.swift */,
 			);
@@ -159,7 +156,6 @@
 			isa = PBXGroup;
 			children = (
 				FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */,
-				FB05D3142F2354400084F64D /* EditProfileView.swift */,
 				FB05D2FC2F2203140084F64D /* IntroView.swift */,
 				FB0D948B2F20C4C200B687D3 /* SettingsView.swift */,
 				FB0D94892F20C34B00B687D3 /* AddTripView.swift */,
@@ -178,6 +174,7 @@
 		FB0D945A2F20BC7E00B687D3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				FBF6161D2F2B6750001D4479 /* MigrationManager.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -274,7 +271,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */,
-				FB05D3132F2347660084F64D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,7 +281,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB05D3152F2354480084F64D /* EditProfileView.swift in Sources */,
+				FB2B50B92F2AFBCF0087EC83 /* LocalizationManager.swift in Sources */,
 				FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */,
 				FB009D732F27108200E30499 /* FavoritesManagementView.swift in Sources */,
 				FB009D742F27108200E30499 /* TutorialView.swift in Sources */,
@@ -300,9 +296,9 @@
 				FB05D3112F2314EE0084F64D /* User.swift in Sources */,
 				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
 				FB0D94922F20E43800B687D3 /* StationData.swift in Sources */,
-				FB05D30D2F2244B80084F64D /* Trip.swift in Sources */,
 				FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */,
 				FB0D94932F20E43E00B687D3 /* FareData.swift in Sources */,
+				FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */,
 				FB009D762F27111B00E30499 /* SwiftDataModels.swift in Sources */,
 				FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */,
 				FB009D702F27103900E30499 /* CloudKitSyncService.swift in Sources */,
@@ -446,7 +442,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -488,7 +484,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

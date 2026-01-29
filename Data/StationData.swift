@@ -34,3 +34,180 @@ class StationData {
         ])
     ]
 }
+
+extension StationData {
+    private static func normalizedLookupKey(_ value: String) -> String {
+        value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    private static let lineNameENByZH: [String: String] = [
+        "🔵板南線": "🔵 Blue line",
+        "🔴淡水信義線": "🔴 Red Line",
+        "🟢松山新店線": "🟢 Green Line",
+        "🟠中和新蘆線": "🟠 Orange Line",
+        "🟤文湖線": "🟤 Brown Line",
+        "🟡環狀線": "🟡 Circular Line"
+    ]
+
+    // 站名採「官方譯名」(常見/官方用法)。資料層仍以中文作為 key。
+    private static let stationNameENByZH: [String: String] = [
+        // BL (Bannan)
+        "頂埔": "Dingpu",
+        "永寧": "Yongning",
+        "土城": "Tucheng",
+        "海山": "Haishan",
+        "亞東醫院": "Far Eastern Hospital",
+        "府中": "Fuzhong",
+        "板橋": "Banqiao",
+        "新埔": "Xinpu",
+        "江子翠": "Jiangzicui",
+        "龍山寺": "Longshan Temple",
+        "西門": "Ximen",
+        "台北車站": "Taipei Main Station",
+        "善導寺": "Shandao Temple",
+        "忠孝新生": "Zhongxiao Xinsheng",
+        "忠孝敦化": "Zhongxiao Dunhua",
+        "國父紀念館": "Sun Yat-Sen Memorial Hall",
+        "市政府": "Taipei City Hall",
+        "永春": "Yongchun",
+        "後山埤": "Houshanpi",
+        "昆陽": "Kunyang",
+        "南港": "Nangang",
+        "南港展覽館": "Nangang Exhibition Center",
+
+        // R (Tamsui-Xinyi)
+        "象山": "Xiangshan",
+        "台北101/世貿": "Taipei 101/World Trade Center",
+        "信義安和": "Xinyi Anhe",
+        "大安": "Daan",
+        "大安森林公園": "Daan Park",
+        "東門": "Dongmen",
+        "中正紀念堂": "Chiang Kai-Shek Memorial Hall",
+        "台大醫院": "NTU Hospital",
+        "中山": "Zhongshan",
+        "雙連": "Shuanglian",
+        "民權西路": "Minquan W. Rd.",
+        "圓山": "Yuanshan",
+        "劍潭": "Jiantan",
+        "士林": "Shilin",
+        "芝山": "Zhishan",
+        "明德": "Mingde",
+        "石牌": "Shipai",
+        "唭哩岸": "Qilian",
+        "奇岩": "Qiyan",
+        "北投": "Beitou",
+        "新北投": "Xinbeitou",
+        "復興崗": "Fuxinggang",
+        "忠義": "Zhongyi",
+        "關渡": "Guandu",
+        "竹圍": "Zhuwei",
+        "紅樹林": "Hongshulin",
+        "淡水": "Tamsui",
+
+        // G (Songshan-Xindian)
+        "新店": "Xindian",
+        "新店區公所": "Xindian District Office",
+        "七張": "Qizhang",
+        "小碧潭": "Xiaobitan",
+        "大坪林": "Dapinglin",
+        "景美": "Jingmei",
+        "萬隆": "Wanlong",
+        "公館": "Gongguan",
+        "台電大樓": "Taipower Building",
+        "古亭": "Guting",
+        "小南門": "Xiaonanmen",
+        "北門": "Beimen",
+        "松江南京": "Songjiang Nanjing",
+        "南京復興": "Nanjing Fuxing",
+        "台北小巨蛋": "Taipei Arena",
+        "南京三民": "Nanjing Sanmin",
+        "松山": "Songshan",
+
+        // O (Zhonghe-Xinlu)
+        "南勢角": "Nanshijiao",
+        "景安": "Jingan",
+        "永安市場": "Yongan Market",
+        "頂溪": "Dingxi",
+        "行天宮": "Xingtian Temple",
+        "中山國小": "Zhongshan Elementary School",
+        "大橋頭": "Daqiaotou",
+        "台北橋": "Taipei Bridge",
+        "菜寮": "Cailiao",
+        "三重": "Sanchong",
+        "先嗇宮": "Xianse Temple",
+        "頭前庄": "Touqianzhuang",
+        "新莊": "Xinzhuang",
+        "輔大": "Fu Jen University",
+        "丹鳳": "Danfeng",
+        "迴龍": "Huilong",
+        "三重國小": "Sanchong Elementary School",
+        "三和國中": "Sanhe Junior High School",
+        "徐匯中學": "St. Ignatius High School",
+        "三民高中": "Sanmin Senior High School",
+        "蘆洲": "Luzhou",
+
+        // BR (Wenhu)
+        "動物園": "Taipei Zoo",
+        "木柵": "Muzha",
+        "萬芳社區": "Wanfang Community",
+        "萬芳醫院": "Wanfang Hospital",
+        "辛亥": "Xinhai",
+        "麟光": "Linguang",
+        "六張犁": "Liuzhangli",
+        "科技大樓": "Technology Building",
+        "忠孝復興": "Zhongxiao Fuxing",
+        "中山國中": "Zhongshan Junior High School",
+        "松山機場": "Songshan Airport",
+        "大直": "Dazhi",
+        "劍南路": "Jiannan Rd.",
+        "西湖": "Xihu",
+        "港墘": "Gangqian",
+        "文德": "Wende",
+        "內湖": "Neihu",
+        "大湖公園": "Dahu Park",
+        "葫洲": "Huzhou",
+        "東湖": "Donghu",
+        "南港軟體園區": "Nangang Software Park",
+
+        // Y (Circular)
+        "十四張": "Shisizhang",
+        "秀朗橋": "Xiulang Bridge",
+        "景平": "Jingping",
+        "中和": "Zhonghe",
+        "橋和": "Qiaohe",
+        "中原": "Zhongyuan",
+        "板新": "Banxin",
+        "新埔民生": "Xinpu Minsheng",
+        "幸福": "Xingfu",
+        "新北產業園區": "New Taipei Industrial Park"
+    ]
+
+    private static let stationNameZHByEN: [String: String] = {
+        var result: [String: String] = [:]
+        for (zh, en) in stationNameENByZH {
+            result[normalizedLookupKey(en)] = zh
+        }
+        return result
+    }()
+
+    func displayLineName(_ zhLineName: String, languageCode: String? = nil) -> String {
+        let lang = languageCode ?? LocalizationManager.shared.currentLanguage.rawValue
+        guard lang.hasPrefix("en") else { return zhLineName }
+        return Self.lineNameENByZH[zhLineName] ?? zhLineName
+    }
+
+    func displayStationName(_ zhStationName: String, languageCode: String? = nil) -> String {
+        let lang = languageCode ?? LocalizationManager.shared.currentLanguage.rawValue
+        guard lang.hasPrefix("en") else { return zhStationName }
+        return Self.stationNameENByZH[zhStationName] ?? zhStationName
+    }
+
+    /// 將使用者輸入（可能是英文）正規化回中文 key，避免 fareDB 查不到。
+    func normalizeStationNameToZH(_ input: String) -> String {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return trimmed }
+        if Self.stationNameENByZH.keys.contains(trimmed) { return trimmed }
+        let normalized = Self.normalizedLookupKey(trimmed)
+        return Self.stationNameZHByEN[normalized] ?? trimmed
+    }
+}
