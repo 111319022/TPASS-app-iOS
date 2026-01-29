@@ -85,10 +85,6 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "bell.badge.circle.fill").foregroundColor(.red)
                             Text(localizationManager.localized("notifications"))
-                            Spacer()
-                            Text(UserDefaults.standard.bool(forKey: "isDailyReminderEnabled") ? localizationManager.localized("enabled") : localizationManager.localized("disabled"))
-                                .foregroundColor(.secondary)
-                                .font(.subheadline)
                         }
                     }
                 }
@@ -117,9 +113,6 @@ struct SettingsView: View {
                             }
                             
                             Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.gray.opacity(0.5))
                         }
                     }
                 }
