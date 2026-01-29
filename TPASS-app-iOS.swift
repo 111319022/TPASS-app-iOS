@@ -30,6 +30,7 @@ struct TPASS_app_iOSApp: App {
                     LaunchSplashView()
                 } else if authService.isSignedIn {
                     MainTabView()
+                        .modelContainer(modelContainer)
                 } else {
                     IntroView()
                 }
@@ -68,9 +69,6 @@ struct TPASS_app_iOSApp: App {
                     }
                 }
             }
-            
-            // 4. 注入容器
-            .modelContainer(modelContainer)
         }
     }
 }

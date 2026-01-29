@@ -126,8 +126,9 @@ class LocalizationManager: NSObject, ObservableObject {
         // 設定
         "appearance": "外觀與風格",
         "language": "語言",
-        "theme": "主題選擇",
+        "theme": "主題選擇",    
         "currentTheme": "目前風格預覽",
+        "themeChanging": "更換中...",
         
         "tpassSettings": "TPASS 設定",
         "ticketType": "票種身分",
@@ -500,6 +501,8 @@ class LocalizationManager: NSObject, ObservableObject {
         "language": "Language",
         "theme": "Theme",
         "currentTheme": "Current Theme Preview",
+        "themeChanging": "Changing...",
+
         
         "tpassSettings": "TPASS Settings",
         "ticketType": "Ticket Type",

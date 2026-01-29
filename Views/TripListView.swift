@@ -151,10 +151,9 @@ struct TripListView: View {
                             Text(localizationManager.localized("noTripsRecorded"))
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
-                                .frame(maxWidth: .infinity)
-                            Spacer()
                         }
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .multilineTextAlignment(.center)
                     } else {
                         List {
                             ForEach(viewModel.groupedTrips) { group in

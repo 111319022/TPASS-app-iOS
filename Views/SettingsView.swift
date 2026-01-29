@@ -18,12 +18,21 @@ struct SettingsView: View {
     @State private var newCycleStart = Date()
     @State private var newCycleEnd = Date().addingTimeInterval(86400 * 30)
     
+    @State private var showThemeTransition = false
+    @State private var selectedTheme: AppTheme?
+    
     var body: some View {
         NavigationView {
             Form {
                 // MARK: - 1. 外觀與風格
                 Section(header: Text(localizationManager.localized("appearance"))) {
-                    Picker(localizationManager.localized("theme"), selection: $themeManager.currentTheme) {
+                    Picker(localizationManager.localized("theme"), selection: Binding(
+                        get: { selectedTheme ?? themeManager.currentTheme },
+                        set: { newTheme in
+                            selectedTheme = newTheme
+                            triggerThemeTransition()
+                        }
+                    )) {
                         ForEach(AppTheme.allCases) { theme in
                             Text(localizationManager.localized(theme.localizationKey)).tag(theme)
                         }
@@ -191,6 +200,48 @@ struct SettingsView: View {
             .background(themeManager.backgroundColor)
             .scrollContentBackground(.hidden)
         }
+        .overlay {
+            if showThemeTransition {
+                ZStack {
+                    // 背景色 - 使用新主題的顏色
+                    Rectangle()
+                        .fill(themeManager.backgroundColor)
+                        .ignoresSafeArea()
+                    
+                    // 中心內容
+                    VStack(spacing: 20) {
+                        // 進度指示器
+                        ProgressView()
+                            .scaleEffect(1.5, anchor: .center)
+                        
+                        // 文字
+                        VStack(spacing: 8) {
+                            Text(localizationManager.localized("theme"))
+                                .font(.headline)
+                                .foregroundColor(themeManager.primaryTextColor)
+                            
+                            Text(localizationManager.localized("themeChanging"))
+                                .font(.subheadline)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
+                        
+                        // 主題色塊預覽
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(themeManager.accentColor)
+                                .frame(width: 16, height: 16)
+                            
+                            Circle()
+                                .fill(themeManager.cardBackgroundColor)
+                                .stroke(themeManager.primaryTextColor, lineWidth: 1)
+                                .frame(width: 16, height: 16)
+                        }
+                    }
+                    .padding(40)
+                }
+                .transition(.opacity)
+            }
+        }
         .alert(localizationManager.localized("confirmClearData"), isPresented: $showClearDataAlert) {
             Button(localizationManager.localized("cancel"), role: .cancel) {}
             Button(localizationManager.localized("delete"), role: .destructive) {
@@ -230,6 +281,24 @@ struct SettingsView: View {
     }
     
     // MARK: - 輔助函數
+    
+    private func triggerThemeTransition() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showThemeTransition = true
+        }
+        
+        // 在動畫中途改變主題
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            themeManager.currentTheme = selectedTheme ?? themeManager.currentTheme
+            
+            // 保持遮掩一段時間
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showThemeTransition = false
+                }
+            }
+        }
+    }
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()

@@ -20,21 +20,12 @@
 		FB05D3112F2314EE0084F64D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3102F2314EC0084F64D /* User.swift */; };
 		FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3162F25B9A90084F64D /* NotificationManager.swift */; };
 		FB05D3192F25B9CC0084F64D /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */; };
-		FB0D94642F20BE2100B687D3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94632F20BE2100B687D3 /* GoogleSignIn */; };
-		FB0D94662F20BE2100B687D3 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94652F20BE2100B687D3 /* GoogleSignInSwift */; };
-		FB0D94692F20BE4D00B687D3 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94682F20BE4D00B687D3 /* FirebaseAI */; };
-		FB0D946B2F20BE4D00B687D3 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D946A2F20BE4D00B687D3 /* FirebaseAILogic */; };
-		FB0D946D2F20BE4D00B687D3 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D946C2F20BE4D00B687D3 /* FirebaseAnalytics */; };
-		FB0D946F2F20BE4D00B687D3 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D946E2F20BE4D00B687D3 /* FirebaseAnalyticsCore */; };
-		FB0D94712F20BE4D00B687D3 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94702F20BE4D00B687D3 /* FirebaseAnalyticsIdentitySupport */; };
 		FB0D94742F20BEFB00B687D3 /* TPASS-app-iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */; };
 		FB0D94782F20BFEA00B687D3 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94602F20BD3800B687D3 /* AuthService.swift */; };
 		FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94772F20BF4500B687D3 /* MainTabView.swift */; };
 		FB0D947A2F20BFFD00B687D3 /* TripListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94762F20BF3200B687D3 /* TripListView.swift */; };
 		FB0D947C2F20C00600B687D3 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94722F20BE7500B687D3 /* AppViewModel.swift */; };
 		FB0D94812F20C01C00B687D3 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D945B2F20BC9200B687D3 /* Enums.swift */; };
-		FB0D94842F20C13A00B687D3 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94832F20C13A00B687D3 /* FirebaseFirestore */; };
-		FB0D94862F20C1C200B687D3 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FB0D94852F20C1C200B687D3 /* FirebaseAuth */; };
 		FB0D94882F20C2DB00B687D3 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94872F20C2DA00B687D3 /* DashboardView.swift */; };
 		FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94892F20C34B00B687D3 /* AddTripView.swift */; };
 		FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948B2F20C4C200B687D3 /* SettingsView.swift */; };
@@ -81,15 +72,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB0D946B2F20BE4D00B687D3 /* FirebaseAILogic in Frameworks */,
-				FB0D946F2F20BE4D00B687D3 /* FirebaseAnalyticsCore in Frameworks */,
-				FB0D94642F20BE2100B687D3 /* GoogleSignIn in Frameworks */,
-				FB0D94712F20BE4D00B687D3 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
-				FB0D94862F20C1C200B687D3 /* FirebaseAuth in Frameworks */,
-				FB0D94662F20BE2100B687D3 /* GoogleSignInSwift in Frameworks */,
-				FB0D94842F20C13A00B687D3 /* FirebaseFirestore in Frameworks */,
-				FB0D946D2F20BE4D00B687D3 /* FirebaseAnalytics in Frameworks */,
-				FB0D94692F20BE4D00B687D3 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,15 +194,6 @@
 			);
 			name = "TPASS-app-iOS";
 			packageProductDependencies = (
-				FB0D94632F20BE2100B687D3 /* GoogleSignIn */,
-				FB0D94652F20BE2100B687D3 /* GoogleSignInSwift */,
-				FB0D94682F20BE4D00B687D3 /* FirebaseAI */,
-				FB0D946A2F20BE4D00B687D3 /* FirebaseAILogic */,
-				FB0D946C2F20BE4D00B687D3 /* FirebaseAnalytics */,
-				FB0D946E2F20BE4D00B687D3 /* FirebaseAnalyticsCore */,
-				FB0D94702F20BE4D00B687D3 /* FirebaseAnalyticsIdentitySupport */,
-				FB0D94832F20C13A00B687D3 /* FirebaseFirestore */,
-				FB0D94852F20C1C200B687D3 /* FirebaseAuth */,
 			);
 			productName = "TPASS-app-iOS";
 			productReference = FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */;
@@ -252,8 +225,6 @@
 			mainGroup = FB0D943D2F20BC1600B687D3;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FB0D94622F20BE2100B687D3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FB0D94472F20BC1600B687D3 /* Products */;
@@ -442,7 +413,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -458,7 +429,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -484,7 +455,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -500,7 +471,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -538,73 +509,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		FB0D94622F20BE2100B687D3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.1.0;
-			};
-		};
-		FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.8.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		FB0D94632F20BE2100B687D3 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94622F20BE2100B687D3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
-		};
-		FB0D94652F20BE2100B687D3 /* GoogleSignInSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94622F20BE2100B687D3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignInSwift;
-		};
-		FB0D94682F20BE4D00B687D3 /* FirebaseAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAI;
-		};
-		FB0D946A2F20BE4D00B687D3 /* FirebaseAILogic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAILogic;
-		};
-		FB0D946C2F20BE4D00B687D3 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		FB0D946E2F20BE4D00B687D3 /* FirebaseAnalyticsCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalyticsCore;
-		};
-		FB0D94702F20BE4D00B687D3 /* FirebaseAnalyticsIdentitySupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalyticsIdentitySupport;
-		};
-		FB0D94832F20C13A00B687D3 /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
-		};
-		FB0D94852F20C1C200B687D3 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FB0D94672F20BE4D00B687D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FB0D943E2F20BC1600B687D3 /* Project object */;
 }

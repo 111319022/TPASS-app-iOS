@@ -72,8 +72,11 @@ class AppViewModel: ObservableObject {
     private var currentUserId: String?
     private var cancellables = Set<AnyCancellable>()
     private var hasInitialized: Bool = false
+    private var isInitializing: Bool = false
     
-    init() { }
+    init() {
+        // 不在這裡初始化任何SwiftData相關資料
+    }
     
     // ✅ 新的啟動函數：接收 Context 並載入資料（防止重複呼叫）
     @MainActor
