@@ -9,6 +9,7 @@ struct EditTripView: View {
     
     // The trip to be edited (passed in)
     let trip: Trip
+    var onSuccess: (() -> Void)? = nil
     
     // === Form State (initialized with trip data) ===
     @State private var date: Date
@@ -52,8 +53,9 @@ struct EditTripView: View {
     }
     
     // 🔥 Custom init to load existing trip data
-    init(trip: Trip) {
+    init(trip: Trip, onSuccess: (() -> Void)? = nil) {
         self.trip = trip
+        self.onSuccess = onSuccess
         _date = State(initialValue: trip.createdAt)
         _time = State(initialValue: trip.createdAt)
         _selectedType = State(initialValue: trip.type)
@@ -295,6 +297,7 @@ struct EditTripView: View {
         )
         
         viewModel.updateTrip(updatedTrip)
+        onSuccess?()
         presentationMode.wrappedValue.dismiss()
     }
     

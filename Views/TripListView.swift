@@ -242,69 +242,20 @@ struct TripListView: View {
             }
             // 關鍵修正：隱藏導航列，解決滑動跳動問題
             .toolbar(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showAddTripSheet) {
-                AddTripView(onSuccess: {
-                    showToast(message: localizationManager.localized("trip_added"))
-                })
-            }
-            .sheet(isPresented: $showFavoritesSheet) {
-                FavoritesManagementView(onQuickAdd: { routeName in
-                    showToast(message: localizationManager.localizedFormat("favorites_added", routeName))
-                }, onQuickAddCommuter: { routeName in
-                    showToast(message: localizationManager.localizedFormat("favorites_added_commuter", routeName))
-                })
-            }
-            .sheet(item: $selectedTripToEdit) { trip in
-                EditTripView(trip: trip)
-                    .presentationDetents([.height(650)])
-                    .presentationDragIndicator(.hidden)
-            }
-            .alert(localizationManager.localized("duplicate_day"), isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
-                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDuplicateDate = nil }
-                Button(localizationManager.localized("duplicate_day")) {
-                    if let date = pendingDuplicateDate {
-                        viewModel.duplicateDayTrips(from: date)
-                        showToast(message: localizationManager.localizedFormat("copied_day", date))
-                    }
-                    pendingDuplicateDate = nil
-                }
-            } message: {
-                if let date = pendingDuplicateDate {
-                    Text(localizationManager.localizedFormat("confirm_duplicate", date))
-                }
-            }
-            .alert(localizationManager.localized("delete_day"), isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
-                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDeleteDate = nil }
-                Button(localizationManager.localized("delete_day"), role: .destructive) {
-                    if let date = pendingDeleteDate {
-                        viewModel.deleteDayTrips(on: date)
-                        showToast(message: localizationManager.localizedFormat("deleted_day", date))
-                    }
-                    pendingDeleteDate = nil
-                }
-            } message: {
-                if let date = pendingDeleteDate {
-                    Text(localizationManager.localizedFormat("confirm_delete_day", date))
-                }
-            }
-            .alert(localizationManager.localized("choose_commuter"), isPresented: $showCommuterNamePrompt) {
-                TextField(localizationManager.localized("commuter_name_placeholder"), text: $commuterRouteName)
-                Button(localizationManager.localized("cancel"), role: .cancel) {
-                    pendingCommuterTrip = nil
-                    commuterRouteName = ""
-                }
-                Button(localizationManager.localized("add_commuter")) {
-                    let trimmed = commuterRouteName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if let trip = pendingCommuterTrip, !trimmed.isEmpty {
-                        viewModel.addToCommuterRoute(from: trip, name: trimmed)
-                        showToast(message: localizationManager.localizedFormat("commuter_added", trimmed))
-                    }
-                    pendingCommuterTrip = nil
-                    commuterRouteName = ""
-                }
-            } message: {
-                Text(localizationManager.localized("commuter_name_prompt"))
-            }
+            .modifier(TripListSheetsModifier(
+                showAddTripSheet: $showAddTripSheet,
+                showFavoritesSheet: $showFavoritesSheet,
+                selectedTripToEdit: $selectedTripToEdit,
+                showToast: showToast
+            ))
+            .modifier(TripListAlertsModifier(
+                pendingDuplicateDate: $pendingDuplicateDate,
+                pendingDeleteDate: $pendingDeleteDate,
+                showCommuterNamePrompt: $showCommuterNamePrompt,
+                commuterRouteName: $commuterRouteName,
+                pendingCommuterTrip: $pendingCommuterTrip,
+                showToast: showToast
+            ))
             
         }
         .onAppear {
@@ -709,5 +660,99 @@ struct StaticButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .contentShape(Rectangle())
+    }
+}
+
+// MARK: - ViewModifiers
+
+struct TripListSheetsModifier: ViewModifier {
+    @EnvironmentObject var localizationManager: LocalizationManager
+    @Binding var showAddTripSheet: Bool
+    @Binding var showFavoritesSheet: Bool
+    @Binding var selectedTripToEdit: Trip?
+    let showToast: (String) -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $showAddTripSheet) {
+                AddTripView(onSuccess: {
+                    showToast(localizationManager.localized("trip_added"))
+                })
+            }
+            .sheet(isPresented: $showFavoritesSheet) {
+                FavoritesManagementView(onQuickAdd: { routeName in
+                    showToast(localizationManager.localizedFormat("favorites_added", routeName))
+                }, onQuickAddCommuter: { routeName in
+                    showToast(localizationManager.localizedFormat("favorites_added_commuter", routeName))
+                })
+            }
+            .sheet(item: $selectedTripToEdit) { trip in
+                EditTripView(trip: trip, onSuccess: {
+                    showToast(localizationManager.localized("trip_updated"))
+                })
+                .presentationDetents([.height(650)])
+                .presentationDragIndicator(.hidden)
+            }
+    }
+}
+
+struct TripListAlertsModifier: ViewModifier {
+    @EnvironmentObject var viewModel: AppViewModel
+    @EnvironmentObject var localizationManager: LocalizationManager
+    @Binding var pendingDuplicateDate: String?
+    @Binding var pendingDeleteDate: String?
+    @Binding var showCommuterNamePrompt: Bool
+    @Binding var commuterRouteName: String
+    @Binding var pendingCommuterTrip: Trip?
+    let showToast: (String) -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .alert(localizationManager.localized("duplicate_day"), isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
+                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDuplicateDate = nil }
+                Button(localizationManager.localized("duplicate_day")) {
+                    if let date = pendingDuplicateDate {
+                        viewModel.duplicateDayTrips(from: date)
+                        showToast(localizationManager.localizedFormat("copied_day", date))
+                    }
+                    pendingDuplicateDate = nil
+                }
+            } message: {
+                if let date = pendingDuplicateDate {
+                    Text(localizationManager.localizedFormat("confirm_duplicate", date))
+                }
+            }
+            .alert(localizationManager.localized("delete_day"), isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
+                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDeleteDate = nil }
+                Button(localizationManager.localized("delete_day"), role: .destructive) {
+                    if let date = pendingDeleteDate {
+                        viewModel.deleteDayTrips(on: date)
+                        showToast(localizationManager.localizedFormat("deleted_day", date))
+                    }
+                    pendingDeleteDate = nil
+                }
+            } message: {
+                if let date = pendingDeleteDate {
+                    Text(localizationManager.localizedFormat("confirm_delete_day", date))
+                }
+            }
+            .alert(localizationManager.localized("choose_commuter"), isPresented: $showCommuterNamePrompt) {
+                TextField(localizationManager.localized("commuter_name_placeholder"), text: $commuterRouteName)
+                Button(localizationManager.localized("cancel"), role: .cancel) {
+                    pendingCommuterTrip = nil
+                    commuterRouteName = ""
+                }
+                Button(localizationManager.localized("add_commuter")) {
+                    let trimmed = commuterRouteName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if let trip = pendingCommuterTrip, !trimmed.isEmpty {
+                        viewModel.addToCommuterRoute(from: trip, name: trimmed)
+                        showToast(localizationManager.localizedFormat("commuter_added", trimmed))
+                    }
+                    pendingCommuterTrip = nil
+                    commuterRouteName = ""
+                }
+            } message: {
+                Text(localizationManager.localized("commuter_name_prompt"))
+            }
     }
 }

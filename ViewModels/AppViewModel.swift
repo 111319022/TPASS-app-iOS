@@ -668,8 +668,24 @@ class AppViewModel: ObservableObject {
     
     @MainActor
     func updateTrip(_ trip: Trip) {
-        saveContext()
-        fetchAllData()
+        guard let context = modelContext else { return }
+        let tripId = trip.id
+        let descriptor = FetchDescriptor<Trip>(predicate: #Predicate { $0.id == tripId })
+        if let original = try? context.fetch(descriptor).first {
+            original.userId = trip.userId
+            original.createdAt = trip.createdAt
+            original.type = trip.type
+            original.originalPrice = trip.originalPrice
+            original.paidPrice = trip.paidPrice
+            original.isTransfer = trip.isTransfer
+            original.isFree = trip.isFree
+            original.startStation = trip.startStation
+            original.endStation = trip.endStation
+            original.routeId = trip.routeId
+            original.note = trip.note
+            saveContext()
+            fetchAllData()
+        }
     }
     
     @MainActor
