@@ -31,7 +31,7 @@
 		FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948B2F20C4C200B687D3 /* SettingsView.swift */; };
 		FB0D94922F20E43800B687D3 /* StationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948E2F20E2D700B687D3 /* StationData.swift */; };
 		FB0D94932F20E43E00B687D3 /* FareData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948F2F20E2EC00B687D3 /* FareData.swift */; };
-		FB2B50B92F2AFBCF0087EC83 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */; };
+		FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */; };
 		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,7 +63,7 @@
 		FB0D948B2F20C4C200B687D3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FB0D948E2F20E2D700B687D3 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
 		FB0D948F2F20E2EC00B687D3 /* FareData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FareData.swift; sourceTree = "<group>"; };
-		FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,6 +85,7 @@
 				FB05D3002F2203F90084F64D /* Assets.xcassets */,
 				FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */,
 				FB0D94612F20BD5800B687D3 /* TPASS-app-iOS-Info.plist */,
+				FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */,
 				FB0D94592F20BC7000B687D3 /* Views */,
 				FB0D94582F20BC6600B687D3 /* ViewModels */,
 				FB0D94572F20BC5800B687D3 /* Services */,
@@ -119,7 +120,6 @@
 			children = (
 				FB05D3162F25B9A90084F64D /* NotificationManager.swift */,
 				FB05D3052F2211410084F64D /* ThemeManager.swift */,
-				FB2B50B82F2AFBCF0087EC83 /* LocalizationManager.swift */,
 				FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */,
 				FB0D94602F20BD3800B687D3 /* AuthService.swift */,
 			);
@@ -216,9 +216,10 @@
 				};
 			};
 			buildConfigurationList = FB0D94412F20BC1600B687D3 /* Build configuration list for PBXProject "TPASS-app-iOS" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hant";
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				"zh-Hant",
 				en,
 				Base,
 			);
@@ -241,6 +242,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */,
 				FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -252,7 +254,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB2B50B92F2AFBCF0087EC83 /* LocalizationManager.swift in Sources */,
 				FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */,
 				FB009D732F27108200E30499 /* FavoritesManagementView.swift in Sources */,
 				FB009D742F27108200E30499 /* TutorialView.swift in Sources */,
@@ -343,6 +344,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -400,6 +402,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -413,7 +416,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -455,7 +458,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

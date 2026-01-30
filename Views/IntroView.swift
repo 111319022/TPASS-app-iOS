@@ -2,7 +2,7 @@ import SwiftUI
 
 struct IntroView: View {
     @EnvironmentObject var auth: AuthService
-    @EnvironmentObject var localizationManager: LocalizationManager
+    //@EnvironmentObject var localizationManager: LocalizationManager
     @State private var currentTab = 0
     @State private var selectedIdentity: Identity = .adult
     
@@ -25,10 +25,10 @@ struct IntroView: View {
                         .tag(0)
                     
                     // Page 2~5: 功能介紹
-                    FeatureCard(icon: "bus.fill", color: Color(hex: "#d97761"), title: localizationManager.localized("intro_feature_1_title"), desc: localizationManager.localized("intro_feature_1_desc")).tag(1)
-                    FeatureCard(icon: "function", color: Color(hex: "#2ecc71"), title: localizationManager.localized("intro_feature_2_title"), desc: localizationManager.localized("intro_feature_2_desc")).tag(2)
-                    FeatureCard(icon: "calendar", color: Color(hex: "#f39c12"), title: localizationManager.localized("intro_feature_3_title"), desc: localizationManager.localized("intro_feature_3_desc")).tag(3)
-                    FeatureCard(icon: "chart.xyaxis.line", color: Color(hex: "#e17055"), title: localizationManager.localized("intro_feature_4_title"), desc: localizationManager.localized("intro_feature_4_desc")).tag(4)
+                    FeatureCard(icon: "bus.fill", color: Color(hex: "#d97761"), title: String(localized: "intro_feature_1_title"), desc: String(localized: "intro_feature_1_desc")).tag(1)
+                    FeatureCard(icon: "function", color: Color(hex: "#2ecc71"), title: String(localized: "intro_feature_2_title"), desc: String(localized: "intro_feature_2_desc")).tag(2)
+                    FeatureCard(icon: "calendar", color: Color(hex: "#f39c12"), title: String(localized: "intro_feature_3_title"), desc: String(localized: "intro_feature_3_desc")).tag(3)
+                    FeatureCard(icon: "chart.xyaxis.line", color: Color(hex: "#e17055"), title: String(localized: "intro_feature_4_title"), desc: String(localized: "intro_feature_4_desc")).tag(4)
                     
                     // Page 6: 身分選擇後開始使用
                     StartCard(selectedIdentity: $selectedIdentity)
@@ -68,13 +68,13 @@ struct IntroView: View {
 
 // MARK: - 1. 歡迎卡片
 struct WelcomeCard: View {
-    @EnvironmentObject var localizationManager: LocalizationManager
+   // @EnvironmentObject var localizationManager: LocalizationManager
 
     var body: some View {
         VStack {
             VStack(spacing: 10) {
                 Spacer()
-                Text(localizationManager.localized("intro_welcome_title"))
+                Text("intro_welcome_title")
                     .font(.system(size: 32, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(hex: "#2c3e50"))
@@ -94,7 +94,7 @@ struct WelcomeCard: View {
                 Spacer()
                 
                 HStack {
-                    Text(localizationManager.localized("intro_swipe_more"))
+                    Text("intro_swipe_more")
                     Image(systemName: "arrow.right")
                 }
                 .font(.caption).foregroundColor(Color(hex: "#7f8c8d")).opacity(0.8)
@@ -112,7 +112,7 @@ struct WelcomeCard: View {
 // MARK: - 身分選擇與開始卡片
 struct StartCard: View {
     @EnvironmentObject var auth: AuthService
-    @EnvironmentObject var localizationManager: LocalizationManager
+    //@EnvironmentObject var localizationManager: LocalizationManager
     @Binding var selectedIdentity: Identity
     
     var body: some View {
@@ -124,16 +124,16 @@ struct StartCard: View {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 36)).foregroundColor(.white)
                 }
                 
-                Text(localizationManager.localized("intro_start_title"))
+                Text("intro_start_title")
                     .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
                 
-                Text(localizationManager.localized("intro_choose_identity_desc"))
+                Text("intro_choose_identity_desc")
                     .font(.subheadline).multilineTextAlignment(.center).foregroundColor(.gray)
                 
                 // 身分選擇
                 HStack(spacing: 12) {
-                    IdentityOption(type: .adult, isSelected: selectedIdentity == .adult, icon: "person.fill", title: localizationManager.localized("intro_identity_adult_title"), subtitle: localizationManager.localizedFormat("intro_identity_transfer_discount", Identity.adult.transferDiscount)) { selectedIdentity = .adult }
-                    IdentityOption(type: .student, isSelected: selectedIdentity == .student, icon: "graduationcap.fill", title: localizationManager.localized("intro_identity_student_title"), subtitle: localizationManager.localizedFormat("intro_identity_transfer_discount", Identity.student.transferDiscount)) { selectedIdentity = .student }
+                    IdentityOption(type: .adult, isSelected: selectedIdentity == .adult, icon: "person.fill", title: "intro_identity_adult_title", subtitle: "intro_identity_transfer_discount \(Identity.adult.transferDiscount)") { selectedIdentity = .adult }
+                    IdentityOption(type: .student, isSelected: selectedIdentity == .student, icon: "graduationcap.fill", title: "intro_identity_student_title", subtitle: "intro_identity_transfer_discount \(Identity.student.transferDiscount)") { selectedIdentity = .student }
                 }
                 .frame(height: 100)
                 
@@ -144,7 +144,7 @@ struct StartCard: View {
                     // 創建匿名用戶並設定身分
                     auth.createAnonymousUser(identity: selectedIdentity)
                 } label: {
-                    Text(localizationManager.localized("intro_start_button"))
+                    Text("intro_start_button")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -154,7 +154,7 @@ struct StartCard: View {
                         .shadow(color: Color(hex: "#d97761").opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 
-                Text(localizationManager.localized("intro_data_stored_local"))
+                Text("intro_data_stored_local")
                     .font(.caption)
                     .foregroundColor(.gray)
             }
@@ -189,7 +189,12 @@ struct FeatureCard: View {
 }
 
 struct IdentityOption: View {
-    let type: Identity; let isSelected: Bool; let icon: String; let title: String; let subtitle: String; let action: () -> Void
+    let type: Identity
+    let isSelected: Bool
+    let icon: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let action: () -> Void
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {

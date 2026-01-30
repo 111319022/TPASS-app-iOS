@@ -36,6 +36,13 @@ class StationData {
 }
 
 extension StationData {
+    private static var defaultLanguageCode: String {
+        if let stored = UserDefaults.standard.string(forKey: "AppLanguage"), !stored.isEmpty {
+            return stored
+        }
+        return Locale.current.identifier
+    }
+
     private static func normalizedLookupKey(_ value: String) -> String {
         value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
@@ -191,13 +198,13 @@ extension StationData {
     }()
 
     func displayLineName(_ zhLineName: String, languageCode: String? = nil) -> String {
-        let lang = languageCode ?? LocalizationManager.shared.currentLanguage.rawValue
+        let lang = languageCode ?? Self.defaultLanguageCode
         guard lang.hasPrefix("en") else { return zhLineName }
         return Self.lineNameENByZH[zhLineName] ?? zhLineName
     }
 
     func displayStationName(_ zhStationName: String, languageCode: String? = nil) -> String {
-        let lang = languageCode ?? LocalizationManager.shared.currentLanguage.rawValue
+        let lang = languageCode ?? Self.defaultLanguageCode
         guard lang.hasPrefix("en") else { return zhStationName }
         return Self.stationNameENByZH[zhStationName] ?? zhStationName
     }

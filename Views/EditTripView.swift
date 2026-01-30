@@ -5,7 +5,6 @@ struct EditTripView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
     
     // The trip to be edited (passed in)
     let trip: Trip
@@ -134,7 +133,8 @@ struct EditTripView: View {
                         // 3. Route/Station Input
                         VStack(spacing: 0) {
                             if selectedType == .bus || selectedType == .coach {
-                                TextField(localizationManager.localizedFormat("route_example", selectedType == .bus ? "307" : "1610"), text: $routeId)
+                                let example = selectedType == .bus ? "307" : "1610"
+                                TextField("route_example \(example)", text: $routeId)
                                     .padding(12)
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
@@ -145,9 +145,9 @@ struct EditTripView: View {
                             
                             if selectedType != .bus {
                                 VStack(spacing: 0) {
-                                    StationInputRow(label: localizationManager.localized("start_point"), type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+                                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
                                     Divider().opacity(0.5).padding(.leading, 12)
-                                    StationInputRow(label: localizationManager.localized("end_point"), type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+                                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
                                 }
                             }
                         }
@@ -159,7 +159,7 @@ struct EditTripView: View {
                         HStack(spacing: 12) {
                             HStack {
                                 Text("$").font(.headline).foregroundColor(themeManager.secondaryTextColor)
-                                TextField(localizationManager.localized("price_placeholder"), text: $price)
+                                TextField("price_placeholder", text: $price)
                                     .keyboardType(.numberPad)
                                     .font(.title3.bold())
                                     .foregroundColor(themeManager.primaryTextColor)
@@ -173,7 +173,7 @@ struct EditTripView: View {
                             Button(action: { isTransfer.toggle() }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: isTransfer ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
-                                    Text("\(localizationManager.localized("transfer")) (-\(currentIdentity.transferDiscount))")
+                                    (Text("transfer") + Text(" (-\(currentIdentity.transferDiscount))"))
                                         .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
                                 }
                                 .frame(maxHeight: .infinity).padding(.horizontal, 12)
@@ -188,7 +188,7 @@ struct EditTripView: View {
                             Button(action: { isFree.toggle() }) {
                                 HStack {
                                     Image(systemName: isFree ? "gift.fill" : "gift")
-                                    Text(localizationManager.localized("free_trip"))
+                                    Text("free_trip")
                                         .font(.subheadline).fontWeight(.medium)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 10)
@@ -197,7 +197,7 @@ struct EditTripView: View {
                                 .cornerRadius(8)
                             }
                             
-                            TextField(localizationManager.localized("notes_placeholder"), text: $note)
+                            TextField("notes_placeholder", text: $note)
                                 .padding(10)
                                 .background(inputBackgroundColor)
                                 .cornerRadius(8)
@@ -208,7 +208,7 @@ struct EditTripView: View {
                         
                         // 5. Update Button
                         Button(action: updateTrip) {
-                            Text(localizationManager.localized("update_button"))
+                            Text("update_button")
                                 .font(.headline).fontWeight(.bold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -223,7 +223,7 @@ struct EditTripView: View {
                     .padding(20)
                 }
             }
-            .navigationTitle(localizationManager.localized("edit_trip_title"))
+            .navigationTitle("edit_trip_title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

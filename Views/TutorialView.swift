@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - 教學頁面
 struct TutorialView: View {
     @StateObject private var themeManager = ThemeManager.shared
-    @StateObject private var localizationManager = LocalizationManager.shared
+    //@StateObject private var localizationManager = LocalizationManager.shared
     
     var body: some View {
         ZStack {
@@ -16,7 +16,7 @@ struct TutorialView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // 教學標題
-                    Text(localizationManager.localized("tutorial_trip_history_title"))
+                    Text("tutorial_trip_history_title")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(themeManager.primaryTextColor)
@@ -25,29 +25,29 @@ struct TutorialView: View {
                     // 教學截圖區域
                     VStack(spacing: 30) {
                         // 第一張教學圖
-                        tutorialImageCard(imageName: "tutorial_1", title: localizationManager.localized("tutorial_card_add_data"))
+                        tutorialImageCard(imageName: "tutorial_1", title: "tutorial_card_add_data")
                         
                         // 第二張教學圖
-                        tutorialImageCard(imageName: "tutorial_2", title: localizationManager.localized("tutorial_card_more_features"))
+                        tutorialImageCard(imageName: "tutorial_2", title: "tutorial_card_more_features")
                         
                         // 第三張教學圖
-                        tutorialImageCard(imageName: "tutorial_3", title: localizationManager.localized("tutorial_card_quick_delete"))
+                        tutorialImageCard(imageName: "tutorial_3", title: "tutorial_card_quick_delete")
                         
                         // 第四張教學圖
-                        tutorialImageCard(imageName: "tutorial_4", title: localizationManager.localized("tutorial_card_quick_add"))
+                        tutorialImageCard(imageName: "tutorial_4", title: "tutorial_card_quick_add")
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 40)
                 }
             }
         }
-        .navigationTitle(localizationManager.localized("tutorial"))
+        .navigationTitle("tutorial")
         .navigationBarTitleDisplayMode(.inline)
     }
     
     // MARK: - 教學圖片卡片組件
     @ViewBuilder
-    func tutorialImageCard(imageName: String, title: String) -> some View {
+    func tutorialImageCard(imageName: String, title: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             // 標題
             Text(title)
@@ -71,7 +71,7 @@ struct TutorialView: View {
                         Image(systemName: "photo")
                             .font(.system(size: 60))
                             .foregroundColor(.gray.opacity(0.3))
-                        Text(localizationManager.localizedFormat("tutorial_upload_image", imageName))
+                        Text("tutorial_upload_image \(imageName)")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }

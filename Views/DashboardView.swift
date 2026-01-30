@@ -5,7 +5,7 @@ struct DashboardView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
+    @AppStorage("AppLanguage") private var appLanguage: String = "zh-Hant"
     
     @Environment(\.colorScheme) var colorScheme
     @State private var showDNAModal = false
@@ -24,282 +24,396 @@ struct DashboardView: View {
         }
     }
     
+    private var tripsUnitKey: LocalizedStringKey { "trips_unit" }
+    
+    private var roiValue: Int { viewModel.roi }
+    private var isBreakeven: Bool { roiValue >= 100 }
+    
     var body: some View {
-        NavigationView {
-            ZStack {
-                Rectangle().fill(themeManager.backgroundColor).ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
-                        
-                        // 1. 週期選擇
-                        Menu {
-                            Button { viewModel.selectedCycle = nil } label: {
-                                Label(localizationManager.localized("currentCycleAuto"), systemImage: viewModel.selectedCycle == nil ? "checkmark" : "")
-                            }
-                            Divider()
-                            if let cycles = auth.currentUser?.cycles {
-                                ForEach(cycles) { cycle in
-                                    Button { viewModel.selectedCycle = cycle } label: {
-                                        Label(cycle.title, systemImage: viewModel.selectedCycle?.id == cycle.id ? "checkmark" : "")
-                                    }
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "calendar").foregroundColor(.secondary)
-                                Text(viewModel.cycleDateRange).font(.headline).foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                Image(systemName: "chevron.down").font(.caption).foregroundColor(.secondary)
-                            }
-                            .padding()
-                            .background(cardBackground)
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                        
-                        // 2. DNA 標籤 (顏色需透過 ViewModel 修改，見下一步)
-                        if !viewModel.commuterDNA.isEmpty {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack {
-                                    ForEach(viewModel.commuterDNA) { tag in
-                                        Button(action: { selectedDNATag = tag }) {
-                                            Text("#\(localizationManager.localized(tag.text))")
-                                                .font(.caption).bold()
-                                                .padding(.horizontal, 10).padding(.vertical, 5)
-                                            // 🔥 使用 themeManager 轉換顏色
-                                                .background(themeManager.currentTheme == .muji ? themeManager.dnaColor(hex: tag.color.toHex() ?? "") : tag.color)
-                                                .cornerRadius(15)
-                                                .foregroundColor(.white)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
-                        
-                        // 3. 總結卡片
-                        HStack(spacing: 15) {
-                            SummaryStatCard(title: localizationManager.localized("totalTrips_label"), value: "\(viewModel.filteredTrips.count)", unit: localizationManager.currentLanguage == .english ? " " + localizationManager.localized("trips_unit").trimmingCharacters(in: .whitespaces) : localizationManager.localized("trips_unit"))
-                            let roi = viewModel.roi
-                            let isBreakeven = roi >= 100
-                            SummaryStatCard(
-                                title: localizationManager.localized("breakeven_rate"),
-                                value: "\(roi)%",
-                                unit: "",
-                                color: isBreakeven ? Color(hex: "#2ecc71") : Color(hex: "#e74c3c")
-                            )
-                        }
-                        .padding(.horizontal)
-                            
-                            // 4. VS 區塊
-                            VsBlockView(financialStats: viewModel.financialStats)
-                                .padding(.horizontal)
-                            
-                            // 5. 財務細項
-                            VStack(spacing: 0) {
-                                let stats = viewModel.financialStats
-                                FinanceRowGroup(title: localizationManager.localized("originalPrice"), amount: stats.totalOriginal, color: themeManager.primaryTextColor, details: stats.originalDetails)
-                                Divider()
-                                FinanceRowGroup(title: localizationManager.localized("actualExpenseDetail"), sub: localizationManager.localized("actualExpenseNote"), amount: stats.totalPaid, color: themeManager.primaryTextColor, details: stats.paidDetails)
-                                Divider()
-                                FinanceRowGroup(title: localizationManager.localized("commonRebate"), amount: -stats.r1Total, color: .orange, details: stats.r1Details)
-                                Divider()
-                                FinanceRowGroup(title: localizationManager.localized("tpass2Rebate"), amount: -stats.r2Total, color: .orange, details: stats.r2Details)
-                            }
-                            .background(cardBackground).cornerRadius(16).padding(.horizontal)
-                            
-                            // 6. 極限紀錄
-                            let rec = viewModel.recordStats
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                RecordCard(
-                                    title: localizationManager.localized("maxDailyExpense"),
-                                    val: "$\(rec.maxDailyCost.value)",
-                                    sub: rec.maxDailyCost.date,
-                                    icon: "dollarsign.circle.fill",
-                                    color: themeManager.recordColor(.cost) // 🔥 修改這裡
-                                )
-                                RecordCard(
-                                    title: localizationManager.currentLanguage == .english ? (localizationManager.localized("maxDailyBusy") + "\n") : localizationManager.localized("maxDailyBusy"),
-                                    val: localizationManager.currentLanguage == .english ? "\(rec.maxDailyCount.value) " + localizationManager.localized("trips_unit").trimmingCharacters(in: .whitespaces) : "\(rec.maxDailyCount.value)" + localizationManager.localized("trips_unit"),
-                                    sub: rec.maxDailyCount.date,
-                                    icon: "figure.run",
-                                    color: themeManager.recordColor(.count) // 🔥 修改這裡
-                                )
-                                RecordCard(
-                                    title: localizationManager.localized("maxSingleTrip"),
-                                    val: "$\(rec.maxSingleTrip.value)",
-                                    sub: rec.maxSingleTrip.desc,
-                                    icon: "crown.fill",
-                                    color: themeManager.recordColor(.single) // 🔥 修改這裡
-                                )
-                            }
-                            .padding(.horizontal)
-                            
-                            // 7. ROI 競速
-                            ChartContainer(title: localizationManager.localized("tpassRaceProgress"), icon: "flag.checkered") {
-                                Chart {
-                                    RuleMark(y: .value("TPASS", 1200))
-                                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
-                                        .foregroundStyle(.red)
-                                    
-                                    ForEach(viewModel.dailyCumulativeStats, id: \.date) { item in
-                                        LineMark(x: .value(localizationManager.localized("date"), item.date, unit: .day), y: .value(localizationManager.localized("price"), item.cumulative))
-                                            .foregroundStyle(themeManager.accentColor) // 🔥 主題色
-                                            .interpolationMethod(.catmullRom)
-                                        AreaMark(x: .value(localizationManager.localized("date"), item.date, unit: .day), y: .value(localizationManager.localized("price"), item.cumulative))
-                                            .foregroundStyle(LinearGradient(colors: [themeManager.accentColor.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
-                                    }
-                                }
-                                .chartYAxis { AxisMarks { value in AxisValueLabel { if let v = value.as(Int.self) { Text("\(v)") } } } }
-                                .frame(height: 200)
-                            }
-                            
-                            // 8. 熱力圖
-                            ChartContainer(title: localizationManager.localized("commuterHeatmap"), icon: "calendar") {
-                                HeatmapView(data: viewModel.heatmapData)
-                            }
-                            
-                            // 9. 運具深度透視
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Image(systemName: "tram.fill")
-                                    Text(localizationManager.localized("transportInsight")).font(.headline).foregroundColor(themeManager.primaryTextColor)
-                                }
-                                .padding(.bottom, 5)
-                                
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                    let savings = (viewModel.financialStats.totalOriginal - viewModel.financialStats.totalPaid)
-                                    SavingSmallCard(title: localizationManager.localized("transfer_saving"), amount: savings, color: .orange)
-                                    SavingSmallCard(title: localizationManager.localized("rebate_total"), amount: viewModel.financialStats.r1Total + viewModel.financialStats.r2Total, color: .blue)
-                                }
-                                .padding(.bottom, 10)
-                                
-                                ForEach(viewModel.transportStats, id: \.type) { stat in
-                                    TransportDetailRow(stat: stat)
-                                    Divider()
-                                }
-                            }
-                            .padding().background(cardBackground).cornerRadius(16).padding(.horizontal)
-                            
-                            // 10. 平日 vs 假日 + 時段分布
-                            let ws = viewModel.weekStats
-                            ChartContainer(title: localizationManager.localized("timeDistribution"), icon: "calendar.badge.clock") {
-                                VStack(spacing: 16) {
-                                    GeometryReader { geo in
-                                        HStack(spacing: 0) {
-                                            Rectangle().fill(Color.blue).frame(width: geo.size.width * Double(ws.weekdayPct) / 100)
-                                            Rectangle().fill(Color.red).frame(width: geo.size.width * Double(ws.weekendPct) / 100)
-                                        }
-                                    }
-                                    .frame(height: 20)
-                                    .cornerRadius(10)
-                                    HStack {
-                                        Label("\(localizationManager.localized("weekday")) $\(ws.weekday) (\(ws.weekdayPct)%)", systemImage: "circle.fill").foregroundColor(.blue).font(.caption)
-                                        Spacer()
-                                        Label("\(localizationManager.localized("weekend")) $\(ws.weekend) (\(ws.weekendPct)%)", systemImage: "circle.fill").foregroundColor(.red).font(.caption)
-                                    }
-                                    // 時段總分布（百分比堆疊）
-                                    let slotTotals = viewModel.timeSlotStats
-                                    let slotSum = max(slotTotals.reduce(0) { $0 + $1.weekday + $1.weekend }, 1)
-                                    let palette = slotPalette(themeManager.currentTheme, colorScheme)
-                                    GeometryReader { geo in
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .fill(themeManager.currentTheme == .dark || colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06))
-                                            HStack(spacing: 0) {
-                                                ForEach(Array(slotTotals.enumerated()), id: \.offset) { idx, slot in
-                                                    Rectangle()
-                                                        .fill(palette[min(idx, palette.count - 1)])
-                                                        .frame(width: geo.size.width * CGFloat(slot.weekday + slot.weekend) / CGFloat(slotSum))
-                                                }
-                                            }
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        }
-                                    }
-                                    .frame(height: 18)
-                                    let legendColumns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
-                                    HStack {
-                                        Spacer(minLength: 0)
-                                        LazyVGrid(columns: legendColumns, alignment: .leading, spacing: 8) {
-                                            ForEach(Array(slotTotals.enumerated()), id: \.offset) { idx, slot in
-                                                let pct = Int(round(Double(slot.weekday + slot.weekend) / Double(slotSum) * 100))
-                                                HStack(spacing: 8) {
-                                                    RoundedRectangle(cornerRadius: 4)
-                                                        .fill(palette[min(idx, palette.count - 1)])
-                                                        .frame(width: 14, height: 14)
-                                                    Text("\(localizationManager.localized(slot.label)) \(pct)%")
-                                        .font(.caption).foregroundColor(.gray)
-                                                        .font(.caption2)
-                                                        .foregroundColor(themeManager.primaryTextColor)
-                                                }
-                                            }
-                                        }
-                                        Spacer(minLength: 0)
-                                    }
-                                    Divider()
-                                    VStack(alignment: .leading, spacing: 10) {
-                                        Text(localizationManager.localized("timeDistribution")).font(.caption).foregroundColor(.secondary)
-                                        ForEach(viewModel.timeSlotStats, id: \.label) { slot in
-                                            let total = max(slot.weekday + slot.weekend, 1)
-                                            HStack(spacing: 8) {
-                                                Text(localizationManager.localized(slot.label)).font(.caption).frame(width: 80, alignment: .leading)
-                                                GeometryReader { geo in
-                                                    HStack(spacing: 0) {
-                                                        Rectangle().fill(Color.blue.opacity(0.8)).frame(width: geo.size.width * CGFloat(slot.weekday) / CGFloat(total))
-                                                        Rectangle().fill(Color.red.opacity(0.8)).frame(width: geo.size.width * CGFloat(slot.weekend) / CGFloat(total))
-                                                    }
-                                                }
-                                                .frame(height: 10)
-                                                let tripsUnit = localizationManager.currentLanguage == .english ? " " + localizationManager.localized("trips_unit").trimmingCharacters(in: .whitespaces) : localizationManager.localized("trips_unit")
-                                                Text("\(slot.weekday + slot.weekend)\(tripsUnit)").font(.caption2).foregroundColor(.secondary)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // 11. 熱門路線
-                            VStack(alignment: .leading) {
-                                HStack { Image(systemName: "map.fill"); Text(localizationManager.localized("topRoutes")).font(.headline).foregroundColor(themeManager.primaryTextColor) }
-                                ForEach(Array(viewModel.topRoutes.enumerated()), id: \.element.id) { idx, route in
-                                    HStack {
-                                        Text("\(idx+1)").font(.caption).frame(width: 20, height: 20).background(Color.gray.opacity(0.2)).clipShape(Circle())
-                                        // 🔥 使用主題色
-                                        Image(systemName: route.type.systemIconName).foregroundColor(themeManager.transportColor(route.type))
-                                        Text(route.name).font(.subheadline).bold().foregroundColor(themeManager.primaryTextColor)
-                                        Spacer()
-                                        let tripsUnit = localizationManager.currentLanguage == .english ? " " + localizationManager.localized("trips_unit").trimmingCharacters(in: .whitespaces) : localizationManager.localized("trips_unit")
-                                        Text("\(route.count)\(tripsUnit)").font(.caption).foregroundColor(.secondary)
-                                        Text("$\(route.totalCost)").font(.subheadline).bold().foregroundColor(themeManager.primaryTextColor)
-                                    }
-                                    .padding(.vertical, 8)
-                                }
-                            }
-                            .padding().background(cardBackground).cornerRadius(16).padding(.horizontal)
-                            Spacer(minLength: 50)
-                        }
-                        .padding(.vertical)
-                    }
-                }
-                .navigationTitle(localizationManager.localized("dashboardTitle"))
-                .navigationBarTitleDisplayMode(.inline)
-                .alert(localizationManager.localized(selectedDNATag?.text ?? ""), isPresented: Binding(get: { selectedDNATag != nil }, set: { if !$0 { selectedDNATag = nil } })) {
-                    Button(localizationManager.localized("close"), role: .cancel) { }
-                } message: {
-                    Text(localizationManager.localized(selectedDNATag?.description ?? ""))
-                }
-                .onAppear {
-                    if viewModel.selectedCycle == nil, let first = auth.currentUser?.cycles.first { viewModel.selectedCycle = first }
-                }
-                .onChange(of: auth.currentUser) { user in
-                    if viewModel.selectedCycle == nil, let first = user?.cycles.first { viewModel.selectedCycle = first }
-                }
+        NavigationView { dashboardRoot }
+    }
+    
+    private var dashboardRoot: some View {
+        ZStack {
+            Rectangle().fill(themeManager.backgroundColor).ignoresSafeArea()
+            dashboardScrollContent
+        }
+        .navigationTitle("dashboardTitle")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("dashboardTitle")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+                    .id(appLanguage)
+            }
+        }
+        .alert(
+            Text(selectedDNATag?.text ?? LocalizedStringKey("close")),
+            isPresented: Binding(
+                get: { selectedDNATag != nil },
+                set: { if !$0 { selectedDNATag = nil } }
+            )
+        ) {
+            Button("close", role: .cancel) { }
+        } message: {
+            if let desc = selectedDNATag?.description {
+                Text(desc)
+            }
+        }
+        .onAppear {
+            if viewModel.selectedCycle == nil, let first = auth.currentUser?.cycles.first {
+                viewModel.selectedCycle = first
+            }
+        }
+        .onChange(of: auth.currentUser) { user in
+            if viewModel.selectedCycle == nil, let first = user?.cycles.first {
+                viewModel.selectedCycle = first
             }
         }
     }
-
-    // 顏色配置：清晨/深夜、上午、下午、晚上（依主題調整）
+    
+    private var dashboardScrollContent: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 20) {
+                cyclePickerSection
+                dnaTagsSection
+                summarySection
+                VsBlockView(financialStats: viewModel.financialStats)
+                    .padding(.horizontal)
+                financeSection
+                recordsSection
+                roiRaceSection
+                heatmapSection
+                transportInsightSection
+                timeDistributionSection
+                topRoutesSection
+                Spacer(minLength: 50)
+            }
+            .padding(.vertical)
+        }
+    }
+    
+    private var cyclePickerSection: some View {
+        Menu {
+            Button { viewModel.selectedCycle = nil } label: {
+                Label("currentCycleAuto", systemImage: viewModel.selectedCycle == nil ? "checkmark" : "")
+            }
+            Divider()
+            if let cycles = auth.currentUser?.cycles {
+                ForEach(cycles) { cycle in
+                    Button { viewModel.selectedCycle = cycle } label: {
+                        Label(cycle.title, systemImage: viewModel.selectedCycle?.id == cycle.id ? "checkmark" : "")
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Image(systemName: "calendar").foregroundColor(.secondary)
+                Text(viewModel.cycleDateRange)
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(cardBackground)
+            .cornerRadius(12)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var dnaTagsSection: some View {
+        if !viewModel.commuterDNA.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(viewModel.commuterDNA) { tag in
+                        Button(action: { selectedDNATag = tag }) {
+                            Text("#\(Text(tag.text))")
+                                .font(.caption)
+                                .bold()
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(
+                                    themeManager.currentTheme == .muji
+                                    ? themeManager.dnaColor(hex: tag.color.toHex() ?? "")
+                                    : tag.color
+                                )
+                                .cornerRadius(15)
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    private var summarySection: some View {
+        HStack(spacing: 15) {
+            SummaryStatCard(
+                title: "totalTrips_label",
+                value: "\(viewModel.filteredTrips.count)",
+                unit: tripsUnitKey
+            )
+            SummaryStatCard(
+                title: "breakeven_rate",
+                value: "\(roiValue)%",
+                unit: nil,
+                color: isBreakeven ? Color(hex: "#2ecc71") : Color(hex: "#e74c3c")
+            )
+        }
+        .padding(.horizontal)
+    }
+    
+    private var financeSection: some View {
+        let stats = viewModel.financialStats
+        return VStack(spacing: 0) {
+            FinanceTransportRowGroup(title: "originalPrice", amount: stats.totalOriginal, color: themeManager.primaryTextColor, details: stats.originalDetails)
+            Divider()
+            FinanceTransportRowGroup(title: "actualExpenseDetail", sub: "actualExpenseNote", amount: stats.totalPaid, color: themeManager.primaryTextColor, details: stats.paidDetails)
+            Divider()
+            FinanceRebateRowGroup(title: "commonRebate", amount: -stats.r1Total, color: .orange, details: stats.r1Details)
+            Divider()
+            FinanceRebateRowGroup(title: "tpass2Rebate", amount: -stats.r2Total, color: .orange, details: stats.r2Details)
+        }
+        .background(cardBackground)
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+    
+    private var recordsSection: some View {
+        let rec = viewModel.recordStats
+        let busyVal = Text("\(rec.maxDailyCount.value)") + Text(tripsUnitKey)
+        
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+            RecordCard(
+                title: "maxDailyExpense",
+                val: Text("$\(rec.maxDailyCost.value)"),
+                sub: Text(rec.maxDailyCost.date),
+                icon: "dollarsign.circle.fill",
+                color: themeManager.recordColor(.cost)
+            )
+            RecordCard(
+                title: "maxDailyBusy",
+                val: busyVal,
+                sub: Text(rec.maxDailyCount.date),
+                icon: "figure.run",
+                color: themeManager.recordColor(.count)
+            )
+            RecordCard(
+                title: "maxSingleTrip",
+                val: Text("$\(rec.maxSingleTrip.value)"),
+                sub: Text(rec.maxSingleTrip.desc),
+                icon: "crown.fill",
+                color: themeManager.recordColor(.single)
+            )
+        }
+        .padding(.horizontal)
+    }
+    
+    private var roiRaceSection: some View {
+        ChartContainer(title: "tpassRaceProgress", icon: "flag.checkered") {
+            Chart {
+                RuleMark(y: .value("TPASS", 1200))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                    .foregroundStyle(.red)
+                ForEach(viewModel.dailyCumulativeStats, id: \.date) { item in
+                    LineMark(x: .value("date", item.date, unit: .day), y: .value("price", item.cumulative))
+                        .foregroundStyle(themeManager.accentColor)
+                        .interpolationMethod(.catmullRom)
+                    AreaMark(x: .value("date", item.date, unit: .day), y: .value("price", item.cumulative))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [themeManager.accentColor.opacity(0.2), .clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+            }
+            .chartYAxis { AxisMarks { value in AxisValueLabel { if let v = value.as(Int.self) { Text("\(v)") } } } }
+            .frame(height: 200)
+        }
+    }
+    
+    private var heatmapSection: some View {
+        ChartContainer(title: "commuterHeatmap", icon: "calendar") {
+            HeatmapView(data: viewModel.heatmapData)
+        }
+    }
+    
+    private var transportInsightSection: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: "tram.fill")
+                Text("transportInsight")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            .padding(.bottom, 5)
+            
+            let savings = (viewModel.financialStats.totalOriginal - viewModel.financialStats.totalPaid)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                SavingSmallCard(title: "transfer_saving", amount: savings, color: .orange)
+                SavingSmallCard(title: "rebate_total", amount: viewModel.financialStats.r1Total + viewModel.financialStats.r2Total, color: .blue)
+            }
+            .padding(.bottom, 10)
+            
+            ForEach(viewModel.transportStats, id: \.type) { stat in
+                TransportDetailRow(stat: stat)
+                Divider()
+            }
+        }
+        .padding()
+        .background(cardBackground)
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+    
+    private var timeDistributionSection: some View {
+        let ws = viewModel.weekStats
+        return ChartContainer(title: "timeDistribution", icon: "calendar.badge.clock") {
+            timeDistributionChart(ws)
+        }
+    }
+    
+    private var topRoutesSection: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: "map.fill")
+                Text("topRoutes")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            ForEach(viewModel.topRoutes.indices, id: \.self) { idx in
+                TopRouteRow(
+                    rank: idx + 1,
+                    route: viewModel.topRoutes[idx],
+                    tripsUnitKey: tripsUnitKey
+                )
+            }
+        }
+        .padding()
+        .background(cardBackground)
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+    
+    // MARK: - Helper Functions
+    
+    @ViewBuilder
+    private func timeDistributionChart(_ ws: (weekday: Int, weekend: Int, weekdayPct: Int, weekendPct: Int)) -> some View {
+        VStack(spacing: 16) {
+            // 平日 vs 假日比較
+            GeometryReader { geo in
+                HStack(spacing: 0) {
+                    Rectangle().fill(Color.blue).frame(width: geo.size.width * Double(ws.weekdayPct) / 100)
+                    Rectangle().fill(Color.red).frame(width: geo.size.width * Double(ws.weekendPct) / 100)
+                }
+            }
+            .frame(height: 20)
+            .cornerRadius(10)
+            
+            HStack {
+                Label("\(Text("weekday")) $\(ws.weekday) (\(ws.weekdayPct)%)", systemImage: "circle.fill").foregroundColor(.blue).font(.caption)
+                Spacer()
+                Label("\(Text("weekend")) $\(ws.weekend) (\(ws.weekendPct)%)", systemImage: "circle.fill").foregroundColor(.red).font(.caption)
+            }
+            
+            // 時段分布
+            timeSlotDistribution()
+            
+            Divider()
+            
+            // 時段詳細統計
+            timeSlotDetails()
+        }
+    }
+    
+    @ViewBuilder
+    private func timeSlotDistribution() -> some View {
+        let slotTotals = viewModel.timeSlotStats
+        let slotSum = max(slotTotals.reduce(0) { $0 + $1.weekday + $1.weekend }, 1)
+        let palette = slotPalette(themeManager.currentTheme, colorScheme)
+        
+        GeometryReader { geo in
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(themeManager.currentTheme == .dark || colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06))
+                HStack(spacing: 0) {
+                    ForEach(Array(slotTotals.enumerated()), id: \.offset) { idx, slot in
+                        Rectangle()
+                            .fill(palette[min(idx, palette.count - 1)])
+                            .frame(width: geo.size.width * CGFloat(slot.weekday + slot.weekend) / CGFloat(slotSum))
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+        .frame(height: 18)
+        
+        timeSlotLegend()
+    }
+    
+    @ViewBuilder
+    private func timeSlotLegend() -> some View {
+        let slotTotals = viewModel.timeSlotStats
+        let slotSum = max(slotTotals.reduce(0) { $0 + $1.weekday + $1.weekend }, 1)
+        let palette = slotPalette(themeManager.currentTheme, colorScheme)
+        let legendColumns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+        
+        HStack {
+            Spacer(minLength: 0)
+            LazyVGrid(columns: legendColumns, alignment: .leading, spacing: 8) {
+                ForEach(Array(slotTotals.enumerated()), id: \.offset) { idx, slot in
+                    let pct = Int(round(Double(slot.weekday + slot.weekend) / Double(slotSum) * 100))
+                    HStack(spacing: 8) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(palette[min(idx, palette.count - 1)])
+                            .frame(width: 14, height: 14)
+                        Text("\(Text(slot.label)) \(pct)%")
+                            .font(.caption2)
+                            .foregroundColor(themeManager.primaryTextColor)
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+    }
+    
+    @ViewBuilder
+    private func timeSlotDetails() -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("timeDistribution").font(.caption).foregroundColor(.secondary)
+            ForEach(Array(viewModel.timeSlotStats.enumerated()), id: \.offset) { _, slot in
+                timeSlotDetailRow(slot)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func timeSlotDetailRow(_ slot: (label: LocalizedStringKey, weekday: Int, weekend: Int)) -> some View {
+        let total = max(slot.weekday + slot.weekend, 1)
+        
+        HStack(spacing: 8) {
+            Text(slot.label).font(.caption).frame(width: 80, alignment: .leading)
+            GeometryReader { geo in
+                HStack(spacing: 0) {
+                    Rectangle().fill(Color.blue.opacity(0.8)).frame(width: geo.size.width * CGFloat(slot.weekday) / CGFloat(total))
+                    Rectangle().fill(Color.red.opacity(0.8)).frame(width: geo.size.width * CGFloat(slot.weekend) / CGFloat(total))
+                }
+            }
+            .frame(height: 10)
+            (Text("\(slot.weekday + slot.weekend)") + Text(tripsUnitKey))
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+    }
+    
     private func slotPalette(_ theme: AppTheme, _ colorScheme: ColorScheme?) -> [Color] {
         let isDark: Bool = {
             switch theme {
@@ -337,7 +451,7 @@ struct DashboardView: View {
     
     struct VsBlockView: View {
         @EnvironmentObject var themeManager: ThemeManager
-        @EnvironmentObject var localizationManager: LocalizationManager
+        //@EnvironmentObject var localizationManager: LocalizationManager
         @Environment(\.colorScheme) var colorScheme
         let financialStats: FinancialBreakdown
         
@@ -363,14 +477,14 @@ struct DashboardView: View {
                 cardBackground
                 HStack {
                     VStack {
-                        Text(localizationManager.localized("actualExpense")).font(.caption).foregroundColor(.secondary)
+                        Text("actualExpense").font(.caption).foregroundColor(.secondary)
                         Text("$\(actual)").font(.title).bold().foregroundColor(themeManager.primaryTextColor)
                     }
                     Spacer()
                     Text("VS").font(.title3).italic().foregroundColor(.gray)
                     Spacer()
                     VStack {
-                        Text(localizationManager.localized("tpassCost")).font(.caption).foregroundColor(.secondary)
+                        Text("tpassCost").font(.caption).foregroundColor(.secondary)
                         Text("$1200").font(.title).bold().foregroundColor(themeManager.primaryTextColor)
                     }
                 }.padding()
@@ -379,8 +493,8 @@ struct DashboardView: View {
             .overlay(
                 VStack {
                     Spacer()
-                    if saved > 0 { Text(localizationManager.localizedFormat("breakeven_complete", "$\(saved)")).font(.caption).bold().padding(5).background(Color.green).foregroundColor(.white).cornerRadius(5) }
-                    else { Text(localizationManager.localizedFormat("notBreakeven", "$\(diff)")).font(.caption).bold().padding(5).background(Color.red).foregroundColor(.white).cornerRadius(5) }
+                    if saved > 0 { Text("breakeven_complete $\(saved)").font(.caption).bold().padding(5).background(Color.green).foregroundColor(.white).cornerRadius(5) }
+                    else { Text("notBreakeven $\(diff)").font(.caption).bold().padding(5).background(Color.red).foregroundColor(.white).cornerRadius(5) }
                 }.padding(.bottom, -10)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
@@ -388,8 +502,8 @@ struct DashboardView: View {
     }
     
     struct FinanceRowGroup: View {
-        let title: String
-        var sub: String = ""
+        let title: LocalizedStringKey
+        var sub: LocalizedStringKey? = nil
         let amount: Int
         let color: Color
         let details: [(String, String)]
@@ -401,7 +515,7 @@ struct DashboardView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(title).font(.subheadline).foregroundColor(.primary)
-                            if !sub.isEmpty { Text(sub).font(.caption2).foregroundColor(.gray) }
+                            if let sub { Text(sub).font(.caption2).foregroundColor(.gray) }
                         }
                         Spacer()
                         Text("$\(amount)").bold().foregroundColor(color)
@@ -421,6 +535,130 @@ struct DashboardView: View {
                             }
                             .padding(.horizontal, 15).padding(.vertical, 8).background(Color.gray.opacity(0.05))
                             if idx < details.count - 1 { Divider().padding(.leading, 15) }
+                        }
+                    }
+                    .padding(.bottom, 5)
+                }
+            }
+        }
+    }
+
+    struct FinanceTransportRowGroup: View {
+        let title: LocalizedStringKey
+        var sub: LocalizedStringKey? = nil
+        let amount: Int
+        let color: Color
+        let details: [FinancialBreakdown.TransportAmountDetail]
+        @State private var isExpanded = false
+
+        private func labelText(for detail: FinancialBreakdown.TransportAmountDetail) -> Text {
+            Text(detail.type.displayName)
+            + Text(" (")
+            + Text("\(detail.count)")
+            + Text("trips_unit")
+            + Text(")")
+        }
+
+        var body: some View {
+            VStack(spacing: 0) {
+                Button(action: { withAnimation { isExpanded.toggle() } }) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(title).font(.subheadline).foregroundColor(.primary)
+                            if let sub { Text(sub).font(.caption2).foregroundColor(.gray) }
+                        }
+                        Spacer()
+                        Text("$\(amount)").bold().foregroundColor(color)
+                        if !details.isEmpty {
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        }
+                    }
+                    .padding(15)
+                }
+                if isExpanded && !details.isEmpty {
+                    VStack(spacing: 0) {
+                        ForEach(details) { d in
+                            HStack {
+                                labelText(for: d)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("-$\(d.amount)")
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.horizontal, 15)
+                            .padding(.vertical, 8)
+                            .background(Color.gray.opacity(0.05))
+                        }
+                    }
+                    .padding(.bottom, 5)
+                }
+            }
+        }
+    }
+
+    struct FinanceRebateRowGroup: View {
+        let title: LocalizedStringKey
+        var sub: LocalizedStringKey? = nil
+        let amount: Int
+        let color: Color
+        let details: [FinancialBreakdown.RebateDetail]
+        @State private var isExpanded = false
+
+        private func labelText(for detail: FinancialBreakdown.RebateDetail) -> Text {
+            let formattedMonth = detail.month.replacingOccurrences(of: "-", with: ".")
+            switch detail.kind {
+            case .r1Mrt:
+                return Text("rebate_r1_mrt_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r1Tra:
+                return Text("rebate_r1_tra_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r2Bus:
+                return Text("rebate_r2_bus_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r2Rail:
+                return Text("rebate_r2_rail_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            }
+        }
+
+        var body: some View {
+            VStack(spacing: 0) {
+                Button(action: { withAnimation { isExpanded.toggle() } }) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(title).font(.subheadline).foregroundColor(.primary)
+                            if let sub { Text(sub).font(.caption2).foregroundColor(.gray) }
+                        }
+                        Spacer()
+                        Text("$\(amount)").bold().foregroundColor(color)
+                        if !details.isEmpty {
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        }
+                    }
+                    .padding(15)
+                }
+                if isExpanded && !details.isEmpty {
+                    VStack(spacing: 0) {
+                        ForEach(details) { d in
+                            HStack {
+                                labelText(for: d)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("-$\(d.amount)")
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.horizontal, 15)
+                            .padding(.vertical, 8)
+                            .background(Color.gray.opacity(0.05))
                         }
                     }
                     .padding(.bottom, 5)
@@ -473,7 +711,7 @@ struct DashboardView: View {
     struct ChartContainer<Content: View>: View {
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.colorScheme) var colorScheme
-        let title: String; let icon: String; let content: () -> Content
+        let title: LocalizedStringKey; let icon: String; let content: () -> Content
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -500,7 +738,7 @@ struct DashboardView: View {
     struct SummaryStatCard: View {
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.colorScheme) var colorScheme
-        let title: String; let value: String; let unit: String; var color: Color = .primary
+        let title: LocalizedStringKey; let value: String; let unit: LocalizedStringKey?; var color: Color = .primary
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -520,7 +758,9 @@ struct DashboardView: View {
                 Text(title).font(.caption).foregroundColor(.secondary)
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
                     Text(value).font(.title2).bold().foregroundColor(color)
-                    Text(unit).font(.caption).foregroundColor(.secondary)
+                    if let unit {
+                        Text(unit).font(.caption).foregroundColor(.secondary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity).padding().background(cardBackground).cornerRadius(12)
@@ -530,7 +770,7 @@ struct DashboardView: View {
     struct RecordCard: View {
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.colorScheme) var colorScheme
-        let title: String; let val: String; let sub: String; let icon: String; let color: Color
+        let title: LocalizedStringKey; let val: Text; let sub: Text; let icon: String; let color: Color
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -554,13 +794,13 @@ struct DashboardView: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, minHeight: 30, alignment: .center)
-                Text(val)
+                val
                     .font(.headline)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .foregroundColor(themeManager.primaryTextColor)
                     .frame(maxWidth: .infinity, alignment: .center)
-                Text(sub)
+                sub
                     .font(.caption2)
                     .foregroundColor(.gray)
                     .lineLimit(1)
@@ -572,8 +812,8 @@ struct DashboardView: View {
     
     struct SavingSmallCard: View {
         @EnvironmentObject var themeManager: ThemeManager
-        @EnvironmentObject var localizationManager: LocalizationManager
-        let title: String; let amount: Int; let color: Color
+        //@EnvironmentObject var localizationManager: LocalizationManager
+        let title: LocalizedStringKey; let amount: Int; let color: Color
         var body: some View {
             VStack(alignment: .leading) {
                 Text(title).font(.caption).foregroundColor(.gray)
@@ -587,7 +827,7 @@ struct DashboardView: View {
     
     struct TransportDetailRow: View {
         @EnvironmentObject var themeManager: ThemeManager
-        @EnvironmentObject var localizationManager: LocalizationManager
+        //@EnvironmentObject var localizationManager: LocalizationManager
         let stat: (type: TransportType, total: Int, count: Int, percent: Double, avg: Int, max: Int)
         var body: some View {
             VStack(spacing: 8) {
@@ -596,19 +836,70 @@ struct DashboardView: View {
                     Image(systemName: stat.type.systemIconName).foregroundColor(themeManager.transportColor(stat.type))
                     Text(stat.type.displayName).bold().foregroundColor(themeManager.primaryTextColor)
                     Spacer()
-                    let tripsUnit = localizationManager.currentLanguage == .english ? " " + localizationManager.localized("trips_unit").trimmingCharacters(in: .whitespaces) : localizationManager.localized("trips_unit")
-                    Text("\(stat.count)" + tripsUnit).font(.caption).padding(4).background(Color.gray.opacity(0.1)).cornerRadius(5)
+                    (Text("\(stat.count)") + Text("trips_unit"))
+                        .font(.caption)
+                        .padding(4)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(5)
                 }
                 HStack(alignment: .bottom) {
                     Text("$\(stat.total)").font(.title3).bold().foregroundColor(themeManager.primaryTextColor)
-                    Text(localizationManager.localized("actualPayment")).font(.caption2).foregroundColor(.gray)
+                    Text("actualPayment").font(.caption2).foregroundColor(.gray)
                     Spacer()
-                    Text(localizationManager.localized("percentage") + " \(Int(stat.percent * 100))%").font(.caption).foregroundColor(.gray)
+                    (Text("percentage") + Text(" \(Int(stat.percent * 100))%"))
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
                 // 🔥 使用 ThemeManager 顏色
                 GeometryReader { geo in Rectangle().fill(themeManager.transportColor(stat.type)).frame(width: geo.size.width * stat.percent) }.frame(height: 4).cornerRadius(2).background(Color.gray.opacity(0.1))
-                HStack { Text(localizationManager.localized("average") + " $\(stat.avg)").font(.caption); Spacer(); Text(localizationManager.localized("highest") + " $\(stat.max)").font(.caption) }.foregroundColor(.gray)
+                HStack {
+                    (Text("average") + Text(" $\(stat.avg)")).font(.caption)
+                    Spacer()
+                    (Text("highest") + Text(" $\(stat.max)")).font(.caption)
+                }
+                .foregroundColor(.gray)
             }.padding(.vertical, 5)
         }
     }
 
+    struct TopRouteRow: View {
+        @EnvironmentObject var themeManager: ThemeManager
+
+        let rank: Int
+        let route: RouteStat
+        let tripsUnitKey: LocalizedStringKey
+
+        private var routeNameText: Text {
+            if let routeId = route.routeId, (route.type == .bus || route.type == .coach) {
+                return Text("route_title_bus \(routeId)") + Text(" (") + Text(route.type.displayName) + Text(")")
+            }
+            return Text(route.name)
+        }
+
+        var body: some View {
+            HStack {
+                Text("\(rank)")
+                    .font(.caption)
+                    .frame(width: 20, height: 20)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(Circle())
+                Image(systemName: route.type.systemIconName)
+                    .foregroundColor(themeManager.transportColor(route.type))
+                routeNameText
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundColor(themeManager.primaryTextColor)
+                Spacer()
+                (Text("\(route.count)") + Text(tripsUnitKey))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("$\(route.totalCost)")
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            .padding(.vertical, 8)
+        }
+    }
+    
+}

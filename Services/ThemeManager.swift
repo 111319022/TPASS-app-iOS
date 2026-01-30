@@ -37,7 +37,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
     }
 
     var displayName: String {
-        LocalizationManager.shared.localized(localizationKey)
+        localizationKey
+    }
+
+    var localizedDisplayName: LocalizedStringKey {
+        LocalizedStringKey(localizationKey)
     }
 }
 

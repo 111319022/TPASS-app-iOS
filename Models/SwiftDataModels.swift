@@ -69,7 +69,7 @@ final class FavoriteRoute {
     
     @Transient var title: String {
         if type == .bus || type == .coach {
-            return LocalizationManager.shared.localizedFormat("route_title_bus", routeId, type.displayName)
+            return String(localized: "route") + " \(routeId) (\(type.displayNameKey))"
         } else {
             return "\(startStation) → \(endStation)"
         }
@@ -121,7 +121,7 @@ struct CommuterTripTemplate: Identifiable, Codable, Equatable {
     
     var displayTitle: String {
         if type == .bus || type == .coach {
-            return LocalizationManager.shared.localizedFormat("route_title_bus", routeId, type.displayName)
+            return String(localized: "route") + " \(routeId) (\(type.displayNameKey))"
         } else {
             return "\(startStation) → \(endStation)"
         }

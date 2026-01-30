@@ -5,7 +5,7 @@ import Combine
 struct NotificationSettingsView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
+    //@EnvironmentObject var localizationManager: LocalizationManager
     @StateObject private var notifManager = NotificationManager.shared
     
     // 持久化儲存設定
@@ -20,14 +20,14 @@ struct NotificationSettingsView: View {
             if !notifManager.isAuthorized {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(localizationManager.localized("notification_permission_title"))
+                        Text("notification_permission_title")
                             .font(.headline)
                             .foregroundColor(.red)
-                        Text(localizationManager.localized("notification_permission_desc"))
+                        Text("notification_permission_desc")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Button(localizationManager.localized("notification_go_to_settings")) {
+                        Button("notification_go_to_settings") {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }
@@ -40,8 +40,8 @@ struct NotificationSettingsView: View {
             }
             
             // 1. 每日提醒
-            Section(header: Text(localizationManager.localized("notification_daily_section_title")), footer: Text(localizationManager.localized("notification_daily_section_footer"))) {
-                Toggle(localizationManager.localized("notification_daily_toggle"), isOn: $isDailyReminderEnabled)
+            Section(header: Text("notification_daily_section_title"), footer: Text("notification_daily_section_footer")) {
+                Toggle("notification_daily_toggle", isOn: $isDailyReminderEnabled)
                     .onChange(of: isDailyReminderEnabled) { enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
@@ -50,7 +50,7 @@ struct NotificationSettingsView: View {
                     }
                 
                 if isDailyReminderEnabled {
-                    DatePicker(localizationManager.localized("notification_daily_time"), selection: $dailyReminderTime, displayedComponents: .hourAndMinute)
+                    DatePicker("notification_daily_time", selection: $dailyReminderTime, displayedComponents: .hourAndMinute)
                         .onChange(of: dailyReminderTime) { newTime in
                             notifManager.scheduleDailyReminder(enabled: true, time: newTime)
                         }
@@ -58,8 +58,8 @@ struct NotificationSettingsView: View {
             }
             
             // 2. 週期提醒
-            Section(header: Text(localizationManager.localized("cycleManagement")), footer: Text(localizationManager.localized("notification_cycle_section_footer"))) {
-                Toggle(localizationManager.localized("notification_cycle_toggle"), isOn: $isCycleReminderEnabled)
+            Section(header: Text("cycleManagement"), footer: Text("notification_cycle_section_footer")) {
+                Toggle("notification_cycle_toggle", isOn: $isCycleReminderEnabled)
                     .onChange(of: isCycleReminderEnabled) { enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
@@ -70,7 +70,7 @@ struct NotificationSettingsView: View {
                     }
             }
         }
-        .navigationTitle(localizationManager.localized("notification_settings_title"))
+        .navigationTitle("notification_settings_title")
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)

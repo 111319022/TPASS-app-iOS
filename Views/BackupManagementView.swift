@@ -6,7 +6,7 @@ struct BackupManagementView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var themeManager = ThemeManager.shared
-    @StateObject private var localizationManager = LocalizationManager.shared
+    //@StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var cloudKitService = CloudKitSyncService.shared
 
     @State private var isLoadingBackups = false
@@ -16,8 +16,8 @@ struct BackupManagementView: View {
     @State private var pendingAction: PendingAction? = nil
     @State private var errorMessage = ""
     @State private var showErrorAlert = false
-    @State private var successMessage = ""
-    @State private var successTitle = ""
+    @State private var successMessage: LocalizedStringKey = "close"
+    @State private var successTitle: LocalizedStringKey = "close"
     @State private var showSuccessAlert = false
     
     enum PendingAction: Identifiable {
@@ -35,9 +35,9 @@ struct BackupManagementView: View {
     var body: some View {
         Form {
             // MARK: - 上傳備份區塊
-            Section(header: Text(localizationManager.localized("backup_upload_section_title"))) {
+            Section(header: Text("backup_upload_section_title")) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(localizationManager.localized("backup_upload_section_desc"))
+                    Text("backup_upload_section_desc")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
@@ -52,7 +52,7 @@ struct BackupManagementView: View {
                                 Image(systemName: "arrow.up.circle.fill")
                                     .foregroundColor(.blue)
                             }
-                            Text(localizationManager.localized("backup_upload_now"))
+                            Text("backup_upload_now")
                                 .font(.headline)
                                 .foregroundColor(themeManager.primaryTextColor)
                             Spacer()
@@ -66,7 +66,7 @@ struct BackupManagementView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                                 .font(.caption)
-                            Text(localizationManager.localizedFormat("backup_last_upload", formatDate(lastSync)))
+                            Text("backup_last_upload \(formatDate(lastSync))")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -77,7 +77,7 @@ struct BackupManagementView: View {
             
             // MARK: - 下載備份區塊
             Section(header: HStack {
-                Text(localizationManager.localized("backup_restore_section_title"))
+                Text("backup_restore_section_title")
                 Spacer()
                 if isLoadingBackups {
                     ProgressView()
@@ -126,7 +126,7 @@ struct BackupManagementView: View {
                                     HStack {
                                         Image(systemName: "arrow.down.circle.fill")
                                             .foregroundColor(.green)
-                                        Text(localizationManager.localized("backup_restore"))
+                                        Text("backup_restore")
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
@@ -144,7 +144,7 @@ struct BackupManagementView: View {
                                     HStack {
                                         Image(systemName: "trash.fill")
                                             .foregroundColor(.red)
-                                        Text(localizationManager.localized("delete"))
+                                        Text("delete")
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
@@ -163,28 +163,24 @@ struct BackupManagementView: View {
             }
             
             // MARK: - 備份說明
-            Section(footer: Text(localizationManager.localized("backup_footer"))) {
+            Section(footer: Text("backup_footer")) {
                 EmptyView()
             }
         }
-        .navigationTitle(localizationManager.localized("backup_nav_title"))
+        .navigationTitle("backup_nav_title")
         .navigationBarTitleDisplayMode(.inline)
         .background(themeManager.backgroundColor)
         .scrollContentBackground(.hidden)
         .sheet(isPresented: $showUploadConfirm) {
             VStack(spacing: 16) {
                 Capsule().frame(width: 40, height: 5).foregroundColor(.secondary.opacity(0.3))
-                Text(localizationManager.localized("backup_sheet_title"))
+                Text("backup_sheet_title")
                     .font(.title3.bold())
                     .foregroundColor(themeManager.primaryTextColor)
-                Text(localizationManager.localizedFormat("backup_sheet_desc", getCurrentDataSummary()))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
                 HStack(spacing: 12) {
-                    Label(localizationManager.localizedFormat("backup_trip_count", tripCount), systemImage: "figure.walk")
-                    Label(localizationManager.localizedFormat("backup_favorite_count", favoriteCount), systemImage: "star.fill")
-                    Label(localizationManager.localizedFormat("backup_cycle_count", cycleCount), systemImage: "calendar")
+                    Label("\(tripCount) trips", systemImage: "figure.walk")
+                    Label("\(favoriteCount) favorites", systemImage: "star.fill")
+                    Label("\(cycleCount) cycles", systemImage: "calendar")
                 }
                 .font(.footnote)
                 .foregroundColor(.secondary)
@@ -193,7 +189,7 @@ struct BackupManagementView: View {
                     showUploadConfirm = false
                     Task { await performUpload() }
                 } label: {
-                    Text(localizationManager.localized("backup_upload"))
+                    Text("backup_upload")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -201,7 +197,7 @@ struct BackupManagementView: View {
                         .background(themeManager.accentColor)
                         .cornerRadius(12)
                 }
-                Button(localizationManager.localized("cancel"), role: .cancel) {
+                Button("cancel", role: .cancel) {
                     showUploadConfirm = false
                 }
                 .foregroundColor(.secondary)
@@ -215,9 +211,9 @@ struct BackupManagementView: View {
             switch action {
             case .restore(let backupId):
                 return Alert(
-                    title: Text(localizationManager.localized("backup_confirm_restore_title")),
-                    message: Text(localizationManager.localized("backup_confirm_restore_message")),
-                    primaryButton: .destructive(Text(localizationManager.localized("backup_confirm_restore_action"))) {
+                    title: Text("backup_confirm_restore_title"),
+                    message: Text("backup_confirm_restore_message"),
+                    primaryButton: .destructive(Text("backup_confirm_restore_action")) {
                         Task { await performRestore(backupId: backupId) }
                     },
                     secondaryButton: .cancel()
@@ -225,22 +221,22 @@ struct BackupManagementView: View {
                 
             case .delete(let backupId):
                 return Alert(
-                    title: Text(localizationManager.localized("backup_confirm_delete_title")),
-                    message: Text(localizationManager.localized("backup_confirm_delete_message")),
-                    primaryButton: .destructive(Text(localizationManager.localized("backup_confirm_delete_action"))) {
+                    title: Text("backup_confirm_delete_title"),
+                    message: Text("backup_confirm_delete_message"),
+                    primaryButton: .destructive(Text("backup_confirm_delete_action")) {
                         Task { await performDelete(backupId: backupId) }
                     },
                     secondaryButton: .cancel()
                 )
             }
         }
-        .alert(successTitle.isEmpty ? localizationManager.localized("backup_operation_success") : successTitle, isPresented: $showSuccessAlert) {
-            Button(localizationManager.localized("confirm")) {}
+        .alert(successTitle == "close" ? "backup_operation_success" : successTitle, isPresented: $showSuccessAlert) {
+            Button("confirm") {}
         } message: {
             Text(successMessage)
         }
-        .alert(localizationManager.localized("backup_operation_failed"), isPresented: $showErrorAlert) {
-            Button(localizationManager.localized("confirm")) {}
+        .alert("backup_operation_failed", isPresented: $showErrorAlert) {
+            Button("confirm") {}
         } message: {
             Text(errorMessage)
         }
@@ -264,10 +260,6 @@ struct BackupManagementView: View {
         return formatter.string(from: date)
     }
     
-    private func getCurrentDataSummary() -> String {
-        localizationManager.localizedFormat("backup_summary", tripCount, favoriteCount, cycleCount)
-    }
-    
     private func loadBackupHistory() async {
         await MainActor.run { isLoadingBackups = true }
         defer { Task { await MainActor.run { isLoadingBackups = false } } }
@@ -284,32 +276,63 @@ struct BackupManagementView: View {
     
     private func performUpload() async {
         do {
-            let cycles = auth.currentUser?.cycles ?? []
+            let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) in
+                let trips = appViewModel.trips.map {
+                    TripSnapshot(
+                        id: $0.id,
+                        userId: $0.userId,
+                        createdAt: $0.createdAt,
+                        typeRaw: $0.type.rawValue,
+                        originalPrice: $0.originalPrice,
+                        paidPrice: $0.paidPrice,
+                        isTransfer: $0.isTransfer,
+                        isFree: $0.isFree,
+                        startStation: $0.startStation,
+                        endStation: $0.endStation,
+                        routeId: $0.routeId,
+                        note: $0.note
+                    )
+                }
+                let favorites = appViewModel.favorites.map {
+                    FavoriteRouteSnapshot(
+                        id: $0.id,
+                        typeRaw: $0.type.rawValue,
+                        startStation: $0.startStation,
+                        endStation: $0.endStation,
+                        routeId: $0.routeId,
+                        price: $0.price,
+                        isTransfer: $0.isTransfer,
+                        isFree: $0.isFree
+                    )
+                }
+                let cycles = auth.currentUser?.cycles ?? []
+                return (trips, favorites, cycles)
+            }
             
             print("📤 準備上傳數據:")
-            print("   Trips: \(appViewModel.trips.count)")
-            print("   Favorites: \(appViewModel.favorites.count)")
-            print("   Cycles: \(cycles.count)")
+            print("   Trips: \(snapshot.trips.count)")
+            print("   Favorites: \(snapshot.favorites.count)")
+            print("   Cycles: \(snapshot.cycles.count)")
             
             // 檢查第一筆 Trip 的內容
-            if let firstTrip = appViewModel.trips.first {
+            if let firstTrip = snapshot.trips.first {
                 print("   第一筆 Trip ID: \(firstTrip.id)")
                 print("   第一筆 Trip UserID: \(firstTrip.userId)")
             }
             
-            try await cloudKitService.uploadBackup(trips: appViewModel.trips, favorites: appViewModel.favorites, cycles: cycles)
+            try await cloudKitService.uploadBackup(trips: snapshot.trips, favorites: snapshot.favorites, cycles: snapshot.cycles)
             
             // 重新加載備份列表
             await loadBackupHistory()
             
             await MainActor.run {
-                self.successTitle = localizationManager.localized("backup_upload_success_title")
-                self.successMessage = localizationManager.localizedFormat("backup_upload_success_message", getCurrentDataSummary())
+                self.successTitle = "backup_upload_success_title"
+                self.successMessage = "backup_upload_success_message \(tripCount) \(favoriteCount) \(cycleCount)"
                 self.showSuccessAlert = true
             }
         } catch {
             await MainActor.run {
-                errorMessage = localizationManager.localizedFormat("backup_upload_failed", error.localizedDescription)
+                errorMessage = String(localized: "backup_upload_failed") + " \(error.localizedDescription)"
                 showErrorAlert = true
             }
         }
@@ -334,14 +357,14 @@ struct BackupManagementView: View {
                     auth.saveLocalUser()
                 }
                 
-                self.successTitle = localizationManager.localized("backup_restore_success_title")
-                self.successMessage = localizationManager.localizedFormat("backup_restore_success_message", restored.trips.count, restored.favorites.count, restored.cycles.count)
+                self.successTitle = "backup_restore_success_title"
+                self.successMessage = "backup_restore_success_message \(restored.trips.count) \(restored.favorites.count) \(restored.cycles.count)"
                 self.showSuccessAlert = true
             }
             print("✅ 備份恢復成功 - Trips: \(restored.trips.count), Favorites: \(restored.favorites.count), Cycles: \(restored.cycles.count)")
         } catch {
             await MainActor.run {
-                errorMessage = localizationManager.localizedFormat("backup_restore_failed", error.localizedDescription)
+                errorMessage = String(localized: "backup_restore_failed") + " \(error.localizedDescription)"
                 showErrorAlert = true
             }
             print("❌ 備份恢復失敗: \(error.localizedDescription)")
@@ -358,8 +381,8 @@ struct BackupManagementView: View {
             try await cloudKitService.deleteBackup(backupId: backupId)
             
             await MainActor.run {
-                self.successTitle = localizationManager.localized("backup_delete_success_title")
-                self.successMessage = localizationManager.localized("backup_delete_success_message")
+                self.successTitle = "backup_delete_success_title"
+                self.successMessage = "backup_delete_success_message"
                 self.showSuccessAlert = true
             }
             
@@ -369,7 +392,7 @@ struct BackupManagementView: View {
             await loadBackupHistory()
         } catch {
             await MainActor.run {
-                errorMessage = localizationManager.localizedFormat("backup_delete_failed", error.localizedDescription)
+                errorMessage = String(localized: "backup_delete_failed") + " \(error.localizedDescription)"
                 showErrorAlert = true
             }
             print("❌ 備份刪除失敗: \(error.localizedDescription)")

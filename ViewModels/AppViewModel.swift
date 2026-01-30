@@ -7,7 +7,7 @@ import SwiftData
 struct RecordStats {
     var maxDailyCost: (date: String, value: Int)
     var maxDailyCount: (date: String, value: Int)
-    var maxSingleTrip: (date: String, value: Int, desc: String)
+    var maxSingleTrip: (date: String, value: Int, desc: LocalizedStringKey)
 }
 
 struct FinancialBreakdown {
@@ -15,10 +15,35 @@ struct FinancialBreakdown {
     var totalPaid: Int
     var r1Total: Int
     var r2Total: Int
-    var originalDetails: [(String, String)]
-    var paidDetails: [(String, String)]
-    var r1Details: [(String, String)]
-    var r2Details: [(String, String)]
+
+    struct TransportAmountDetail: Identifiable {
+        let id = UUID()
+        let type: TransportType
+        let count: Int
+        let amount: Int
+    }
+
+    var originalDetails: [TransportAmountDetail]
+    var paidDetails: [TransportAmountDetail]
+
+    enum RebateKind: String {
+        case r1Mrt
+        case r1Tra
+        case r2Rail
+        case r2Bus
+    }
+
+    struct RebateDetail: Identifiable {
+        let id = UUID()
+        let kind: RebateKind
+        let month: String
+        let count: Int
+        let percent: Int
+        let amount: Int
+    }
+
+    var r1Details: [RebateDetail]
+    var r2Details: [RebateDetail]
 }
 
 struct RouteStat: Identifiable {
@@ -27,12 +52,13 @@ struct RouteStat: Identifiable {
     var count: Int
     var totalCost: Int
     var type: TransportType
+    var routeId: String? = nil
 }
 
 struct DNATag: Identifiable {
     let id = UUID()
-    let text: String
-    let description: String
+    let text: LocalizedStringKey
+    let description: LocalizedStringKey
     let color: Color
 }
 
@@ -76,6 +102,14 @@ class AppViewModel: ObservableObject {
     
     init() {
         // 不在這裡初始化任何SwiftData相關資料
+    }
+
+    @MainActor
+    func clearInMemoryData() {
+        trips = []
+        favorites = []
+        commuterRoutes = []
+        selectedCycle = nil
     }
     
     // ✅ 新的啟動函數：接收 Context 並載入資料（防止重複呼叫）
@@ -215,16 +249,14 @@ class AppViewModel: ObservableObject {
         
         var r1_total = 0
         var r2_total = 0
-        var r1_list: [(String, String)] = []
-        var r2_list: [(String, String)] = []
+        var r1_list: [FinancialBreakdown.RebateDetail] = []
+        var r2_list: [FinancialBreakdown.RebateDetail] = []
         
         let sortedMonths = cycleMonthlyStats.keys.sorted()
         
         for month in sortedMonths {
             let stats = cycleMonthlyStats[month]!
             let gCounts = globalMonthlyCounts[month] ?? [:]
-            let monthNumber = Int(month.suffix(2)) ?? 0
-            let monthLabel = LocalizationManager.shared.localizedFormat("month_short", monthNumber)
             
             let mrtCount = gCounts[.mrt] ?? 0
             let mrtSum = stats.originalSums[.mrt] ?? 0
@@ -235,7 +267,15 @@ class AppViewModel: ObservableObject {
             let mrtRebate = Int(Double(mrtSum) * mrtRate)
             r1_total += mrtRebate
             if mrtRebate > 0 {
-                r1_list.append((LocalizationManager.shared.localizedFormat("rebate_r1_mrt_item", monthLabel, mrtCount, Int(mrtRate * 100)), "-$\(mrtRebate)"))
+                r1_list.append(
+                    FinancialBreakdown.RebateDetail(
+                        kind: .r1Mrt,
+                        month: month,
+                        count: mrtCount,
+                        percent: Int(mrtRate * 100),
+                        amount: mrtRebate
+                    )
+                )
             }
             
             let traCount = gCounts[.tra] ?? 0
@@ -247,7 +287,15 @@ class AppViewModel: ObservableObject {
             let traRebate = Int(Double(traSum) * traRate)
             r1_total += traRebate
             if traRebate > 0 {
-                r1_list.append((LocalizationManager.shared.localizedFormat("rebate_r1_tra_item", monthLabel, traCount, Int(traRate * 100)), "-$\(traRebate)"))
+                r1_list.append(
+                    FinancialBreakdown.RebateDetail(
+                        kind: .r1Tra,
+                        month: month,
+                        count: traCount,
+                        percent: Int(traRate * 100),
+                        amount: traRebate
+                    )
+                )
             }
             
             let c_mrt = gCounts[.mrt] ?? 0
@@ -266,7 +314,15 @@ class AppViewModel: ObservableObject {
                 let rebate = Int(Double(railPaid) * 0.02)
                 r2_total += rebate
                 if rebate > 0 {
-                    r2_list.append((LocalizationManager.shared.localizedFormat("rebate_r2_rail_item", monthLabel, railCount), "-$\(rebate)"))
+                    r2_list.append(
+                        FinancialBreakdown.RebateDetail(
+                            kind: .r2Rail,
+                            month: month,
+                            count: railCount,
+                            percent: 2,
+                            amount: rebate
+                        )
+                    )
                 }
             }
             
@@ -278,19 +334,39 @@ class AppViewModel: ObservableObject {
             let busRebate = Int(Double(busPaid) * busRate)
             r2_total += busRebate
             if busRebate > 0 {
-                r2_list.append((LocalizationManager.shared.localizedFormat("rebate_r2_bus_item", monthLabel, busCount, Int(busRate * 100)), "-$\(busRebate)"))
+                r2_list.append(
+                    FinancialBreakdown.RebateDetail(
+                        kind: .r2Bus,
+                        month: month,
+                        count: busCount,
+                        percent: Int(busRate * 100),
+                        amount: busRebate
+                    )
+                )
             }
         }
         
         let sortedOriginal = typeOriginalSums.sorted { $0.value > $1.value }
-        let original_details = sortedOriginal.filter { $0.value > 0 }.map { (type, amount) in
-            (LocalizationManager.shared.localizedFormat("transport_count", type.displayName, typeCounts[type] ?? 0), "$\(amount)")
-        }
+        let original_details: [FinancialBreakdown.TransportAmountDetail] = sortedOriginal
+            .filter { $0.value > 0 }
+            .map { (type, amount) in
+                FinancialBreakdown.TransportAmountDetail(
+                    type: type,
+                    count: typeCounts[type] ?? 0,
+                    amount: amount
+                )
+            }
         
         let sortedPaid = typePaidSums.sorted { $0.value > $1.value }
-        let paid_details = sortedPaid.filter { $0.value > 0 }.map { (type, amount) in
-            (LocalizationManager.shared.localizedFormat("transport_count", type.displayName, typeCounts[type] ?? 0), "$\(amount)")
-        }
+        let paid_details: [FinancialBreakdown.TransportAmountDetail] = sortedPaid
+            .filter { $0.value > 0 }
+            .map { (type, amount) in
+                FinancialBreakdown.TransportAmountDetail(
+                    type: type,
+                    count: typeCounts[type] ?? 0,
+                    amount: amount
+                )
+            }
         
         return FinancialBreakdown(
             totalOriginal: totalOriginal,
@@ -325,7 +401,7 @@ class AppViewModel: ObservableObject {
         
         if totalCount > 100 {
             tags.append(DNATag(text: "dna_fanatic_commuter", description: "dna_fanatic_commuter_desc", color: Color(hex: "#ff7675")))
-        } else if totalCount > 50 {
+        } else if totalCount >= 120 {
             tags.append(DNATag(text: "dna_regular_life", description: "dna_regular_life_desc", color: Color(hex: "#55efc4")))
         }
         
@@ -386,7 +462,7 @@ class AppViewModel: ObservableObject {
         if let first = filteredTrips.first?.createdAt, let last = filteredTrips.last?.createdAt {
             return "\(fmt.string(from: first)) - \(fmt.string(from: last))"
         }
-        return LocalizationManager.shared.localized("current_cycle_month")
+        return String(localized: "current_cycle_month")
     }
     
     var currentMonthTotal: Int { filteredTrips.reduce(0) { $0 + $1.paidPrice } }
@@ -396,7 +472,7 @@ class AppViewModel: ObservableObject {
     var recordStats: RecordStats {
         var dailyCost: [String: Int] = [:]
         var dailyCount: [String: Int] = [:]
-        var maxSingle = (date: "--", value: 0, desc: "")
+        var maxSingle = (date: "--", value: 0, desc: LocalizedStringKey(""))
         
         for trip in filteredTrips {
             let date = String(trip.dateStr.suffix(5))
@@ -451,9 +527,9 @@ class AppViewModel: ObservableObject {
         }.sorted { $0.total > $1.total }
     }
     
-    var timeSlotStats: [(label: String, weekday: Int, weekend: Int)] {
-            var slots: [(String, Int, Int)] = [
-                ("early_morning", 0, 0),  // 對應 LocalizationManager 的 Key
+    var timeSlotStats: [(label: LocalizedStringKey, weekday: Int, weekend: Int)] {
+            var slots: [(LocalizedStringKey, Int, Int)] = [
+                ("early_morning", 0, 0),
                 ("morning", 0, 0),
                 ("afternoon", 0, 0),
                 ("night", 0, 0)
@@ -492,17 +568,21 @@ class AppViewModel: ObservableObject {
     var topRoutes: [RouteStat] {
         var routes: [String: RouteStat] = [:]
         for trip in filteredTrips {
-            var key = ""; var name = ""
+            var key = ""
+            var name = ""
+            var routeId: String? = nil
             if (trip.type == .bus || trip.type == .coach) && !trip.routeId.isEmpty {
-                key = "\(trip.type.rawValue)_\(trip.routeId)"
-                name = LocalizationManager.shared.localizedFormat("route_title_bus", trip.routeId, trip.type.displayName)
+                let rid = trip.routeId
+                key = "\(trip.type.rawValue)_\(rid)"
+                name = rid
+                routeId = rid
             } else if !trip.startStation.isEmpty && !trip.endStation.isEmpty {
                 let stations = [trip.startStation, trip.endStation].sorted()
                 key = "stations_\(stations.joined())"
                 name = "\(stations[0]) ↔ \(stations[1])"
             } else { continue }
             
-            if routes[key] == nil { routes[key] = RouteStat(id: key, name: name, count: 0, totalCost: 0, type: trip.type) }
+            if routes[key] == nil { routes[key] = RouteStat(id: key, name: name, count: 0, totalCost: 0, type: trip.type, routeId: routeId) }
             routes[key]!.count += 1
             routes[key]!.totalCost += (trip.isFree ? 0 : trip.paidPrice)
         }

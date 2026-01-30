@@ -4,8 +4,9 @@ import SwiftData
 // MARK: - 主設定頁面
 struct SettingsView: View {
     @EnvironmentObject var auth: AuthService
-    @StateObject private var themeManager = ThemeManager.shared
-    @StateObject private var localizationManager = LocalizationManager.shared
+    @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var themeManager: ThemeManager
+
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Trip.createdAt, order: .reverse) private var allTripModels: [Trip]
     @Query private var allFavoriteRoutes: [FavoriteRoute]
@@ -25,8 +26,8 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 // MARK: - 1. 外觀與風格
-                Section(header: Text(localizationManager.localized("appearance"))) {
-                    Picker(localizationManager.localized("theme"), selection: Binding(
+                Section(header: Text("appearance")) {
+                    Picker("theme", selection: Binding(
                         get: { selectedTheme ?? themeManager.currentTheme },
                         set: { newTheme in
                             selectedTheme = newTheme
@@ -34,13 +35,13 @@ struct SettingsView: View {
                         }
                     )) {
                         ForEach(AppTheme.allCases) { theme in
-                            Text(localizationManager.localized(theme.localizationKey)).tag(theme)
+                            Text(theme.localizedDisplayName).tag(theme)
                         }
                     }
                     .pickerStyle(.automatic)
                     
                     HStack {
-                        Text(localizationManager.localized("currentTheme")).foregroundColor(themeManager.primaryTextColor)
+                        Text("currentTheme").foregroundColor(themeManager.primaryTextColor)
                         Spacer()
                         Circle().fill(themeManager.accentColor).frame(width: 20, height: 20)
                     }
@@ -48,39 +49,47 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - 語言設定
-                Section(header: Text(localizationManager.localized("language"))) {
-                    Picker(localizationManager.localized("language"), selection: $localizationManager.currentLanguage) {
-                        ForEach(Language.allCases, id: \.self) { language in
-                            Text(language.displayName).tag(language)
+                Section(header: Text("language")) {
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        HStack {
+                            Text("language")
+                            Spacer()
+                            Text(Locale.current.identifier.starts(with: "en") ? "English" : "繁體中文")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.right")
                         }
                     }
-                    .pickerStyle(.automatic)
+                    .foregroundColor(themeManager.primaryTextColor)
                 }
                 
                 // MARK: - 2. TPASS 設定
-                Section(header: Text(localizationManager.localized("tpassSettings"))) {
+                Section(header: Text("tpassSettings")) {
                     // 身分選擇
                     Picker(selection: Binding(
                         get: { auth.currentUser?.identity ?? .adult },
                         set: { auth.updateIdentity($0) }
                     )) {
                         ForEach(Identity.allCases, id: \.self) { identity in
-                            Text(localizationManager.localized("identity_\(identity.rawValue)")).tag(identity)
+                            Text(identity.label).tag(identity)
                         }
                     } label: {
                         HStack {
                             Image(systemName: "person.text.rectangle").foregroundColor(.blue)
-                            Text(localizationManager.localized("ticketType"))
+                            Text("ticketType")
                         }
                     }
                     
                     // TPASS 地區方案選擇
-                    NavigationLink(destination: TPASSRegionSelectionView(localizationManager: localizationManager)) {
+                    NavigationLink(destination: TPASSRegionSelectionView()) {
                         HStack {
                             Image(systemName: "map.circle.fill").foregroundColor(.purple)
-                            Text(localizationManager.localized("region"))
+                            Text("region")
                             Spacer()
-                            Text(localizationManager.localized("region_jiapei"))
+                            Text("region_jiapei")
                                 .foregroundColor(.secondary)
                                 .font(.subheadline)
                         }
@@ -88,34 +97,34 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - 3. 偏好設定
-                Section(header: Text(localizationManager.localized("preferences"))) {
+                Section(header: Text("preferences")) {
                     // 通知設定入口
                     NavigationLink(destination: NotificationSettingsView()) {
                         HStack {
                             Image(systemName: "bell.badge.circle.fill").foregroundColor(.red)
-                            Text(localizationManager.localized("notifications"))
+                            Text("notifications")
                         }
                     }
                 }
                 
                 // MARK: - 4. 資料管理 (iCloud 備份)
-                Section(header: Text(localizationManager.localized("dataManagement"))) {
+                Section(header: Text("dataManagement")) {
                     NavigationLink(destination: BackupManagementView()) {
                         HStack {
                             Image(systemName: "icloud.fill")
                                 .foregroundColor(.blue)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(localizationManager.localized("manageBackup"))
+                                Text("manageBackup")
                                     .font(.headline)
                                     .foregroundColor(themeManager.primaryTextColor)
                                 
                                 if let lastSync = cloudKitService.lastSyncDate {
-                                    Text(localizationManager.localized("lastBackup") + "：\(formatDate(lastSync))")
+                                    Text("lastBackup：\(formatDate(lastSync))")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 } else {
-                                    Text(localizationManager.localized("neverBackup"))
+                                    Text("neverBackup")
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -128,9 +137,9 @@ struct SettingsView: View {
                 
                 // MARK: - 5. 週期管理
                 Section(header: HStack {
-                    Text(localizationManager.localized("cycleManagement"))
+                    Text("cycleManagement")
                     Spacer()
-                    Button(localizationManager.localized("add")) { showAddCycleSheet = true }
+                    Button("add") { showAddCycleSheet = true }
                         .font(.caption)
                         .foregroundColor(themeManager.accentColor)
                 }) {
@@ -146,12 +155,12 @@ struct SettingsView: View {
                                         auth.deleteCycle(cycle)
                                     }
                                 } label: {
-                                    Label(localizationManager.localized("delete"), systemImage: "trash")
+                                    Label("delete", systemImage: "trash")
                                 }
                             }
                         }
                     } else {
-                        Text(localizationManager.localized("noCycleSet"))
+                        Text("noCycleSet")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -162,7 +171,7 @@ struct SettingsView: View {
                     NavigationLink(destination: TutorialView()) {
                         HStack {
                             Spacer()
-                            Text(localizationManager.localized("tutorial"))
+                            Text("tutorial")
                             Spacer()
                         }
                     }
@@ -170,10 +179,10 @@ struct SettingsView: View {
                 }
                 
                 Section {
-                    NavigationLink(destination: AboutAppView(localizationManager: localizationManager)) {
+                    NavigationLink(destination: AboutAppView()) {
                         HStack {
                             Spacer()
-                            Text(localizationManager.localized("aboutApp"))
+                            Text("aboutApp")
                             Spacer()
                         }
                     }
@@ -188,14 +197,14 @@ struct SettingsView: View {
                             if isClearingData {
                                 ProgressView()
                             }
-                            Text(localizationManager.localized("clearAllData"))
+                            Text("clearAllData")
                             Spacer()
                         }
                     }
                     .disabled(isClearingData)
                 }
             }
-            .navigationTitle(localizationManager.localized("settings"))
+            .navigationTitle("settings")
             .scrollIndicators(.hidden)
             .background(themeManager.backgroundColor)
             .scrollContentBackground(.hidden)
@@ -216,11 +225,11 @@ struct SettingsView: View {
                         
                         // 文字
                         VStack(spacing: 8) {
-                            Text(localizationManager.localized("theme"))
+                            Text("theme")
                                 .font(.headline)
                                 .foregroundColor(themeManager.primaryTextColor)
                             
-                            Text(localizationManager.localized("themeChanging"))
+                            Text("themeChanging")
                                 .font(.subheadline)
                                 .foregroundColor(themeManager.secondaryTextColor)
                         }
@@ -242,27 +251,27 @@ struct SettingsView: View {
                 .transition(.opacity)
             }
         }
-        .alert(localizationManager.localized("confirmClearData"), isPresented: $showClearDataAlert) {
-            Button(localizationManager.localized("cancel"), role: .cancel) {}
-            Button(localizationManager.localized("delete"), role: .destructive) {
+        .alert("confirmClearData", isPresented: $showClearDataAlert) {
+            Button("cancel", role: .cancel) {}
+            Button("delete", role: .destructive) {
                 Task { await clearAllData() }
             }
         } message: {
-            Text(localizationManager.localized("clearDataWarning"))
+            Text("clearDataWarning")
         }
         .sheet(isPresented: $showAddCycleSheet) {
             NavigationView {
                 Form {
-                    DatePicker(localizationManager.localized("startDate"), selection: $newCycleStart, displayedComponents: .date)
-                    DatePicker(localizationManager.localized("endDate"), selection: $newCycleEnd, displayedComponents: .date)
+                    DatePicker("startDate", selection: $newCycleStart, displayedComponents: .date)
+                    DatePicker("endDate", selection: $newCycleEnd, displayedComponents: .date)
                 }
-                .navigationTitle(localizationManager.localized("addCycle"))
+                .navigationTitle("addCycle")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button(localizationManager.localized("cancel")) { showAddCycleSheet = false }
+                        Button("cancel") { showAddCycleSheet = false }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button(localizationManager.localized("save")) {
+                        Button("save") {
                             auth.addCycle(start: newCycleStart, end: newCycleEnd)
                             
                             let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
@@ -319,6 +328,9 @@ struct SettingsView: View {
             userSettings.forEach { modelContext.delete($0) }
         }
         try? modelContext.save()
+
+        // 清除記憶體中的 SwiftData 參照，避免 detached crash
+        appViewModel.clearInMemoryData()
         
         // 2) 清除 UserDefaults 資料
         let keys = [
@@ -341,31 +353,30 @@ struct SettingsView: View {
 // MARK: - 關於 App 子頁面
 struct AboutAppView: View {
     @StateObject private var themeManager = ThemeManager.shared
-    let localizationManager: LocalizationManager
     
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text(localizationManager.localized("version"))
+                    Text("version")
                     Spacer()
                     Text(appVersion)
                         .foregroundColor(.secondary)
                 }
                 HStack {
-                    Text(localizationManager.localized("author"))
+                    Text("author")
                     Spacer()
                     Text("Raaay")
                         .foregroundColor(.secondary)
                 }
             } footer: {
-                Text(localizationManager.localized("copyright"))
+                Text("copyright")
                     .font(.caption)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top)
             }
         }
-        .navigationTitle(localizationManager.localized("aboutAppTitle"))
+        .navigationTitle("aboutAppTitle")
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)
@@ -382,17 +393,16 @@ struct AboutAppView: View {
 struct TPASSRegionSelectionView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var themeManager = ThemeManager.shared
-    let localizationManager: LocalizationManager
     
     var body: some View {
         Form {
-            Section(header: Text(localizationManager.localized("current_plan"))) {
+            Section(header: Text("current_plan")) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(localizationManager.localized("plan_jiapei_name"))
+                        Text("plan_jiapei_name")
                             .font(.headline)
                             .foregroundColor(themeManager.primaryTextColor)
-                        Text(localizationManager.localized("plan_jiapei_scope"))
+                        Text("plan_jiapei_scope")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -405,19 +415,19 @@ struct TPASSRegionSelectionView: View {
                 }
             }
             
-            Section(footer: Text(localizationManager.localized("more_plans_footer"))) {
+            Section(footer: Text("more_plans_footer")) {
                 HStack {
-                    Text(localizationManager.localized("other_regions"))
+                    Text("other_regions")
                         .foregroundColor(themeManager.primaryTextColor)
                     Spacer()
-                    Text(localizationManager.localized("comingSoon"))
+                    Text("comingSoon")
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
                 .opacity(0.5)
             }
         }
-        .navigationTitle(localizationManager.localized("region_selection_title"))
+        .navigationTitle("region_selection_title")
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)

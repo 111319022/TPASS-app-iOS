@@ -4,7 +4,7 @@ struct TripListView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
+    //@EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) var modelContext
     
@@ -23,7 +23,7 @@ struct TripListView: View {
     @State private var showCommuterRoutePicker = false
     
     @State private var isToastShowing = false
-    @State private var toastMessage = ""
+    @State private var toastMessage: LocalizedStringKey = ""
     
     var cardBackground: Color {
         themeManager.cardBackgroundColor
@@ -35,11 +35,11 @@ struct TripListView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text(localizationManager.localized("choose_commuter"))
+                Text("choose_commuter")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 
-                Text(localizationManager.localized("choose_commuter_desc"))
+                Text("choose_commuter_desc")
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
                 
@@ -52,7 +52,7 @@ struct TripListView: View {
                             Button(action: {
                                 if let trip = pendingCommuterTrip {
                                     viewModel.addToCommuterRoute(from: trip, name: name)
-                                    showToast(message: localizationManager.localizedFormat("commuter_added", name))
+                                    showToast(message: "commuter_added \(name)")
                                 }
                                 pendingCommuterTrip = nil
                                 showCommuterRoutePicker = false
@@ -84,7 +84,7 @@ struct TripListView: View {
                     showCommuterNamePrompt = true
                     showCommuterRoutePicker = false
                 }) {
-                    Text(localizationManager.localized("add_other"))
+                    Text("add_other")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(themeManager.accentColor.opacity(0.12))
@@ -97,7 +97,7 @@ struct TripListView: View {
                 Button(action: {
                     showCommuterRoutePicker = false
                 }) {
-                    Text(localizationManager.localized("cancel"))
+                    Text("cancel")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(themeManager.cardBackgroundColor.opacity(0.9))
@@ -125,7 +125,7 @@ struct TripListView: View {
                 VStack(spacing: 0) {
                     // Header
                     HStack {
-                        Text(localizationManager.localized("tripList"))
+                        Text("tripList")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .foregroundColor(themeManager.primaryTextColor)
@@ -148,7 +148,7 @@ struct TripListView: View {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 36))
                                 .foregroundColor(themeManager.secondaryTextColor)
-                            Text(localizationManager.localized("noTripsRecorded"))
+                            Text("noTripsRecorded")
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
                         }
@@ -169,11 +169,11 @@ struct TripListView: View {
                                         group: group,
                                         onDuplicate: {
                                             viewModel.duplicateDayTrips(from: group.date)
-                                            showToast(message: localizationManager.localizedFormat("copied_day", group.date))
+                                            showToast(message: "copied_day \(group.date)")
                                         },
                                         onDelete: {
                                             viewModel.deleteDayTrips(on: group.date)
-                                            showToast(message: localizationManager.localizedFormat("deleted_day", group.date))
+                                            showToast(message: "deleted_day \(group.date)")
                                         }
                                     )
                                         .frame(maxWidth: .infinity)
@@ -203,7 +203,7 @@ struct TripListView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "plus")
                                 .font(.system(size: 20, weight: .bold))
-                            Text(localizationManager.localized("addTrip_btn"))
+                            Text("addTrip_btn")
                                 .font(.system(size: 18, weight: .bold))
                         }
                         .foregroundColor(.white)
@@ -272,7 +272,7 @@ struct TripListView: View {
     
     // MARK: - Helper Methods
     
-    func showToast(message: String) {
+    func showToast(message: LocalizedStringKey) {
         toastMessage = message
         withAnimation { isToastShowing = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -307,9 +307,9 @@ struct TripListView: View {
     private func tripTrailingSwipeAction(_ trip: Trip) -> some View {
         Button(role: .destructive) {
             viewModel.deleteTrip(trip)
-            showToast(message: localizationManager.localized("trip_deleted"))
+            showToast(message: "trip_deleted")
         } label: {
-            Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+            Label("delete", systemImage: "trash.fill")
         }
         .tint(.red)
     }
@@ -325,11 +325,11 @@ struct TripListView: View {
                 withTransaction(tx) {
                     viewModel.toggleTransfer(trip)
                 }
-                showToast(message: wasTransfer ? localizationManager.localized("transfer_cancelled") : localizationManager.localized("transfer_added"))
+                showToast(message: wasTransfer ? "transfer_cancelled" : "transfer_added")
                 isProcessingSwipeAction = false
             }
         } label: {
-            Label(trip.isTransfer ? localizationManager.localized("cancel_transfer") : localizationManager.localized("add_transfer"), systemImage: trip.isTransfer ? "link.badge.plus" : "link")
+            Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.plus" : "link")
         }
         .tint(themeManager.accentColor)
         .disabled(isProcessingSwipeAction)
@@ -342,11 +342,11 @@ struct TripListView: View {
                 withTransaction(tx) {
                     viewModel.duplicateTrip(trip)
                 }
-                showToast(message: localizationManager.localized("trip_duplicated"))
+                showToast(message: "trip_duplicated")
                 isProcessingSwipeAction = false
             }
         } label: {
-            Label(localizationManager.localized("duplicate_trip"), systemImage: "doc.on.doc.fill")
+            Label("duplicate_trip", systemImage: "doc.on.doc.fill")
         }
         .tint(themeManager.accentColor)
         .disabled(isProcessingSwipeAction)
@@ -359,11 +359,11 @@ struct TripListView: View {
                 withTransaction(tx) {
                     viewModel.createReturnTrip(trip)
                 }
-                showToast(message: localizationManager.localized("trip_added"))
+                showToast(message: "trip_added")
                 isProcessingSwipeAction = false
             }
         } label: {
-            Label(localizationManager.localized("return_trip"), systemImage: "arrow.uturn.backward")
+            Label("return_trip", systemImage: "arrow.uturn.backward")
         }
         .tint(themeManager.accentColor)
         .disabled(isProcessingSwipeAction)
@@ -373,9 +373,9 @@ struct TripListView: View {
     func tripContextMenuContent(trip: Trip) -> some View {
         Button {
             viewModel.addToFavorites(from: trip)
-            showToast(message: localizationManager.localized("favorite_route_added"))
+            showToast(message: "favorite_route_added")
         } label: {
-            Label(localizationManager.localized("add_to_favorites"), systemImage: "star")
+            Label("add_to_favorites", systemImage: "star")
         }
         
         Button {
@@ -387,39 +387,39 @@ struct TripListView: View {
                 showCommuterRoutePicker = true
             }
         } label: {
-            Label(localizationManager.localized("add_to_commuter"), systemImage: "briefcase.fill")
+            Label("add_to_commuter", systemImage: "briefcase.fill")
         }
         
         Divider()
         
         Button {
             viewModel.toggleTransfer(trip)
-            showToast(message: trip.isTransfer ? localizationManager.localized("transfer_cancelled") : localizationManager.localized("transfer_added"))
+            showToast(message: trip.isTransfer ? "transfer_cancelled" : "transfer_added")
         } label: {
-            Label(trip.isTransfer ? localizationManager.localized("cancel_transfer") : localizationManager.localized("add_transfer"), systemImage: trip.isTransfer ? "link.badge.minus" : "link")
+            Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.minus" : "link")
         }
         
         Button {
             viewModel.duplicateTrip(trip)
-            showToast(message: localizationManager.localized("trip_duplicated"))
+            showToast(message: "trip_duplicated")
         } label: {
-            Label(localizationManager.localized("duplicate_trip"), systemImage: "doc.on.doc.fill")
+            Label("duplicate_trip", systemImage: "doc.on.doc.fill")
         }
         
         Button {
             viewModel.createReturnTrip(trip)
-            showToast(message: localizationManager.localized("trip_added"))
+            showToast(message: "trip_added")
         } label: {
-            Label(localizationManager.localized("return_trip"), systemImage: "arrow.uturn.backward")
+            Label("return_trip", systemImage: "arrow.uturn.backward")
         }
         
         Divider()
         
         Button(role: .destructive) {
             viewModel.deleteTrip(trip)
-            showToast(message: localizationManager.localized("trip_deleted"))
+            showToast(message: "trip_deleted")
         } label: {
-            Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+            Label("delete", systemImage: "trash.fill")
         }
     }
 }
@@ -430,7 +430,6 @@ struct CycleSelectorView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     
     var cardBackground: Color {
@@ -449,8 +448,8 @@ struct CycleSelectorView: View {
     var body: some View {
         Menu {
             Button { viewModel.selectedCycle = nil } label: {
-                if viewModel.selectedCycle == nil { Label(localizationManager.localized("currentCycleAuto"), systemImage: "checkmark") }
-                else { Text(localizationManager.localized("currentCycleAuto")) }
+                if viewModel.selectedCycle == nil { Label("currentCycleAuto", systemImage: "checkmark") }
+                else { Text("currentCycleAuto") }
             }
             Divider()
             if let cycles = auth.currentUser?.cycles {
@@ -488,7 +487,6 @@ struct CycleSelectorView: View {
 
 struct DailyHeaderView: View {
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     let group: DailyTripGroup
     let onDuplicate: () -> Void
@@ -536,16 +534,16 @@ struct DailyHeaderView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(StaticButtonStyle())
-                .confirmationDialog(localizationManager.localized("day_actions_title"), isPresented: $showActions, titleVisibility: .visible) {
-                    Button(localizationManager.localized("duplicate_day")) {
+                .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
+                    Button("duplicate_day") {
                         onDuplicate()
                     }
-                    Button(localizationManager.localized("delete_day"), role: .destructive) {
+                    Button("delete_day", role: .destructive) {
                         onDelete()
                     }
-                    Button(localizationManager.localized("cancel"), role: .cancel) { }
+                    Button("cancel", role: .cancel) { }
                 } message: {
-                    Text(localizationManager.localizedFormat("day_actions", group.date))
+                    Text("day_actions \(group.date)")
                 }
             }
             .padding(.horizontal, 20).padding(.vertical, 8)
@@ -559,7 +557,7 @@ struct DailyHeaderView: View {
 
 struct TripRowView: View {
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var localizationManager: LocalizationManager
+
     let trip: Trip
     
     var body: some View {
@@ -583,7 +581,7 @@ struct TripRowView: View {
                     
                     let details = [
                         trip.routeId.isEmpty ? nil : trip.routeId,
-                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(StationData.shared.displayStationName(trip.startStation, languageCode: localizationManager.currentLanguage.rawValue)) → \(StationData.shared.displayStationName(trip.endStation, languageCode: localizationManager.currentLanguage.rawValue))"
+                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(StationData.shared.displayStationName(trip.startStation, languageCode: Locale.current.identifier)) → \(StationData.shared.displayStationName(trip.endStation, languageCode: Locale.current.identifier))"
                     ].compactMap { $0 }.joined(separator: " ")
                     
                     if !details.isEmpty {
@@ -604,10 +602,10 @@ struct TripRowView: View {
                         .foregroundColor(themeManager.secondaryTextColor)
                     
                     if trip.isFree {
-                        TagView(icon: "dollarsign.circle.fill", text: localizationManager.localized("free_trip"), color: .green)
+                        TagView(icon: "dollarsign.circle.fill", text: String(localized: "free_trip"), color: .green)
                     }
                     if trip.isTransfer {
-                        TagView(icon: "link", text: localizationManager.localized("transfer"), color: themeManager.accentColor)
+                        TagView(icon: "link", text: String(localized: "transfer"), color: themeManager.accentColor)
                     }
                     if !trip.note.isEmpty {
                         TagView(icon: "note.text", text: "", color: .orange)
@@ -623,7 +621,7 @@ struct TripRowView: View {
                     .bold()
                     .foregroundColor(trip.paidPrice == 0 ? themeManager.accentColor : themeManager.primaryTextColor)
                 if trip.paidPrice != trip.originalPrice {
-                    Text("\(localizationManager.localized("original_price_label")) $\(trip.originalPrice)")
+                    Text("original_price_label $\(trip.originalPrice)")
                         .font(.caption2)
                         .strikethrough()
                         .foregroundColor(themeManager.secondaryTextColor)
@@ -666,29 +664,28 @@ struct StaticButtonStyle: ButtonStyle {
 // MARK: - ViewModifiers
 
 struct TripListSheetsModifier: ViewModifier {
-    @EnvironmentObject var localizationManager: LocalizationManager
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var selectedTripToEdit: Trip?
-    let showToast: (String) -> Void
+    let showToast: (LocalizedStringKey) -> Void
     
     func body(content: Content) -> some View {
         content
             .sheet(isPresented: $showAddTripSheet) {
                 AddTripView(onSuccess: {
-                    showToast(localizationManager.localized("trip_added"))
+                    showToast("trip_added")
                 })
             }
             .sheet(isPresented: $showFavoritesSheet) {
                 FavoritesManagementView(onQuickAdd: { routeName in
-                    showToast(localizationManager.localizedFormat("favorites_added", routeName))
+                    showToast("favorites_added \(routeName)")
                 }, onQuickAddCommuter: { routeName in
-                    showToast(localizationManager.localizedFormat("favorites_added_commuter", routeName))
+                    showToast("favorites_added_commuter \(routeName)")
                 })
             }
             .sheet(item: $selectedTripToEdit) { trip in
                 EditTripView(trip: trip, onSuccess: {
-                    showToast(localizationManager.localized("trip_updated"))
+                    showToast("trip_updated")
                 })
                 .presentationDetents([.height(650)])
                 .presentationDragIndicator(.hidden)
@@ -698,61 +695,61 @@ struct TripListSheetsModifier: ViewModifier {
 
 struct TripListAlertsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
-    @EnvironmentObject var localizationManager: LocalizationManager
     @Binding var pendingDuplicateDate: String?
     @Binding var pendingDeleteDate: String?
     @Binding var showCommuterNamePrompt: Bool
     @Binding var commuterRouteName: String
     @Binding var pendingCommuterTrip: Trip?
-    let showToast: (String) -> Void
+    let showToast: (LocalizedStringKey) -> Void
     
     func body(content: Content) -> some View {
         content
-            .alert(localizationManager.localized("duplicate_day"), isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
-                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDuplicateDate = nil }
-                Button(localizationManager.localized("duplicate_day")) {
+            .alert("duplicate_day", isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
+                Button("cancel", role: .cancel) { pendingDuplicateDate = nil }
+                Button("duplicate_day") {
                     if let date = pendingDuplicateDate {
                         viewModel.duplicateDayTrips(from: date)
-                        showToast(localizationManager.localizedFormat("copied_day", date))
+                        showToast("copied_day \(date)")
                     }
                     pendingDuplicateDate = nil
                 }
             } message: {
                 if let date = pendingDuplicateDate {
-                    Text(localizationManager.localizedFormat("confirm_duplicate", date))
+                    Text("confirm_duplicate \(date)")
                 }
             }
-            .alert(localizationManager.localized("delete_day"), isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
-                Button(localizationManager.localized("cancel"), role: .cancel) { pendingDeleteDate = nil }
-                Button(localizationManager.localized("delete_day"), role: .destructive) {
+            .alert("delete_day", isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
+                Button("cancel", role: .cancel) { pendingDeleteDate = nil }
+                Button("delete_day", role: .destructive) {
                     if let date = pendingDeleteDate {
                         viewModel.deleteDayTrips(on: date)
-                        showToast(localizationManager.localizedFormat("deleted_day", date))
+                        showToast("deleted_day \(date)")
                     }
                     pendingDeleteDate = nil
                 }
             } message: {
                 if let date = pendingDeleteDate {
-                    Text(localizationManager.localizedFormat("confirm_delete_day", date))
+                    Text("confirm_delete_day \(date)")
                 }
             }
-            .alert(localizationManager.localized("choose_commuter"), isPresented: $showCommuterNamePrompt) {
-                TextField(localizationManager.localized("commuter_name_placeholder"), text: $commuterRouteName)
-                Button(localizationManager.localized("cancel"), role: .cancel) {
+            .alert("choose_commuter", isPresented: $showCommuterNamePrompt) {
+                TextField("commuter_name_placeholder", text: $commuterRouteName)
+                Button("cancel", role: .cancel) {
                     pendingCommuterTrip = nil
                     commuterRouteName = ""
                 }
-                Button(localizationManager.localized("add_commuter")) {
+                Button("add_commuter") {
                     let trimmed = commuterRouteName.trimmingCharacters(in: .whitespacesAndNewlines)
                     if let trip = pendingCommuterTrip, !trimmed.isEmpty {
                         viewModel.addToCommuterRoute(from: trip, name: trimmed)
-                        showToast(localizationManager.localizedFormat("commuter_added", trimmed))
+                        showToast("commuter_added \(trimmed)")
                     }
                     pendingCommuterTrip = nil
                     commuterRouteName = ""
                 }
             } message: {
-                Text(localizationManager.localized("commuter_name_prompt"))
+                Text("commuter_name_prompt")
             }
     }
 }
+

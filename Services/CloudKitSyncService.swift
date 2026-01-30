@@ -27,6 +27,32 @@ struct BackupRecord: Identifiable, Hashable {
     }
 }
 
+struct TripSnapshot: Hashable {
+    let id: String
+    let userId: String
+    let createdAt: Date
+    let typeRaw: String
+    let originalPrice: Int
+    let paidPrice: Int
+    let isTransfer: Bool
+    let isFree: Bool
+    let startStation: String
+    let endStation: String
+    let routeId: String
+    let note: String
+}
+
+struct FavoriteRouteSnapshot: Hashable {
+    let id: UUID
+    let typeRaw: String
+    let startStation: String
+    let endStation: String
+    let routeId: String
+    let price: Int
+    let isTransfer: Bool
+    let isFree: Bool
+}
+
 class CloudKitSyncService: ObservableObject {
     static let shared = CloudKitSyncService()
     
@@ -53,7 +79,7 @@ class CloudKitSyncService: ObservableObject {
     }
     
     // MARK: - 上傳備份到 CloudKit
-    func uploadBackup(trips: [Trip], favorites: [FavoriteRoute], cycles: [Cycle]) async throws {
+    func uploadBackup(trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) async throws {
         await MainActor.run {
             isSyncing = true
             syncError = nil
@@ -63,7 +89,7 @@ class CloudKitSyncService: ObservableObject {
         // 1) 確認 iCloud 可用
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable_check_signin")])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_unavailable_check_signin")])
         }
         
         // 2) 使用時間戳作為備份 ID
@@ -138,7 +164,7 @@ class CloudKitSyncService: ObservableObject {
         print("📊 上傳完成 - 成功: \(successCount), 失敗: \(failCount)")
         
         if failCount > 0 {
-            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localizedFormat("cloudkit_partial_upload_failed", failCount)])
+            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_partial_upload_failed") + " \(failCount)"])
         }
         
         // 7) 更新最後同步時間
@@ -155,7 +181,7 @@ class CloudKitSyncService: ObservableObject {
     func fetchBackupHistory() async throws -> [BackupRecord] {
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_unavailable")])
         }
         
         return try await withCheckedThrowingContinuation { continuation in
@@ -227,7 +253,7 @@ class CloudKitSyncService: ObservableObject {
 
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_unavailable")])
         }
 
         print("🔄 開始恢復備份 ID: \(backupId)")
@@ -319,8 +345,10 @@ class CloudKitSyncService: ObservableObject {
         
         let status = try await container.accountStatus()
         guard status == .available else {
-            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: LocalizationManager.shared.localized("cloudkit_unavailable")])
+            throw NSError(domain: "CloudKit", code: 503, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_unavailable")])
         }
+        
+        print("🗑️ 開始刪除備份 ID: \(backupId)")
         
         var recordIDsToDelete: [CKRecord.ID] = []
         
@@ -358,15 +386,22 @@ class CloudKitSyncService: ObservableObject {
         return try await withCheckedThrowingContinuation { continuation in
             var recordIDs: [CKRecord.ID] = []
             
-            let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
+            let metaReference = CKRecord.Reference(
+                recordID: CKRecord.ID(recordName: backupId),
+                action: .deleteSelf
+            )
+            let predicate = NSPredicate(format: "backupMeta == %@", metaReference)
+            let query = CKQuery(recordType: recordType, predicate: predicate)
             let operation = CKQueryOperation(query: query)
             operation.desiredKeys = []
             operation.resultsLimit = CKQueryOperation.maximumResults
             
             operation.recordMatchedBlock = { recordID, result in
-                // 客戶端過濾
-                if recordID.recordName.hasPrefix("\(backupId)_") {
+                switch result {
+                case .success:
                     recordIDs.append(recordID)
+                case .failure(let error):
+                    print("⚠️ 查詢失敗: \(error)")
                 }
             }
             
@@ -395,14 +430,14 @@ class CloudKitSyncService: ObservableObject {
     }
     
     // MARK: - CKRecord Builders
-    private func tripToRecord(_ trip: Trip, backupMetaRef: CKRecord.Reference) -> CKRecord {
+    private func tripToRecord(_ trip: TripSnapshot, backupMetaRef: CKRecord.Reference) -> CKRecord {
         let recordID = CKRecord.ID(recordName: UUID().uuidString)
         let record = CKRecord(recordType: "Trip", recordID: recordID)
         record["backupMeta"] = backupMetaRef
         record["id"] = trip.id as CKRecordValue
         record["userId"] = trip.userId as CKRecordValue
         record["createdAt"] = trip.createdAt as CKRecordValue
-        record["typeRaw"] = trip.type.rawValue as CKRecordValue
+        record["typeRaw"] = trip.typeRaw as CKRecordValue
         record["originalPrice"] = trip.originalPrice as CKRecordValue
         record["paidPrice"] = trip.paidPrice as CKRecordValue
         record["isTransfer"] = trip.isTransfer as CKRecordValue
@@ -414,12 +449,12 @@ class CloudKitSyncService: ObservableObject {
         return record
     }
 
-    private func favoriteToRecord(_ fav: FavoriteRoute, backupMetaRef: CKRecord.Reference) -> CKRecord {
+    private func favoriteToRecord(_ fav: FavoriteRouteSnapshot, backupMetaRef: CKRecord.Reference) -> CKRecord {
         let recordID = CKRecord.ID(recordName: UUID().uuidString)
         let record = CKRecord(recordType: "FavoriteRoute", recordID: recordID)
         record["backupMeta"] = backupMetaRef
         record["id"] = fav.id.uuidString as CKRecordValue
-        record["typeRaw"] = fav.type.rawValue as CKRecordValue
+        record["typeRaw"] = fav.typeRaw as CKRecordValue
         record["startStation"] = fav.startStation as CKRecordValue
         record["endStation"] = fav.endStation as CKRecordValue
         record["routeId"] = fav.routeId as CKRecordValue

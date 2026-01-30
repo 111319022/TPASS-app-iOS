@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FavoritesManagementView: View {
-        @EnvironmentObject var localizationManager: LocalizationManager
+
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.dismiss) var dismiss
@@ -12,7 +12,7 @@ struct FavoritesManagementView: View {
     
     @State private var editingCommuterRoute: CommuterRoute? = nil
     @State private var showToast = false
-    @State private var toastMessage = ""
+    @State private var toastMessage: LocalizedStringKey = ""
     @State private var swipedFavIds: Set<UUID> = []
     @State private var swipedCommuterIds: Set<UUID> = []
     
@@ -52,10 +52,10 @@ struct FavoritesManagementView: View {
                         Image(systemName: "star.slash")
                             .font(.system(size: 48))
                             .foregroundColor(themeManager.secondaryTextColor)
-                        Text(localizationManager.localized("favorites_empty_title"))
+                        Text("favorites_empty_title")
                             .font(.headline)
                             .foregroundColor(themeManager.primaryTextColor)
-                        Text(localizationManager.localized("favorites_empty_desc"))
+                        Text("favorites_empty_desc")
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                             .multilineTextAlignment(.center)
@@ -64,14 +64,14 @@ struct FavoritesManagementView: View {
                 } else {
                     List {
                         if !viewModel.favorites.isEmpty {
-                            Section(header: sectionHeader(localizationManager.localized("favoriteRoutes"))) {
+                            Section(header: sectionHeader("favoriteRoutes")) {
                                 ForEach(viewModel.favorites) { fav in
                                     favoriteButtonWithActions(fav)
                                 }
                             }
                         } else {
-                            Section(header: sectionHeader(localizationManager.localized("favoriteRoutes"))) {
-                                Text(localizationManager.localized("favorites_empty_favorites_only_desc"))
+                            Section(header: sectionHeader("favoriteRoutes")) {
+                                Text("favorites_empty_favorites_only_desc")
                                     .font(.caption)
                                     .foregroundColor(themeManager.secondaryTextColor)
                                     .listRowBackground(themeManager.cardBackgroundColor)
@@ -81,14 +81,14 @@ struct FavoritesManagementView: View {
                         }
                         
                         if !viewModel.commuterRoutes.isEmpty {
-                            Section(header: sectionHeader(localizationManager.localized("commuterRoutes"))) {
+                            Section(header: sectionHeader("commuterRoutes")) {
                                 ForEach(viewModel.commuterRoutes) { route in
                                     commuterRouteButtonWithActions(route)
                                 }
                             }
                         } else {
-                            Section(header: sectionHeader(localizationManager.localized("commuterRoutes"))) {
-                                Text(localizationManager.localized("favorites_empty_commuter_only_desc"))
+                            Section(header: sectionHeader("commuterRoutes")) {
+                                Text("favorites_empty_commuter_only_desc")
                                     .font(.caption)
                                     .foregroundColor(themeManager.secondaryTextColor)
                                     .listRowBackground(themeManager.cardBackgroundColor)
@@ -102,11 +102,11 @@ struct FavoritesManagementView: View {
                     .background(Color.clear)
                 }
             }
-            .navigationTitle(localizationManager.localized("favoriteRoutes"))
+            .navigationTitle("favoriteRoutes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(localizationManager.localized("done")) {
+                    Button("done") {
                         dismiss()
                     }
                     .font(.system(.body, design: .default))
@@ -135,18 +135,38 @@ struct FavoritesManagementView: View {
         }
     }
     
-    private func showToast(message: String) {
+    private func showToast(message: LocalizedStringKey) {
         toastMessage = message
         withAnimation { showToast = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { showToast = false }
         }
     }
+
+    private func favoriteTitleText(_ fav: FavoriteRoute) -> Text {
+        if fav.type == .bus || fav.type == .coach {
+            return Text("route_title_bus \(fav.routeId)") + Text(" (") + Text(fav.type.displayName) + Text(")")
+        }
+        let lang = Locale.current.identifier
+        let start = StationData.shared.displayStationName(fav.startStation, languageCode: lang)
+        let end = StationData.shared.displayStationName(fav.endStation, languageCode: lang)
+        return Text("\(start) → \(end)")
+    }
     
     @ViewBuilder
     private func favoriteButtonWithActions(_ fav: FavoriteRoute) -> some View {
         Button(action: {
-            let routeName = fav.displayTitle
+            let lang = Locale.current.identifier
+            let routeName: String = {
+                if fav.type == .bus || fav.type == .coach {
+                    if lang.hasPrefix("en") {
+                        return "Route \(fav.routeId)"
+                    } else {
+                        return String(localized: "route_title_bus \(fav.routeId)", locale: Locale(identifier: lang))
+                    }
+                }
+                return fav.displayTitle
+            }()
             viewModel.quickAddTrip(from: fav)
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -164,7 +184,7 @@ struct FavoritesManagementView: View {
                 viewModel.removeFavorite(fav)
                 swipedFavIds.remove(fav.id)
             } label: {
-                Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+                Label("delete", systemImage: "trash.fill")
             }
         }
         .contextMenu {
@@ -172,25 +192,59 @@ struct FavoritesManagementView: View {
                 viewModel.removeFavorite(fav)
                 swipedFavIds.remove(fav.id)
             } label: {
-                Label(localizationManager.localized("delete"), systemImage: "trash")
+                Label("delete", systemImage: "trash")
             }
         }
     }
     
     @ViewBuilder
     private func commuterRouteButtonWithActions(_ route: CommuterRoute) -> some View {
-        Button(action: {
-            let routeName = route.name
-            viewModel.quickAddCommuterRoute(route)
-            showToast(message: localizationManager.localizedFormat("favorites_added_commuter", routeName))
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                onQuickAddCommuter?(routeName)
+        // Split the row into two tappable areas:
+        // - main area: quick-add commuter route
+        // - edit button: opens the commuter route editor
+        HStack(spacing: 12) {
+            // Main tappable area
+            Button(action: {
+                let routeName = route.name
+                viewModel.quickAddCommuterRoute(route)
+                showToast(message: "favorites_added_commuter \(routeName)")
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    onQuickAddCommuter?(routeName)
+                }
+            }) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(route.name)
+                        .font(.system(.body, design: .default))
+                        .fontWeight(.semibold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                    Text("count_trips \(route.tripCount)")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+                Spacer()
             }
-        }) {
-            commuterRouteRowView(route)
+            .buttonStyle(.plain)
+
+            // Edit button: opens detail sheet without triggering add
+            Button(action: {
+                editingCommuterRoute = route
+            }) {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 20))
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(rowBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
@@ -199,21 +253,21 @@ struct FavoritesManagementView: View {
                 viewModel.removeCommuterRoute(route)
                 swipedCommuterIds.remove(route.id)
             } label: {
-                Label(localizationManager.localized("delete"), systemImage: "trash.fill")
+                Label("delete", systemImage: "trash.fill")
             }
         }
         .contextMenu {
             Button {
                 editingCommuterRoute = route
             } label: {
-                Label(localizationManager.localized("edit"), systemImage: "square.and.pencil")
+                Label("edit", systemImage: "square.and.pencil")
             }
-            
+
             Button(role: .destructive) {
                 viewModel.removeCommuterRoute(route)
                 swipedCommuterIds.remove(route.id)
             } label: {
-                Label(localizationManager.localized("delete"), systemImage: "trash")
+                Label("delete", systemImage: "trash")
             }
         }
     }
@@ -226,7 +280,7 @@ struct FavoritesManagementView: View {
                     .font(.system(.body, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.primaryTextColor)
-                Text(localizationManager.localizedFormat("count_trips", route.tripCount))
+                Text("count_trips \(route.tripCount)")
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
             }
@@ -254,7 +308,7 @@ struct FavoritesManagementView: View {
             favoriteIconView(fav.type)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(fav.displayTitle)
+                favoriteTitleText(fav)
                     .font(.system(.body, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -265,7 +319,7 @@ struct FavoritesManagementView: View {
                         .foregroundColor(themeManager.secondaryTextColor)
                     
                     if fav.isFree {
-                        Text(localizationManager.localized("free_trip"))
+                        Text("free_trip")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.green)
@@ -276,7 +330,7 @@ struct FavoritesManagementView: View {
                     }
                     
                     if fav.isTransfer {
-                        Text(localizationManager.localized("transfer"))
+                        Text("transfer")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(themeManager.accentColor)
@@ -306,7 +360,7 @@ struct FavoritesManagementView: View {
     }
     
     @ViewBuilder
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(.caption)
             .foregroundColor(themeManager.secondaryTextColor)
@@ -331,7 +385,7 @@ struct FavoritesManagementView: View {
     @ViewBuilder
     private func favoriteDetailView(_ fav: FavoriteRoute) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(fav.displayTitle)
+            favoriteTitleText(fav)
                 .font(.system(.body, design: .default))
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -342,13 +396,13 @@ struct FavoritesManagementView: View {
                     .foregroundColor(themeManager.secondaryTextColor)
                 
                 if fav.isFree {
-                    Text(localizationManager.localized("free"))
+                    Text("free")
                         .font(.caption)
                         .foregroundColor(.green)
                 }
                 
                 if fav.isTransfer {
-                    Text(localizationManager.localized("transfer"))
+                    Text("transfer")
                         .font(.caption)
                         .foregroundColor(.orange)
                 }
@@ -359,7 +413,7 @@ struct FavoritesManagementView: View {
 
 // MARK: - CommuterRouteDetailView
 struct CommuterRouteDetailView: View {
-        @EnvironmentObject var localizationManager: LocalizationManager
+    @AppStorage("AppLanguage") private var appLanguage: String = "zh-Hant"
         @EnvironmentObject var viewModel: AppViewModel
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.dismiss) var dismiss
@@ -387,6 +441,15 @@ struct CommuterRouteDetailView: View {
         private var rowBackground: Color {
             themeManager.cardBackgroundColor.opacity(themeManager.currentTheme == .dark ? 0.88 : 1)
         }
+
+        private func tripTitleText(_ trip: CommuterTripTemplate) -> Text {
+            if trip.type == .bus || trip.type == .coach {
+                return Text("route_title_bus \(trip.routeId)") + Text(" (") + Text(trip.type.displayName) + Text(")")
+            }
+            let start = StationData.shared.displayStationName(trip.startStation, languageCode: appLanguage)
+            let end = StationData.shared.displayStationName(trip.endStation, languageCode: appLanguage)
+            return Text("\(start) → \(end)")
+        }
         
         var body: some View {
             NavigationView {
@@ -400,7 +463,7 @@ struct CommuterRouteDetailView: View {
                             ForEach(route.trips) { trip in
                                 HStack(spacing: 12) {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(trip.displayTitle)
+                                        tripTitleText(trip)
                                             .font(.system(.body, design: .default))
                                             .fontWeight(.semibold)
                                             .foregroundColor(themeManager.primaryTextColor)
@@ -414,8 +477,18 @@ struct CommuterRouteDetailView: View {
                                     Text("$\(trip.price)")
                                         .font(.caption)
                                         .foregroundColor(themeManager.secondaryTextColor)
+                                    
+                                        Button(action: {
+                                            viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
+                                        }) {
+                                            Image(systemName: "trash")
+                                                .font(.system(size: 18))
+                                                .foregroundColor(.red)
+                                        }
+                                        .buttonStyle(.plain)
                                 }
-                                .padding(.vertical, 4)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 16)
                                 .background(rowBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                 .overlay(
@@ -429,7 +502,7 @@ struct CommuterRouteDetailView: View {
                                     Button(role: .destructive) {
                                         viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
                                     } label: {
-                                        Label(localizationManager.localized("delete"), systemImage: "trash")
+                                        Label("delete", systemImage: "trash")
                                     }
                                 }
                             }
@@ -442,18 +515,18 @@ struct CommuterRouteDetailView: View {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 36))
                                 .foregroundColor(themeManager.secondaryTextColor)
-                            Text(localizationManager.localized("commuter_route_empty"))
+                            Text("commuter_route_empty")
                                 .font(.headline)
                                 .foregroundColor(themeManager.primaryTextColor)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
-                .navigationTitle(route?.name ?? localizationManager.localized("commuter_route"))
+                .navigationTitle(route?.name ?? String(localized: "commuter_route", locale: Locale(identifier: appLanguage)))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(localizationManager.localized("done")) {
+                        Button("done") {
                             dismiss()
                         }
                         .font(.system(.body, design: .default))

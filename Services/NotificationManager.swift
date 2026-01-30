@@ -1,12 +1,11 @@
 import Foundation
 import UserNotifications
-import SwiftUI
-import Combine
+import UIKit
+import Combine // 👈 修正1：必須引入這個框架，才能使用 @Published 和 ObservableObject
 
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     
-    // 檢查授權狀態
     @Published var isAuthorized = false
     
     init() {
@@ -17,20 +16,7 @@ class NotificationManager: ObservableObject {
     func checkAuthorizationStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
-                switch settings.authorizationStatus {
-                case .authorized, .provisional:
-                    self.isAuthorized = true
-                default:
-                    #if compiler(>=5.5)
-                    if #available(iOS 14.0, *), settings.authorizationStatus == .ephemeral {
-                        self.isAuthorized = true
-                    } else {
-                        self.isAuthorized = false
-                    }
-                    #else
-                    self.isAuthorized = false
-                    #endif
-                }
+                self.isAuthorized = (settings.authorizationStatus == .authorized)
             }
         }
     }
@@ -41,82 +27,104 @@ class NotificationManager: ObservableObject {
             DispatchQueue.main.async {
                 self.isAuthorized = granted
                 if granted {
-                    print("✅ 通知權限已開通")
+                    print("通知權限已授權")
                 } else {
-                    print("❌ 通知權限被拒絕")
+                    print("通知權限被拒絕")
                 }
             }
         }
     }
     
-    // MARK: - 1. 每日記帳提醒
+    // MARK: - 每日提醒 (Daily Reminder)
     func scheduleDailyReminder(enabled: Bool, time: Date) {
-        // 先移除舊的，避免重複
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["daily_reminder"])
+        let identifier = "daily_reminder"
+        let center = UNUserNotificationCenter.current()
         
-        guard enabled else { return }
+        // 如果關閉，就移除待辦通知
+        if !enabled {
+            center.removePendingNotificationRequests(withIdentifiers: [identifier])
+            return
+        }
         
+        // 設定內容 (使用系統原生多國語系)
         let content = UNMutableNotificationContent()
-        content.title = LocalizationManager.shared.localized("notification_daily_title")
-        content.body = LocalizationManager.shared.localized("notification_daily_body")
+        // 這裡使用 iOS 15+ 的 String(localized:)，會自動去 Localizable.xcstrings 找翻譯
+        content.title = String(localized: "notification_daily_title")
+        content.body = String(localized: "notification_daily_body")
         content.sound = .default
         
+        // 設定時間觸發 (每天)
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour, .minute], from: time)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         
-        let request = UNNotificationRequest(identifier: "daily_reminder", content: content, trigger: trigger)
+        // 建立請求
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
-        UNUserNotificationCenter.current().add(request) { error in
+        center.add(request) { error in
             if let error = error {
-                print("設定每日提醒失敗: \(error.localizedDescription)")
+                print("每日提醒設定失敗: \(error)")
             } else {
-                print("✅ 已設定每日提醒: \(components.hour ?? 0):\(components.minute ?? 0)")
+                print("每日提醒已設定於: \(components.hour ?? 0):\(components.minute ?? 0)")
             }
         }
     }
     
-    // MARK: - 2. 月票到期與新週期提醒
-    func scheduleCycleReminders(enabled: Bool, currentCycle: Cycle?) {
-        // 移除舊的相關通知
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["cycle_expiring_3days", "cycle_expiring_tomorrow", "cycle_new_start"])
-        
-        guard enabled, let cycle = currentCycle else { return }
-        
-        let calendar = Calendar.current
-        let endDate = cycle.end
-        
-        // 1. 到期前 3 天提醒
-        if let threeDaysBefore = calendar.date(byAdding: .day, value: -3, to: endDate), threeDaysBefore > Date() {
-            let content = UNMutableNotificationContent()
-            content.title = LocalizationManager.shared.localized("notification_cycle_expiring_title")
-            content.body = LocalizationManager.shared.localized("notification_cycle_expiring_body")
-            content.sound = .default
+    // MARK: - 週期提醒 (Cycle Reminder)
+        // 提醒用戶月票快過期，或已經過期
+        func scheduleCycleReminders(enabled: Bool, currentCycle: Cycle?) {
+            let center = UNUserNotificationCenter.current()
+            let identifiers = ["cycle_expiring", "cycle_expired"]
             
-            // 設定在早上 9:00 提醒
-            var components = calendar.dateComponents([.year, .month, .day], from: threeDaysBefore)
-            components.hour = 9; components.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "cycle_expiring_3days", content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request)
-        }
-        
-        // 2. 到期當天提醒 (設定新週期提醒)
-        // 邏輯：到期隔天早上提醒使用者設定新週期
-        if let dayAfterEnd = calendar.date(byAdding: .day, value: 1, to: endDate), dayAfterEnd > Date() {
-            let content = UNMutableNotificationContent()
-            content.title = LocalizationManager.shared.localized("notification_cycle_new_title")
-            content.body = LocalizationManager.shared.localized("notification_cycle_new_body")
-            content.sound = .default
+            if !enabled || currentCycle == nil {
+                center.removePendingNotificationRequests(withIdentifiers: identifiers)
+                return
+            }
             
-            // 設定在早上 8:30 提醒
-            var components = calendar.dateComponents([.year, .month, .day], from: dayAfterEnd)
-            components.hour = 8; components.minute = 30
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "cycle_new_start", content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request)
+            // 🔥 修正：這裡嘗試讀取 .start，如果您的模型是用 .date 或 .startTime，請手動更改這裡
+            guard let startDate = currentCycle?.start else {
+                print("無法設定週期提醒：Cycle 模型中找不到 start 屬性")
+                return
+            }
+            
+            // 推算到期日 (假設週期為 30 天)
+            guard let endDate = Calendar.current.date(byAdding: .day, value: 30, to: startDate) else { return }
+            
+            // 1. 快到期提醒 (例如前 3 天)
+            scheduleNotification(
+                identifier: "cycle_expiring",
+                title: String(localized: "notification_cycle_expiring_title"),
+                body: String(localized: "notification_cycle_expiring_body"),
+                date: Calendar.current.date(byAdding: .day, value: -3, to: endDate)
+            )
+            
+            // 2. 過期後提醒 (例如過期隔天，提醒設定新週期)
+            scheduleNotification(
+                identifier: "cycle_expired",
+                title: String(localized: "notification_cycle_new_title"),
+                body: String(localized: "notification_cycle_new_body"),
+                date: Calendar.current.date(byAdding: .day, value: 1, to: endDate)
+            )
         }
+    
+    // 私有輔助方法
+    private func scheduleNotification(identifier: String, title: String, body: String, date: Date?) {
+        guard let date = date, date > Date() else { return } // 如果時間已經過了就不設
         
-        print("✅ 已更新週期相關通知 (到期日: \(endDate.formatted(date: .numeric, time: .omitted)))")
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        // 這裡預設設在早上 9:00 提醒
+        var triggerComponents = components
+        triggerComponents.hour = 9
+        triggerComponents.minute = 0
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
     }
 }

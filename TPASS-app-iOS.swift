@@ -7,7 +7,7 @@ struct TPASS_app_iOSApp: App {
     @StateObject var authService = AuthService.shared
     @StateObject var appViewModel = AppViewModel()
     @StateObject var themeManager = ThemeManager.shared
-    @StateObject var localizationManager = LocalizationManager.shared
+
     
     // 🔥 設定 SwiftData ModelContainer
     let modelContainer: ModelContainer
@@ -38,7 +38,6 @@ struct TPASS_app_iOSApp: App {
             .environmentObject(authService)
             .environmentObject(appViewModel)
             .environmentObject(themeManager)
-            .environmentObject(localizationManager)
             .preferredColorScheme(themeManager.colorScheme)
             .accentColor(themeManager.accentColor)
             .animation(.easeInOut(duration: 0.25), value: authService.isRestoringSession)
