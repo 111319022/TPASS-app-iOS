@@ -148,9 +148,17 @@ struct FavoritesManagementView: View {
             return Text("route_title_bus \(fav.routeId)") + Text(" (") + Text(fav.type.displayName) + Text(")")
         }
         let lang = Locale.current.identifier
-        let start = StationData.shared.displayStationName(fav.startStation, languageCode: lang)
-        let end = StationData.shared.displayStationName(fav.endStation, languageCode: lang)
+        let start = displayStationName(fav.startStation, type: fav.type, languageCode: lang)
+        let end = displayStationName(fav.endStation, type: fav.type, languageCode: lang)
         return Text("\(start) → \(end)")
+    }
+    
+    private func displayStationName(_ stationName: String, type: TransportType, languageCode: String) -> String {
+        if type == .tymrt {
+            return TYMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
+        } else {
+            return StationData.shared.displayStationName(stationName, languageCode: languageCode)
+        }
     }
     
     @ViewBuilder
@@ -413,7 +421,6 @@ struct FavoritesManagementView: View {
 
 // MARK: - CommuterRouteDetailView
 struct CommuterRouteDetailView: View {
-    @AppStorage("AppLanguage") private var appLanguage: String = "zh-Hant"
         @EnvironmentObject var viewModel: AppViewModel
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.dismiss) var dismiss
@@ -446,9 +453,18 @@ struct CommuterRouteDetailView: View {
             if trip.type == .bus || trip.type == .coach {
                 return Text("route_title_bus \(trip.routeId)") + Text(" (") + Text(trip.type.displayName) + Text(")")
             }
-            let start = StationData.shared.displayStationName(trip.startStation, languageCode: appLanguage)
-            let end = StationData.shared.displayStationName(trip.endStation, languageCode: appLanguage)
+            let start = displayStationNameForCommuter(trip.startStation, type: trip.type)
+            let end = displayStationNameForCommuter(trip.endStation, type: trip.type)
             return Text("\(start) → \(end)")
+        }
+        
+        private func displayStationNameForCommuter(_ stationName: String, type: TransportType) -> String {
+            let lang = Locale.current.identifier
+            if type == .tymrt {
+                return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+            } else {
+                return StationData.shared.displayStationName(stationName, languageCode: lang)
+            }
         }
         
         var body: some View {
@@ -522,7 +538,7 @@ struct CommuterRouteDetailView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
-                .navigationTitle(route?.name ?? String(localized: "commuter_route", locale: Locale(identifier: appLanguage)))
+                .navigationTitle(route?.name ?? String(localized: "commuter_route"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {

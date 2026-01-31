@@ -272,6 +272,15 @@ struct TripListView: View {
     
     // MARK: - Helper Methods
     
+    private func displayStationName(_ stationName: String, type: TransportType) -> String {
+        let lang = Locale.current.identifier
+        if type == .tymrt {
+            return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else {
+            return StationData.shared.displayStationName(stationName, languageCode: lang)
+        }
+    }
+    
     func showToast(message: LocalizedStringKey) {
         toastMessage = message
         withAnimation { isToastShowing = true }
@@ -560,6 +569,15 @@ struct TripRowView: View {
 
     let trip: Trip
     
+    private func displayStationName(_ stationName: String, type: TransportType) -> String {
+        let lang = Locale.current.identifier
+        if type == .tymrt {
+            return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else {
+            return StationData.shared.displayStationName(stationName, languageCode: lang)
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 15) {
             let themeColor = themeManager.transportColor(trip.type)
@@ -581,7 +599,7 @@ struct TripRowView: View {
                     
                     let details = [
                         trip.routeId.isEmpty ? nil : trip.routeId,
-                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(StationData.shared.displayStationName(trip.startStation, languageCode: Locale.current.identifier)) → \(StationData.shared.displayStationName(trip.endStation, languageCode: Locale.current.identifier))"
+                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(displayStationName(trip.startStation, type: trip.type)) → \(displayStationName(trip.endStation, type: trip.type))"
                     ].compactMap { $0 }.joined(separator: " ")
                     
                     if !details.isEmpty {
