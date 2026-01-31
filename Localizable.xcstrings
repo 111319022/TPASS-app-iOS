@@ -1439,6 +1439,216 @@
         }
       }
     },
+    "csv_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : ".csv files"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ".csv檔案"
+          }
+        }
+      }
+    },
+    "csv_export" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Trip Data (CSV)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出行程資料 (CSV)"
+          }
+        }
+      }
+    },
+    "csv_export_failed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export failed"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出失敗"
+          }
+        }
+      }
+    },
+    "csv_export_footer_1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV export allows you to back up trip data to a file for safekeeping or transfer to other devices."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 匯出可將行程資料備份為檔案，方便保存或轉移至其他裝置。"
+          }
+        }
+      }
+    },
+    "csv_export_footer_2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV import allows you to restore trip data from a previously exported file."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 匯入可從先前匯出的檔案還原行程資料。"
+          }
+        }
+      }
+    },
+    "csv_export_footer_3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV export & import only do TRIP DATAs, favorite routes and cycles will not be included."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 匯入匯出功能只會操作行程資料，常用路線與週期並不會包含"
+          }
+        }
+      }
+    },
+    "csv_export_import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import / Export Trip Data"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯入/匯出行程資料"
+          }
+        }
+      }
+    },
+    "csv_export_success" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export successful"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出成功"
+          }
+        }
+      }
+    },
+    "csv_fetch_failed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to fetch trip data"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取行程資料"
+          }
+        }
+      }
+    },
+    "csv_import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Trip Data (CSV)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯入行程資料 (CSV)"
+          }
+        }
+      }
+    },
+    "csv_import_count %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully imported %lld trips!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成功匯入 %lld 筆行程！"
+          }
+        }
+      }
+    },
+    "csv_import_failed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import failed: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯入失敗：%@"
+          }
+        }
+      }
+    },
+    "csv_no_data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data to export"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有資料可匯出"
+          }
+        }
+      }
+    },
     "current_cycle_month" : {
       "localizations" : {
         "en" : {
@@ -1556,14 +1766,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data Management (iCloud Backup)"
+            "state" : "needs_review",
+            "value" : "Data Management"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "資料管理 (iCloud 備份)"
+            "value" : "資料管理"
           }
         }
       }
@@ -4320,6 +4530,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更新資訊"
+          }
+        }
+      }
+    },
+    "user_not_found" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User not found"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "找不到用戶資料"
           }
         }
       }

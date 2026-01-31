@@ -107,8 +107,9 @@ struct SettingsView: View {
                     }
                 }
                 
-                // MARK: - 4. 資料管理 (iCloud 備份)
+                // MARK: - 4. 資料管理 (iCloud 備份 + CSV)
                 Section(header: Text("dataManagement")) {
+                    // iCloud 備份
                     NavigationLink(destination: BackupManagementView()) {
                         HStack {
                             Image(systemName: "icloud.fill")
@@ -128,6 +129,26 @@ struct SettingsView: View {
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    
+                    // CSV 匯出/匯入
+                    NavigationLink(destination: CSVManagementView()) {
+                        HStack {
+                            Image(systemName: "doc.text.fill")
+                                .foregroundColor(.green)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("csv_export_import")
+                                    .font(.headline)
+                                    .foregroundColor(themeManager.primaryTextColor)
+                                
+                                Text("csv_detail")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                             
                             Spacer()
