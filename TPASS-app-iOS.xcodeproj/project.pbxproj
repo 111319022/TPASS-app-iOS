@@ -34,6 +34,8 @@
 		FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */; };
 		FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFA92F2DA8B500E09054 /* CSVManager.swift */; };
 		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
+		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */; };
+		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
 		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +70,8 @@
 		FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FB31BFA92F2DA8B500E09054 /* CSVManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManager.swift; sourceTree = "<group>"; };
 		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
+		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareData.swift; sourceTree = "<group>"; };
+		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
 		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,6 +183,8 @@
 			children = (
 				FB0D948E2F20E2D700B687D3 /* StationData.swift */,
 				FB0D948F2F20E2EC00B687D3 /* FareData.swift */,
+				FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */,
+				FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -274,6 +280,8 @@
 				FB05D3112F2314EE0084F64D /* User.swift in Sources */,
 				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
 				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
+				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareData.swift in Sources */,
+				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
 				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
 				FB0D94922F20E43800B687D3 /* StationData.swift in Sources */,
 				FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */,

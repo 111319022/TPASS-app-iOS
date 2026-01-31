@@ -102,14 +102,17 @@ struct EditTripView: View {
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         selectedType = type
-                                        // Unlike Add, we don't clear fields immediately when editing to prevent accidental data loss,
-                                        // unless user explicitly wants to clear. Or we can keep the logic consistent:
+                                        // 🔥 切換運具時清空起读站
                                         if type == .bus {
                                             startStation = ""; endStation = ""
-                                            // Only reset price if it was empty or switching from non-bus
                                             if price.isEmpty { price = (currentIdentity == .student) ? "12" : "15" }
                                         } else {
                                             if type != .coach { routeId = "" }
+                                            // 清空起读站
+                                            startStation = ""
+                                            endStation = ""
+                                            startLineCode = ""
+                                            endLineCode = ""
                                         }
                                     }
                                 }) {
@@ -244,11 +247,19 @@ struct EditTripView: View {
     // MARK: - Logic
     
     func recalculateMRTPrice() {
-        // 北捷站點變化時自動查詢票價
+        // 1. 北捷
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false // 重置轉乘狀態
+            }
+        }
+        // 2. 🔥 加入機捷
+        else if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
+            if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                // 機捷通常不適用雙北轉乘優惠，所以也設為 false，視需求調整
+                isTransfer = false
             }
         }
     }

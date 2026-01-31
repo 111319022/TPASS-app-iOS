@@ -247,17 +247,33 @@ struct AddTripView: View {
             // 切換其他運具時
             // 如果不是客運，才清空 routeId (因為客運需要 routeId)
             if newType != .coach { routeId = "" }
+            // 🔥 清空起读站
+            startStation = ""
+            endStation = ""
+            startLineCode = ""
+            endLineCode = ""
             price = ""
         }
     }
     
     func tryAutoFillFromHistory() {
+        // 1. 北捷邏輯
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
             if let officialPrice = FareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(officialPrice)
                 return
             }
         }
+        
+        // 2. 🔥 新增：桃園機捷邏輯
+        if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
+            if let tymrtPrice = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(tymrtPrice)
+                return
+            }
+        }
+        
+        // 3. 歷史紀錄查詢
         let match = viewModel.trips.first { trip in
             guard trip.type == selectedType else { return false }
             
@@ -269,6 +285,7 @@ struct AddTripView: View {
             } else if selectedType == .bus {
                 return !routeId.isEmpty && trip.routeId == routeId
             } else {
+                // 北捷、機捷或其他：比對起訖站
                 return !startStation.isEmpty && !endStation.isEmpty &&
                        trip.startStation == startStation && trip.endStation == endStation
             }
@@ -348,12 +365,11 @@ struct StationInputRow: View {
     @Binding var stationName: String
     @EnvironmentObject var themeManager: ThemeManager
 
-    
     var body: some View {
         HStack(spacing: 0) {
             
+            // === 1. 北捷 (MRT) 雙層選單 ===
             if type == .mrt {
-                // 北捷：左邊選單 (50%)
                 Menu {
                     ForEach(StationData.shared.lines) { line in
                         Button(action: {
@@ -361,46 +377,30 @@ struct StationInputRow: View {
                             stationName = ""
                         }) {
                             Text(StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                .foregroundColor(themeManager.primaryTextColor)
                         }
                     }
                 } label: {
                     HStack {
-                        Text(label)
-                            .font(.caption)
-                            .foregroundColor(themeManager.primaryTextColor)
-                            .padding(.leading, 12)
+                        Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
                         Spacer()
                         if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
                             Text(StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(line.color)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
+                                .font(.subheadline).fontWeight(.bold).foregroundColor(line.color).lineLimit(1).minimumScaleFactor(0.8)
                         } else {
-                            Text("select_route")
-                                .font(.subheadline)
-                                .foregroundColor(themeManager.primaryTextColor)
+                            Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
                         }
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                            .foregroundColor(themeManager.primaryTextColor)
-                            .padding(.trailing, 8)
+                        Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
                     }
-                    .frame(maxHeight: .infinity)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.gray.opacity(0.05))
+                    .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
                 }
                 
-                Divider() // 中間分隔線
+                Divider()
                 
-                // 北捷：右邊選單 (50%)
                 Menu {
                     if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
                         ForEach(line.stations, id: \.self) { station in
                             Button(action: { stationName = station }) {
-                                    Text(StationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
+                                Text(StationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
                             }
                         }
                     } else {
@@ -409,11 +409,62 @@ struct StationInputRow: View {
                 } label: {
                     HStack {
                         if stationName.isEmpty {
-                            Text("select_station")
+                            Text("select_station").foregroundColor(themeManager.secondaryTextColor)
+                        } else {
+                            Text(StationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
+                                .foregroundColor(themeManager.primaryTextColor)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
+                    }
+                    .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                
+            // === 2. 桃園機捷 (TYMRT) 單層選單 ===
+            } else if type == .tymrt {
+                // 左邊：顯示標籤和機捷名稱 (50%)
+                HStack {
+                    Text(label)
+                        .font(.caption)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .padding(.leading, 12)
+                    Spacer()
+                    Text("機場捷運", comment: "Airport MRT line name")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: "#8246AF"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .padding(.trailing, 8)
+                }
+                .frame(maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+                .background(Color.gray.opacity(0.05))
+                .contentShape(Rectangle())
+                
+                Divider()
+                
+                // 右邊：站點選單 (50%)
+                Menu {
+                    ForEach(TYMRTStationData.shared.line.stations, id: \.self) { station in
+                        Button(action: { stationName = station }) {
+                            Text(TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
+                        }
+                    }
+                } label: {
+                    HStack {
+                        if stationName.isEmpty {
+                            Text("選擇站點", comment: "Select station placeholder")
                                 .foregroundColor(themeManager.secondaryTextColor)
                         } else {
-                                Text(StationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
+                            Text(TYMRTStationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
                                 .foregroundColor(themeManager.primaryTextColor)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.9)
                         }
                         Spacer()
                         Image(systemName: "chevron.down")
@@ -424,16 +475,14 @@ struct StationInputRow: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
+            // === 3. 其他運具 (手動輸入) ===
             } else {
-                // 非北捷：左邊標籤 (固定寬度) + 右邊輸入框 (填滿)
                 Text(label)
                     .font(.caption)
                     .foregroundColor(themeManager.primaryTextColor)
                     .frame(width: 50)
                     .padding(.leading, 8)
-                
                 Divider()
-                
                 TextField("enter_station_name", text: $stationName)
                     .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity)

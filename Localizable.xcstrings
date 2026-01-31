@@ -922,23 +922,6 @@
         }
       }
     },
-    "breakeven" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Breakeven Rate"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "回本率"
-          }
-        }
-      }
-    },
     "breakeven_complete $%lld" : {
       "localizations" : {
         "en" : {
@@ -1444,7 +1427,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : ".csv files"
           }
         },
@@ -1766,7 +1749,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Data Management"
           }
         },
@@ -4469,23 +4452,6 @@
         }
       }
     },
-    "tutorial_upload_image" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please add image: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請上傳 %@"
-          }
-        }
-      }
-    },
     "tutorial_upload_image %@" : {
       "localizations" : {
         "en" : {
@@ -4601,8 +4567,42 @@
         }
       }
     },
+    "機場捷運" : {
+      "comment" : "Airport MRT line name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A.P. MRT"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "機場捷運"
+          }
+        }
+      }
+    },
     "繁體中文" : {
 
+    },
+    "選擇站點" : {
+      "comment" : "Select station placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇站點"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
