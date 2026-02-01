@@ -3758,6 +3758,7 @@
 
     },
     "route_example %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3769,6 +3770,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "輸入路線編號 (例: %@)"
+          }
+        }
+      }
+    },
+    "route_example 307" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ex: 307"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例：307"
+          }
+        }
+      }
+    },
+    "route_example 1610" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ex: 1610"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例：1610"
           }
         }
       }

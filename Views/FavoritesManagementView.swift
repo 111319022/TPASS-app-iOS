@@ -156,6 +156,8 @@ struct FavoritesManagementView: View {
     private func displayStationName(_ stationName: String, type: TransportType, languageCode: String) -> String {
         if type == .tymrt {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
+        } else if type == .tra {
+            return TRAStationData.shared.displayStationName(stationName, languageCode: languageCode)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: languageCode)
         }
@@ -462,6 +464,8 @@ struct CommuterRouteDetailView: View {
             let lang = Locale.current.identifier
             if type == .tymrt {
                 return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+            } else if type == .tra {
+                return TRAStationData.shared.displayStationName(stationName, languageCode: lang)
             } else {
                 return StationData.shared.displayStationName(stationName, languageCode: lang)
             }
@@ -478,6 +482,12 @@ struct CommuterRouteDetailView: View {
                         List {
                             ForEach(route.trips) { trip in
                                 HStack(spacing: 12) {
+                                    // 運具 icon
+                                    Image(systemName: trip.type.systemIconName)
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(themeManager.transportColor(trip.type))
+                                        .frame(width: 24, alignment: .center)
+                                    
                                     VStack(alignment: .leading, spacing: 4) {
                                         tripTitleText(trip)
                                             .font(.system(.body, design: .default))
@@ -497,7 +507,7 @@ struct CommuterRouteDetailView: View {
                                         Button(action: {
                                             viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
                                         }) {
-                                            Image(systemName: "trash")
+                                            Image(systemName: "trash.fill")
                                                 .font(.system(size: 18))
                                                 .foregroundColor(.red)
                                         }
@@ -518,7 +528,7 @@ struct CommuterRouteDetailView: View {
                                     Button(role: .destructive) {
                                         viewModel.removeCommuterTrip(routeId: routeId, tripId: trip.id)
                                     } label: {
-                                        Label("delete", systemImage: "trash")
+                                        Label("delete", systemImage: "trash.fill")
                                     }
                                 }
                             }

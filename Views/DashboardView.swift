@@ -870,8 +870,29 @@ struct DashboardView: View {
         let tripsUnitKey: LocalizedStringKey
 
         private var routeNameText: Text {
+            let lang = Locale.current.identifier
             if let routeId = route.routeId, (route.type == .bus || route.type == .coach) {
                 return Text("route_title_bus \(routeId)") + Text(" (") + Text(route.type.displayName) + Text(")")
+            } else if route.type == .tra {
+                // 台鐵：將起訖站代號轉換為車站名稱
+                let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
+                if parts.count == 2 {
+                    let startName = TRAStationData.shared.displayStationName(parts[0], languageCode: lang)
+                    let endName = TRAStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    let displayName = "\(startName) ↔ \(endName)"
+                    return Text(displayName)
+                }
+                return Text(route.name)
+            } else if route.type == .tymrt {
+                // 機捷：將起訖站代號轉換為車站名稱，支援雙語
+                let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
+                if parts.count == 2 {
+                    let startName = TYMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
+                    let endName = TYMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    let displayName = "\(startName) ↔ \(endName)"
+                    return Text(displayName)
+                }
+                return Text(route.name)
             }
             return Text(route.name)
         }

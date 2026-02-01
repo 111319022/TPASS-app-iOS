@@ -22,6 +22,10 @@ struct EditTripView: View {
     @State private var startLineCode: String = ""
     @State private var endLineCode: String = ""
     
+    // TRA 區域選擇（起站和終點分開）
+    @State private var selectedTRARegionStart: String = ""
+    @State private var selectedTRARegionEnd: String = ""
+    
     // Price and Options
     @State private var price: String
     @State private var note: String
@@ -74,6 +78,18 @@ struct EditTripView: View {
             }
             if let line = StationData.shared.lines.first(where: { $0.stations.contains(trip.endStation) }) {
                 _endLineCode = State(initialValue: line.code)
+            }
+        }
+        
+        // 台鐵：反向查詢區域
+        if trip.type == .tra {
+            // 根據 startStation 和 endStation 代號查詢區域
+            let stationData = TRAStationData.shared
+            if let startRegion = stationData.regions.first(where: { $0.stations.contains { $0.id == trip.startStation } }) {
+                _selectedTRARegionStart = State(initialValue: startRegion.id)
+            }
+            if let endRegion = stationData.regions.first(where: { $0.stations.contains { $0.id == trip.endStation } }) {
+                _selectedTRARegionEnd = State(initialValue: endRegion.id)
             }
         }
     }
@@ -134,29 +150,7 @@ struct EditTripView: View {
                         .padding(.bottom, 5)
                         
                         // 3. Route/Station Input
-                        VStack(spacing: 0) {
-                            if selectedType == .bus || selectedType == .coach {
-                                let example = selectedType == .bus ? "307" : "1610"
-                                TextField("route_example \(example)", text: $routeId)
-                                    .padding(12)
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                
-                                if selectedType == .coach {
-                                    Divider().opacity(0.5).padding(.leading, 12)
-                                }
-                            }
-                            
-                            if selectedType != .bus {
-                                VStack(spacing: 0) {
-                                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
-                                    Divider().opacity(0.5).padding(.leading, 12)
-                                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
-                                }
-                            }
-                        }
-                        .background(inputBackgroundColor)
-                        .cornerRadius(10)
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                        routeStationInputView()
                         
                         // 4. Price & Options
                         HStack(spacing: 12) {
@@ -254,13 +248,18 @@ struct EditTripView: View {
                 isTransfer = false // 重置轉乘狀態
             }
         }
-        // 2. 🔥 加入機捷
+        // 2. 機捷
         else if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                // 機捷通常不適用雙北轉乘優惠，所以也設為 false，視需求調整
                 isTransfer = false
             }
+        }
+        // 3. 台鐵
+        else if selectedType == .tra, !startStation.isEmpty, !endStation.isEmpty {
+            let fare = TRAFareService.shared.getFare(from: startStation, to: endStation)
+            price = String(fare)
+            isTransfer = false
         }
     }
     
@@ -310,6 +309,155 @@ struct EditTripView: View {
         viewModel.updateTrip(updatedTrip)
         onSuccess?()
         presentationMode.wrappedValue.dismiss()
+    }
+    
+    // MARK: - UI Components
+    
+    func routeStationInputView() -> some View {
+        VStack(spacing: 0) {
+            // 公車
+            if selectedType == .bus {
+                TextField("route_example 307", text: $routeId)
+                    .padding(12)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            // 客運
+            else if selectedType == .coach {
+                VStack(spacing: 0) {
+                    TextField("route_example 1610", text: $routeId)
+                        .padding(12)
+                        .foregroundColor(themeManager.primaryTextColor)
+                    Divider().opacity(0.5).padding(.leading, 12)
+                    
+                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+                    Divider().opacity(0.5).padding(.leading, 12)
+                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+                }
+            }
+            // 台鐵 - 兩欄設計
+            else if selectedType == .tra {
+                let stationData = TRAStationData.shared
+                let traRegions = stationData.regions
+                let traSelectedRegionStart = traRegions.first { $0.id == selectedTRARegionStart }
+                let traStationsStart = traSelectedRegionStart?.stations ?? []
+                let traSelectedRegionEnd = traRegions.first { $0.id == selectedTRARegionEnd }
+                let traStationsEnd = traSelectedRegionEnd?.stations ?? []
+                
+                // 起站
+                HStack(spacing: 0) {
+                    Menu {
+                        ForEach(traRegions, id: \.id) { region in
+                            Button(TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier)) {
+                                selectedTRARegionStart = region.id
+                                startStation = ""
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(TRAStationData.shared.displayRegionName(traSelectedRegionStart?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Region" : "選擇區域") : TRAStationData.shared.displayRegionName(traSelectedRegionStart?.name ?? "", languageCode: Locale.current.identifier))
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.gray.opacity(0.05))
+                    }
+                    
+                    Divider()
+                    
+                    Menu {
+                        ForEach(traStationsStart, id: \.id) { station in
+                            Button(TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)) {
+                                startStation = station.id
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(TRAStationData.shared.displayStationName(traStationsStart.first { $0.id == startStation }?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Station" : "選擇車站") : TRAStationData.shared.displayStationName(traStationsStart.first { $0.id == startStation }?.name ?? "", languageCode: Locale.current.identifier))
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(maxHeight: .infinity)
+                        .foregroundColor(traStationsStart.isEmpty ? Color.gray : themeManager.primaryTextColor)
+                    }
+                    .disabled(traStationsStart.isEmpty)
+                }
+                .frame(height: 44)
+                .foregroundColor(themeManager.primaryTextColor)
+                
+                Divider().opacity(0.5).padding(.leading, 12)
+                
+                // 終點
+                HStack(spacing: 0) {
+                    Menu {
+                        ForEach(traRegions, id: \.id) { region in
+                            Button(TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier)) {
+                                selectedTRARegionEnd = region.id
+                                endStation = ""
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(TRAStationData.shared.displayRegionName(traSelectedRegionEnd?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Region" : "選擇區域") : TRAStationData.shared.displayRegionName(traSelectedRegionEnd?.name ?? "", languageCode: Locale.current.identifier))
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.gray.opacity(0.05))
+                    }
+                    
+                    Divider()
+                    
+                    Menu {
+                        ForEach(traStationsEnd, id: \.id) { station in
+                            Button(TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)) {
+                                endStation = station.id
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(TRAStationData.shared.displayStationName(traStationsEnd.first { $0.id == endStation }?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Station" : "選擇車站") : TRAStationData.shared.displayStationName(traStationsEnd.first { $0.id == endStation }?.name ?? "", languageCode: Locale.current.identifier))
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(maxHeight: .infinity)
+                        .foregroundColor(traStationsEnd.isEmpty ? Color.gray : themeManager.primaryTextColor)
+                    }
+                    .disabled(traStationsEnd.isEmpty)
+                }
+                .frame(height: 44)
+                .foregroundColor(themeManager.primaryTextColor)
+            }
+            else {
+                VStack(spacing: 0) {
+                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+                    Divider().opacity(0.5).padding(.leading, 12)
+                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+                }
+            }
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
     }
     
     // Reuse component
