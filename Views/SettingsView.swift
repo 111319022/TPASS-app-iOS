@@ -22,6 +22,11 @@ struct SettingsView: View {
     @State private var showThemeTransition = false
     @State private var selectedTheme: AppTheme?
     
+    // 教學相關
+    @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
+    @AppStorage("tutorialStep_v1") private var savedTutorialStep: Int = 0
+    @SceneStorage("mainTab.selectedTab") private var selectedTab: Int = 0
+    
     var body: some View {
         NavigationView {
             Form {
@@ -189,14 +194,20 @@ struct SettingsView: View {
                 
                 // MARK: - 6. 其他
                 Section {
-                    NavigationLink(destination: TutorialView()) {
+                    Button(action: {
+                        // 重置教學到第一步
+                        savedTutorialStep = 0
+                        hasShownTutorial = false
+                        // 切回第一個頁籤（Trips）
+                        selectedTab = 0
+                    }) {
                         HStack {
                             Spacer()
                             Text("tutorial")
                             Spacer()
                         }
                     }
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .foregroundColor(themeManager.accentColor)
                 }
                 
                 Section {

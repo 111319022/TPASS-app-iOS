@@ -14,6 +14,16 @@ struct TPASS_app_iOSApp: App {
     
     init() {
         do {
+            // 🔥🔥🔥 新增這段：手動建立 Application Support 資料夾
+            let fileManager = FileManager.default
+            if let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                if !fileManager.fileExists(atPath: appSupportURL.path) {
+                    print("📁 建立 Application Support 資料夾...")
+                    try fileManager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+                }
+            }
+            // 🔥🔥🔥 結束
+
             // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
             let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false, cloudKitDatabase: .none)

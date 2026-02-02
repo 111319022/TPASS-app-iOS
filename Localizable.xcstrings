@@ -485,23 +485,6 @@
         }
       }
     },
-    "backup_cycle_count %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld cycles"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 週期"
-          }
-        }
-      }
-    },
     "backup_delete_failed" : {
       "localizations" : {
         "en" : {
@@ -546,23 +529,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除成功"
-          }
-        }
-      }
-    },
-    "backup_favorite_count %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld favorites"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 常用路線"
           }
         }
       }
@@ -727,23 +693,6 @@
         }
       }
     },
-    "backup_sheet_desc %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You will upload %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將上傳 %@"
-          }
-        }
-      }
-    },
     "backup_sheet_title" : {
       "localizations" : {
         "en" : {
@@ -756,40 +705,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上傳備份到 iCloud"
-          }
-        }
-      }
-    },
-    "backup_summary %lld %lld %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld trips, %2$lld favorites, %3$lld cycles"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld 筆行程、%2$lld 個常用路線、%3$lld 個週期"
-          }
-        }
-      }
-    },
-    "backup_trip_count %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trips"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 行程"
           }
         }
       }
@@ -1001,23 +916,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消轉乘"
-          }
-        }
-      }
-    },
-    "change_language_system_settings" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Settings to change languages."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟設定更改語言"
           }
         }
       }
@@ -1708,23 +1606,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "週期管理"
-          }
-        }
-      }
-    },
-    "dashboard" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dashboard"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "首頁"
           }
         }
       }
@@ -3757,23 +3638,6 @@
     "route" : {
 
     },
-    "route_example %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter Route No. (e.g. %@)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輸入路線編號 (例: %@)"
-          }
-        }
-      }
-    },
     "route_example 307" : {
       "localizations" : {
         "en" : {
@@ -3967,58 +3831,58 @@
       }
     },
     "theme_dark" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dark"
+            "value" : "Dark Theme"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "深色模式"
+            "value" : "深色主題"
           }
         }
       }
     },
     "theme_light" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Light"
+            "value" : "Light Theme"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "淺色模式"
+            "value" : "淺色主題"
           }
         }
       }
     },
     "theme_muji" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Warm Style"
+            "value" : "Warm Theme"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暖色風格"
+            "value" : "暖色主題"
           }
         }
       }
     },
     "theme_system" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4405,98 +4269,274 @@
         }
       }
     },
-    "tutorial_card_add_data" : {
+    "tutorial_addButton_desc" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add a trip"
+            "value" : "Tap the \"+\" button below to select transportation and auto-fill fares."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新增資料"
+            "value" : "點擊下方的「+」按鈕，選擇各運具，部分可以自動帶入票價。"
           }
         }
       }
     },
-    "tutorial_card_more_features" : {
+    "tutorial_addButton_title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "More features"
+            "value" : "Log Your First Trip"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更多功能"
+            "value" : "記下您的第一筆行程"
           }
         }
       }
     },
-    "tutorial_card_quick_add" : {
+    "tutorial_cycle_desc" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick add (swipe right)"
+            "value" : "Select your billing cycle, the system will automatically calculate fares within that period."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快速新增（右滑）"
+            "value" : "選擇您的計費週期，系統會自動統計該週期內的票價。"
           }
         }
       }
     },
-    "tutorial_card_quick_delete" : {
+    "tutorial_cycle_title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick delete (swipe left)"
+            "value" : "Select Billing Cycle"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快速刪除（左滑）"
+            "value" : "選擇計費週期"
           }
         }
       }
     },
-    "tutorial_trip_history_title" : {
+    "tutorial_favorites_desc" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trip List"
+            "value" : "Tap the \"★\" button in the upper right corner to add and manage your favorite routes."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "行程紀錄"
+            "value" : "點擊右上角「★」按鈕，新增與管理您的常用通勤路線。"
           }
         }
       }
     },
-    "tutorial_upload_image %@" : {
+    "tutorial_favorites_title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please add image: %@"
+            "value" : "Manage Favorite Routes"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "請上傳 %@"
+            "value" : "新增與管理常用路線"
+          }
+        }
+      }
+    },
+    "tutorial_finish_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're all set! Go set your first cycle in Settings!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您現在可以開始使用了，趕快去設定設定第一筆週期吧！"
+          }
+        }
+      }
+    },
+    "tutorial_finish_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready to Go!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "準備就緒！"
+          }
+        }
+      }
+    },
+    "tutorial_longPress_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tap to edit. Long press to set as favorite/commute route for quick access."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "短按該筆記錄，可修改。長按可設定為常用/通勤路線，下次快速新增。"
+          }
+        }
+      }
+    },
+    "tutorial_longPress_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit & Set Routes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯與設定常用路線"
+          }
+        }
+      }
+    },
+    "tutorial_next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一步"
+          }
+        }
+      }
+    },
+    "tutorial_start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Started"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始使用"
+          }
+        }
+      }
+    },
+    "tutorial_swipe_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe left to delete, swipe right for quick actions."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在行程列表上「向左滑動」可刪除，「向右滑動」可進行快速操作。"
+          }
+        }
+      }
+    },
+    "tutorial_swipe_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Actions & Delete"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速按鈕與刪除"
+          }
+        }
+      }
+    },
+    "tutorial_welcome_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let's take 1 minute to learn how to easily track your commute expenses."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讓我們花 1 分鐘帶您熟悉如何輕鬆紀錄通勤費用。"
+          }
+        }
+      }
+    },
+    "tutorial_welcome_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to TPASS.calc"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歡迎使用 TPASS 回本計算機"
           }
         }
       }

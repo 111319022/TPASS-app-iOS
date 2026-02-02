@@ -25,8 +25,57 @@ struct TripListView: View {
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
     
+    // MARK: - 教學狀態
+    // 使用 AppStorage 自動記住使用者是否看過教學
+    @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
+    @AppStorage("tutorialStep_v1") private var savedTutorialStep: Int = 0
+    @State private var currentTutorialStep: SpotlightTutorialStep = .welcome
+    @State private var showTutorial = false
+    @State private var tutorialPositions = TutorialPositions()
+    
     var cardBackground: Color {
         themeManager.cardBackgroundColor
+    }
+
+    private var demoTrip: Trip {
+        Trip(
+            userId: auth.currentUser?.id ?? "demo-user",
+            createdAt: Date(),
+            type: .mrt,
+            originalPrice: 20,
+            paidPrice: 20,
+            isTransfer: false,
+            isFree: false,
+            startStation: "科技大樓",
+            endStation: "台北車站",
+            routeId: "",
+            note: ""
+        )
+    }
+
+    private var shouldShowDemoTripRow: Bool {
+        showTutorial && (currentTutorialStep == .swipeActions || currentTutorialStep == .longPressCommuter)
+    }
+
+    private var demoTripRow: some View {
+        TripRowView(trip: demoTrip)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .background(themeManager.cardBackgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(themeManager.secondaryTextColor.opacity(0.15), lineWidth: 1)
+            )
+            .opacity(0.98)
+            .allowsHitTesting(false)
+            // 🔥 關鍵：回報演示行程的準確座標給教學系統
+            .reportFrame(id: "tripRow", in: .global)
+            .onPreferenceChange(ViewFrameKey.self) { frames in
+                if let rowFrame = frames["tripRow"] {
+                    tutorialPositions.tripRowFrame = rowFrame
+                }
+            }
     }
     
     private var commmuterPickerOverlay: some View {
@@ -137,14 +186,30 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
+                        // 🔥 關鍵：回報星星按鈕的準確座標給教學系統
+                        .reportFrame(id: "favoritesButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let favFrame = frames["favoritesButton"] {
+                                tutorialPositions.favoritesButtonFrame = favFrame
+                            }
+                        }
                     }
                     .padding(.horizontal, horizontalPagePadding).padding(.top, 10).padding(.bottom, 10)
                     
                     // CycleSelectorView
-                    CycleSelectorView().padding(.horizontal, horizontalPagePadding).padding(.bottom, 10)
+                    CycleSelectorView()
+                        .padding(.horizontal, horizontalPagePadding)
+                        .padding(.bottom, 10)
+                        // 🔥 關鍵：回報週期選擇器的準確座標給教學系統
+                        .reportFrame(id: "cycleSelector", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let selectorFrame = frames["cycleSelector"] {
+                                tutorialPositions.cycleSelectorFrame = selectorFrame
+                            }
+                        }
                     
-                    if viewModel.groupedTrips.isEmpty {
-                        VStack(spacing: 12) {
+                    if viewModel.groupedTrips.isEmpty && !shouldShowDemoTripRow && !showTutorial {
+                        VStack(spacing: 16) {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 36))
                                 .foregroundColor(themeManager.secondaryTextColor)
@@ -156,25 +221,22 @@ struct TripListView: View {
                         .multilineTextAlignment(.center)
                     } else {
                         List {
-                            ForEach(viewModel.groupedTrips) { group in
+                            // 教學模式：只顯示演示行程
+                            if shouldShowDemoTripRow {
                                 Section {
-                                    // 行程列表
-                                    ForEach(group.trips) { trip in
-                                        tripRowWithActions(trip)
-                                    }
+                                    demoTripRow
+                                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                        .listRowSeparator(.hidden)
+                                        .listRowBackground(Color.clear)
+                                        .padding(.vertical, 4)
+                                        .buttonStyle(StaticButtonStyle())
+                                        .allowsHitTesting(false)
                                 } header: {
-                                    // 🔥 關鍵修正：日期 Header 放在 Section header
-                                    // 這樣 SwiftUI 就不會把它當成「第一個 swipe row」
+                                    let today = Date().formatted(date: .numeric, time: .omitted)
                                     DailyHeaderView(
-                                        group: group,
-                                        onDuplicate: {
-                                            viewModel.duplicateDayTrips(from: group.date)
-                                            showToast(message: "copied_day \(group.date)")
-                                        },
-                                        onDelete: {
-                                            viewModel.deleteDayTrips(on: group.date)
-                                            showToast(message: "deleted_day \(group.date)")
-                                        }
+                                        group: DailyTripGroup(date: today, trips: [demoTrip]),
+                                        onDuplicate: {},
+                                        onDelete: {}
                                     )
                                         .frame(maxWidth: .infinity)
                                         .padding(.horizontal, horizontalPagePadding)
@@ -185,6 +247,40 @@ struct TripListView: View {
                                         .listRowBackground(Color.clear)
                                 }
                                 .listSectionSeparator(.hidden)
+                            }
+                            
+                            // 正常模式：顯示所有行程（教學模式時隱藏）
+                            if !showTutorial {
+                                ForEach(viewModel.groupedTrips) { group in
+                                    Section {
+                                        // 行程列表
+                                        ForEach(group.trips) { trip in
+                                            tripRowWithActions(trip)
+                                        }
+                                    } header: {
+                                        // 🔥 關鍵修正：日期 Header 放在 Section header
+                                        // 這樣 SwiftUI 就不會把它當成「第一個 swipe row」
+                                        DailyHeaderView(
+                                            group: group,
+                                            onDuplicate: {
+                                                viewModel.duplicateDayTrips(from: group.date)
+                                                showToast(message: "copied_day \(group.date)")
+                                            },
+                                            onDelete: {
+                                                viewModel.deleteDayTrips(on: group.date)
+                                                showToast(message: "deleted_day \(group.date)")
+                                            }
+                                        )
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.horizontal, horizontalPagePadding)
+                                            .padding(.top, 6)
+                                            .padding(.bottom, 4)
+                                            .background(themeManager.backgroundColor)
+                                            .listRowInsets(.init())
+                                            .listRowBackground(Color.clear)
+                                    }
+                                    .listSectionSeparator(.hidden)
+                                }
                             }
                             Color.clear.frame(height: 80).listRowBackground(Color.clear)
                         }
@@ -213,7 +309,14 @@ struct TripListView: View {
                         .cornerRadius(30)
                         .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
+                    // 🔥 關鍵：回報按鈕的準確座標給教學系統
+                    .reportFrame(id: "addButton", in: .global)
                     .padding(.bottom, 20)
+                    .onPreferenceChange(ViewFrameKey.self) { frames in
+                        if let btnFrame = frames["addButton"] {
+                            tutorialPositions.addButtonFrame = btnFrame
+                        }
+                    }
                 }
                 
                 // Toast
@@ -239,6 +342,25 @@ struct TripListView: View {
                         .zIndex(101)
                 }
                 
+                // === 🔥 新增：教學遮罩層 ===
+                if showTutorial {
+                    SpotlightTutorialOverlay(
+                        currentStep: $currentTutorialStep,
+                        onFinish: {
+                            // 當教學結束時執行的動作
+                            withAnimation {
+                                showTutorial = false
+                                hasShownTutorial = true
+                                savedTutorialStep = 0
+                            }
+                        },
+                        positions: tutorialPositions
+                    )
+                    .environmentObject(themeManager)
+                    .zIndex(999) // 確保蓋在最上面
+                    .transition(.opacity)
+                }
+                
             }
             // 關鍵修正：隱藏導航列，解決滑動跳動問題
             .toolbar(.hidden, for: .navigationBar)
@@ -262,11 +384,32 @@ struct TripListView: View {
             if let user = auth.currentUser, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
                 viewModel.selectedCycle = firstCycle
             }
+            
+            // 檢查是否需要顯示教學
+            if !hasShownTutorial {
+                // 重置步驟到第一步
+                if let step = SpotlightTutorialStep(rawValue: savedTutorialStep) {
+                    currentTutorialStep = step
+                } else {
+                    currentTutorialStep = .welcome
+                }
+                
+                // 延遲一點點顯示，讓 UI 先載入完成
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        showTutorial = true
+                    }
+                }
+            }
         }
         .onChange(of: auth.currentUser) { user in
             if let user = user, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
                 viewModel.selectedCycle = firstCycle
             }
+        }
+        .onChange(of: currentTutorialStep) { step in
+            // 保存當前步驟
+            savedTutorialStep = step.rawValue
         }
     }
     
@@ -298,6 +441,17 @@ struct TripListView: View {
         }
         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
         .listRowSeparator(.hidden)
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        // 只在第一筆時記錄位置
+                        if tutorialPositions.tripRowFrame == .zero {
+                            tutorialPositions.tripRowFrame = geo.frame(in: .global)
+                        }
+                    }
+            }
+        )
         .listRowBackground(Color.clear)
         .padding(.vertical, 4)
         .buttonStyle(StaticButtonStyle())
@@ -773,3 +927,32 @@ struct TripListAlertsModifier: ViewModifier {
     }
 }
 
+// MARK: - Preference Keys for Tutorial Position Tracking
+
+struct FavoritesButtonFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
+
+struct CycleSelectorFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
+
+struct AddButtonFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
+
+struct TripRowFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
