@@ -163,7 +163,14 @@ struct BackupManagementView: View {
             }
             
             // MARK: - 備份說明
-            Section(footer: Text("backup_footer")) {
+            Section(footer:
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("backup_footer")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    Spacer().frame(height: 15)
+                }
+            ) {
                 EmptyView()
             }
         }
@@ -321,10 +328,11 @@ struct BackupManagementView: View {
             }
             
             try await cloudKitService.uploadBackup(trips: snapshot.trips, favorites: snapshot.favorites, cycles: snapshot.cycles)
-            
-            // 重新加載備份列表
+
+            // CloudKit 可能有同步延遲，延遲 1 秒再刷新列表
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
             await loadBackupHistory()
-            
+
             await MainActor.run {
                 self.successTitle = "backup_upload_success_title"
                 self.successMessage = "backup_upload_success_message \(tripCount) \(favoriteCount) \(cycleCount)"

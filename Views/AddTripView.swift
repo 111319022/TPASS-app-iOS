@@ -364,11 +364,11 @@ struct AddTripView: View {
         .presentationDetents([.height(650)])
         .presentationDragIndicator(.hidden)
         
-        .onChange(of: startStation) { _ in tryAutoFillFromHistory() }
-        .onChange(of: endStation) { _ in tryAutoFillFromHistory() }
-        .onChange(of: routeId) { _ in tryAutoFillFromHistory() }
-        .onChange(of: isFree) { val in if val { isTransfer = false; price = "0" } }
-        .onChange(of: isTransfer) { val in if val { isFree = false } }
+        .onChange(of: startStation) { _, _ in tryAutoFillFromHistory() }
+        .onChange(of: endStation) { _, _ in tryAutoFillFromHistory() }
+        .onChange(of: routeId) { _, _ in tryAutoFillFromHistory() }
+        .onChange(of: isFree) { _, val in if val { isTransfer = false; price = "0" } }
+        .onChange(of: isTransfer) { _, val in if val { isFree = false } }
     }
     
     // MARK: - 邏輯處理

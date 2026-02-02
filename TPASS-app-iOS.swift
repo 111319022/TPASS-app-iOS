@@ -54,8 +54,8 @@ struct TPASS_app_iOSApp: App {
             .animation(.easeInOut(duration: 0.25), value: authService.isSignedIn)
             
             // 2. 監聽登入狀態並啟動 ViewModel + 執行遷移
-            .onChange(of: authService.isSignedIn) { signedIn in
-                if signedIn, let userId = authService.currentUser?.id {
+            .onChange(of: authService.isSignedIn) { oldStatus, isNowSignedIn in
+                if isNowSignedIn, let userId = authService.currentUser?.id {
                     // 登入成功時，傳入 Context 讓 ViewModel 開始搬資料
                     Task { @MainActor in
                         appViewModel.start(modelContext: modelContainer.mainContext, userId: userId)

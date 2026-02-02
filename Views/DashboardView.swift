@@ -66,8 +66,8 @@ struct DashboardView: View {
                 viewModel.selectedCycle = first
             }
         }
-        .onChange(of: auth.currentUser) { user in
-            if viewModel.selectedCycle == nil, let first = user?.cycles.first {
+        .onChange(of: auth.currentUser) { oldValue, newValue in
+            if viewModel.selectedCycle == nil, let first = newValue?.cycles.first {
                 viewModel.selectedCycle = first
             }
         }
@@ -430,7 +430,7 @@ struct DashboardView: View {
                 Color(hex: "#D08770"), // 下午 - 溫暖杏
                 Color(hex: "#B48EAD")  // 晚上 - 薰衣紫
             ]
-        case .dark, .system where isDark:
+        case .dark where isDark, .system where isDark:
             return [
                 Color(hex: "#8E8E93"), // 清晨/深夜 - 中灰
                 Color(hex: "#5AC8FA"), // 上午 - 淺亮藍
@@ -542,7 +542,7 @@ struct DashboardView: View {
             }
         }
     }
-
+    
     struct FinanceTransportRowGroup: View {
         let title: LocalizedStringKey
         var sub: LocalizedStringKey? = nil
@@ -550,7 +550,7 @@ struct DashboardView: View {
         let color: Color
         let details: [FinancialBreakdown.TransportAmountDetail]
         @State private var isExpanded = false
-
+        
         private func labelText(for detail: FinancialBreakdown.TransportAmountDetail) -> Text {
             Text(detail.type.displayName)
             + Text(" (")
@@ -558,7 +558,7 @@ struct DashboardView: View {
             + Text("trips_unit")
             + Text(")")
         }
-
+        
         var body: some View {
             VStack(spacing: 0) {
                 Button(action: { withAnimation { isExpanded.toggle() } }) {
@@ -601,7 +601,7 @@ struct DashboardView: View {
             }
         }
     }
-
+    
     struct FinanceRebateRowGroup: View {
         let title: LocalizedStringKey
         var sub: LocalizedStringKey? = nil
@@ -609,7 +609,7 @@ struct DashboardView: View {
         let color: Color
         let details: [FinancialBreakdown.RebateDetail]
         @State private var isExpanded = false
-
+        
         private func labelText(for detail: FinancialBreakdown.RebateDetail) -> Text {
             let formattedMonth = detail.month.replacingOccurrences(of: "-", with: ".")
             switch detail.kind {
@@ -623,7 +623,7 @@ struct DashboardView: View {
                 return Text("rebate_r2_rail_item \(formattedMonth) \(detail.count) \(detail.percent)")
             }
         }
-
+        
         var body: some View {
             VStack(spacing: 0) {
                 Button(action: { withAnimation { isExpanded.toggle() } }) {
@@ -861,42 +861,56 @@ struct DashboardView: View {
             }.padding(.vertical, 5)
         }
     }
-
+    
     struct TopRouteRow: View {
         @EnvironmentObject var themeManager: ThemeManager
-
+        
         let rank: Int
         let route: RouteStat
         let tripsUnitKey: LocalizedStringKey
-
+        
         private var routeNameText: Text {
             let lang = Locale.current.identifier
+            
+            // 🔥 整合修改：統一處理 北捷、機捷、台鐵 的雙語站名顯示
+            if route.type == .mrt || route.type == .tymrt || route.type == .tra {
+                // 拆解 "起點 ↔ 終點" 字串
+                let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
+                
+                if parts.count == 2 {
+                    let startName: String
+                    let endName: String
+                    
+                    // 根據不同運具類型，去查各自的 StationData
+                    switch route.type {
+                    case .mrt:
+                        startName = StationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = StationData.shared.displayStationName(parts[1], languageCode: lang)
+                    case .tymrt:
+                        startName = TYMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = TYMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    case .tra:
+                        startName = TRAStationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = TRAStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    default:
+                        startName = String(parts[0])
+                        endName = String(parts[1])
+                    }
+                    
+                    // 組合成 "Start ↔ End"
+                    return Text("\(startName) ↔ \(endName)")
+                }
+            }
+            
+            // 處理公車、客運（顯示路線編號 + 運具類型）
             if let routeId = route.routeId, (route.type == .bus || route.type == .coach) {
                 return Text("route_title_bus \(routeId)") + Text(" (") + Text(route.type.displayName) + Text(")")
-            } else if route.type == .tra {
-                // 台鐵：將起訖站代號轉換為車站名稱
-                let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
-                if parts.count == 2 {
-                    let startName = TRAStationData.shared.displayStationName(parts[0], languageCode: lang)
-                    let endName = TRAStationData.shared.displayStationName(parts[1], languageCode: lang)
-                    let displayName = "\(startName) ↔ \(endName)"
-                    return Text(displayName)
-                }
-                return Text(route.name)
-            } else if route.type == .tymrt {
-                // 機捷：將起訖站代號轉換為車站名稱，支援雙語
-                let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
-                if parts.count == 2 {
-                    let startName = TYMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
-                    let endName = TYMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
-                    let displayName = "\(startName) ↔ \(endName)"
-                    return Text(displayName)
-                }
-                return Text(route.name)
             }
+            
+            // 其他情況直接顯示原始名稱
             return Text(route.name)
         }
-
+        
         var body: some View {
             HStack {
                 Text("\(rank)")
@@ -922,5 +936,4 @@ struct DashboardView: View {
             .padding(.vertical, 8)
         }
     }
-    
 }

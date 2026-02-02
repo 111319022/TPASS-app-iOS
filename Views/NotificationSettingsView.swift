@@ -42,7 +42,7 @@ struct NotificationSettingsView: View {
             // 1. 每日提醒
             Section(header: Text("notification_daily_section_title"), footer: Text("notification_daily_section_footer")) {
                 Toggle("notification_daily_toggle", isOn: $isDailyReminderEnabled)
-                    .onChange(of: isDailyReminderEnabled) { enabled in
+                    .onChange(of: isDailyReminderEnabled) { oldEnabled, enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
                         }
@@ -51,7 +51,7 @@ struct NotificationSettingsView: View {
                 
                 if isDailyReminderEnabled {
                     DatePicker("notification_daily_time", selection: $dailyReminderTime, displayedComponents: .hourAndMinute)
-                        .onChange(of: dailyReminderTime) { newTime in
+                        .onChange(of: dailyReminderTime) { oldTime, newTime in
                             notifManager.scheduleDailyReminder(enabled: true, time: newTime)
                         }
                 }
@@ -60,7 +60,7 @@ struct NotificationSettingsView: View {
             // 2. 週期提醒
             Section(header: Text("cycleManagement"), footer: Text("notification_cycle_section_footer")) {
                 Toggle("notification_cycle_toggle", isOn: $isCycleReminderEnabled)
-                    .onChange(of: isCycleReminderEnabled) { enabled in
+                    .onChange(of: isCycleReminderEnabled) { oldEnabled, enabled in
                         if enabled && !notifManager.isAuthorized {
                             notifManager.requestAuthorization()
                         }

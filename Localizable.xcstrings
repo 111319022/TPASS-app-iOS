@@ -48,6 +48,16 @@
         }
       }
     },
+    "%@ ↔ %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ ↔ %2$@"
+          }
+        }
+      }
+    },
     "%@ $%lld (%lld%%)" : {
       "localizations" : {
         "zh-Hant" : {
@@ -538,13 +548,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "• Upload: back up local data to iCloud\n• Restore: restore a selected iCloud backup to this device\n• All actions are manual; no automatic sync"
+            "value" : "• Upload: back up local data to iCloud\n• Restore: restore a selected iCloud backup to this device\n• All actions are manual; no automatic sync.\n• Note: This backup feature only covers \"Trips, Favorite Routes, and Cycles.\" It does not back up \"Commuter Routes.\""
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "• 上傳：將本地數據備份到 iCloud\n• 恢復：選擇 iCloud 上的備份版本還原本地數據\n• 所有操作均為手動執行，不會自動同步"
+            "value" : "• 上傳：將本地數據備份到個人的 iCloud。\n• 恢復：選擇 iCloud 上的備份版本還原本地數據。\n• 所有操作均為手動執行，不會自動同步。\n• 請注意，本備份功能僅會備份「行程、常用路線、週期」，並不會備份「通勤路線」。"
           }
         }
       }

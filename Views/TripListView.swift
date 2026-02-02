@@ -402,12 +402,12 @@ struct TripListView: View {
                 }
             }
         }
-        .onChange(of: auth.currentUser) { user in
+        .onChange(of: auth.currentUser) { oldUser, user in
             if let user = user, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
                 viewModel.selectedCycle = firstCycle
             }
         }
-        .onChange(of: currentTutorialStep) { step in
+        .onChange(of: currentTutorialStep) { oldStep, step in
             // 保存當前步驟
             savedTutorialStep = step.rawValue
         }
@@ -484,7 +484,7 @@ struct TripListView: View {
             isProcessingSwipeAction = true
             let wasTransfer = trip.isTransfer
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                var tx = Transaction(animation: nil)
+                let tx = Transaction(animation: nil)
                 withTransaction(tx) {
                     viewModel.toggleTransfer(trip)
                 }
@@ -501,7 +501,7 @@ struct TripListView: View {
             guard !isProcessingSwipeAction else { return }
             isProcessingSwipeAction = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                var tx = Transaction(animation: nil)
+                let tx = Transaction(animation: nil)
                 withTransaction(tx) {
                     viewModel.duplicateTrip(trip)
                 }
@@ -518,7 +518,7 @@ struct TripListView: View {
             guard !isProcessingSwipeAction else { return }
             isProcessingSwipeAction = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                var tx = Transaction(animation: nil)
+                let tx = Transaction(animation: nil)
                 withTransaction(tx) {
                     viewModel.createReturnTrip(trip)
                 }

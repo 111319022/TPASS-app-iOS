@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Trip.createdAt, order: .reverse) private var allTripModels: [Trip]
     @Query private var allFavoriteRoutes: [FavoriteRoute]
+    @Query private var allCommuterRoutes: [CommuterRoute]
     @StateObject private var cloudKitService = CloudKitSyncService.shared
     
     @State private var showClearDataAlert = false
@@ -356,6 +357,7 @@ struct SettingsView: View {
         // 1) 清除 SwiftData 資料
         allTripModels.forEach { modelContext.delete($0) }
         allFavoriteRoutes.forEach { modelContext.delete($0) }
+        allCommuterRoutes.forEach { modelContext.delete($0) }
         if let userSettings = try? modelContext.fetch(FetchDescriptor<UserSettingsModel>()) {
             userSettings.forEach { modelContext.delete($0) }
         }

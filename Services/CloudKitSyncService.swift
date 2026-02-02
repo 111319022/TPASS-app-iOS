@@ -173,7 +173,8 @@ class CloudKitSyncService: ObservableObject {
             lastSyncDate = now
             UserDefaults.standard.set(now, forKey: "last_cloudkit_sync_date")
         }
-        
+
+
         print("✅ CloudKit 上傳備份完成 (Trips: \(trips.count), Favorites: \(favorites.count), Cycles: \(cycles.count), BackupID: \(backupId))")
     }
     

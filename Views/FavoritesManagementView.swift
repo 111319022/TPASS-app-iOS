@@ -153,6 +153,25 @@ struct FavoritesManagementView: View {
         return Text("\(start) → \(end)")
     }
     
+    // 🔥 新增：取得本地化的路線名稱字串 (解決 Toast 顯示資料庫代碼的問題)
+    private func getLocalizedRouteName(_ fav: FavoriteRoute) -> String {
+        let lang = Locale.current.identifier
+        
+        // 1. 公車/客運
+        if fav.type == .bus || fav.type == .coach {
+            if lang.hasPrefix("en") {
+                return "Route \(fav.routeId)"
+            } else {
+                return String(localized: "route_title_bus \(fav.routeId)")
+            }
+        }
+        
+        // 2. 軌道運輸 (捷運/台鐵/機捷)
+        let start = displayStationName(fav.startStation, type: fav.type, languageCode: lang)
+        let end = displayStationName(fav.endStation, type: fav.type, languageCode: lang)
+        return "\(start) → \(end)"
+    }
+    
     private func displayStationName(_ stationName: String, type: TransportType, languageCode: String) -> String {
         if type == .tymrt {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
@@ -166,17 +185,9 @@ struct FavoritesManagementView: View {
     @ViewBuilder
     private func favoriteButtonWithActions(_ fav: FavoriteRoute) -> some View {
         Button(action: {
-            let lang = Locale.current.identifier
-            let routeName: String = {
-                if fav.type == .bus || fav.type == .coach {
-                    if lang.hasPrefix("en") {
-                        return "Route \(fav.routeId)"
-                    } else {
-                        return String(localized: "route_title_bus \(fav.routeId)", locale: Locale(identifier: lang))
-                    }
-                }
-                return fav.displayTitle
-            }()
+            // 🔥 修正：使用 getLocalizedRouteName 取得正確的站名
+            let routeName = getLocalizedRouteName(fav)
+            
             viewModel.quickAddTrip(from: fav)
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -209,11 +220,8 @@ struct FavoritesManagementView: View {
     
     @ViewBuilder
     private func commuterRouteButtonWithActions(_ route: CommuterRoute) -> some View {
-        // Split the row into two tappable areas:
-        // - main area: quick-add commuter route
-        // - edit button: opens the commuter route editor
-        HStack(spacing: 12) {
-            // Main tappable area
+        ZStack(alignment: .trailing) {
+            // 1. 底層主要按鈕 (新增通勤路線)
             Button(action: {
                 let routeName = route.name
                 viewModel.quickAddCommuterRoute(route)
@@ -223,38 +231,44 @@ struct FavoritesManagementView: View {
                     onQuickAddCommuter?(routeName)
                 }
             }) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(route.name)
-                        .font(.system(.body, design: .default))
-                        .fontWeight(.semibold)
-                        .foregroundColor(themeManager.primaryTextColor)
-                    Text("count_trips \(route.tripCount)")
-                        .font(.caption)
-                        .foregroundColor(themeManager.secondaryTextColor)
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(route.name)
+                            .font(.system(.body, design: .default))
+                            .fontWeight(.semibold)
+                            .foregroundColor(themeManager.primaryTextColor)
+                        Text("count_trips \(route.tripCount)")
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                    }
+                    Spacer()
+                    // 預留右側空間，避免文字與編輯圖示重疊
+                    Color.clear.frame(width: 44, height: 20)
                 }
-                Spacer()
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .background(rowBackground)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
+                )
             }
             .buttonStyle(.plain)
 
-            // Edit button: opens detail sheet without triggering add
-            Button(action: {
-                editingCommuterRoute = route
-            }) {
-                Image(systemName: "square.and.pencil")
-                    .font(.system(size: 20))
-                    .foregroundColor(themeManager.secondaryTextColor)
-            }
-            .buttonStyle(.plain)
+            // 2. 編輯圖示 (改用 TapGesture 以防按鈕衝突)
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 20))
+                .foregroundColor(themeManager.secondaryTextColor)
+                .frame(width: 44, height: 44) // 固定點擊熱區大小
+                .contentShape(Rectangle())   // 確保整格都可以點
+                .onTapGesture {
+                    // 這裡會優先攔截點擊，不會觸發底層的 Button
+                    editingCommuterRoute = route
+                }
+                .padding(.trailing, 8)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(rowBackground)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
+        
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
@@ -282,36 +296,6 @@ struct FavoritesManagementView: View {
         }
     }
     
-    @ViewBuilder
-    private func commuterRouteRowView(_ route: CommuterRoute) -> some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(route.name)
-                    .font(.system(.body, design: .default))
-                    .fontWeight(.semibold)
-                    .foregroundColor(themeManager.primaryTextColor)
-                Text("count_trips \(route.tripCount)")
-                    .font(.caption)
-                    .foregroundColor(themeManager.secondaryTextColor)
-            }
-            
-            Spacer()
-            
-            Image(systemName: "square.and.pencil")
-                .font(.system(size: 20))
-                .foregroundColor(themeManager.secondaryTextColor)
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(rowBackground)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(themeManager.secondaryTextColor.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.08), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.25 : 0.05), radius: 2, x: 0, y: 1)
-    }
-
     @ViewBuilder
     private func favoriteRowView(_ fav: FavoriteRoute, rowBackground: Color) -> some View {
         HStack(spacing: 12) {
@@ -562,4 +546,3 @@ struct CommuterRouteDetailView: View {
             }
         }
     }
-

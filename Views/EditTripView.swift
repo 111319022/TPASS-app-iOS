@@ -232,10 +232,10 @@ struct EditTripView: View {
             }
         }
         // Auto-fill logic triggers
-        .onChange(of: startStation) { _ in recalculateMRTPrice() }
-        .onChange(of: endStation) { _ in recalculateMRTPrice() }
-        .onChange(of: isFree) { val in if val { isTransfer = false; price = "0" } }
-        .onChange(of: isTransfer) { val in if val { isFree = false } }
+        .onChange(of: startStation) { _, _ in recalculateMRTPrice() }
+        .onChange(of: endStation) { _, _ in recalculateMRTPrice() }
+        .onChange(of: isFree) { _, val in if val { isTransfer = false; price = "0" } }
+        .onChange(of: isTransfer) { _, val in if val { isFree = false } }
     }
     
     // MARK: - Logic
