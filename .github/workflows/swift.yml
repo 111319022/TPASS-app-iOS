@@ -22,7 +22,6 @@ jobs:
           -project TPASS-app-iOS.xcodeproj \
           -scheme TPASS-app-iOS \
           -sdk iphonesimulator \
-          -destination "platform=iOS Simulator,name=Any iOS Simulator Device"
-          CODE_SIGN_IDENTITY="" \
+          -destination "platform=iOS Simulator,name=iPhone 16,OS=26.2"
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
