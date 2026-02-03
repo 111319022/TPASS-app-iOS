@@ -718,7 +718,7 @@ class TRAStationData {
         TRAStation(id: "1110", name: "埔心"),
         TRAStation(id: "1120", name: "楊梅"),
         TRAStation(id: "1130", name: "富岡"),
-        TRAStation(id: "1140", name: "新富"),
+        TRAStation(id: "1140", name: "新富        "),
         TRAStation(id: "1150", name: "北湖"),
         TRAStation(id: "1160", name: "湖口"),
         TRAStation(id: "1170", name: "新豐"),

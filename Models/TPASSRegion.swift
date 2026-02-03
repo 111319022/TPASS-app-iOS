@@ -119,7 +119,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
     }
     
     private static let traRegionMap: [TPASSRegion: TRARegionInfo] = [
-        .north: TRARegionInfo(name: "基北北桃(全部)", ranges: []),  // 空表示使用全部北部站點
+        .north: TRARegionInfo(name: "基北北桃(全部)", ranges: [("0900", "1140"), ("7290", "7390")]),
         .taoZhuZhu: TRARegionInfo(name: "桃竹竹", ranges: [("1080", "1230")]),
         .central: TRARegionInfo(name: "中彰投苗", ranges: [
             ("1240", "1250"),  // 縱貫北段：崎頂到竹南
@@ -152,7 +152,8 @@ enum TPASSRegion: String, CaseIterable, Codable {
         switch self {
         case .north:
             return [
-                ("0900", "1150"), // 基隆(0900) - 富岡(1150)
+                ("0900", "1140"), // 基隆 - 新富
+                ("7290", "7390"), // 八堵 - 蘇澳 (宜蘭線全線)
                 ("7360", "7362"), // 深澳線：海科館 - 八斗子
                 ("7330", "7336")  // 平溪線：大華 - 菁桐
             ]
