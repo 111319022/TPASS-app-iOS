@@ -120,7 +120,8 @@ struct AddTripView: View {
                     label: "start_point",
                     type: selectedType,
                     lineCode: $startLineCode,
-                    stationName: $startStation
+                    stationName: $startStation,
+                    currentRegion: currentRegion
                 )
 
                 Divider().opacity(0.5).padding(.leading, 12)
@@ -129,7 +130,8 @@ struct AddTripView: View {
                     label: "end_point",
                     type: selectedType,
                     lineCode: $endLineCode,
-                    stationName: $endStation
+                    stationName: $endStation,
+                    currentRegion: currentRegion
                 )
             }
 
@@ -153,7 +155,8 @@ struct AddTripView: View {
                 label: "start_point",
                 type: type,
                 lineCode: $startLineCode,
-                stationName: $startStation
+                stationName: $startStation,
+                currentRegion: currentRegion
             )
 
             Divider().opacity(0.5).padding(.leading, 12)
@@ -162,7 +165,8 @@ struct AddTripView: View {
                 label: "end_point",
                 type: type,
                 lineCode: $endLineCode,
-                stationName: $endStation
+                stationName: $endStation,
+                currentRegion: currentRegion
             )
         }
     }
@@ -586,6 +590,7 @@ struct StationInputRow: View {
     let type: TransportType
     @Binding var lineCode: String
     @Binding var stationName: String
+    let currentRegion: TPASSRegion
     @EnvironmentObject var themeManager: ThemeManager
 
     var body: some View {
@@ -645,6 +650,8 @@ struct StationInputRow: View {
                 
             // === 2. 桃園機捷 (TYMRT) 單層選單 ===
             } else if type == .tymrt {
+                let availableStations = TYMRTStationData.shared.availableStations(for: currentRegion)
+                
                 // 左邊：顯示標籤和機捷名稱 (50%)
                 HStack {
                     Text(label)
@@ -672,7 +679,7 @@ struct StationInputRow: View {
                 
                 // 右邊：站點選單 (50%)
                 Menu {
-                    ForEach(TYMRTStationData.shared.line.stations, id: \.self) { station in
+                    ForEach(availableStations, id: \.self) { station in
                         Button(action: { stationName = station }) {
                             Text(TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
                         }

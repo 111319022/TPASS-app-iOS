@@ -90,4 +90,23 @@ class TYMRTStationData {
         }
         return lineName
     }
+    
+    /// 根據 TPASS 方案返回可用的機場捷運站點
+    func availableStations(for region: TPASSRegion) -> [String] {
+        switch region {
+        case .north:
+            // 基北北桃：全線可用（台北車站-老街溪）
+            return line.stations
+        case .taoZhuZhu:
+            // 桃竹竹：只能使用體育大學-老街溪
+            guard let startIndex = line.stations.firstIndex(of: "體育大學"),
+                  let endIndex = line.stations.firstIndex(of: "老街溪") else {
+                return []
+            }
+            return Array(line.stations[startIndex...endIndex])
+        default:
+            // 其他方案不支援機場捷運
+            return []
+        }
+    }
 }

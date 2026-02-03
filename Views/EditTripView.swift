@@ -459,9 +459,9 @@ struct EditTripView: View {
                 .foregroundColor(themeManager.primaryTextColor)
             Divider().opacity(0.5).padding(.leading, 12)
             
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -509,9 +509,9 @@ struct EditTripView: View {
     @ViewBuilder
     private var mrtSelectionView: some View {
         VStack(spacing: 0) {
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -521,9 +521,9 @@ struct EditTripView: View {
     @ViewBuilder
     private var tymrtSelectionView: some View {
         VStack(spacing: 0) {
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -533,9 +533,9 @@ struct EditTripView: View {
     @ViewBuilder
     private var tcmrtSelectionView: some View {
         VStack(spacing: 0) {
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -545,9 +545,9 @@ struct EditTripView: View {
     @ViewBuilder
     private var kmrtSelectionView: some View {
         VStack(spacing: 0) {
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -557,9 +557,9 @@ struct EditTripView: View {
     @ViewBuilder
     private var manualInputView: some View {
         VStack(spacing: 0) {
-            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
             Divider().opacity(0.5).padding(.leading, 12)
-            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
