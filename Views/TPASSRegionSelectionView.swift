@@ -8,7 +8,7 @@ struct TPASSRegionSelectionView: View {
         case .north:
             return "taipei_new_taipei_taoyuan_keelung"
         case .taoZhuZhu:
-            return "taoyuan_hsinchu_miaoli"
+            return "taoyuan_hsinchu"
         case .central:
             return "taichung_changhua_nantou_miaoli_non_resident"
         case .centralCitizen:
@@ -40,6 +40,9 @@ struct TPASSRegionSelectionView: View {
                     }
                     .padding(.vertical, 4)
                 }
+            }
+            Section(footer: Text("more_plans_footer").font(.footnote).foregroundColor(.secondary)) {
+                EmptyView()
             }
         }
         .navigationTitle("region_selection_ title")

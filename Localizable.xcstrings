@@ -3224,18 +3224,17 @@
       }
     },
     "more_plans_footer" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "More regional plans (e.g. Pass for Central & Southern Taiwan) will be available in future updates."
+            "value" : "More regional plans will be available in future updates."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更多地區方案（如中彰投苗、南高屏）將於後續版本陸續開放，敬請期待。"
+            "value" : "更多地區方案將於後續版本陸續開放，敬請期待。"
           }
         }
       }
@@ -4030,23 +4029,6 @@
         }
       }
     },
-    "region_jiapei" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MegaCity Pass $1,200"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "基北北桃 $1,200"
-          }
-        }
-      }
-    },
     "region_selection_ title" : {
       "localizations" : {
         "en" : {
@@ -4358,18 +4340,19 @@
         }
       }
     },
-    "taoyuan_hsinchu_miaoli" : {
+    "taoyuan_hsinchu" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Taoyuan, Hsinchu, Miaoli"
+            "value" : "Taoyuan, Hsinchu (City & County)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "桃園、新竹、苗栗"
+            "value" : "桃園、新竹(縣市)"
           }
         }
       }
@@ -5357,142 +5340,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "假日"
-          }
-        }
-      }
-    },
-    "中彰投苗(市民)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taichung, Changhua, Nantou, Miaoli (Resident)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "中彰投苗(市民)"
-          }
-        }
-      }
-    },
-    "中彰投苗(非市民)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taichung, Changhua, Nantou, Miaoli (Non-Resident)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "中彰投苗(非市民)"
-          }
-        }
-      }
-    },
-    "台中、彰化、南投、苗栗（設籍/就學/就業市民）" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taichung, Changhua, Nantou, Miaoli (Registered/Studying/Working Resident)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "台中、彰化、南投、苗栗（設籍/就學/就業市民）"
-          }
-        }
-      }
-    },
-    "台中、彰化、南投、苗栗（非市民）" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taichung, Changhua, Nantou, Miaoli (Non-Resident)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "台中、彰化、南投、苗栗（非市民）"
-          }
-        }
-      }
-    },
-    "台北、新北、桃園、基隆" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taipei, New Taipei, Taoyuan, Keelung"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "台北、新北、桃園、基隆"
-          }
-        }
-      }
-    },
-    "基北北桃" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taipei, New Taipei, Taoyuan, Keelung"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "基北北桃"
-          }
-        }
-      }
-    },
-    "桃園、新竹、苗栗" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taoyuan, Hsinchu, Miaoli"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "桃園、新竹、苗栗"
-          }
-        }
-      }
-    },
-    "桃竹竹" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taoyuan, Hsinchu, Miaoli"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "桃竹竹"
           }
         }
       }
