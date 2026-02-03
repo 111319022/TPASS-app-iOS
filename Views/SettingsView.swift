@@ -14,11 +14,7 @@ struct SettingsView: View {
     @StateObject private var cloudKitService = CloudKitSyncService.shared
     
     @State private var showClearDataAlert = false
-    @State private var showAddCycleSheet = false
     @State private var isClearingData = false
-    
-    @State private var newCycleStart = Date()
-    @State private var newCycleEnd = Date().addingTimeInterval(86400 * 30)
     
     @State private var showThemeTransition = false
     @State private var selectedTheme: AppTheme?
@@ -89,15 +85,11 @@ struct SettingsView: View {
                         }
                     }
                     
-                    // TPASS 地區方案選擇
+                    // TPASS 地區方案介紹
                     NavigationLink(destination: TPASSRegionSelectionView()) {
                         HStack {
                             Image(systemName: "map.circle.fill").foregroundColor(.purple)
-                            Text("region")
-                            Spacer()
-                            Text("region_jiapei")
-                                .foregroundColor(.secondary)
-                                .font(.subheadline)
+                            Text("region_intro")
                         }
                     }
                 }
@@ -162,38 +154,7 @@ struct SettingsView: View {
                     }
                 }
                 
-                // MARK: - 5. 週期管理
-                Section(header: HStack {
-                    Text("cycleManagement")
-                    Spacer()
-                    Button("add") { showAddCycleSheet = true }
-                        .font(.caption)
-                        .foregroundColor(themeManager.accentColor)
-                }) {
-                    if let cycles = auth.currentUser?.cycles, !cycles.isEmpty {
-                        ForEach(cycles) { cycle in
-                            HStack {
-                                Image(systemName: "calendar.badge.clock").foregroundColor(.orange)
-                                Text(cycle.title).font(.system(.body, design: .monospaced))
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    withAnimation {
-                                        auth.deleteCycle(cycle)
-                                    }
-                                } label: {
-                                    Label("delete", systemImage: "trash")
-                                }
-                            }
-                        }
-                    } else {
-                        Text("noCycleSet")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                }
-                
-                // MARK: - 6. 其他
+                // MARK: - 5. 其他
                 Section {
                     Button(action: {
                         // 重置教學到第一步
@@ -291,34 +252,6 @@ struct SettingsView: View {
             }
         } message: {
             Text("clearDataWarning")
-        }
-        .sheet(isPresented: $showAddCycleSheet) {
-            NavigationView {
-                Form {
-                    DatePicker("startDate", selection: $newCycleStart, displayedComponents: .date)
-                    DatePicker("endDate", selection: $newCycleEnd, displayedComponents: .date)
-                }
-                .navigationTitle("addCycle")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("cancel") { showAddCycleSheet = false }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("save") {
-                            auth.addCycle(start: newCycleStart, end: newCycleEnd)
-                            
-                            let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
-                            if isCycleNotifOn {
-                                let tempCycle = Cycle(id: UUID().uuidString, start: newCycleStart, end: newCycleEnd, displayName: "New")
-                                NotificationManager.shared.scheduleCycleReminders(enabled: true, currentCycle: tempCycle)
-                            }
-                            
-                            showAddCycleSheet = false
-                        }
-                    }
-                }
-            }
-            .presentationDetents([.height(300)])
         }
     }
     
@@ -423,47 +356,4 @@ struct AboutAppView: View {
     }
 }
 
-// MARK: - TPASS 地區選擇頁面
-struct TPASSRegionSelectionView: View {
-    @Environment(\.dismiss) var dismiss
-    @StateObject private var themeManager = ThemeManager.shared
-    
-    var body: some View {
-        Form {
-            Section(header: Text("current_plan")) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("plan_jiapei_name")
-                            .font(.headline)
-                            .foregroundColor(themeManager.primaryTextColor)
-                        Text("plan_jiapei_scope")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Text("$1,200")
-                        .foregroundColor(themeManager.primaryTextColor)
-                    Image(systemName: "checkmark")
-                        .foregroundColor(themeManager.accentColor)
-                        .font(.headline)
-                }
-            }
-            
-            Section(footer: Text("more_plans_footer")) {
-                HStack {
-                    Text("other_regions")
-                        .foregroundColor(themeManager.primaryTextColor)
-                    Spacer()
-                    Text("comingSoon")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                }
-                .opacity(0.5)
-            }
-        }
-        .navigationTitle("region_selection_title")
-        .navigationBarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
-        .background(themeManager.backgroundColor)
-    }
-}
+

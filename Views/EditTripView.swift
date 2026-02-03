@@ -10,6 +10,25 @@ struct EditTripView: View {
     let trip: Trip
     var onSuccess: (() -> Void)? = nil
     
+    // 🔥 新增：取得目前選中周期的方案，若無則用當前設置
+    private var currentRegion: TPASSRegion {
+        viewModel.selectedCycle?.region ?? auth.currentRegion
+    }
+    
+    // 取得該方案可用的區域列表
+    private var availableTRARegions: [TRARegion] {
+        TRAStationData.shared.getRegions(for: currentRegion)
+    }
+    
+    // TRA 站點資料來源
+    var traStationsStart: [TRAStation] {
+        TRAStationData.shared.getStations(for: currentRegion)
+    }
+    
+    var traStationsEnd: [TRAStation] {
+        TRAStationData.shared.getStations(for: currentRegion)
+    }
+    
     // === Form State (initialized with trip data) ===
     @State private var date: Date
     @State private var time: Date
@@ -22,15 +41,17 @@ struct EditTripView: View {
     @State private var startLineCode: String = ""
     @State private var endLineCode: String = ""
     
-    // TRA 區域選擇（起站和終點分開）
-    @State private var selectedTRARegionStart: String = ""
-    @State private var selectedTRARegionEnd: String = ""
+    // 🔥 台鐵區域選擇
+    @State private var selectedStartRegion: TRARegion?
+    @State private var selectedEndRegion: TRARegion?
     
     // Price and Options
     @State private var price: String
     @State private var note: String
     @State private var isTransfer: Bool
     @State private var isFree: Bool
+    @State private var transferDiscountType: TransferDiscountType?  // 🔥 新增：轉乘優惠類型
+    @State private var showTransferTypePicker = false  // 🔥 新增：顯示轉乘類型選擇器
     
     // Identity (for calculating discount)
     var currentIdentity: Identity {
@@ -69,6 +90,7 @@ struct EditTripView: View {
         _note = State(initialValue: trip.note)
         _isTransfer = State(initialValue: trip.isTransfer)
         _isFree = State(initialValue: trip.isFree)
+        _transferDiscountType = State(initialValue: trip.transferDiscountType)
         
         // Try to reverse lookup MRT line code (optional, for better UI)
         if trip.type == .mrt {
@@ -78,18 +100,6 @@ struct EditTripView: View {
             }
             if let line = StationData.shared.lines.first(where: { $0.stations.contains(trip.endStation) }) {
                 _endLineCode = State(initialValue: line.code)
-            }
-        }
-        
-        // 台鐵：反向查詢區域
-        if trip.type == .tra {
-            // 根據 startStation 和 endStation 代號查詢區域
-            let stationData = TRAStationData.shared
-            if let startRegion = stationData.regions.first(where: { $0.stations.contains { $0.id == trip.startStation } }) {
-                _selectedTRARegionStart = State(initialValue: startRegion.id)
-            }
-            if let endRegion = stationData.regions.first(where: { $0.stations.contains { $0.id == trip.endStation } }) {
-                _selectedTRARegionEnd = State(initialValue: endRegion.id)
             }
         }
     }
@@ -114,17 +124,19 @@ struct EditTripView: View {
                         
                         // 2. Transport Type (Grid)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                            ForEach(TransportType.allCases) { type in
+                            // 🔥 修改：只顯示該地區支援的運具
+                            ForEach(currentRegion.supportedModes) { type in
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         selectedType = type
-                                        // 🔥 切換運具時清空起读站
+                                        // 🔥 切換運具時清空起讫站
                                         if type == .bus {
                                             startStation = ""; endStation = ""
-                                            if price.isEmpty { price = (currentIdentity == .student) ? "12" : "15" }
+                                            // 🔥 修改：根據地區與身分取得預設票價
+                                            if price.isEmpty { price = currentRegion.defaultBusPrice(identity: currentIdentity) }
                                         } else {
                                             if type != .coach { routeId = "" }
-                                            // 清空起读站
+                                            // 清空起讫站
                                             startStation = ""
                                             endStation = ""
                                             startLineCode = ""
@@ -167,11 +179,38 @@ struct EditTripView: View {
                             .cornerRadius(10)
                             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                             
-                            Button(action: { isTransfer.toggle() }) {
+                            // 🔥 修改：轉乘按鈕可選擇優惠類型
+                            Button(action: {
+                                if currentRegion.supportedTransferTypes.count == 1 {
+                                    // 只有一種轉乘類型，直接切換
+                                    if isTransfer {
+                                        isTransfer = false
+                                        transferDiscountType = nil
+                                    } else {
+                                        isTransfer = true
+                                        transferDiscountType = currentRegion.defaultTransferType
+                                    }
+                                } else {
+                                    // 🔥 多種轉乘類型，總是顯示選擇器
+                                    showTransferTypePicker = true
+                                }
+                            }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: isTransfer ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
-                                    (Text("transfer") + Text(" (-\(currentIdentity.transferDiscount))"))
-                                        .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
+                                    if let type = transferDiscountType, isTransfer {
+                                        Text(type.displayNameKey(for: currentIdentity))
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.6)
+                                    } else {
+                                        Text("transfer")
+                                            .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
+                                    }
+                                    if currentRegion.supportedTransferTypes.count > 1 && isTransfer {
+                                        Image(systemName: "chevron.down")
+                                            .font(.caption2)
+                                    }
                                 }
                                 .frame(maxHeight: .infinity).padding(.horizontal, 12)
                                 .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
@@ -179,6 +218,25 @@ struct EditTripView: View {
                                 .cornerRadius(10)
                             }
                             .frame(height: 50)
+                            .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
+                                ForEach(currentRegion.supportedTransferTypes) { type in
+                                    Button(action: {
+                                        isTransfer = true
+                                        transferDiscountType = type
+                                    }) {
+                                        HStack {
+                                            Text(type.displayNameKey(for: currentIdentity))
+                                            if transferDiscountType == type {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                                Button("cancel_transfer", role: .destructive) {
+                                    isTransfer = false
+                                    transferDiscountType = nil
+                                }
+                            }
                         }
                         
                         HStack(spacing: 12) {
@@ -234,8 +292,23 @@ struct EditTripView: View {
         // Auto-fill logic triggers
         .onChange(of: startStation) { _, _ in recalculateMRTPrice() }
         .onChange(of: endStation) { _, _ in recalculateMRTPrice() }
-        .onChange(of: isFree) { _, val in if val { isTransfer = false; price = "0" } }
-        .onChange(of: isTransfer) { _, val in if val { isFree = false } }
+        .onChange(of: isFree) { _, val in
+            if val {
+                isTransfer = false
+                transferDiscountType = nil
+                price = "0"
+            }
+        }
+        .onChange(of: isTransfer) { _, val in
+            if val {
+                isFree = false
+                if transferDiscountType == nil {
+                    transferDiscountType = currentRegion.defaultTransferType
+                }
+            } else {
+                transferDiscountType = nil
+            }
+        }
     }
     
     // MARK: - Logic
@@ -261,12 +334,32 @@ struct EditTripView: View {
             price = String(fare)
             isTransfer = false
         }
+        // 4. 台中捷運
+        else if selectedType == .tcmrt, !startStation.isEmpty, !endStation.isEmpty {
+            if let fare = TCMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                isTransfer = false
+            }
+        }
+        // 5. 高雄捷運
+        else if selectedType == .kmrt, !startStation.isEmpty, !endStation.isEmpty {
+            if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                isTransfer = false
+            }
+        }
     }
     
     func calculatePaidPrice() -> Int {
         if isFree { return 0 }
         let p = Int(price) ?? 0
-        let discount = isTransfer ? currentIdentity.transferDiscount : 0
+        // 🔥 修改：使用轉乘優惠類型計算折扣
+        let discount: Int
+        if isTransfer, let type = transferDiscountType {
+            discount = type.discount(for: currentIdentity)
+        } else {
+            discount = 0
+        }
         return max(0, p - discount)
     }
     
@@ -291,19 +384,30 @@ struct EditTripView: View {
         let finalDate = calendar.date(from: finalComps) ?? date
         
         // 🔥 Create updated trip object (using SAME ID)
+        // 🔥 修改：使用轉乘優惠類型計算折扣
+        let discount: Int
+        if isTransfer, let type = transferDiscountType {
+            discount = type.discount(for: currentIdentity)
+        } else {
+            discount = 0
+        }
+        
+        let paidPrice = isFree ? 0 : (p - discount)
+        
         let updatedTrip = Trip(
             id: trip.id, // Keep the original ID
             userId: userId,
             createdAt: finalDate,
             type: selectedType,
             originalPrice: p,
-            paidPrice: calculatePaidPrice(),
+            paidPrice: paidPrice,
             isTransfer: isTransfer,
             isFree: isFree,
             startStation: startStation,
             endStation: endStation,
             routeId: routeId,
-            note: note
+            note: note,
+            transferDiscountType: transferDiscountType
         )
         
         viewModel.updateTrip(updatedTrip)
@@ -314,146 +418,148 @@ struct EditTripView: View {
     // MARK: - UI Components
     
     func routeStationInputView() -> some View {
-        VStack(spacing: 0) {
-            // 公車
+        Group {
             if selectedType == .bus {
-                TextField("route_example 307", text: $routeId)
-                    .padding(12)
-                    .foregroundColor(themeManager.primaryTextColor)
+                busSelectionView
+            } else if selectedType == .coach {
+                coachSelectionView
+            } else if selectedType == .tra {
+                traSelectionView
+            } else if selectedType == .mrt {
+                mrtSelectionView
+            } else if selectedType == .tymrt {
+                tymrtSelectionView
+            } else if selectedType == .tcmrt {
+                tcmrtSelectionView
+            } else if selectedType == .kmrt || selectedType == .lrt {
+                kmrtSelectionView
+            } else {
+                manualInputView
             }
-            // 客運
-            else if selectedType == .coach {
-                VStack(spacing: 0) {
-                    TextField("route_example 1610", text: $routeId)
-                        .padding(12)
-                        .foregroundColor(themeManager.primaryTextColor)
-                    Divider().opacity(0.5).padding(.leading, 12)
-                    
-                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
-                    Divider().opacity(0.5).padding(.leading, 12)
-                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
-                }
-            }
-            // 台鐵 - 兩欄設計
-            else if selectedType == .tra {
-                let stationData = TRAStationData.shared
-                let traRegions = stationData.regions
-                let traSelectedRegionStart = traRegions.first { $0.id == selectedTRARegionStart }
-                let traStationsStart = traSelectedRegionStart?.stations ?? []
-                let traSelectedRegionEnd = traRegions.first { $0.id == selectedTRARegionEnd }
-                let traStationsEnd = traSelectedRegionEnd?.stations ?? []
-                
-                // 起站
-                HStack(spacing: 0) {
-                    Menu {
-                        ForEach(traRegions, id: \.id) { region in
-                            Button(TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier)) {
-                                selectedTRARegionStart = region.id
-                                startStation = ""
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(TRAStationData.shared.displayRegionName(traSelectedRegionStart?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Region" : "選擇區域") : TRAStationData.shared.displayRegionName(traSelectedRegionStart?.name ?? "", languageCode: Locale.current.identifier))
-                                .font(.subheadline)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            Spacer()
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(maxHeight: .infinity)
-                        .background(Color.gray.opacity(0.05))
-                    }
-                    
-                    Divider()
-                    
-                    Menu {
-                        ForEach(traStationsStart, id: \.id) { station in
-                            Button(TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)) {
-                                startStation = station.id
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(TRAStationData.shared.displayStationName(traStationsStart.first { $0.id == startStation }?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Station" : "選擇車站") : TRAStationData.shared.displayStationName(traStationsStart.first { $0.id == startStation }?.name ?? "", languageCode: Locale.current.identifier))
-                                .font(.subheadline)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            Spacer()
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(maxHeight: .infinity)
-                        .foregroundColor(traStationsStart.isEmpty ? Color.gray : themeManager.primaryTextColor)
-                    }
-                    .disabled(traStationsStart.isEmpty)
-                }
-                .frame(height: 44)
+        }
+    }
+    
+    // MARK: - Subviews for Route Selection
+    
+    @ViewBuilder
+    private var busSelectionView: some View {
+        TextField("route_example 307", text: $routeId)
+            .padding(12)
+            .foregroundColor(themeManager.primaryTextColor)
+            .background(inputBackgroundColor)
+            .cornerRadius(10)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var coachSelectionView: some View {
+        VStack(spacing: 0) {
+            TextField("route_example 1610", text: $routeId)
+                .padding(12)
                 .foregroundColor(themeManager.primaryTextColor)
-                
-                Divider().opacity(0.5).padding(.leading, 12)
-                
-                // 終點
-                HStack(spacing: 0) {
-                    Menu {
-                        ForEach(traRegions, id: \.id) { region in
-                            Button(TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier)) {
-                                selectedTRARegionEnd = region.id
-                                endStation = ""
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(TRAStationData.shared.displayRegionName(traSelectedRegionEnd?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Region" : "選擇區域") : TRAStationData.shared.displayRegionName(traSelectedRegionEnd?.name ?? "", languageCode: Locale.current.identifier))
-                                .font(.subheadline)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            Spacer()
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(maxHeight: .infinity)
-                        .background(Color.gray.opacity(0.05))
-                    }
-                    
-                    Divider()
-                    
-                    Menu {
-                        ForEach(traStationsEnd, id: \.id) { station in
-                            Button(TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)) {
-                                endStation = station.id
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(TRAStationData.shared.displayStationName(traStationsEnd.first { $0.id == endStation }?.name ?? "", languageCode: Locale.current.identifier).isEmpty ? (Locale.current.identifier.hasPrefix("en") ? "Select Station" : "選擇車站") : TRAStationData.shared.displayStationName(traStationsEnd.first { $0.id == endStation }?.name ?? "", languageCode: Locale.current.identifier))
-                                .font(.subheadline)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            Spacer()
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(maxHeight: .infinity)
-                        .foregroundColor(traStationsEnd.isEmpty ? Color.gray : themeManager.primaryTextColor)
-                    }
-                    .disabled(traStationsEnd.isEmpty)
-                }
-                .frame(height: 44)
-                .foregroundColor(themeManager.primaryTextColor)
+            Divider().opacity(0.5).padding(.leading, 12)
+            
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var traSelectionView: some View {
+        VStack(spacing: 0) {
+            TRALineStationInputRow(
+                label: "start_point",
+                regions: availableTRARegions,
+                selectedRegion: $selectedStartRegion,
+                stationId: $startStation
+            )
+
+            Divider().opacity(0.5).padding(.leading, 12)
+
+            TRALineStationInputRow(
+                label: "end_point",
+                regions: availableTRARegions,
+                selectedRegion: $selectedEndRegion,
+                stationId: $endStation
+            )
+        }
+        .onAppear {
+            restoreTRARegions()
+        }
+    }
+
+    // 自動反查區域 (當進入編輯模式時)
+    private func restoreTRARegions() {
+        if selectedType == .tra {
+            // 找起點（使用站代碼比對）
+            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == startStation }) }) {
+                selectedStartRegion = found
             }
-            else {
-                VStack(spacing: 0) {
-                    StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
-                    Divider().opacity(0.5).padding(.leading, 12)
-                    StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
-                }
+            // 找終點（使用站代碼比對）
+            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == endStation }) }) {
+                selectedEndRegion = found
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var mrtSelectionView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var tymrtSelectionView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var tcmrtSelectionView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var kmrtSelectionView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+    
+    @ViewBuilder
+    private var manualInputView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation)
         }
         .background(inputBackgroundColor)
         .cornerRadius(10)
@@ -472,4 +578,5 @@ struct EditTripView: View {
         .background(inputBackgroundColor)
         .cornerRadius(8)
     }
+    
 }

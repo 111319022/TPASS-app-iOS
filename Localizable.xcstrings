@@ -7,9 +7,6 @@
     " (" : {
 
     },
-    " (-%lld)" : {
-
-    },
     " %lld%%" : {
 
     },
@@ -89,12 +86,6 @@
     "$%lld" : {
 
     },
-    "$1,200" : {
-
-    },
-    "$1200" : {
-
-    },
     "aboutApp" : {
       "localizations" : {
         "en" : {
@@ -123,6 +114,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "關於 App"
+          }
+        }
+      }
+    },
+    "active" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用中"
           }
         }
       }
@@ -192,6 +199,7 @@
       }
     },
     "add" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -219,6 +227,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "加入"
+          }
+        }
+      }
+    },
+    "add_new_cycle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add New Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增週期"
           }
         }
       }
@@ -304,6 +328,7 @@
       }
     },
     "addCycle" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1075,6 +1100,7 @@
       }
     },
     "comingSoon" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1540,6 +1566,22 @@
         }
       }
     },
+    "current_cycle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新週期"
+          }
+        }
+      }
+    },
     "current_cycle_month" : {
       "localizations" : {
         "en" : {
@@ -1552,22 +1594,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本月週期"
-          }
-        }
-      }
-    },
-    "current_plan" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Current Plan"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目前適用方案"
           }
         }
       }
@@ -1600,6 +1626,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "目前風格預覽"
+          }
+        }
+      }
+    },
+    "cycle_management" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycles"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "週期"
           }
         }
       }
@@ -1668,6 +1710,38 @@
         }
       }
     },
+    "date_overlap_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected dates overlap with an existing cycle. Do you want to proceed?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選定的日期與現有週期重疊。是否繼續？"
+          }
+        }
+      }
+    },
+    "date_overlap_warning" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date Overlap Warning"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期重疊警告"
+          }
+        }
+      }
+    },
     "day_actions %@" : {
       "localizations" : {
         "en" : {
@@ -1700,6 +1774,38 @@
         }
       }
     },
+    "days_remaining" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d days left"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "剩餘 %d 天"
+          }
+        }
+      }
+    },
+    "days_until_start" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts in %d days"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 天後開始"
+          }
+        }
+      }
+    },
     "delete" : {
       "localizations" : {
         "en" : {
@@ -1712,6 +1818,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除"
+          }
+        }
+      }
+    },
+    "delete_cycle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除週期"
+          }
+        }
+      }
+    },
+    "delete_cycle_confirmation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete This Cycle?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確定刪除此週期？"
+          }
+        }
+      }
+    },
+    "delete_cycle_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This action cannot be undone."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此操作無法復原。"
           }
         }
       }
@@ -2276,6 +2430,22 @@
         }
       }
     },
+    "edit_cycle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯週期"
+          }
+        }
+      }
+    },
     "edit_trip_title" : {
       "localizations" : {
         "en" : {
@@ -2288,6 +2458,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "編輯行程"
+          }
+        }
+      }
+    },
+    "end_date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Date"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結束日期"
           }
         }
       }
@@ -2309,6 +2495,7 @@
       }
     },
     "endDate" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2339,6 +2526,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "輸入站名"
+          }
+        }
+      }
+    },
+    "expired" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expired"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已過期"
           }
         }
       }
@@ -2486,6 +2689,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "免費"
+          }
+        }
+      }
+    },
+    "future_cycles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Future Cycles"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未來週期"
           }
         }
       }
@@ -2810,6 +3029,57 @@
         }
       }
     },
+    "kaohsiung_only" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaohsiung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄"
+          }
+        }
+      }
+    },
+    "kaohsiung_tainan_pingtung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaohsiung, Tainan, Pingtung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄、台南、屏東"
+          }
+        }
+      }
+    },
+    "Key" : {
+      "extractionState" : "manual"
+    },
+    "kmrt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MRT"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高捷"
+          }
+        }
+      }
+    },
     "language" : {
       "localizations" : {
         "en" : {
@@ -2841,6 +3111,9 @@
           }
         }
       }
+    },
+    "Line" : {
+
     },
     "lrt" : {
       "localizations" : {
@@ -2922,7 +3195,36 @@
         }
       }
     },
+    "MegaCityPASS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基北北桃"
+          }
+        }
+      }
+    },
+    "metros" : {
+      "comment" : "Metro/MRT display name unified for all metro systems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MRT"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "捷運"
+          }
+        }
+      }
+    },
     "more_plans_footer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3002,7 +3304,40 @@
         }
       }
     },
+    "no_cycles_description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your first TPASS cycle to start tracking"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增第一個 TPASS 週期開始追蹤"
+          }
+        }
+      }
+    },
+    "no_cycles_yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Cycles Yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未建立週期"
+          }
+        }
+      }
+    },
     "noCycleSet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3387,6 +3722,7 @@
       }
     },
     "other_regions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3398,6 +3734,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "其他地區"
+          }
+        }
+      }
+    },
+    "past_cycles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Past Cycles"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去週期"
           }
         }
       }
@@ -3418,34 +3770,98 @@
         }
       }
     },
-    "plan_jiapei_name" : {
+    "plan_central_non_resident" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MegaCity Pass"
+            "value" : "Central Taiwan PASS (Non-Resident)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "基北北桃都會通"
+            "value" : "中彰投苗(非市民)"
           }
         }
       }
     },
-    "plan_jiapei_scope" : {
+    "plan_central_resident" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Coverage: Keelung, Taipei, New Taipei, Taoyuan"
+            "value" : "Central Taiwan PASS (Resident)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "適用範圍：基隆、台北、新北、桃園"
+            "value" : "中彰投苗(市民)"
+          }
+        }
+      }
+    },
+    "plan_kaohsiung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaohsiung PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄"
+          }
+        }
+      }
+    },
+    "plan_north" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MegaCity PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基北北桃"
+          }
+        }
+      }
+    },
+    "plan_south" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Southern Taiwan PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "南高屏"
+          }
+        }
+      }
+    },
+    "plan_taoyuan_hsinchu_miaoli" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TaoZhuZhu PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃竹竹"
           }
         }
       }
@@ -3494,6 +3910,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "金額"
+          }
+        }
+      }
+    },
+    "proceed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繼續"
           }
         }
       }
@@ -3581,23 +4013,25 @@
         }
       }
     },
-    "region" : {
+    "region_intro" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TPASS Plan"
+            "value" : "TPASS Plan Intro"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TPASS 地區方案"
+            "value" : "TPASS 地區方案介紹"
           }
         }
       }
     },
     "region_jiapei" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3613,18 +4047,18 @@
         }
       }
     },
-    "region_selection_title" : {
+    "region_selection_ title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select TPASS Plan"
+            "state" : "needs_review",
+            "value" : "TPASS Regions"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇地區方案"
+            "value" : "TPASS地區方案介紹"
           }
         }
       }
@@ -3712,6 +4146,38 @@
         }
       }
     },
+    "select_region" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Line"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇線路"
+          }
+        }
+      }
+    },
+    "select_region_first" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Lines First"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請先選擇線路"
+          }
+        }
+      }
+    },
     "select_route" : {
       "localizations" : {
         "en" : {
@@ -3776,6 +4242,22 @@
         }
       }
     },
+    "start_date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Date"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始日期"
+          }
+        }
+      }
+    },
     "start_point" : {
       "localizations" : {
         "en" : {
@@ -3793,6 +4275,7 @@
       }
     },
     "startDate" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3808,6 +4291,9 @@
         }
       }
     },
+    "Station" : {
+
+    },
     "submit_button" : {
       "localizations" : {
         "en" : {
@@ -3820,6 +4306,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "加入計算"
+          }
+        }
+      }
+    },
+    "taichung_changhua_nantou_miaoli_non_resident" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Non-Taichung Resident)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中、彰化、南投、苗栗（非台中市民）"
+          }
+        }
+      }
+    },
+    "taichung_changhua_nantou_miaoli_resident" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Taichung Resident & Student)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中、彰化、南投、苗栗（台中市民/就學）"
+          }
+        }
+      }
+    },
+    "taipei_new_taipei_taoyuan_keelung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taipei, New Taipei, Taoyuan, Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台北、新北、桃園、基隆"
+          }
+        }
+      }
+    },
+    "taoyuan_hsinchu_miaoli" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taoyuan, Hsinchu, Miaoli"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園、新竹、苗栗"
+          }
+        }
+      }
+    },
+    "tcmrt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MRT"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中捷"
           }
         }
       }
@@ -3991,6 +4557,22 @@
     "TPASS" : {
 
     },
+    "tpass_plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TPASS Plan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月票方案"
+          }
+        }
+      }
+    },
     "tpass2Rebate" : {
       "localizations" : {
         "en" : {
@@ -4119,6 +4701,38 @@
         }
       }
     },
+    "transfer_kaohsiung_bike" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KH YouBike (-5)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄YouBike (-5)"
+          }
+        }
+      }
+    },
+    "transfer_kaohsiung_mrt_bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KH MRT↔Bus (-3)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高捷↔公車 (-3)"
+          }
+        }
+      }
+    },
     "transfer_saving" : {
       "localizations" : {
         "en" : {
@@ -4131,6 +4745,103 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "轉乘省下"
+          }
+        }
+      }
+    },
+    "transfer_taichung_citizen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung Citizen Trans. (-10)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中市民轉乘 (-10)"
+          }
+        }
+      }
+    },
+    "transfer_tainan_tra_bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TN TRA↔Bus (-9)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南台鐵↔公車 (-9)"
+          }
+        }
+      }
+    },
+    "transfer_taipei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taipei Standard (-8/-6)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雙北/桃園轉乘 (-8/-6)"
+          }
+        }
+      }
+    },
+    "transfer_taipei_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Taipei (-8)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雙北 (-8)"
+          }
+        }
+      }
+    },
+    "transfer_taipei_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Taipei (-6)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雙北 (-6)"
+          }
+        }
+      }
+    },
+    "transfer_taoyuan_citizen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Taoyuan Citizen Trans.(-7)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民 機捷↔公車 (-7)"
           }
         }
       }
@@ -4386,14 +5097,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "You're all set! Go set your first cycle in Settings!"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "您現在可以開始使用了，趕快去設定設定第一筆週期吧！"
+            "value" : "您現在可以開始使用了，趕快去加入第一筆週期吧！"
           }
         }
       }
@@ -4646,6 +5357,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "假日"
+          }
+        }
+      }
+    },
+    "中彰投苗(市民)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Resident)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中彰投苗(市民)"
+          }
+        }
+      }
+    },
+    "中彰投苗(非市民)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Non-Resident)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中彰投苗(非市民)"
+          }
+        }
+      }
+    },
+    "台中、彰化、南投、苗栗（設籍/就學/就業市民）" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Registered/Studying/Working Resident)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中、彰化、南投、苗栗（設籍/就學/就業市民）"
+          }
+        }
+      }
+    },
+    "台中、彰化、南投、苗栗（非市民）" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung, Changhua, Nantou, Miaoli (Non-Resident)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中、彰化、南投、苗栗（非市民）"
+          }
+        }
+      }
+    },
+    "台北、新北、桃園、基隆" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taipei, New Taipei, Taoyuan, Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台北、新北、桃園、基隆"
+          }
+        }
+      }
+    },
+    "基北北桃" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taipei, New Taipei, Taoyuan, Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基北北桃"
+          }
+        }
+      }
+    },
+    "桃園、新竹、苗栗" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taoyuan, Hsinchu, Miaoli"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園、新竹、苗栗"
+          }
+        }
+      }
+    },
+    "桃竹竹" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taoyuan, Hsinchu, Miaoli"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃竹竹"
           }
         }
       }

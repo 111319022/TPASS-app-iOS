@@ -624,16 +624,30 @@ struct CycleSelectorView: View {
                 }
             }
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "calendar")
-                    .foregroundColor(themeManager.secondaryTextColor)
-                Text(viewModel.cycleDateRange)
-                    .font(.subheadline).fontWeight(.bold)
-                    .foregroundColor(themeManager.primaryTextColor)
-                Spacer()
-                Image(systemName: "chevron.down")
-                    .font(.caption2)
-                    .foregroundColor(themeManager.secondaryTextColor)
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Text(viewModel.cycleDateRange)
+                        .font(.subheadline).fontWeight(.bold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.caption2)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+                
+                if let region = viewModel.selectedCycle?.region ?? auth.currentUser?.cycles.first?.region {
+                    HStack(spacing: 6) {
+                        Image(systemName: "mappin.circle.fill")
+                            .font(.caption2)
+                            .foregroundColor(themeManager.accentColor)
+                        Text(region.displayNameKey)
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Spacer()
+                    }
+                }
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)

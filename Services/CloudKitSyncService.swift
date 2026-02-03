@@ -127,7 +127,7 @@ class CloudKitSyncService: ObservableObject {
         
         // 6) 分批上傳資料記錄（CloudKit 限制每次最多 400 條記錄）
         let batchSize = 400
-        var allRecords = tripRecords + favoriteRecords + cycleRecords
+        let allRecords = tripRecords + favoriteRecords + cycleRecords
         
         print("   總共 \(allRecords.count) 筆記錄，準備分批上傳")
         
@@ -475,6 +475,8 @@ class CloudKitSyncService: ObservableObject {
         if let name = cycle.displayName {
             record["displayName"] = name as CKRecordValue
         }
+        // 🔥 備份 TPASS 方案
+        record["region"] = cycle.region.rawValue as CKRecordValue
         return record
     }
     
@@ -553,6 +555,11 @@ class CloudKitSyncService: ObservableObject {
         }
 
         let displayName = record["displayName"] as? String
-        return Cycle(id: id, start: start, end: end, displayName: displayName)
+        
+        // 🔥 恢復 TPASS 方案（向後兼容：若無 region 則預設為基北北桃）
+        let regionRawValue = record["region"] as? String ?? TPASSRegion.north.rawValue
+        let region = TPASSRegion(rawValue: regionRawValue) ?? .north
+        
+        return Cycle(id: id, start: start, end: end, displayName: displayName, region: region)
     }
 }

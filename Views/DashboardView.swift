@@ -26,7 +26,15 @@ struct DashboardView: View {
     
     private var tripsUnitKey: LocalizedStringKey { "trips_unit" }
     
-    private var roiValue: Int { viewModel.roi }
+    // 🔥 新增：獲取當前周期的方案，若無則用當前設置方案
+    private var currentCycleRegion: TPASSRegion {
+        viewModel.selectedCycle?.region ?? auth.currentRegion
+    }
+    
+    private var roiValue: Int {
+        let monthlyPrice = currentCycleRegion.monthlyPrice
+        return monthlyPrice > 0 ? Int((Double(viewModel.financialStats.totalPaid) / Double(monthlyPrice)) * 100) : 0
+    }
     private var isBreakeven: Bool { roiValue >= 100 }
     
     var body: some View {
@@ -79,7 +87,7 @@ struct DashboardView: View {
                 cyclePickerSection
                 dnaTagsSection
                 summarySection
-                VsBlockView(financialStats: viewModel.financialStats)
+                VsBlockView(financialStats: viewModel.financialStats, region: currentCycleRegion)
                     .padding(.horizontal)
                 financeSection
                 recordsSection
@@ -108,15 +116,29 @@ struct DashboardView: View {
                 }
             }
         } label: {
-            HStack {
-                Image(systemName: "calendar").foregroundColor(.secondary)
-                Text(viewModel.cycleDateRange)
-                    .font(.headline)
-                    .foregroundColor(themeManager.primaryTextColor)
-                Spacer()
-                Image(systemName: "chevron.down")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: "calendar").foregroundColor(.secondary)
+                    Text(viewModel.cycleDateRange)
+                        .font(.headline)
+                        .foregroundColor(themeManager.primaryTextColor)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                if let region = currentCycleRegion as TPASSRegion? {
+                    HStack(spacing: 6) {
+                        Image(systemName: "mappin.circle.fill")
+                            .font(.caption2)
+                            .foregroundColor(themeManager.accentColor)
+                        Text(region.displayNameKey)
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Spacer()
+                    }
+                }
             }
             .padding()
             .background(cardBackground)
@@ -216,9 +238,10 @@ struct DashboardView: View {
     }
     
     private var roiRaceSection: some View {
-        ChartContainer(title: "tpassRaceProgress", icon: "flag.checkered") {
+        let monthlyPrice = currentCycleRegion.monthlyPrice
+        return ChartContainer(title: "tpassRaceProgress", icon: "flag.checkered") {
             Chart {
-                RuleMark(y: .value("TPASS", 1200))
+                RuleMark(y: .value("TPASS", monthlyPrice))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                     .foregroundStyle(.red)
                 ForEach(viewModel.dailyCumulativeStats, id: \.date) { item in
@@ -304,6 +327,14 @@ struct DashboardView: View {
     }
     
     // MARK: - Helper Functions
+    
+    private func getTransportDisplayName(_ type: TransportType) -> LocalizedStringKey {
+        // 北捷、台中捷運、高雄捷運統一使用 metros key
+        if type == .mrt || type == .tcmrt || type == .kmrt {
+            return "metros"
+        }
+        return type.displayName
+    }
     
     @ViewBuilder
     private func timeDistributionChart(_ ws: (weekday: Int, weekend: Int, weekdayPct: Int, weekendPct: Int)) -> some View {
@@ -451,9 +482,10 @@ struct DashboardView: View {
     
     struct VsBlockView: View {
         @EnvironmentObject var themeManager: ThemeManager
-        //@EnvironmentObject var localizationManager: LocalizationManager
+        @EnvironmentObject var auth: AuthService
         @Environment(\.colorScheme) var colorScheme
         let financialStats: FinancialBreakdown
+        let region: TPASSRegion  // 🔥 新增：接收該週期的方案
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -470,8 +502,9 @@ struct DashboardView: View {
         
         var body: some View {
             let actual = financialStats.totalPaid - financialStats.r1Total - financialStats.r2Total
-            let diff = 1200 - actual
-            let saved = actual < 1200 ? 0 : actual - 1200
+            let monthlyPrice = region.monthlyPrice  // 🔥 改用傳入的方案
+            let diff = monthlyPrice - actual
+            let saved = actual < monthlyPrice ? 0 : actual - monthlyPrice
             
             ZStack {
                 cardBackground
@@ -485,7 +518,7 @@ struct DashboardView: View {
                     Spacer()
                     VStack {
                         Text("tpassCost").font(.caption).foregroundColor(.secondary)
-                        Text("$1200").font(.title).bold().foregroundColor(themeManager.primaryTextColor)
+                        Text("$\(monthlyPrice)").font(.title).bold().foregroundColor(themeManager.primaryTextColor)
                     }
                 }.padding()
             }
@@ -829,12 +862,21 @@ struct DashboardView: View {
         @EnvironmentObject var themeManager: ThemeManager
         //@EnvironmentObject var localizationManager: LocalizationManager
         let stat: (type: TransportType, total: Int, count: Int, percent: Double, avg: Int, max: Int)
+        
+        private func getTransportDisplayName(_ type: TransportType) -> LocalizedStringKey {
+            // 北捷、台中捷運、高雄捷運統一使用 metros key
+            if type == .mrt || type == .tcmrt || type == .kmrt {
+                return "metros"
+            }
+            return type.displayName
+        }
+        
         var body: some View {
             VStack(spacing: 8) {
                 HStack {
                     // 🔥 使用 ThemeManager 顏色
                     Image(systemName: stat.type.systemIconName).foregroundColor(themeManager.transportColor(stat.type))
-                    Text(stat.type.displayName).bold().foregroundColor(themeManager.primaryTextColor)
+                    Text(getTransportDisplayName(stat.type)).bold().foregroundColor(themeManager.primaryTextColor)
                     Spacer()
                     (Text("\(stat.count)") + Text("trips_unit"))
                         .font(.caption)

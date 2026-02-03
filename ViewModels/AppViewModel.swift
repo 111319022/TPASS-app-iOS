@@ -939,10 +939,20 @@ class AppViewModel: ObservableObject {
     @MainActor
     func toggleTransfer(_ trip: Trip) {
         let identity = AuthService.shared.currentUser?.identity ?? .adult
-        let discount: Int = (identity == .student) ? 6 : 8
+        let region = selectedCycle?.region ?? AuthService.shared.currentRegion
         
         trip.isTransfer = !trip.isTransfer
-        trip.paidPrice = trip.isTransfer ? max(0, trip.originalPrice - discount) : trip.originalPrice
+        
+        if trip.isTransfer {
+            // 打開轉乘：使用該地區的預設轉乘類型
+            trip.transferDiscountType = region.defaultTransferType
+            let discount = region.defaultTransferType.discount(for: identity)
+            trip.paidPrice = max(0, trip.originalPrice - discount)
+        } else {
+            // 關閉轉乘
+            trip.transferDiscountType = nil
+            trip.paidPrice = trip.originalPrice
+        }
         
         saveContext()
         fetchAllData()

@@ -1,0 +1,57 @@
+import SwiftUI
+
+struct TPASSRegionSelectionView: View {
+    @StateObject private var themeManager = ThemeManager.shared
+    
+    private func descriptionKey(for region: TPASSRegion) -> LocalizedStringKey {
+        switch region {
+        case .north:
+            return "taipei_new_taipei_taoyuan_keelung"
+        case .taoZhuZhu:
+            return "taoyuan_hsinchu_miaoli"
+        case .central:
+            return "taichung_changhua_nantou_miaoli_non_resident"
+        case .centralCitizen:
+            return "taichung_changhua_nantou_miaoli_resident"
+        case .south:
+            return "kaohsiung_tainan_pingtung"
+        case .kaohsiung:
+            return "kaohsiung_only"
+        }
+    }
+    
+    var body: some View {
+        Form {
+            Section(header: Text("region_intro")) {
+                ForEach(TPASSRegion.allCases, id: \.self) { region in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(region.displayNameKey)
+                                .font(.headline)
+                                .foregroundColor(themeManager.primaryTextColor)
+                            Text(descriptionKey(for: region))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text("$\(region.monthlyPrice)")
+                            .foregroundColor(.blue)
+                            .font(.subheadline)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .navigationTitle("region_selection_ title")
+        .navigationBarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .background(themeManager.backgroundColor)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        TPASSRegionSelectionView()
+            .environmentObject(ThemeManager.shared)
+    }
+}

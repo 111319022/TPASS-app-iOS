@@ -6,6 +6,7 @@ struct Cycle: Identifiable, Codable, Hashable {
     var start: Date
     var end: Date
     var displayName: String?
+    var region: TPASSRegion = .north  // 🔥 新增：綁定該週期的方案
 
     var title: String {
         if let name = displayName, !name.isEmpty { return name }
@@ -15,7 +16,7 @@ struct Cycle: Identifiable, Codable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, start, end, displayName
+        case id, start, end, displayName, region
     }
     
     // 🔥 [關鍵修正] 讀取邏輯 (Decoding)
@@ -50,6 +51,14 @@ struct Cycle: Identifiable, Codable, Hashable {
         } else {
             end = Date()
         }
+        
+        // 🔥 新增：讀取該週期綁定的方案，若無則預設為 north
+        if let regionRaw = try? container.decode(String.self, forKey: .region),
+           let decodedRegion = TPASSRegion(rawValue: regionRaw) {
+            region = decodedRegion
+        } else {
+            region = .north
+        }
     }
     
     // 寫入 (Encoding)
@@ -60,14 +69,16 @@ struct Cycle: Identifiable, Codable, Hashable {
         // 為了相容 Web，我們寫入時還是轉成毫秒數字
         try container.encode(Int64(start.timeIntervalSince1970 * 1000), forKey: .start)
         try container.encode(Int64(end.timeIntervalSince1970 * 1000), forKey: .end)
+        try container.encode(region.rawValue, forKey: .region)
     }
     
     // 手動建立用
-    init(id: String = UUID().uuidString, start: Date, end: Date, displayName: String? = nil) {
+    init(id: String = UUID().uuidString, start: Date, end: Date, displayName: String? = nil, region: TPASSRegion = .north) {
         self.id = id
         self.start = start
         self.end = end
         self.displayName = displayName
+        self.region = region
     }
 }
 

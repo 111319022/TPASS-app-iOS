@@ -17,6 +17,7 @@ final class Trip {
     var endStation: String
     var routeId: String
     var note: String
+    var transferDiscountType: TransferDiscountType? // 🔥 新增：轉乘優惠類型
     
     // 計算屬性（保持與舊版相容，讓 UI 不用改）
     @Transient var dateStr: String {
@@ -39,7 +40,7 @@ final class Trip {
         return components.compactMap { $0 }.joined(separator: " ")
     }
     
-    init(id: String = UUID().uuidString, userId: String, createdAt: Date = Date(), type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String) {
+    init(id: String = UUID().uuidString, userId: String, createdAt: Date = Date(), type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String, transferDiscountType: TransferDiscountType? = nil) {
         self.id = id
         self.userId = userId
         self.createdAt = createdAt
@@ -52,6 +53,7 @@ final class Trip {
         self.endStation = endStation
         self.routeId = routeId
         self.note = note
+        self.transferDiscountType = transferDiscountType
     }
 }
 
