@@ -712,6 +712,7 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 日期範圍計算
+    @MainActor
     private func currentDateRange() -> (Date, Date) {
         let calendar = Calendar.current
         if let cycle = activeCycle {
