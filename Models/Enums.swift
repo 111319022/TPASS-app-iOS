@@ -87,6 +87,12 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
     // 中彰投苗
     case taichung = "taichung_citizen"          // 台中市民轉乘 -10元
     
+    // 北宜/宜蘭
+    case yilan = "yilan"   // 宜蘭轉乘 公車-客運 -15元
+
+    // 新竹
+    case hsinchu = "hsinchu"    
+
     // 南高屏/高雄
     case kaohsiungMrtBus = "kaohsiung_mrt_bus"        // 高雄捷運↔公車 -3元
     case kaohsiungBike = "kaohsiung_bike"             // 高雄YouBike↔其他運具 -5元
@@ -98,6 +104,8 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .taipei: return "transfer_taipei"
         case .taoyuan: return "transfer_taoyuan_citizen"
+        case .yilan: return "transfer_yilan"
+        case .hsinchu: return "transfer_hsinchu"
         case .taichung: return "transfer_taichung_citizen"
         case .kaohsiungMrtBus: return "transfer_kaohsiung_mrt_bus"
         case .kaohsiungBike: return "transfer_kaohsiung_bike"
@@ -111,6 +119,9 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         case .taipei:
             // 雙北/桃園轉乘根據身份顯示
             return identity == .student ? "transfer_taipei_student" : "transfer_taipei_adult"
+        case .yilan:
+            // 宜蘭乘根據身份顯示
+            return identity == .student ? "transfer_yilan_student" : "transfer_yilan_adult"
         default:
             return displayNameKey
         }
@@ -122,6 +133,10 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
             return identity == .adult ? 8 : 6
         case .taoyuan:
             return 7
+        case .yilan:
+            return identity == .adult ? 15 : 10
+        case .hsinchu:
+            return 15
         case .taichung:
             return 10
         case .kaohsiungMrtBus:

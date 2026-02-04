@@ -128,13 +128,15 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .north:
             return [.taipei]
         case .taoZhuZhu:
-            return [.taoyuan]
-        case .taoZhuZhuMiao, .zhuZhuMiao:
-            return [.taoyuan]
+            return [.taoyuan, .hsinchu]
+        case .taoZhuZhuMiao:
+            return [.taoyuan, .hsinchu]
+        case .zhuZhuMiao:
+            return [.hsinchu]
         case .beiYiMegaPASS, .beiYi:
-            return [.taipei]
+            return [.taipei, .yilan]
         case .yilan, .yilan3Days:
-            return [.taipei]
+            return [.yilan]
         case .central, .centralCitizen:
             return [.taichung]
         case .south:
@@ -156,7 +158,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .beiYiMegaPASS, .beiYi:
             return .taipei
         case .yilan, .yilan3Days:
-            return .taipei
+            return .yilan
         case .central, .centralCitizen:
             return .taichung
         case .south:

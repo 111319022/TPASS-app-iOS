@@ -3077,9 +3077,6 @@
         }
       }
     },
-    "Key" : {
-      "extractionState" : "manual"
-    },
     "kmrt" : {
       "localizations" : {
         "en" : {
@@ -4812,6 +4809,22 @@
         }
       }
     },
+    "transfer_hsinchu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hsinchu(-15)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新竹(-15)"
+          }
+        }
+      }
+    },
     "transfer_kaohsiung_bike" : {
       "localizations" : {
         "en" : {
@@ -4953,6 +4966,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "桃園市民 機捷↔公車 (-7)"
+          }
+        }
+      }
+    },
+    "transfer_yilan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Yilan Bus-Coach"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭公車客運"
+          }
+        }
+      }
+    },
+    "transfer_yilan_aduilt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Yilan Bus-Coach(-15)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭公車客運(-15)"
+          }
+        }
+      }
+    },
+    "transfer_yilan_adult" : {
+
+    },
+    "transfer_yilan_student" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Yilan Bus-Coach(-10)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭公車客運(-10)"
           }
         }
       }
