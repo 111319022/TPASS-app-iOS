@@ -187,6 +187,7 @@ class AppViewModel: ObservableObject {
         return (start, end)
     }
     
+    @MainActor
     func resolveCycle(for date: Date) -> Cycle? {
         let cycles = AuthService.shared.currentUser?.cycles ?? []
         guard !cycles.isEmpty else { return nil }
@@ -211,6 +212,7 @@ class AppViewModel: ObservableObject {
         selectedCycle ?? resolveCycle(for: date)
     }
     
+    @MainActor
     func cycleById(_ id: String?) -> Cycle? {
         guard let id else { return nil }
         return AuthService.shared.currentUser?.cycles.first { $0.id == id }
@@ -1037,6 +1039,7 @@ class AppViewModel: ObservableObject {
     }
     
     // 🔥 新增：根據轉乘類型更新行程
+    @MainActor
     func setTransferType(_ trip: Trip, transferType: TransferDiscountType?) {
         let identity = AuthService.shared.currentUser?.identity ?? .adult
         
