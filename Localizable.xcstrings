@@ -16,6 +16,12 @@
     "-$%lld" : {
 
     },
+    ":" : {
+
+    },
+    "(" : {
+
+    },
     ")" : {
 
     },
@@ -1977,6 +1983,23 @@
         }
       }
     },
+    "discounted_price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discounted"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折扣後"
+          }
+        }
+      }
+    },
     "dna_bike_pioneer" : {
       "localizations" : {
         "en" : {
@@ -3152,6 +3175,23 @@
         }
       }
     },
+    "keep_original_price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep original price"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持原價"
+          }
+        }
+      }
+    },
     "kmrt" : {
       "localizations" : {
         "en" : {
@@ -3419,6 +3459,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "尚未建立週期"
+          }
+        }
+      }
+    },
+    "no_transfer_discount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Transfer Discount"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不使用轉乘折扣"
           }
         }
       }
@@ -3792,6 +3849,23 @@
         }
       }
     },
+    "original_price_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原價"
+          }
+        }
+      }
+    },
     "originalPrice" : {
       "localizations" : {
         "en" : {
@@ -4077,6 +4151,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "票價"
+          }
+        }
+      }
+    },
+    "price_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "$%lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 元"
           }
         }
       }
@@ -4388,6 +4479,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選擇車站"
+          }
+        }
+      }
+    },
+    "select_transfer_type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Transfer Type"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇轉乘方案"
           }
         }
       }

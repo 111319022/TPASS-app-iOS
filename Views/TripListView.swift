@@ -22,6 +22,11 @@ struct TripListView: View {
     @State private var showCommuterNamePrompt = false
     @State private var showCommuterRoutePicker = false
     
+    // 🔥 新增：轉乘類型選擇
+    @State private var showTransferTypeSelection = false
+    @State private var selectedTrip: Trip?
+    @State private var selectedRegionForTransfer: TPASSRegion?
+    
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
     
@@ -368,6 +373,10 @@ struct TripListView: View {
                 showAddTripSheet: $showAddTripSheet,
                 showFavoritesSheet: $showFavoritesSheet,
                 selectedTripToEdit: $selectedTripToEdit,
+                showTransferTypeSelection: $showTransferTypeSelection,
+                selectedTrip: $selectedTrip,
+                selectedRegionForTransfer: $selectedRegionForTransfer,
+                isProcessingSwipeAction: $isProcessingSwipeAction,
                 showToast: showToast
             ))
             .modifier(TripListAlertsModifier(
@@ -473,6 +482,7 @@ struct TripListView: View {
     @ViewBuilder
     private func tripTrailingSwipeAction(_ trip: Trip) -> some View {
         Button(role: .destructive) {
+            HapticManager.shared.notification(type: .warning)
             viewModel.deleteTrip(trip)
             showToast(message: "trip_deleted")
         } label: {
@@ -486,14 +496,44 @@ struct TripListView: View {
         Button {
             guard !isProcessingSwipeAction else { return }
             isProcessingSwipeAction = true
-            let wasTransfer = trip.isTransfer
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                let tx = Transaction(animation: nil)
-                withTransaction(tx) {
-                    viewModel.toggleTransfer(trip)
+            
+            // 🔧 如果正在取消轉乘，直接執行
+            if trip.isTransfer {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    let tx = Transaction(animation: nil)
+                    withTransaction(tx) {
+                        viewModel.setTransferType(trip, transferType: nil)
+                    }
+                    HapticManager.shared.impact(style: .medium)
+                    showToast(message: "transfer_cancelled")
+                    isProcessingSwipeAction = false
                 }
-                showToast(message: wasTransfer ? "transfer_cancelled" : "transfer_added")
-                isProcessingSwipeAction = false
+            } else {
+                // 🔧 如果要添加轉乘，先檢查可用的轉乘類型
+                let region = viewModel.cycleById(trip.cycleId)?.region ?? 
+                            viewModel.cycleForTrip(date: trip.createdAt)?.region ?? 
+                            AuthService.shared.currentRegion
+                
+                let availableTypes = region.availableTransferTypes
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    if availableTypes.count > 1 {
+                        // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
+                        showTransferTypeSelection = true
+                        selectedTrip = trip
+                        selectedRegionForTransfer = region
+                        isProcessingSwipeAction = false
+                    } else if availableTypes.count == 1 {
+                        // 只有一個選項，直接使用
+                        let tx = Transaction(animation: nil)
+                        withTransaction(tx) {
+                            viewModel.setTransferType(trip, transferType: availableTypes[0])
+                        }
+                        HapticManager.shared.impact(style: .medium)
+                        showToast(message: "transfer_added")
+                        isProcessingSwipeAction = false
+                    }
+                }
             }
         } label: {
             Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.plus" : "link")
@@ -509,6 +549,7 @@ struct TripListView: View {
                 withTransaction(tx) {
                     viewModel.duplicateTrip(trip)
                 }
+                HapticManager.shared.impact(style: .medium)
                 showToast(message: "trip_duplicated")
                 isProcessingSwipeAction = false
             }
@@ -526,6 +567,7 @@ struct TripListView: View {
                 withTransaction(tx) {
                     viewModel.createReturnTrip(trip)
                 }
+                HapticManager.shared.impact(style: .medium)
                 showToast(message: "trip_added")
                 isProcessingSwipeAction = false
             }
@@ -560,8 +602,31 @@ struct TripListView: View {
         Divider()
         
         Button {
-            viewModel.toggleTransfer(trip)
-            showToast(message: trip.isTransfer ? "transfer_cancelled" : "transfer_added")
+            // 🔧 如果正在取消轉乘，直接執行
+            if trip.isTransfer {
+                viewModel.setTransferType(trip, transferType: nil)
+                HapticManager.shared.impact(style: .medium)
+                showToast(message: "transfer_cancelled")
+            } else {
+                // 🔧 如果要添加轉乘，先檢查可用的轉乘類型
+                let region = viewModel.cycleById(trip.cycleId)?.region ?? 
+                            viewModel.cycleForTrip(date: trip.createdAt)?.region ?? 
+                            AuthService.shared.currentRegion
+                
+                let availableTypes = region.availableTransferTypes
+                
+                if availableTypes.count > 1 {
+                    // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
+                    showTransferTypeSelection = true
+                    selectedTrip = trip
+                    selectedRegionForTransfer = region
+                } else if availableTypes.count == 1 {
+                    // 只有一個選項，直接使用
+                    viewModel.setTransferType(trip, transferType: availableTypes[0])
+                    HapticManager.shared.impact(style: .medium)
+                    showToast(message: "transfer_added")
+                }
+            }
         } label: {
             Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.minus" : "link")
         }
@@ -860,9 +925,16 @@ struct StaticButtonStyle: ButtonStyle {
 // MARK: - ViewModifiers
 
 struct TripListSheetsModifier: ViewModifier {
+    @EnvironmentObject var viewModel: AppViewModel
+    @EnvironmentObject var auth: AuthService // 🔥 添加 auth 以傳遞給子視圖
+    @EnvironmentObject var themeManager: ThemeManager // 🔥 添加 themeManager 以傳遞給子視圖
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var selectedTripToEdit: Trip?
+    @Binding var showTransferTypeSelection: Bool
+    @Binding var selectedTrip: Trip?
+    @Binding var selectedRegionForTransfer: TPASSRegion?
+    @Binding var isProcessingSwipeAction: Bool
     let showToast: (LocalizedStringKey) -> Void
     
     func body(content: Content) -> some View {
@@ -885,6 +957,29 @@ struct TripListSheetsModifier: ViewModifier {
                 })
                 .presentationDetents([.height(650)])
                 .presentationDragIndicator(.hidden)
+            }
+            // 🔥 新增：轉乘類型選擇菜單
+            .sheet(isPresented: $showTransferTypeSelection) {
+                if let trip = selectedTrip, let region = selectedRegionForTransfer {
+                    TransferTypeSelectionView(
+                        trip: trip,
+                        region: region,
+                        viewModel: viewModel,
+                        isPresented: $showTransferTypeSelection,
+                        onSelected: { selectedType in
+                            if selectedType != nil {
+                                showToast("transfer_added")
+                            } else {
+                                showToast("transfer_cancelled")
+                            }
+                            isProcessingSwipeAction = false
+                        }
+                    )
+                    .environmentObject(auth) // 🔥 傳遞 auth 服務
+                    .environmentObject(themeManager) // 🔥 傳遞 themeManager
+                    .presentationDetents([.height(420), .medium])
+                    .presentationDragIndicator(.visible)
+                }
             }
     }
 }

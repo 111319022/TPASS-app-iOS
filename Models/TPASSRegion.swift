@@ -146,6 +146,11 @@ enum TPASSRegion: String, CaseIterable, Codable {
         }
     }
     
+    // 🔥 別名：可用的轉乘優惠類型
+    var availableTransferTypes: [TransferDiscountType] {
+        return supportedTransferTypes
+    }
+    
     // 4. 獲取該地區的預設轉乘優惠類型
     var defaultTransferType: TransferDiscountType {
         switch self {

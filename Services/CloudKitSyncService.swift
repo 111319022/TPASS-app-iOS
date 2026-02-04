@@ -135,6 +135,17 @@ class CloudKitSyncService: ObservableObject {
             print("   Cycle[\(index)] displayName: \(cycleRecord["displayName"] ?? "nil")")
             print("   Cycle[\(index)] start: \(cycleRecord["start"] ?? "nil")")
             print("   Cycle[\(index)] end: \(cycleRecord["end"] ?? "nil")")
+            print("   Cycle[\(index)] 所有欄位: \(cycleRecord.allKeys())")
+        }
+        print("   🔥 ===============")
+        
+        // 🔧 調試：打印前 3 筆 Trip 記錄的欄位
+        print("   🔥 === Trip 備份詳情（前3筆）===")
+        for (index, tripRecord) in tripRecords.prefix(3).enumerated() {
+            print("   Trip[\(index)] ID: \(tripRecord["id"] ?? "nil")")
+            print("   Trip[\(index)] cycleId: \(tripRecord["cycleId"] ?? "nil")")
+            print("   Trip[\(index)] transferDiscountTypeRaw: \(tripRecord["transferDiscountTypeRaw"] ?? "nil")")
+            print("   Trip[\(index)] 所有欄位: \(tripRecord.allKeys())")
         }
         print("   🔥 ===============")
         
@@ -174,6 +185,13 @@ class CloudKitSyncService: ObservableObject {
                                 print("         isFree: \(source["isFree"] as? NSNumber ?? source["isFree"] ?? "nil")")
                                 print("         startStation: \(source["startStation"] ?? "nil")")
                                 print("         endStation: \(source["endStation"] ?? "nil")")
+                                print("         cycleId: \(source["cycleId"] ?? "nil")")
+                                print("         transferDiscountTypeRaw: \(source["transferDiscountTypeRaw"] ?? "nil")")
+                            } else if recordType == "Cycle" {
+                                print("         id: \(source["id"] ?? "nil")")
+                                print("         region: \(source["region"] ?? "nil")")
+                                print("         start: \(source["start"] ?? "nil")")
+                                print("         end: \(source["end"] ?? "nil")")
                             }
                         }
                         failCount += 1

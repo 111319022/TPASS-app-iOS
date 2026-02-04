@@ -193,6 +193,10 @@ struct FavoritesManagementView: View {
             let routeName = getLocalizedRouteName(fav)
             
             viewModel.quickAddTrip(from: fav)
+            
+            // 🔥 [新增] 震動：快速新增成功
+            HapticManager.shared.notification(type: .success)
+            
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onQuickAdd?(routeName)
@@ -200,6 +204,7 @@ struct FavoritesManagementView: View {
         }) {
             favoriteRowView(fav, rowBackground: rowBackground)
         }
+
         .buttonStyle(.plain)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
@@ -208,6 +213,9 @@ struct FavoritesManagementView: View {
             Button(role: .destructive) {
                 viewModel.removeFavorite(fav)
                 swipedFavIds.remove(fav.id)
+                
+                // 🔥 [新增] 震動：刪除成功
+                HapticManager.shared.notification(type: .success)
             } label: {
                 Label("delete", systemImage: "trash.fill")
             }
@@ -229,6 +237,10 @@ struct FavoritesManagementView: View {
             Button(action: {
                 let routeName = route.name
                 viewModel.quickAddCommuterRoute(route)
+                
+                // 🔥 [新增] 震動：快速新增整組成功
+                HapticManager.shared.notification(type: .success)
+                
                 showToast(message: "favorites_added_commuter \(routeName)")
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -280,6 +292,9 @@ struct FavoritesManagementView: View {
             Button(role: .destructive) {
                 viewModel.removeCommuterRoute(route)
                 swipedCommuterIds.remove(route.id)
+                
+                // 🔥 [新增] 震動：刪除成功
+                HapticManager.shared.notification(type: .success)
             } label: {
                 Label("delete", systemImage: "trash.fill")
             }

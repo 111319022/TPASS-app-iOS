@@ -501,6 +501,10 @@ struct AddTripView: View {
             cycleId: currentCycleId
         )
         viewModel.addTrip(newTrip)
+        
+        // 🔥 新增：成功震動回饋
+        HapticManager.shared.notification(type: .success)
+        
         presentationMode.wrappedValue.dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             onSuccess?()

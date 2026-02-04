@@ -388,7 +388,6 @@ struct EditTripView: View {
         finalComps.second = timeChanged ? 0 : originalSecond
         let finalDate = calendar.date(from: finalComps) ?? date
         
-        // 🔥 Create updated trip object (using SAME ID)
         // 🔥 修改：使用轉乘優惠類型計算折扣
         let discount: Int
         if isTransfer, let type = transferDiscountType {
@@ -417,6 +416,10 @@ struct EditTripView: View {
         )
         
         viewModel.updateTrip(updatedTrip)
+        
+        // 🔥 新增：成功震動回饋
+        HapticManager.shared.notification(type: .success)
+        
         onSuccess?()
         presentationMode.wrappedValue.dismiss()
     }

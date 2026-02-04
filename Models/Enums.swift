@@ -100,6 +100,19 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
+    var displayName: LocalizedStringKey {
+        switch self {
+        case .taipei: return "transfer_taipei"
+        case .taoyuan: return "transfer_taoyuan_citizen"
+        case .yilan: return "transfer_yilan"
+        case .hsinchu: return "transfer_hsinchu"
+        case .taichung: return "transfer_taichung_citizen"
+        case .kaohsiungMrtBus: return "transfer_kaohsiung_mrt_bus"
+        case .kaohsiungBike: return "transfer_kaohsiung_bike"
+        case .tainanTraBus: return "transfer_tainan_tra_bus"
+        }
+    }
+    
     var displayNameKey: LocalizedStringKey {
         switch self {
         case .taipei: return "transfer_taipei"
@@ -146,6 +159,13 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         case .tainanTraBus:
             return 9
         }
+    }
+    
+    // 🔥 修正：計算折扣後的價格，使用正確的身份
+    func getDiscountedPrice(originalPrice: Int, region: TPASSRegion, identity: Identity) -> Int {
+        let discountAmount = discount(for: identity)
+        let discountedPrice = max(originalPrice - discountAmount, 0)
+        return discountedPrice
     }
 }
 

@@ -1034,6 +1034,24 @@ class AppViewModel: ObservableObject {
         }
         
         saveContext()
+    }
+    
+    // 🔥 新增：根據轉乘類型更新行程
+    func setTransferType(_ trip: Trip, transferType: TransferDiscountType?) {
+        let identity = AuthService.shared.currentUser?.identity ?? .adult
+        
+        trip.transferDiscountType = transferType
+        
+        if let transferType = transferType {
+            trip.isTransfer = true
+            let discount = transferType.discount(for: identity)
+            trip.paidPrice = max(0, trip.originalPrice - discount)
+        } else {
+            trip.isTransfer = false
+            trip.paidPrice = trip.originalPrice
+        }
+        
+        saveContext()
         fetchAllData()
     }
 }
