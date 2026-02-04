@@ -4986,15 +4986,8 @@
         }
       }
     },
-    "transfer_yilan_aduilt" : {
-      "extractionState" : "manual",
+    "transfer_yilan_adult" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Yilan Bus-Coach(-15)"
-          }
-        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5002,9 +4995,6 @@
           }
         }
       }
-    },
-    "transfer_yilan_adult" : {
-
     },
     "transfer_yilan_student" : {
       "extractionState" : "manual",
