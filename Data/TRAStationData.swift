@@ -302,7 +302,11 @@ class TRAStationData {
                 "二水", "源泉", "濁水", "龍泉", "集集", "水里", "車埕"
             ]),
             
-            createRegion(id: "R10", name: "沙崙線", stationNames: [
+            createRegion(id: "R10", name: "北迴線", stationNames: [
+                "蘇澳新", "永樂", "東澳", "南澳", "武塔", "漢本", "和平", "和仁", "崇德", "新城", "景美", "北埔", "花蓮"
+            ]),
+            
+            createRegion(id: "R11", name: "沙崙線", stationNames: [
                 "中洲", "長榮大學", "沙崙"
             ])
         ]
@@ -375,6 +379,7 @@ class TRAStationData {
         "板橋": "Banqiao",
         "浮洲": "Fuzhou",
         "樹林": "Shulin",
+        
         "南樹林": "S. Shulin",
         "山佳": "Shanjia",
         "鶯歌": "Yingge",
@@ -394,7 +399,7 @@ class TRAStationData {
         "竹北": "Zhubei",
         
         // 1190 - 1250 (包含內灣/六家線)
-        "北新竹": "North Hsinchu",
+        "北新竹": "N. Hsinchu",
         "千甲": "Qianjia",
         "新莊": "Xinzhuang",
         "竹中": "Zhuzhong",
@@ -499,7 +504,7 @@ class TRAStationData {
         "保安": "Baoan",
         "仁德": "Rende",
         "中洲": "Zhongzhou",
-        "長榮大學": "Chang Jung Christian University",
+        "長榮大學": "CJCU",
         "沙崙": "Shalun",
         
         // 4290 - 4470 (高雄區段)
@@ -516,7 +521,7 @@ class TRAStationData {
         "三塊厝": "Sankuaicuo",
         "高雄": "Kaohsiung",
         "民族": "Minzu",
-        "科工館": "Science and Technology Museum",
+        "科工館": "Science and Tech. Museum",
         "正義": "Zhengyi",
         "鳳山": "Fengshan",
         "後庄": "Houzhuang",
@@ -639,6 +644,7 @@ class TRAStationData {
         "平溪/深澳線": "Pingxi / Shen'ao Line",
         "內灣/六家線": "Neiwan / Liujia Line",
         "集集線": "Jiji Line",
+        "北迴線": "North-Link Line",
         "沙崙線": "Shalun Line",
 
         // 舊版/相容 key（避免既有資料或 UI 還在用時失效）
@@ -718,7 +724,7 @@ class TRAStationData {
         TRAStation(id: "1110", name: "埔心"),
         TRAStation(id: "1120", name: "楊梅"),
         TRAStation(id: "1130", name: "富岡"),
-        TRAStation(id: "1140", name: "新富        "),
+        TRAStation(id: "1140", name: "新富"),
         TRAStation(id: "1150", name: "北湖"),
         TRAStation(id: "1160", name: "湖口"),
         TRAStation(id: "1170", name: "新豐"),

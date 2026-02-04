@@ -104,6 +104,16 @@ class TYMRTStationData {
                 return []
             }
             return Array(line.stations[startIndex...endIndex])
+        case .taoZhuZhuMiao:
+            // 桃竹竹苗：同桃竹竹
+            guard let startIndex = line.stations.firstIndex(of: "體育大學"),
+                  let endIndex = line.stations.firstIndex(of: "老街溪") else {
+                return []
+            }
+            return Array(line.stations[startIndex...endIndex])
+        case .beiYiMegaPASS:
+            // 北宜跨城際及雙北：全線可用
+            return line.stations
         default:
             // 其他方案不支援機場捷運
             return []

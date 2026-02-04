@@ -2725,6 +2725,22 @@
         }
       }
     },
+    "hsinchu_miaoli" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Hsinchu City & County, Miaoli"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新竹縣市、苗栗"
+          }
+        }
+      }
+    },
     "identity_adult" : {
       "localizations" : {
         "en" : {
@@ -3769,6 +3785,38 @@
         }
       }
     },
+    "plan_BeiYi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan-Taipei PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "北宜跨城際"
+          }
+        }
+      }
+    },
+    "plan_BeiYiMegaPASS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan-Taipei PASS + MegaPASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "北宜跨城際及雙北"
+          }
+        }
+      }
+    },
     "plan_central_non_resident" : {
       "localizations" : {
         "en" : {
@@ -3849,6 +3897,22 @@
         }
       }
     },
+    "plan_TaoMiao" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TaoZhuZhuMaio PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃竹竹苗"
+          }
+        }
+      }
+    },
     "plan_taoyuan_hsinchu_miaoli" : {
       "localizations" : {
         "en" : {
@@ -3861,6 +3925,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "桃竹竹"
+          }
+        }
+      }
+    },
+    "plan_Yilan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭縣都市內"
+          }
+        }
+      }
+    },
+    "plan_Yilan3Days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan Trip PASS(3 Days)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭好行三日券"
+          }
+        }
+      }
+    },
+    "plan_ZhuMiao" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZhuZhuMaio"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "竹竹苗"
           }
         }
       }
@@ -4345,14 +4457,30 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taoyuan, Hsinchu (City & County)"
+            "state" : "needs_review",
+            "value" : "Taoyuan, Hsinchu City & County"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "桃園、新竹(縣市)"
+            "value" : "桃園、新竹縣市"
+          }
+        }
+      }
+    },
+    "taoyuan_hsinchu_miaoli" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Taoyuan, Hsinchu City & County, Miaoli"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園、新竹縣市、苗栗"
           }
         }
       }
@@ -5340,6 +5468,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "假日"
+          }
+        }
+      }
+    },
+    "yilan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭"
+          }
+        }
+      }
+    },
+    "yilan_3_days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭"
+          }
+        }
+      }
+    },
+    "yilan_taipei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan, Coach for Yilan-Taipei, TR for Keelung-NewTaipei"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭、宜蘭-台北客運、台鐵（基隆、台北、新北）"
+          }
+        }
+      }
+    },
+    "yilan_taipei_megapass" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Yilan, Taipei, New Taipei, Taoyuan, Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭、台北、新北、桃園、基隆"
           }
         }
       }
