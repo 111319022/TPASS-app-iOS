@@ -257,6 +257,7 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 列表分組
+    @MainActor
     var groupedTrips: [DailyTripGroup] {
         // 🔧 如果有快取就直接回傳
         if let cached = _groupedTripsCache {
@@ -276,6 +277,7 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 1. 財務總覽
+    @MainActor
     var financialStats: FinancialBreakdown {
         var totalOriginal = 0
         var totalPaid = 0
@@ -452,6 +454,7 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 通勤 DNA
+    @MainActor
     var commuterDNA: [DNATag] {
         var tags: [DNATag] = []
         let trips = filteredTrips
@@ -527,6 +530,7 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 其他屬性
+    @MainActor
     var cycleDateRange: String {
         if let cycle = activeCycle { return cycle.title }
         let fmt = DateFormatter(); fmt.dateFormat = "yyyy/MM/dd"
@@ -536,10 +540,14 @@ class AppViewModel: ObservableObject {
         return String(localized: "current_cycle_month")
     }
     
+    @MainActor
     var currentMonthTotal: Int { filteredTrips.reduce(0) { $0 + $1.paidPrice } }
+    @MainActor
     var roi: Int { Int((Double(currentMonthTotal) / 1200.0) * 100) }
+    @MainActor
     var tpassSavings: Int { filteredTrips.reduce(0) { $0 + ($1.originalPrice - $1.paidPrice) } }
     
+    @MainActor
     var recordStats: RecordStats {
         var dailyCost: [String: Int] = [:]
         var dailyCount: [String: Int] = [:]
@@ -563,6 +571,7 @@ class AppViewModel: ObservableObject {
         )
     }
     
+    @MainActor
     var dailyCumulativeStats: [(date: Date, cumulative: Int)] {
         var result: [(Date, Int)] = []
         var runningTotal = 0
@@ -578,6 +587,7 @@ class AppViewModel: ObservableObject {
         return result
     }
     
+    @MainActor
     var transportStats: [(type: TransportType, total: Int, count: Int, percent: Double, avg: Int, max: Int)] {
         let trips = filteredTrips
         let totalSpend = Double(financialStats.totalPaid)
@@ -598,6 +608,7 @@ class AppViewModel: ObservableObject {
         }.sorted { $0.total > $1.total }
     }
     
+    @MainActor
     var timeSlotStats: [(label: LocalizedStringKey, weekday: Int, weekend: Int)] {
             var slots: [(LocalizedStringKey, Int, Int)] = [
                 ("early_morning", 0, 0),
@@ -623,6 +634,7 @@ class AppViewModel: ObservableObject {
         return slots
     }
     
+    @MainActor
     var weekStats: (weekday: Int, weekend: Int, weekdayPct: Int, weekendPct: Int) {
         var wd = 0, we = 0
         let calendar = Calendar.current
@@ -636,6 +648,7 @@ class AppViewModel: ObservableObject {
         return (wd, we, wdPct, 100 - wdPct)
     }
     
+    @MainActor
     var topRoutes: [RouteStat] {
         var routes: [String: RouteStat] = [:]
         for trip in filteredTrips {
@@ -660,6 +673,7 @@ class AppViewModel: ObservableObject {
         return Array(routes.values).sorted { $0.count > $1.count }.prefix(5).map { $0 }
     }
     
+    @MainActor
     var heatmapData: [HeatmapItem] {
         var map: [String: Int] = [:]
         for trip in filteredTrips { map[trip.dateStr, default: 0] += trip.originalPrice }
