@@ -191,7 +191,7 @@ class AppViewModel: ObservableObject {
     func resolveCycle(for date: Date) -> Cycle? {
         let cycles = AuthService.shared.currentUser?.cycles ?? []
         guard !cycles.isEmpty else { return nil }
-        let calendar = Calendar.current
+        _ = Calendar.current
         let target = date
         let matches = cycles.filter { cycle in
             let range = cycleDateRange(for: cycle)
@@ -204,10 +204,12 @@ class AppViewModel: ObservableObject {
         }.first
     }
     
+    @MainActor
     var activeCycle: Cycle? {
         selectedCycle ?? resolveCycle(for: Date())
     }
     
+    @MainActor
     func cycleForTrip(date: Date) -> Cycle? {
         selectedCycle ?? resolveCycle(for: date)
     }
@@ -218,6 +220,7 @@ class AppViewModel: ObservableObject {
         return AuthService.shared.currentUser?.cycles.first { $0.id == id }
     }
     
+    @MainActor
     var filteredTrips: [Trip] {
         // 🔧 如果有快取就直接回傳，避免重複計算
         if let cached = _filteredTripsCache {
