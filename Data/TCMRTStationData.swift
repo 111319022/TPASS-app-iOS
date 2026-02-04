@@ -4,68 +4,44 @@ import SwiftUI
 class TCMRTStationData {
     static let shared = TCMRTStationData()
     
-    // 台中捷運線路定義
+    // 台中捷運線路定義 (目前僅有一條綠線)
     let lines: [MRTLine] = [
-        MRTLine(
-            id: "RED",
-            code: "RED",
-            name: "🔴紅線",
-            color: Color(hex: "#E31937"), // 台中捷運紅線
-            stations: [
-                "北屯總站", "舊社", "松竹", "四民主義", "北屯國小", "陸光", "文心北路", "大坑",
-                "文心中清交", "文心中華", "新時代", "文心中港", "南屯", "豐樂公園", "東興", "南岡",
-                "文心南路", "烏日高鐵", "九德"
-            ]
-        ),
         MRTLine(
             id: "GREEN",
             code: "GREEN",
             name: "🟢綠線",
-            color: Color(hex: "#00AA4F"), // 台中捷運綠線
+            color: Color(hex: "#00AA4F"), // 台中捷運綠線標準色
             stations: [
-                "高鐵台中站", "烏日", "大慶", "松子路", "機場", "中平", "精科", "龍井",
-                "水安宮", "沙鹿", "梧棲國小", "靜浦"
+                "北屯總站", "舊社", "松竹", "四維國小", "文心崇德", "文心中清",
+                "文華高中", "文心櫻花", "市政府", "水安宮", "文心森林公園", "南屯",
+                "豐樂公園", "大慶", "九張犁", "九德", "烏日", "高鐵臺中站"
             ]
         )
     ]
     
-    // 英文站名對照
+    // 英文站名對照表
     private let stationNameENByZH: [String: String] = [
-        // 紅線
-        "北屯總站": "Beitun Main Station",
-        "舊社": "Jiushe",
-        "松竹": "Songzhu",
-        "四民主義": "Four People's Principles",
-        "北屯國小": "Beitun Elementary",
-        "陸光": "Luguang",
-        "文心北路": "Wenxin North Rd.",
-        "大坑": "Dakeng",
-        "文心中清交": "Wenxin Zhongqing Jiao",
-        "文心中華": "Wenxin Zhonghua",
-        "新時代": "New Era",
-        "文心中港": "Wenxin Zhonggang",
-        "南屯": "Nantun",
-        "豐樂公園": "Fongle Park",
-        "東興": "Dongxing",
-        "南岡": "Nangang",
-        "文心南路": "Wenxin South Rd.",
-        "烏日高鐵": "Wuri High Speed Rail",
+        "九張犁": "Jiuzhangli",
         "九德": "Jiude",
-        
-        // 綠線
-        "高鐵台中站": "Taichung HSR Station",
-        "烏日": "Wuri",
+        "北屯總站": "Beitun Main Station",
+        "南屯": "Nantun",
+        "四維國小": "Sihwei Elementary School",
         "大慶": "Daqing",
-        "松子路": "Songzi Rd.",
-        "機場": "Airport",
-        "中平": "Zhongping",
-        "精科": "Jingke",
-        "龍井": "Longjing",
-        "水安宮": "Shui'an Temple",
-        "沙鹿": "Shalu",
-        "梧棲國小": "Wuqi Elementary",
-        "靜浦": "Jingpu"
+        "市政府": "Taichung City Hall",
+        "文心中清": "Wenxin Zhongqing",
+        "文心崇德": "Wenxin Chongde",
+        "文心森林公園": "Wenxin Forest Park",
+        "文心櫻花": "Wenxin Yinghua",
+        "文華高中": "Wenhua Senior High School",
+        "松竹": "Songzhu",
+        "水安宮": "Shui-an Temple",
+        "烏日": "Wuri",
+        "舊社": "Jiushe",
+        "豐樂公園": "Feng-le Park",
+        "高鐵臺中站": "HSR Taichung Station"
     ]
+    
+    // MARK: - Helper Methods
     
     private lazy var stationNameZHByEN: [String: String] = {
         var result: [String: String] = [:]
@@ -103,7 +79,6 @@ class TCMRTStationData {
     /// 顯示線路名稱（支援多語言）
     func displayLineName(_ lineName: String, languageCode: String) -> String {
         if languageCode.starts(with: "en") {
-            if lineName.contains("紅") { return "🔴 Red Line" }
             if lineName.contains("綠") { return "🟢 Green Line" }
         }
         return lineName

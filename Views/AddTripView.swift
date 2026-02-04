@@ -375,20 +375,28 @@ struct AddTripView: View {
     
     // MARK: - 邏輯處理
     func handleTypeChange(_ newType: TransportType) {
-        // 重置邏輯
         if newType == .bus {
             startStation = ""; endStation = ""
-            // 🔥 修改：根據地區與身分取得預設票價
+            // 根據地區與身分取得預設票價
             price = currentRegion.defaultBusPrice(identity: currentIdentity)
         } else {
             // 切換其他運具時
             // 如果不是客運，才清空 routeId (因為客運需要 routeId)
             if newType != .coach { routeId = "" }
-            // 🔥 清空起讫站
+            
+            // 清空起讫站
             startStation = ""
             endStation = ""
-            startLineCode = ""
-            endLineCode = ""
+            
+            // 🔥 [修改] 台中捷運只有一條綠線，直接預設選取
+            if newType == .tcmrt {
+                startLineCode = "GREEN"
+                endLineCode = "GREEN"
+            } else {
+                startLineCode = ""
+                endLineCode = ""
+            }
+            
             price = ""
         }
     }
@@ -593,7 +601,7 @@ struct AddTripView: View {
     }
 }
 
-// MARK: - 站點輸入列 (修正：50/50 分割)
+// MARK: - 站點輸入列 (已整合 KMRT / TCMRT 選擇器)
 struct StationInputRow: View {
     let label: LocalizedStringKey
     let type: TransportType
@@ -605,130 +613,156 @@ struct StationInputRow: View {
     var body: some View {
         HStack(spacing: 0) {
             
-            // === 1. 北捷 (MRT) 雙層選單 ===
+            // === 1. 北捷 (MRT) ===
             if type == .mrt {
-                Menu {
-                    ForEach(StationData.shared.lines) { line in
-                        Button(action: {
-                            lineCode = line.code
-                            stationName = ""
-                        }) {
-                            Text(StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
-                        Spacer()
-                        if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
-                            Text(StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                .font(.subheadline).fontWeight(.bold).foregroundColor(line.color).lineLimit(1).minimumScaleFactor(0.8)
-                        } else {
-                            Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
-                        }
-                        Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
-                    }
-                    .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
-                }
+                mrtSelector(
+                    dataSource: StationData.shared.lines,
+                    displayLine: { StationData.shared.displayLineName($0, languageCode: Locale.current.identifier) },
+                    displayStation: { StationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
+                )
                 
-                Divider()
-                
-                Menu {
-                    if let line = StationData.shared.lines.first(where: { $0.code == lineCode }) {
-                        ForEach(line.stations, id: \.self) { station in
-                            Button(action: { stationName = station }) {
-                                Text(StationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                            }
-                        }
-                    } else {
-                        Text("select_route_first")
-                    }
-                } label: {
-                    HStack {
-                        if stationName.isEmpty {
-                            Text("select_station").foregroundColor(themeManager.secondaryTextColor)
-                        } else {
-                            Text(StationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
-                                .foregroundColor(themeManager.primaryTextColor)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
-                    }
-                    .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                
-            // === 2. 桃園機捷 (TYMRT) 單層選單 ===
+            // === 2. 高雄捷運 (KMRT) ===
+            } else if type == .kmrt {
+                mrtSelector(
+                    dataSource: KMRTStationData.shared.lines,
+                    displayLine: { KMRTStationData.shared.displayLineName($0, languageCode: Locale.current.identifier) },
+                    displayStation: { KMRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
+                )
+
+            // === 3. 台中捷運 (TCMRT) [🔥 新增這裡] ===
+            } else if type == .tcmrt {
+                mrtSelector(
+                    dataSource: TCMRTStationData.shared.lines,
+                    displayLine: { TCMRTStationData.shared.displayLineName($0, languageCode: Locale.current.identifier) },
+                    displayStation: { TCMRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
+                )
+
+            // === 4. 桃園機捷 (TYMRT) ===
             } else if type == .tymrt {
-                let availableStations = TYMRTStationData.shared.availableStations(for: currentRegion)
+                tymrtSelector
                 
-                // 左邊：顯示標籤和機捷名稱 (50%)
-                HStack {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Text("機場捷運", comment: "Airport MRT line name")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color(hex: "#8246AF"))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .padding(.trailing, 8)
-                }
-                .frame(maxHeight: .infinity)
-                .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.05))
-                .contentShape(Rectangle())
-                
-                Divider()
-                
-                // 右邊：站點選單 (50%)
-                Menu {
-                    ForEach(availableStations, id: \.self) { station in
-                        Button(action: { stationName = station }) {
-                            Text(TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                        }
-                    }
-                } label: {
-                    HStack {
-                        if stationName.isEmpty {
-                            Text("選擇站點", comment: "Select station placeholder")
-                                .foregroundColor(themeManager.secondaryTextColor)
-                        } else {
-                            Text(TYMRTStationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
-                                .foregroundColor(themeManager.primaryTextColor)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.9)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                            .foregroundColor(themeManager.primaryTextColor)
-                    }
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                
-            // === 3. 其他運具 (手動輸入) ===
+            // === 5. 其他運具 (手動輸入) ===
             } else {
-                Text(label)
-                    .font(.caption)
-                    .foregroundColor(themeManager.primaryTextColor)
-                    .frame(width: 50)
-                    .padding(.leading, 8)
-                Divider()
-                TextField("enter_station_name", text: $stationName)
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(themeManager.primaryTextColor)
+                manualInput
             }
         }
         .frame(height: 48)
+    }
+    
+    // MARK: - 抽取出的通用 MRT 選擇器 (北捷/高捷共用邏輯)
+    @ViewBuilder
+    private func mrtSelector(
+        dataSource: [MRTLine],
+        displayLine: @escaping (String) -> String,
+        displayStation: @escaping (String) -> String
+    ) -> some View {
+        // 左邊：路線選單
+        Menu {
+            ForEach(dataSource) { line in
+                Button(action: {
+                    lineCode = line.code
+                    stationName = "" // 切換路線時清空站點
+                }) {
+                    Text(displayLine(line.name))
+                }
+            }
+        } label: {
+            HStack {
+                Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
+                Spacer()
+                if let line = dataSource.first(where: { $0.code == lineCode }) {
+                    Text(displayLine(line.name))
+                        .font(.subheadline).fontWeight(.bold).foregroundColor(line.color)
+                        .lineLimit(1).minimumScaleFactor(0.8)
+                } else {
+                    Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
+                }
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+            }
+            .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
+        }
+        
+        Divider()
+        
+        // 右邊：車站選單
+        Menu {
+            if let line = dataSource.first(where: { $0.code == lineCode }) {
+                ForEach(line.stations, id: \.self) { station in
+                    Button(action: { stationName = station }) {
+                        Text(displayStation(station))
+                    }
+                }
+            } else {
+                Text("select_route_first")
+            }
+        } label: {
+            HStack {
+                if stationName.isEmpty {
+                    Text("select_station").foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text(displayStation(stationName))
+                        .foregroundColor(themeManager.primaryTextColor)
+                }
+                Spacer()
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
+            }
+            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+    
+    // TYMRT 專用選擇器
+    @ViewBuilder
+    private var tymrtSelector: some View {
+        let availableStations = TYMRTStationData.shared.availableStations(for: currentRegion)
+        
+        HStack {
+            Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
+            Spacer()
+            Text("機場捷運", comment: "Airport MRT line name")
+                .font(.subheadline).fontWeight(.bold).foregroundColor(Color(hex: "#8246AF"))
+                .lineLimit(1).minimumScaleFactor(0.8)
+            Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+        }
+        .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
+        .contentShape(Rectangle())
+        
+        Divider()
+        
+        Menu {
+            ForEach(availableStations, id: \.self) { station in
+                Button(action: { stationName = station }) {
+                    Text(TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
+                }
+            }
+        } label: {
+            HStack {
+                if stationName.isEmpty {
+                    Text("選擇站點", comment: "Select station placeholder").foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text(TYMRTStationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.9)
+                }
+                Spacer()
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
+            }
+            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+    
+    // 手動輸入框
+    @ViewBuilder
+    private var manualInput: some View {
+        Text(label)
+            .font(.caption)
+            .foregroundColor(themeManager.primaryTextColor)
+            .frame(width: 50)
+            .padding(.leading, 8)
+        Divider()
+        TextField("enter_station_name", text: $stationName)
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity)
+            .foregroundColor(themeManager.primaryTextColor)
     }
 }
 
@@ -825,5 +859,4 @@ struct TRALineStationInputRow: View {
         .frame(height: 48)
     }
 }
-
 

@@ -914,8 +914,8 @@ struct DashboardView: View {
         private var routeNameText: Text {
             let lang = Locale.current.identifier
             
-            // 🔥 整合修改：統一處理 北捷、機捷、台鐵 的雙語站名顯示
-            if route.type == .mrt || route.type == .tymrt || route.type == .tra {
+            // 🔥 整合修改：統一處理 北捷、機捷、台鐵、台中捷運、高雄捷運 的雙語站名顯示
+            if route.type == .mrt || route.type == .tymrt || route.type == .tra || route.type == .tcmrt || route.type == .kmrt {
                 // 拆解 "起點 ↔ 終點" 字串
                 let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }
                 
@@ -934,6 +934,12 @@ struct DashboardView: View {
                     case .tra:
                         startName = TRAStationData.shared.displayStationName(parts[0], languageCode: lang)
                         endName = TRAStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    case .tcmrt:
+                        startName = TCMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = TCMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    case .kmrt:
+                        startName = KMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = KMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
                     default:
                         startName = String(parts[0])
                         endName = String(parts[1])

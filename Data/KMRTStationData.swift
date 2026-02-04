@@ -10,63 +10,69 @@ class KMRTStationData {
             id: "RED",
             code: "RED",
             name: "🔴紅線",
-            color: Color(hex: "#E31937"), // 高雄捷運紅線
+            color: Color(hex: "#E31937"), // 高雄捷運紅線標準色
             stations: [
-                "南港", "小港", "獅甲", "衛武營", "美麗島", "中央公園", "高雄車站", "高雄站",
-                "信義國小", "六合", "五塊厝", "巨蛋", "生態公園", "左營站", "文化中心", "體育場",
-                "橄欖球場"
+                "小港", "高雄國際機場", "草衙", "前鎮高中", "凱旋", "獅甲", "三多商圈",
+                "中央公園", "美麗島", "高雄車站", "後驛", "凹子底", "巨蛋", "生態園區",
+                "左營", "世運", "油廠國小", "楠梓科技園區", "後勁", "都會公園", "青埔",
+                "橋頭糖廠", "橋頭火車站", "岡山高醫", "岡山車站"
             ]
         ),
         MRTLine(
             id: "ORANGE",
             code: "ORANGE",
             name: "🟠橘線",
-            color: Color(hex: "#FF6B35"), // 高雄捷運橘線
+            color: Color(hex: "#FF6B35"), // 高雄捷運橘線標準色
             stations: [
-                "西子灣", "英國領事館", "高雄文化中心", "五塊厝", "技擊館", "夢時代", "旅遊服務中心",
-                "科工館", "軟體園區", "民族", "劉家港", "鳳山站", "鳳山老街", "鳳東", "鳯北"
+                "哈瑪星", "鹽埕埔", "前金", "美麗島", "信義國小", "文化中心", "五塊厝",
+                "苓雅運動園區", "衛武營", "鳳山西站", "鳳山", " 大東", "鳳山國中", "大寮"
             ]
         )
     ]
     
-    // 英文站名對照
+    // 英文站名對照表 (已更新至最新版本)
     private let stationNameENByZH: [String: String] = [
-        // 紅線
-        "南港": "Nangang",
-        "小港": "Xiaogang",
-        "獅甲": "Shigia",
-        "衛武營": "Weiuying",
-        "美麗島": "Formosa Boulevard",
+        "三多商圈": "Sanduo Shopping Dist.",
+        "世運": "World Game",
         "中央公園": "Central Park",
-        "高雄車站": "Kaohsiung Main Station",
-        "高雄站": "Kaohsiung Station",
-        "信義國小": "Xinyi Elementary",
-        "六合": "Liuhe",
         "五塊厝": "Wukuaicuo",
-        "巨蛋": "Arena",
-        "生態公園": "Ecology Park",
-        "左營站": "Zuoying Station",
+        "信義國小": "Sinyi Ele. School",
+        "凱旋": "Kaisyuan",
+        "凹子底": "Aozihdi",
+        "前金": "Cianjin",
+        "前鎮高中": "Cianjhen Sr. High School",
+        "哈瑪星": "Hamasen",
+        "大寮": "Daliao",
+        "大東": "Dadong",
+        "小港": "Siaogang",
+        "岡山車站": "Gangshan Station",
+        "岡山高醫": "KMU Gangshan Hospital",
+        "左營": "Zuoying",
+        "巨蛋": "Kaohsiung Arena",
+        "後勁": "Houjing",
+        "後驛": "Houyi",
         "文化中心": "Cultural Center",
-        "體育場": "Sports Arena",
-        "橄欖球場": "Rugby Stadium",
-        
-        // 橘線
-        "西子灣": "Sizihwan",
-        "英國領事館": "British Consulate",
-        "高雄文化中心": "Kaohsiung Cultural Center",
-        "技擊館": "Martial Arts Arena",
-        "夢時代": "Dream Mall",
-        "旅遊服務中心": "Tourist Service Center",
-        "科工館": "Science Museum",
-        "軟體園區": "Software Park",
-        "民族": "Minzu",
-        "劉家港": "Liujiag",
-        "鳳山站": "Fengshan Station",
-        "鳳山老街": "Fengshan Old Street",
-        "鳳東": "Fengdong",
-        "鳯北": "Fengnorth",
-        
+        "楠梓科技園區": "Nanzih Tech. Industrial Park",
+        "橋頭火車站": "Ciaotou Station",
+        "橋頭糖廠": "Ciaotou Sugar Refinery",
+        "油廠國小": "Oil Refinery Ele. School",
+        "獅甲": "Shihjia",
+        "生態園區": "Ecological District",
+        "美麗島": "Formosa Boulevard",
+        "苓雅運動園區": "Lingya Sports Park",
+        "草衙": "Caoya",
+        "衛武營": "Weiwuying",
+        "都會公園": "Metropolitan Park",
+        "青埔": "Cingpu",
+        "高雄國際機場": "Kaohsiung Intl. Airport",
+        "高雄車站": "Kaohsiung Main Sta.",
+        "鳳山": "Fongshan",
+        "鳳山國中": "Fongshan Jr. High School",
+        "鳳山西站": "Fongshan West",
+        "鹽埕埔": "Yanchengpu"
     ]
+    
+    // MARK: - Helper Methods
     
     private lazy var stationNameZHByEN: [String: String] = {
         var result: [String: String] = [:]
@@ -106,7 +112,6 @@ class KMRTStationData {
         if languageCode.starts(with: "en") {
             if lineName.contains("紅") { return "🔴 Red Line" }
             if lineName.contains("橘") { return "🟠 Orange Line" }
-            if lineName.contains("輕軌") { return "🟡 LRT" }
         }
         return lineName
     }

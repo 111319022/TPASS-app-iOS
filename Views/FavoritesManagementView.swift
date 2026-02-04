@@ -177,6 +177,10 @@ struct FavoritesManagementView: View {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
         } else if type == .tra {
             return TRAStationData.shared.displayStationName(stationName, languageCode: languageCode)
+        } else if type == .tcmrt {
+            return TCMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
+        } else if type == .kmrt {
+            return KMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: languageCode)
         }
@@ -450,6 +454,10 @@ struct CommuterRouteDetailView: View {
                 return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
             } else if type == .tra {
                 return TRAStationData.shared.displayStationName(stationName, languageCode: lang)
+            } else if type == .tcmrt {
+                return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+            } else if type == .kmrt {
+                return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
             } else {
                 return StationData.shared.displayStationName(stationName, languageCode: lang)
             }

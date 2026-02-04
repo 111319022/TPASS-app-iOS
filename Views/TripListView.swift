@@ -419,6 +419,10 @@ struct TripListView: View {
         let lang = Locale.current.identifier
         if type == .tymrt {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .tcmrt {
+            return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .kmrt {
+            return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: lang)
         }
@@ -743,6 +747,10 @@ struct TripRowView: View {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else if type == .tra {
             return TRAStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .tcmrt {
+            return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .kmrt {
+            return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: lang)
         }
