@@ -3,7 +3,7 @@ import sqlite3
 import os
 
 # 1. 設定檔案名稱
-input_json = 'TRA_Final.json' 
+input_json = 'TRA_Fares_API.json' 
 output_db = 'TRA_Fares_Fixed.sqlite'
 
 print(f"🚀 啟動 V9 強制去重版，正在讀取 {input_json}...")

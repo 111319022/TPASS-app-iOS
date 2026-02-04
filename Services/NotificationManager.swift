@@ -71,41 +71,54 @@ class NotificationManager: ObservableObject {
     }
     
     // MARK: - 週期提醒 (Cycle Reminder)
-        // 提醒用戶月票快過期，或已經過期
-        func scheduleCycleReminders(enabled: Bool, currentCycle: Cycle?) {
-            let center = UNUserNotificationCenter.current()
-            let identifiers = ["cycle_expiring", "cycle_expired"]
-            
-            if !enabled || currentCycle == nil {
-                center.removePendingNotificationRequests(withIdentifiers: identifiers)
-                return
-            }
-            
-            // 🔥 修正：這裡嘗試讀取 .start，如果您的模型是用 .date 或 .startTime，請手動更改這裡
-            guard let startDate = currentCycle?.start else {
-                print("無法設定週期提醒：Cycle 模型中找不到 start 屬性")
-                return
-            }
-            
-            // 推算到期日 (假設週期為 30 天)
-            guard let endDate = Calendar.current.date(byAdding: .day, value: 30, to: startDate) else { return }
-            
-            // 1. 快到期提醒 (例如前 3 天)
-            scheduleNotification(
-                identifier: "cycle_expiring",
-                title: String(localized: "notification_cycle_expiring_title"),
-                body: String(localized: "notification_cycle_expiring_body"),
-                date: Calendar.current.date(byAdding: .day, value: -3, to: endDate)
-            )
-            
-            // 2. 過期後提醒 (例如過期隔天，提醒設定新週期)
-            scheduleNotification(
-                identifier: "cycle_expired",
-                title: String(localized: "notification_cycle_new_title"),
-                body: String(localized: "notification_cycle_new_body"),
-                date: Calendar.current.date(byAdding: .day, value: 1, to: endDate)
-            )
+    // 提醒用戶月票快過期，或已經過期
+    func scheduleCycleReminders(enabled: Bool, currentCycle: Cycle?) {
+        let center = UNUserNotificationCenter.current()
+        let identifiers = ["cycle_expiring", "cycle_expired"]
+        
+        if !enabled || currentCycle == nil {
+            center.removePendingNotificationRequests(withIdentifiers: identifiers)
+            return
         }
+        
+        // 先清掉舊排程，避免重複
+        center.removePendingNotificationRequests(withIdentifiers: identifiers)
+        
+        // 👈 修正2：因為您的 Model 沒有 endDate，我們用 start + 30 天來推算
+        guard let currentCycle else {
+            print("無法設定週期提醒：找不到 cycle")
+            return
+        }
+        let startDate = currentCycle.start
+        let endDate = currentCycle.end
+        guard endDate >= startDate else {
+            print("無法設定週期提醒：週期結束早於開始")
+            return
+        }
+        
+        // 快到期提醒時間（提前 3 天；若不足 3 天則提前 1 天）
+        let calendar = Calendar.current
+        let expiringDate = calendar.date(byAdding: .day, value: -3, to: endDate) ?? endDate
+        let safeExpiringDate = expiringDate < startDate
+            ? (calendar.date(byAdding: .day, value: -1, to: endDate) ?? endDate)
+            : expiringDate
+        
+        // 1. 快到期提醒 (例如前 3 天)
+        scheduleNotification(
+            identifier: "cycle_expiring",
+            title: String(localized: "notification_cycle_expiring_title"),
+            body: String(localized: "notification_cycle_expiring_body"),
+            date: safeExpiringDate
+        )
+        
+        // 2. 過期後提醒 (例如過期隔天，提醒設定新週期)
+        scheduleNotification(
+            identifier: "cycle_expired",
+            title: String(localized: "notification_cycle_new_title"),
+            body: String(localized: "notification_cycle_new_body"),
+            date: calendar.date(byAdding: .day, value: 1, to: endDate)
+        )
+    }
     
     // 私有輔助方法
     private func scheduleNotification(identifier: String, title: String, body: String, date: Date?) {

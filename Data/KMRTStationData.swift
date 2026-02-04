@@ -26,17 +26,6 @@ class KMRTStationData {
                 "西子灣", "英國領事館", "高雄文化中心", "五塊厝", "技擊館", "夢時代", "旅遊服務中心",
                 "科工館", "軟體園區", "民族", "劉家港", "鳳山站", "鳳山老街", "鳳東", "鳯北"
             ]
-        ),
-        MRTLine(
-            id: "LRT",
-            code: "LRT",
-            name: "🟡輕軌",
-            color: Color(hex: "#FDBB2D"), // 高雄輕軌
-            stations: [
-                "西子灣", "旗津西", "旗津東", "旗後", "中洲", "凱旋瑞豐", "凱旋中華", "凱旋龍華",
-                "凱旋前鎮", "凱旋世運", "世運", "美麗島", "鹽埕埔", "新濱", "光榮碼頭", "駁二藝術特區",
-                "高雄軟體園區", "都會公園", "長庚中醫大", "東南科技園區"
-            ]
         )
     ]
     
@@ -77,25 +66,6 @@ class KMRTStationData {
         "鳳東": "Fengdong",
         "鳯北": "Fengnorth",
         
-        // 輕軌
-        "旗津西": "Qijin West",
-        "旗津東": "Qijin East",
-        "旗後": "Qihou",
-        "中洲": "Zhongzhou",
-        "凱旋瑞豐": "Kaixuan Ruifeng",
-        "凱旋中華": "Kaixuan Zhonghua",
-        "凱旋龍華": "Kaixuan Longhua",
-        "凱旋前鎮": "Kaixuan Qianzheng",
-        "凱旋世運": "Kaixuan Shiyun",
-        "世運": "Shiyun",
-        "鹽埕埔": "Yanchangpu",
-        "新濱": "Xinbin",
-        "光榮碼頭": "Glory Pier",
-        "駁二藝術特區": "Pier-2 Arts Center",
-        "高雄軟體園區": "Kaohsiung Software Park",
-        "都會公園": "Metropolitan Park",
-        "長庚中醫大": "Chang Gung Chinese Medicine",
-        "東南科技園區": "Southeast Tech Park"
     ]
     
     private lazy var stationNameZHByEN: [String: String] = {
