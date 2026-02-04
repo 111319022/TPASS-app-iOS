@@ -41,6 +41,7 @@ struct TripSnapshot: Hashable {
     let routeId: String
     let note: String
     let cycleId: String?
+    let transferDiscountTypeRaw: String? // 🔥 新增：轉乘優惠類型
 }
 
 struct FavoriteRouteSnapshot: Hashable {
@@ -126,6 +127,17 @@ class CloudKitSyncService: ObservableObject {
         print("   已建立 \(favoriteRecords.count) 筆 FavoriteRoute 記錄 (含 reference)")
         print("   已建立 \(cycleRecords.count) 筆 Cycle 記錄 (含 reference)")
         
+        // 🔧 調試：打印所有 Cycle 記錄的內容（確保方案完整備份）
+        print("   🔥 === Cycle 備份詳情 ===")
+        for (index, cycleRecord) in cycleRecords.enumerated() {
+            print("   Cycle[\(index)] ID: \(cycleRecord["id"] ?? "nil")")
+            print("   Cycle[\(index)] region: \(cycleRecord["region"] ?? "nil")")
+            print("   Cycle[\(index)] displayName: \(cycleRecord["displayName"] ?? "nil")")
+            print("   Cycle[\(index)] start: \(cycleRecord["start"] ?? "nil")")
+            print("   Cycle[\(index)] end: \(cycleRecord["end"] ?? "nil")")
+        }
+        print("   🔥 ===============")
+        
         // 6) 分批上傳資料記錄（CloudKit 限制每次最多 400 條記錄）
         let batchSize = 400
         let allRecords = tripRecords + favoriteRecords + cycleRecords
@@ -149,8 +161,21 @@ class CloudKitSyncService: ObservableObject {
                         successCount += 1
                     case .failure(let error):
                         let recordType = batch.first(where: { $0.recordID == recordID })?.recordType ?? "Unknown"
+                        let sourceRecord = batch.first(where: { $0.recordID == recordID })
                         print("      ❌ 保存失敗: \(recordType) - \(recordID.recordName)")
-                        print("         錯誤: \(error.localizedDescription)")
+                        print("         錯誤代碼: \((error as NSError).code)")
+                        print("         錯誤信息: \(error.localizedDescription)")
+                        
+                        // 🔧 打印來源記錄的詳細信息用於除錯
+                        if let source = sourceRecord {
+                            print("         記錄欄位: \(source.allKeys().joined(separator: ", "))")
+                            if recordType == "Trip" {
+                                print("         isTransfer: \(source["isTransfer"] as? NSNumber ?? source["isTransfer"] ?? "nil")")
+                                print("         isFree: \(source["isFree"] as? NSNumber ?? source["isFree"] ?? "nil")")
+                                print("         startStation: \(source["startStation"] ?? "nil")")
+                                print("         endStation: \(source["endStation"] ?? "nil")")
+                            }
+                        }
                         failCount += 1
                     }
                 }
@@ -274,6 +299,15 @@ class CloudKitSyncService: ObservableObject {
         
         let cycleRecords = try await fetchRecordsByBackupMeta(metaReference, recordType: "Cycle")
         print("📦 取得 \(cycleRecords.count) 筆 Cycle 記錄")
+        
+        // 🔧 調試：檢查 Cycle 記錄的 region 欄位
+        print("   🔥 === Cycle 記錄詳情 ===")
+        for (index, record) in cycleRecords.enumerated() {
+            print("   Cycle[\(index)] ID: \(record["id"] ?? "nil")")
+            print("   Cycle[\(index)] region: \(record["region"] ?? "nil")")
+            print("   Cycle[\(index)] displayName: \(record["displayName"] ?? "nil")")
+        }
+        print("   🔥 ===============")
 
         let restoredTrips = tripRecords.compactMap(recordToTrip)
         print("✅ 成功轉換 \(restoredTrips.count)/\(tripRecords.count) 筆 Trip")
@@ -283,6 +317,15 @@ class CloudKitSyncService: ObservableObject {
         
         let restoredCycles = cycleRecords.compactMap(recordToCycle)
         print("✅ 成功轉換 \(restoredCycles.count)/\(cycleRecords.count) 筆 Cycle")
+        
+        // 🔧 調試：檢查恢復後的 Cycle region
+        print("   🔥 === 恢復後的 Cycle ===")
+        for (index, cycle) in restoredCycles.enumerated() {
+            print("   Cycle[\(index)] ID: \(cycle.id)")
+            print("   Cycle[\(index)] region: \(cycle.region.rawValue)")
+            print("   Cycle[\(index)] displayName: \(cycle.displayName ?? "nil")")
+        }
+        print("   🔥 ===============")
 
         print("✅ CloudKit 恢復備份完成 (BackupID: \(backupId), Trips: \(restoredTrips.count), Favorites: \(restoredFavorites.count), Cycles: \(restoredCycles.count))")
         return (restoredTrips, restoredFavorites, restoredCycles)
@@ -437,20 +480,33 @@ class CloudKitSyncService: ObservableObject {
         let recordID = CKRecord.ID(recordName: UUID().uuidString)
         let record = CKRecord(recordType: "Trip", recordID: recordID)
         record["backupMeta"] = backupMetaRef
+        
+        // 🔧 必要欄位（非空）
         record["id"] = trip.id as CKRecordValue
         record["userId"] = trip.userId as CKRecordValue
         record["createdAt"] = trip.createdAt as CKRecordValue
         record["typeRaw"] = trip.typeRaw as CKRecordValue
         record["originalPrice"] = trip.originalPrice as CKRecordValue
         record["paidPrice"] = trip.paidPrice as CKRecordValue
-        record["isTransfer"] = trip.isTransfer as CKRecordValue
-        record["isFree"] = trip.isFree as CKRecordValue
+        
+        // 🔧 Bool 欄位（使用 NSNumber 確保正確序列化）
+        record["isTransfer"] = NSNumber(value: trip.isTransfer) as CKRecordValue
+        record["isFree"] = NSNumber(value: trip.isFree) as CKRecordValue
+        
+        // 🔧 站點資訊
         record["startStation"] = trip.startStation as CKRecordValue
         record["endStation"] = trip.endStation as CKRecordValue
         record["routeId"] = trip.routeId as CKRecordValue
         record["note"] = trip.note as CKRecordValue
+        
+        // 🔧 可選欄位
         if let cycleId = trip.cycleId {
             record["cycleId"] = cycleId as CKRecordValue
+        }
+        
+        // 🔥 新增：轉乘優惠類型
+        if let transferDiscountTypeRaw = trip.transferDiscountTypeRaw {
+            record["transferDiscountTypeRaw"] = transferDiscountTypeRaw as CKRecordValue
         }
         return record
     }
@@ -465,8 +521,10 @@ class CloudKitSyncService: ObservableObject {
         record["endStation"] = fav.endStation as CKRecordValue
         record["routeId"] = fav.routeId as CKRecordValue
         record["price"] = fav.price as CKRecordValue
-        record["isTransfer"] = fav.isTransfer as CKRecordValue
-        record["isFree"] = fav.isFree as CKRecordValue
+        
+        // 🔧 Bool 欄位使用 NSNumber 序列化
+        record["isTransfer"] = NSNumber(value: fav.isTransfer) as CKRecordValue
+        record["isFree"] = NSNumber(value: fav.isFree) as CKRecordValue
         return record
     }
 
@@ -474,14 +532,21 @@ class CloudKitSyncService: ObservableObject {
         let recordID = CKRecord.ID(recordName: UUID().uuidString)
         let record = CKRecord(recordType: "Cycle", recordID: recordID)
         record["backupMeta"] = backupMetaRef
+        
+        // 🔥 必要欄位
         record["id"] = cycle.id as CKRecordValue
         record["start"] = cycle.start as CKRecordValue
         record["end"] = cycle.end as CKRecordValue
+        
+        // 🔥 TPASS 方案（核心資訊，必須備份）
+        record["region"] = cycle.region.rawValue as CKRecordValue
+        
+        // 🔧 可選欄位
         if let name = cycle.displayName {
             record["displayName"] = name as CKRecordValue
         }
-        // 🔥 備份 TPASS 方案
-        record["region"] = cycle.region.rawValue as CKRecordValue
+        
+        print("   📦 Cycle 記錄 [\(cycle.id)]: region=\(cycle.region.rawValue), displayName=\(cycle.displayName ?? "nil")")
         return record
     }
     
@@ -494,8 +559,8 @@ class CloudKitSyncService: ObservableObject {
               let type = TransportType(rawValue: typeRaw),
               let originalPrice = record["originalPrice"] as? Int,
               let paidPrice = record["paidPrice"] as? Int,
-              let isTransfer = record["isTransfer"] as? Bool,
-              let isFree = record["isFree"] as? Bool,
+              let isTransferNum = record["isTransfer"] as? NSNumber,
+              let isFreeNum = record["isFree"] as? NSNumber,
               let startStation = record["startStation"] as? String,
               let endStation = record["endStation"] as? String,
               let routeId = record["routeId"] as? String else {
@@ -506,6 +571,10 @@ class CloudKitSyncService: ObservableObject {
 
         let note = record["note"] as? String ?? ""
         let cycleId = record["cycleId"] as? String
+        
+        // 🔥 新增：恢復轉乘優惠類型
+        let transferDiscountTypeRaw = record["transferDiscountTypeRaw"] as? String
+        let transferDiscountType = transferDiscountTypeRaw.flatMap { TransferDiscountType(rawValue: $0) }
 
         return Trip(
             id: id,
@@ -514,12 +583,13 @@ class CloudKitSyncService: ObservableObject {
             type: type,
             originalPrice: originalPrice,
             paidPrice: paidPrice,
-            isTransfer: isTransfer,
-            isFree: isFree,
+            isTransfer: isTransferNum.boolValue,
+            isFree: isFreeNum.boolValue,
             startStation: startStation,
             endStation: endStation,
             routeId: routeId,
             note: note,
+            transferDiscountType: transferDiscountType,
             cycleId: cycleId
         )
     }
@@ -567,6 +637,13 @@ class CloudKitSyncService: ObservableObject {
         let regionRawValue = record["region"] as? String ?? TPASSRegion.north.rawValue
         let region = TPASSRegion(rawValue: regionRawValue) ?? .north
         
-        return Cycle(id: id, start: start, end: end, displayName: displayName, region: region)
+        // 🔧 確保恢復的日期是午夜時間
+        let calendar = Calendar.current
+        let startAtMidnight = calendar.startOfDay(for: start)
+        let endAtMidnight = calendar.startOfDay(for: end)
+        
+        print("   ✅ Cycle 恢復 [\(id)]: region=\(region.rawValue), displayName=\(displayName ?? "nil")")
+        
+        return Cycle(id: id, start: startAtMidnight, end: endAtMidnight, displayName: displayName, region: region)
     }
 }

@@ -298,7 +298,8 @@ struct BackupManagementView: View {
                         endStation: $0.endStation,
                         routeId: $0.routeId,
                         note: $0.note,
-                        cycleId: $0.cycleId
+                        cycleId: $0.cycleId,
+                        transferDiscountTypeRaw: $0.transferDiscountType?.rawValue
                     )
                 }
                 let favorites = appViewModel.favorites.map {

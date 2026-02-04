@@ -68,7 +68,13 @@ final class AuthService: NSObject, ObservableObject {
         guard var user = currentUser else { return }
         
         let idVal = Int64(Date().timeIntervalSince1970 * 1000)
-        let newCycle = Cycle(id: String(idVal), start: start, end: end, region: region)
+        
+        // 🔧 確保日期是午夜時間
+        let calendar = Calendar.current
+        let startAtMidnight = calendar.startOfDay(for: start)
+        let endAtMidnight = calendar.startOfDay(for: end)
+        
+        let newCycle = Cycle(id: String(idVal), start: startAtMidnight, end: endAtMidnight, region: region)
         
         user.cycles.insert(newCycle, at: 0)
         currentUser = user
@@ -85,8 +91,13 @@ final class AuthService: NSObject, ObservableObject {
     func updateCycle(_ cycle: Cycle, start: Date, end: Date, region: TPASSRegion) {
         guard var user = currentUser else { return }
         if let index = user.cycles.firstIndex(where: { $0.id == cycle.id }) {
-            user.cycles[index].start = start
-            user.cycles[index].end = end
+            // 🔧 確保日期是午夜時間
+            let calendar = Calendar.current
+            let startAtMidnight = calendar.startOfDay(for: start)
+            let endAtMidnight = calendar.startOfDay(for: end)
+            
+            user.cycles[index].start = startAtMidnight
+            user.cycles[index].end = endAtMidnight
             user.cycles[index].region = region
             currentUser = user
             saveLocalUser()
