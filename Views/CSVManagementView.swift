@@ -106,19 +106,25 @@ struct CSVManagementView: View {
                     return
                 }
                 
+                // 取得當前用戶的週期列表
+                let userCycles = auth.currentUser?.cycles ?? []
+                
                 // 安全存取權限
                 if selectedFile.startAccessingSecurityScopedResource() {
                     defer { selectedFile.stopAccessingSecurityScopedResource() }
                     
-                    let count = try CSVManager.shared.importCSV(url: selectedFile, context: modelContext, userId: userId)
+                    let result = try CSVManager.shared.importCSV(url: selectedFile, context: modelContext, userId: userId, userCycles: userCycles)
                     
                     // 通知 ViewModel 重新抓取資料
                     Task { @MainActor in
                         viewModel.fetchAllData()
                     }
                     
-                    // 構建包含筆數的成功訊息
-                    let message = String(localized: "csv_import_count \(count)")
+                    // 🔧 構建包含週期警告的成功訊息
+                    var message = String(localized: "csv_import_count \(result.imported)")
+                    if result.invalidCycles > 0 {
+                        message += "\n" + String(localized: "csv_invalid_cycles_warning \(result.invalidCycles)")
+                    }
                     showToast(message: message)
                 }
             } catch {

@@ -6,7 +6,7 @@ class CSVManager {
     static let shared = CSVManager()
     
     // 定義 CSV 表頭 (使用英文欄位名，確保跨語言相容)
-    private let header = "id,date,type,startStation,endStation,price,paidPrice,isTransfer,isFree,routeId,note"
+    private let header = "id,date,type,startStation,endStation,price,paidPrice,isTransfer,isFree,routeId,note,transferDiscountType,cycleId"
     
     // 日期格式設定 (固定格式，避免受使用者手機地區設定影響)
     private let dateFormatter: DateFormatter = {
@@ -36,7 +36,9 @@ class CSVManager {
                 trip.isTransfer ? "1" : "0",
                 trip.isFree ? "1" : "0",
                 trip.routeId,
-                cleanNote
+                cleanNote,
+                trip.transferDiscountType?.rawValue ?? "", // 🔥 新增：轉乘優惠類型
+                trip.cycleId ?? "" // 🔥 新增：週期 ID
             ].joined(separator: ",")
             
             csvString.append(row + "\n")
@@ -47,7 +49,7 @@ class CSVManager {
     
     // MARK: - 匯入 (Import)
     @MainActor
-    func importCSV(url: URL, context: ModelContext, userId: String) throws -> Int {
+    func importCSV(url: URL, context: ModelContext, userId: String, userCycles: [Cycle]) throws -> (imported: Int, invalidCycles: Int) {
         // 1. 讀取檔案內容
         // 嘗試用 UTF-8 讀取，如果失敗嘗試用 ASCII (避免編碼問題)
         let content = try String(contentsOf: url, encoding: .utf8)
@@ -60,12 +62,13 @@ class CSVManager {
         }
         
         var successCount = 0
+        var invalidCycleCount = 0
         
         // 2. 解析每一行
         for row in rows where !row.isEmpty {
             let columns = parseCSVRow(row)
             
-            // 確保欄位數量正確 (至少要有 11 個欄位)
+            // 🔧 向後兼容：支援舊格式（11 欄位）和新格式（13 欄位）
             guard columns.count >= 11 else { continue }
             
             let id = columns[0]
@@ -93,6 +96,32 @@ class CSVManager {
             // 處理備註的引號還原
             let note = columns[10].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             
+            // 🔥 新增：解析轉乘優惠類型和週期 ID（向後兼容舊格式）
+            var transferDiscountType: TransferDiscountType? = nil
+            var cycleId: String? = nil
+            
+            if columns.count >= 12 {
+                let transferTypeRaw = columns[11].trimmingCharacters(in: .whitespaces)
+                if !transferTypeRaw.isEmpty {
+                    transferDiscountType = TransferDiscountType(rawValue: transferTypeRaw)
+                }
+            }
+            
+            if columns.count >= 13 {
+                let cycleIdRaw = columns[12].trimmingCharacters(in: .whitespaces)
+                if !cycleIdRaw.isEmpty {
+                    // 🔧 檢查 cycleId 是否存在於當前用戶的週期列表中
+                    if userCycles.contains(where: { $0.id == cycleIdRaw }) {
+                        cycleId = cycleIdRaw
+                    } else {
+                        // 週期不存在，設為 nil 讓系統自動推論
+                        cycleId = nil
+                        invalidCycleCount += 1
+                        print("⚠️ Cycle ID \(cycleIdRaw) not found, will auto-resolve for trip \(id)")
+                    }
+                }
+            }
+            
             // 3. 建立 SwiftData 物件
             let newTrip = Trip(
                 id: id, // 使用 CSV 裡的舊 ID，確保資料一致性
@@ -106,7 +135,9 @@ class CSVManager {
                 startStation: columns[3],
                 endStation: columns[4],
                 routeId: columns[9],
-                note: note
+                note: note,
+                transferDiscountType: transferDiscountType,
+                cycleId: cycleId
             )
             
             context.insert(newTrip)
@@ -115,7 +146,7 @@ class CSVManager {
         
         // 4. 儲存
         try context.save()
-        return successCount
+        return (imported: successCount, invalidCycles: invalidCycleCount)
     }
     
     // 簡單的 CSV 行解析器 (處理引號內的逗號)

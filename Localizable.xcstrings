@@ -1609,6 +1609,22 @@
         }
       }
     },
+    "csv_invalid_cycles_warning %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(%lld trips with missing cycle IDs will be auto-assigned)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "（%lld 筆行程的週期 ID 不存在，將自動推論）"
+          }
+        }
+      }
+    },
     "csv_no_data" : {
       "localizations" : {
         "en" : {
