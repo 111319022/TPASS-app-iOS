@@ -260,9 +260,9 @@ struct SpotlightTutorialOverlay: View {
 }
 
 #Preview {
-    @State var currentStep: SpotlightTutorialStep = .welcome
-    @State var positions = TutorialPositions()
-    @StateObject var themeManager = ThemeManager.shared
+    @Previewable @State var currentStep: SpotlightTutorialStep = .welcome
+    @Previewable @State var positions = TutorialPositions()
+    @Previewable @StateObject var themeManager = ThemeManager.shared
     
     return ZStack {
         Color.gray.ignoresSafeArea()
