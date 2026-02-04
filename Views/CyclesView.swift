@@ -271,9 +271,17 @@ struct AddCycleView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     @State private var startDate = Date()
-    @State private var endDate = Date().addingTimeInterval(86400 * 30)
+    @State private var endDate = Date()
     @State private var selectedRegion: TPASSRegion = .north
     @State private var showOverlapAlert = false
+    
+    init() {
+        // 🔥 初始化：開始日期為今天0:00，結束日期為今天+30天0:00
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        _startDate = State(initialValue: today)
+        _endDate = State(initialValue: calendar.date(byAdding: .day, value: 30, to: today) ?? today.addingTimeInterval(86400 * 30))
+    }
     
     private var hasDateOverlap: Bool {
         let cycles = auth.currentUser?.cycles ?? []
@@ -288,6 +296,12 @@ struct AddCycleView: View {
             Form {
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
+                        .onChange(of: startDate) { oldDate, newDate in
+                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+30天，時間都為0:00
+                            let calendar = Calendar.current
+                            let startOfDay = calendar.startOfDay(for: newDate)
+                            endDate = calendar.date(byAdding: .day, value: 30, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 30)
+                        }
                     DatePicker("end_date", selection: $endDate, displayedComponents: .date)
                 }
                 
@@ -315,6 +329,8 @@ struct AddCycleView: View {
                         if hasDateOverlap {
                             showOverlapAlert = true
                         } else {
+                            // 🔥 儲存前給予震動回饋
+                            HapticManager.shared.impact(style: .medium)
                             auth.addCycle(start: startDate, end: endDate, region: selectedRegion)
                             
                             let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
@@ -332,6 +348,8 @@ struct AddCycleView: View {
             .alert("date_overlap_warning", isPresented: $showOverlapAlert) {
                 Button("cancel", role: .cancel) { }
                 Button("proceed", role: .destructive) {
+                    // 🔥 進行覆蓋操作前給予警告震動
+                    HapticManager.shared.notification(type: .warning)
                     auth.addCycle(start: startDate, end: endDate, region: selectedRegion)
                     
                     let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
@@ -364,8 +382,12 @@ struct EditCycleView: View {
     
     init(cycle: Cycle) {
         self.cycle = cycle
-        _startDate = State(initialValue: cycle.start)
-        _endDate = State(initialValue: cycle.end)
+        // 🔥 確保開始和結束時間都是 0:00
+        let calendar = Calendar.current
+        let startOfDayStart = calendar.startOfDay(for: cycle.start)
+        let startOfDayEnd = calendar.startOfDay(for: cycle.end)
+        _startDate = State(initialValue: startOfDayStart)
+        _endDate = State(initialValue: startOfDayEnd)
         _selectedRegion = State(initialValue: cycle.region)
     }
     
@@ -374,6 +396,12 @@ struct EditCycleView: View {
             Form {
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
+                        .onChange(of: startDate) { oldDate, newDate in
+                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+30天，時間都為0:00
+                            let calendar = Calendar.current
+                            let startOfDay = calendar.startOfDay(for: newDate)
+                            endDate = calendar.date(byAdding: .day, value: 30, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 30)
+                        }
                     DatePicker("end_date", selection: $endDate, displayedComponents: .date)
                 }
                 
@@ -383,7 +411,9 @@ struct EditCycleView: View {
                             Text(region.displayNameKey).tag(region)
                         }
                     }
-                    .pickerStyle(.inline)                    .labelsHidden()                }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
                 
                 Section {
                     Button(role: .destructive, action: {
@@ -408,6 +438,8 @@ struct EditCycleView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("save") {
+                        // 🔥 儲存前給予震動回饋
+                        HapticManager.shared.impact(style: .medium)
                         auth.updateCycle(cycle, start: startDate, end: endDate, region: selectedRegion)
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -417,6 +449,8 @@ struct EditCycleView: View {
             .alert("delete_cycle_confirmation", isPresented: $showDeleteConfirmation) {
                 Button("cancel", role: .cancel) { }
                 Button("delete", role: .destructive) {
+                    // 🔥 刪除前給予警告震動
+                    HapticManager.shared.notification(type: .warning)
                     auth.deleteCycle(cycle)
                     presentationMode.wrappedValue.dismiss()
                 }
