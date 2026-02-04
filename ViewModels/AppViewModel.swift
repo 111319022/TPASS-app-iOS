@@ -87,6 +87,7 @@ class AppViewModel: ObservableObject {
     @Published var commuterRoutes: [CommuterRoute] = []
     
     @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
     @Published var selectedCycle: Cycle? = nil {
         willSet {
             guard newValue?.id != selectedCycle?.id else { return }
@@ -180,8 +181,11 @@ class AppViewModel: ObservableObject {
         do {
             try modelContext?.save()
             print("✅ 資料已儲存到 SwiftData")
+            errorMessage = nil
         } catch {
+            let message = "儲存失敗: \(error.localizedDescription)"
             print("❌ SwiftData 儲存失敗: \(error)")
+            errorMessage = message
         }
     }
     
@@ -831,14 +835,20 @@ class AppViewModel: ObservableObject {
     func addTrip(_ trip: Trip) {
         modelContext?.insert(trip)
         saveContext()
-        fetchAllData()
+        // 🔧 優化：直接更新陣列而非重新載入
+        trips.insert(trip, at: 0)
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
     
     @MainActor
     func deleteTrip(_ trip: Trip) {
         modelContext?.delete(trip)
         saveContext()
-        fetchAllData()
+        // 🔧 優化：直接從陣列移除
+        trips.removeAll { $0.id == trip.id }
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
     
     @MainActor
@@ -860,7 +870,9 @@ class AppViewModel: ObservableObject {
             original.note = trip.note
             original.cycleId = trip.cycleId
             saveContext()
-            fetchAllData()
+            // 🔧 優化：只清除快取，不重新載入
+            _filteredTripsCache = nil
+            _groupedTripsCache = nil
         }
     }
     
@@ -891,7 +903,7 @@ class AppViewModel: ObservableObject {
         if !favorites.contains(where: { $0.title == newFav.title && $0.price == newFav.price }) {
             modelContext?.insert(newFav)
             saveContext()
-            fetchAllData()
+            favorites.append(newFav)
         }
     }
     
@@ -899,7 +911,7 @@ class AppViewModel: ObservableObject {
     func removeFavorite(_ fav: FavoriteRoute) {
         modelContext?.delete(fav)
         saveContext()
-        fetchAllData()
+        favorites.removeAll { $0.id == fav.id }
     }
     
     @MainActor
@@ -924,16 +936,16 @@ class AppViewModel: ObservableObject {
         } else {
             let newRoute = CommuterRoute(name: cleanName, trips: [template])
             modelContext?.insert(newRoute)
+            commuterRoutes.append(newRoute)
         }
         saveContext()
-        fetchAllData()
     }
     
     @MainActor
     func removeCommuterRoute(_ route: CommuterRoute) {
         modelContext?.delete(route)
         saveContext()
-        fetchAllData()
+        commuterRoutes.removeAll { $0.id == route.id }
     }
     
     @MainActor
@@ -942,9 +954,9 @@ class AppViewModel: ObservableObject {
         route.trips.removeAll { $0.id == tripId }
         if route.trips.isEmpty {
             modelContext?.delete(route)
+            commuterRoutes.removeAll { $0.id == routeId }
         }
         saveContext()
-        fetchAllData()
     }
     
     @MainActor
@@ -967,7 +979,11 @@ class AppViewModel: ObservableObject {
             note: trip.note,
             cycleId: cycleId
         )
-        addTrip(newTrip)
+        modelContext?.insert(newTrip)
+        saveContext()
+        trips.insert(newTrip, at: 0)
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
     
     @MainActor
@@ -994,7 +1010,11 @@ class AppViewModel: ObservableObject {
             note: trip.note,
             cycleId: cycleId
         )
-        addTrip(newTrip)
+        modelContext?.insert(newTrip)
+        saveContext()
+        trips.insert(newTrip, at: 0)
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
 
     @MainActor
@@ -1025,9 +1045,11 @@ class AppViewModel: ObservableObject {
                 cycleId: cycleId
             )
             modelContext?.insert(newTrip)
+            trips.insert(newTrip, at: 0)
         }
         saveContext()
-        fetchAllData()
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
     
     @MainActor
@@ -1036,8 +1058,10 @@ class AppViewModel: ObservableObject {
         for trip in dayTrips {
             modelContext?.delete(trip)
         }
+        trips.removeAll { $0.dateStr == dateStr }
         saveContext()
-        fetchAllData()
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
     
     @MainActor
@@ -1078,6 +1102,7 @@ class AppViewModel: ObservableObject {
         }
         
         saveContext()
-        fetchAllData()
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
     }
 }

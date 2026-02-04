@@ -130,6 +130,8 @@ struct MigrationManager {
             print("🎉 [Migration] 資料遷移完成！共遷移 \(migratedTripsCount) 行程、\(migratedFavoritesCount) 常用路線、\(migratedCommuterCount) 通勤路線")
         } catch {
             print("❌ [Migration] 遷移儲存失敗: \(error)")
+            // 🔧 不標記為完成，下次啟動時會重試
+            // 但為了避免重複插入，已經有檢查邏輯
         }
     }
 }
