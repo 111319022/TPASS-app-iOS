@@ -88,18 +88,24 @@ class AppViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var selectedCycle: Cycle? = nil {
-        didSet {
-            guard selectedCycle?.id != oldValue?.id else { return }
-            // 🔧 清除快取，讓 filteredTrips 重新計算
+        willSet {
+            guard newValue?.id != selectedCycle?.id else { return }
+            // 🔧 清除快取，讓 filteredTrips 重新計算（使用 willSet 確保在設定前清除）
             _filteredTripsCache = nil
             _groupedTripsCache = nil
-            objectWillChange.send()
         }
     }
     
     // 🔧 快取過濾後的行程，避免重複計算
     private var _filteredTripsCache: [Trip]? = nil
     private var _groupedTripsCache: [DailyTripGroup]? = nil
+    
+    // 🔧 效能優化：共享 DateFormatter 避免重複建立
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy/MM/dd"
+        return f
+    }()
     
     private var modelContext: ModelContext?
     private var currentUserId: String?
@@ -314,7 +320,8 @@ class AppViewModel: ObservableObject {
             cycleMonthlyStats[monthKey]!.counts[trip.type, default: 0] += 1
         }
         
-        for trip in trips {
+        // 🔧 優化：只統計當前週期內的行程，而非所有 trips
+        for trip in targetTrips {
             let monthKey = String(trip.dateStr.prefix(7))
             if globalMonthlyCounts[monthKey] == nil { globalMonthlyCounts[monthKey] = [:] }
             globalMonthlyCounts[monthKey]![trip.type, default: 0] += 1
@@ -473,9 +480,9 @@ class AppViewModel: ObservableObject {
             }
         }
         
-        if totalCount > 100 {
+        if totalCount >= 120 {
             tags.append(DNATag(text: "dna_fanatic_commuter", description: "dna_fanatic_commuter_desc", color: Color(hex: "#ff7675")))
-        } else if totalCount >= 120 {
+        } else if totalCount > 100 {
             tags.append(DNATag(text: "dna_regular_life", description: "dna_regular_life_desc", color: Color(hex: "#55efc4")))
         }
         
@@ -533,9 +540,8 @@ class AppViewModel: ObservableObject {
     @MainActor
     var cycleDateRange: String {
         if let cycle = activeCycle { return cycle.title }
-        let fmt = DateFormatter(); fmt.dateFormat = "yyyy/MM/dd"
         if let first = filteredTrips.first?.createdAt, let last = filteredTrips.last?.createdAt {
-            return "\(fmt.string(from: first)) - \(fmt.string(from: last))"
+            return "\(Self.dateFormatter.string(from: first)) - \(Self.dateFormatter.string(from: last))"
         }
         return String(localized: "current_cycle_month")
     }
@@ -694,8 +700,7 @@ class AppViewModel: ObservableObject {
         let endOfEndDate = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
         
         while currentDate <= endOfEndDate {
-            let f = DateFormatter(); f.dateFormat = "yyyy/MM/dd"
-            let dateStr = f.string(from: currentDate)
+            let dateStr = Self.dateFormatter.string(from: currentDate)
             let cost = map[dateStr] ?? 0
             
             let level: Int

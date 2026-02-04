@@ -20,17 +20,26 @@ final class Trip {
     var transferDiscountType: TransferDiscountType? // 🔥 新增：轉乘優惠類型
     var cycleId: String? // 🔥 新增：所屬週期（避免重疊週期混算）
     
-    // 計算屬性（保持與舊版相容，讓 UI 不用改）
-    @Transient var dateStr: String {
+    // 🔧 效能優化：共享 DateFormatter 避免重複建立
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy/MM/dd"
-        return f.string(from: createdAt)
+        return f
+    }()
+    
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+    
+    // 計算屬性（保持與舊版相容，讓 UI 不用改）
+    @Transient var dateStr: String {
+        Self.dateFormatter.string(from: createdAt)
     }
     
     @Transient var timeStr: String {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f.string(from: createdAt)
+        Self.timeFormatter.string(from: createdAt)
     }
     
     @Transient var listDetails: String {

@@ -15,7 +15,7 @@ class NotificationManager: ObservableObject {
     // 檢查權限
     func checkAuthorizationStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.isAuthorized = (settings.authorizationStatus == .authorized)
             }
         }
@@ -24,7 +24,7 @@ class NotificationManager: ObservableObject {
     // 請求權限
     func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.isAuthorized = granted
                 if granted {
                     print("通知權限已授權")

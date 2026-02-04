@@ -74,7 +74,7 @@ class CloudKitSyncService: ObservableObject {
     
     private func loadLastSyncDate() {
         if let date = UserDefaults.standard.object(forKey: "last_cloudkit_sync_date") as? Date {
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.lastSyncDate = date
             }
         }
