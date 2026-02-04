@@ -782,9 +782,11 @@ struct DailyHeaderView: View {
                 .buttonStyle(StaticButtonStyle())
                 .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
                     Button("duplicate_day") {
+                        HapticManager.shared.impact(style: .medium)
                         onDuplicate()
                     }
                     Button("delete_day", role: .destructive) {
+                        HapticManager.shared.notification(type: .warning)
                         onDelete()
                     }
                     Button("cancel", role: .cancel) { }
