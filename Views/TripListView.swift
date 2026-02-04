@@ -637,7 +637,7 @@ struct CycleSelectorView: View {
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
                 
-                if let region = viewModel.selectedCycle?.region ?? auth.currentUser?.cycles.first?.region {
+                if let region = viewModel.activeCycle?.region ?? auth.currentUser?.cycles.first?.region {
                     HStack(spacing: 6) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.caption2)

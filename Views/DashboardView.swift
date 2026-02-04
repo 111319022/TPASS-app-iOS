@@ -28,7 +28,7 @@ struct DashboardView: View {
     
     // 🔥 新增：獲取當前周期的方案，若無則用當前設置方案
     private var currentCycleRegion: TPASSRegion {
-        viewModel.selectedCycle?.region ?? auth.currentRegion
+        viewModel.activeCycle?.region ?? auth.currentRegion
     }
     
     private var roiValue: Int {

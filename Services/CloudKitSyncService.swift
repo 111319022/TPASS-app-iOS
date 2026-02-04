@@ -40,6 +40,7 @@ struct TripSnapshot: Hashable {
     let endStation: String
     let routeId: String
     let note: String
+    let cycleId: String?
 }
 
 struct FavoriteRouteSnapshot: Hashable {
@@ -447,6 +448,9 @@ class CloudKitSyncService: ObservableObject {
         record["endStation"] = trip.endStation as CKRecordValue
         record["routeId"] = trip.routeId as CKRecordValue
         record["note"] = trip.note as CKRecordValue
+        if let cycleId = trip.cycleId {
+            record["cycleId"] = cycleId as CKRecordValue
+        }
         return record
     }
 
@@ -500,6 +504,7 @@ class CloudKitSyncService: ObservableObject {
         }
 
         let note = record["note"] as? String ?? ""
+        let cycleId = record["cycleId"] as? String
 
         return Trip(
             id: id,
@@ -513,7 +518,8 @@ class CloudKitSyncService: ObservableObject {
             startStation: startStation,
             endStation: endStation,
             routeId: routeId,
-            note: note
+            note: note,
+            cycleId: cycleId
         )
     }
 

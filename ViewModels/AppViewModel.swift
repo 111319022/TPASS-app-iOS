@@ -169,19 +169,51 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - 核心過濾邏輯
+    private func cycleDateRange(for cycle: Cycle) -> (start: Date, end: Date) {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return (start, end)
+    }
+    
+    func resolveCycle(for date: Date) -> Cycle? {
+        let cycles = AuthService.shared.currentUser?.cycles ?? []
+        guard !cycles.isEmpty else { return nil }
+        let calendar = Calendar.current
+        let target = date
+        let matches = cycles.filter { cycle in
+            let range = cycleDateRange(for: cycle)
+            return target >= range.start && target <= range.end
+        }
+        if matches.isEmpty { return nil }
+        return matches.sorted {
+            if $0.start != $1.start { return $0.start > $1.start }
+            return $0.end < $1.end
+        }.first
+    }
+    
+    var activeCycle: Cycle? {
+        selectedCycle ?? resolveCycle(for: Date())
+    }
+    
+    func cycleForTrip(date: Date) -> Cycle? {
+        selectedCycle ?? resolveCycle(for: date)
+    }
+    
+    func cycleById(_ id: String?) -> Cycle? {
+        guard let id else { return nil }
+        return AuthService.shared.currentUser?.cycles.first { $0.id == id }
+    }
+    
     var filteredTrips: [Trip] {
-        if let cycle = selectedCycle {
-            let calendar = Calendar.current
+        if let cycle = activeCycle {
+            let range = cycleDateRange(for: cycle)
             
-            // 取得週期的開始日期（00:00:00）
-            let cycleStartDate = calendar.startOfDay(for: cycle.start)
-            // 取得週期的結束日期（23:59:59）
-            let cycleEndDate = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: cycle.end)) ?? cycle.end
-            
-            // 只在首次過濾時印日誌（移除每次計算屬性存取時的日誌洪泛）
             return trips.filter { trip in
-                let inRange = trip.createdAt >= cycleStartDate && trip.createdAt <= cycleEndDate
-                return inRange
+                guard trip.createdAt >= range.start && trip.createdAt <= range.end else { return false }
+                if let tripCycleId = trip.cycleId { return tripCycleId == cycle.id }
+                if let inferred = resolveCycle(for: trip.createdAt) { return inferred.id == cycle.id }
+                return true
             }.sorted { $0.createdAt < $1.createdAt }
         } else {
             let calendar = Calendar.current
@@ -457,7 +489,7 @@ class AppViewModel: ObservableObject {
     
     // MARK: - 其他屬性
     var cycleDateRange: String {
-        if let cycle = selectedCycle { return cycle.title }
+        if let cycle = activeCycle { return cycle.title }
         let fmt = DateFormatter(); fmt.dateFormat = "yyyy/MM/dd"
         if let first = filteredTrips.first?.createdAt, let last = filteredTrips.last?.createdAt {
             return "\(fmt.string(from: first)) - \(fmt.string(from: last))"
@@ -629,10 +661,9 @@ class AppViewModel: ObservableObject {
     // MARK: - 日期範圍計算
     private func currentDateRange() -> (Date, Date) {
         let calendar = Calendar.current
-        if let cycle = selectedCycle {
-            let start = calendar.startOfDay(for: cycle.start)
-            let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
-            return (start, end)
+        if let cycle = activeCycle {
+            let range = cycleDateRange(for: cycle)
+            return (range.start, range.end)
         } else {
             let now = Date()
             let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now
@@ -658,10 +689,12 @@ class AppViewModel: ObservableObject {
             paidPrice = fav.price
         }
         
+        let createdAt = Date()
+        let cycleId = cycleForTrip(date: createdAt)?.id
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
-            createdAt: Date(),
+            createdAt: createdAt,
             type: fav.type,
             originalPrice: fav.price,
             paidPrice: paidPrice,
@@ -670,7 +703,8 @@ class AppViewModel: ObservableObject {
             startStation: fav.startStation,
             endStation: fav.endStation,
             routeId: fav.routeId,
-            note: ""
+            note: "",
+            cycleId: cycleId
         )
         
         addTrip(newTrip)
@@ -698,6 +732,7 @@ class AppViewModel: ObservableObject {
             let createdAt = calendar.date(from: comps) ?? today
             let paidPrice = paidPriceForTemplate(template)
 
+            let cycleId = cycleForTrip(date: createdAt)?.id
             let newTrip = Trip(
                 id: UUID().uuidString,
                 userId: userId,
@@ -710,7 +745,8 @@ class AppViewModel: ObservableObject {
                 startStation: template.startStation,
                 endStation: template.endStation,
                 routeId: template.routeId,
-                note: template.note
+                note: template.note,
+                cycleId: cycleId
             )
 
             context.insert(newTrip)
@@ -763,6 +799,7 @@ class AppViewModel: ObservableObject {
             original.endStation = trip.endStation
             original.routeId = trip.routeId
             original.note = trip.note
+            original.cycleId = trip.cycleId
             saveContext()
             fetchAllData()
         }
@@ -854,10 +891,12 @@ class AppViewModel: ObservableObject {
     @MainActor
     func duplicateTrip(_ trip: Trip) {
         guard let userId = currentUserId else { return }
+        let createdAt = Date()
+        let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
-            createdAt: Date(),
+            createdAt: createdAt,
             type: trip.type,
             originalPrice: trip.originalPrice,
             paidPrice: trip.paidPrice,
@@ -866,7 +905,8 @@ class AppViewModel: ObservableObject {
             startStation: trip.startStation,
             endStation: trip.endStation,
             routeId: trip.routeId,
-            note: trip.note
+            note: trip.note,
+            cycleId: cycleId
         )
         addTrip(newTrip)
     }
@@ -877,11 +917,13 @@ class AppViewModel: ObservableObject {
         let shouldSwap = (trip.type != .bus)
         let newStart = shouldSwap ? trip.endStation : trip.startStation
         let newEnd = shouldSwap ? trip.startStation : trip.endStation
+        let createdAt = Date()
+        let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
         
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
-            createdAt: Date(),
+            createdAt: createdAt,
             type: trip.type,
             originalPrice: trip.originalPrice,
             paidPrice: trip.paidPrice,
@@ -890,7 +932,8 @@ class AppViewModel: ObservableObject {
             startStation: newStart,
             endStation: newEnd,
             routeId: trip.routeId,
-            note: trip.note
+            note: trip.note,
+            cycleId: cycleId
         )
         addTrip(newTrip)
     }
@@ -906,6 +949,7 @@ class AppViewModel: ObservableObject {
         for trip in dayTrips {
             let comps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
             let newDate = calendar.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: comps.second ?? 0, of: today) ?? today
+            let cycleId = trip.cycleId ?? cycleForTrip(date: newDate)?.id
             let newTrip = Trip(
                 id: UUID().uuidString,
                 userId: userId,
@@ -918,7 +962,8 @@ class AppViewModel: ObservableObject {
                 startStation: trip.startStation,
                 endStation: trip.endStation,
                 routeId: trip.routeId,
-                note: trip.note
+                note: trip.note,
+                cycleId: cycleId
             )
             modelContext?.insert(newTrip)
         }
@@ -939,7 +984,7 @@ class AppViewModel: ObservableObject {
     @MainActor
     func toggleTransfer(_ trip: Trip) {
         let identity = AuthService.shared.currentUser?.identity ?? .adult
-        let region = selectedCycle?.region ?? AuthService.shared.currentRegion
+        let region = cycleById(trip.cycleId)?.region ?? cycleForTrip(date: trip.createdAt)?.region ?? AuthService.shared.currentRegion
         
         trip.isTransfer = !trip.isTransfer
         

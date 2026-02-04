@@ -10,9 +10,14 @@ struct EditTripView: View {
     let trip: Trip
     var onSuccess: (() -> Void)? = nil
     
-    // 🔥 新增：取得目前選中周期的方案，若無則用當前設置
+    // 🔥 新增：取得目前選中周期的方案，若無則用日期自動解析
+    private var resolvedCycleForTrip: Cycle? {
+        if let cycle = viewModel.cycleById(trip.cycleId) { return cycle }
+        return viewModel.cycleForTrip(date: date)
+    }
+    
     private var currentRegion: TPASSRegion {
-        viewModel.selectedCycle?.region ?? auth.currentRegion
+        resolvedCycleForTrip?.region ?? auth.currentRegion
     }
     
     // 取得該方案可用的區域列表
@@ -407,7 +412,8 @@ struct EditTripView: View {
             endStation: endStation,
             routeId: routeId,
             note: note,
-            transferDiscountType: transferDiscountType
+            transferDiscountType: transferDiscountType,
+            cycleId: trip.cycleId ?? resolvedCycleForTrip?.id
         )
         
         viewModel.updateTrip(updatedTrip)
