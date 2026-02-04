@@ -341,7 +341,7 @@ struct BackupManagementView: View {
             }
         } catch {
             await MainActor.run {
-                errorMessage = String(localized: "backup_upload_failed") + " \(error.localizedDescription)"
+                errorMessage = "\(error.localizedDescription)"
                 showErrorAlert = true
             }
         }
@@ -361,7 +361,8 @@ struct BackupManagementView: View {
                 appViewModel.replaceFavoritesWith(restored.favorites)
                 
                 if var user = auth.currentUser {
-                    user.cycles = restored.cycles
+                    // 🔧 按照日期排序週期（最新的在最前面）
+                    user.cycles = restored.cycles.sorted { $0.start > $1.start }
                     auth.currentUser = user
                     auth.saveLocalUser()
                 }
@@ -373,7 +374,7 @@ struct BackupManagementView: View {
             print("✅ 備份恢復成功 - Trips: \(restored.trips.count), Favorites: \(restored.favorites.count), Cycles: \(restored.cycles.count)")
         } catch {
             await MainActor.run {
-                errorMessage = String(localized: "backup_restore_failed") + " \(error.localizedDescription)"
+                errorMessage = "\(error.localizedDescription)"
                 showErrorAlert = true
             }
             print("❌ 備份恢復失敗: \(error.localizedDescription)")
@@ -401,7 +402,7 @@ struct BackupManagementView: View {
             await loadBackupHistory()
         } catch {
             await MainActor.run {
-                errorMessage = String(localized: "backup_delete_failed") + " \(error.localizedDescription)"
+                errorMessage = "\(error.localizedDescription)"
                 showErrorAlert = true
             }
             print("❌ 備份刪除失敗: \(error.localizedDescription)")

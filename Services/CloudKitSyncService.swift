@@ -165,7 +165,8 @@ class CloudKitSyncService: ObservableObject {
         print("📊 上傳完成 - 成功: \(successCount), 失敗: \(failCount)")
         
         if failCount > 0 {
-            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: String(localized: "cloudkit_partial_upload_failed") + " \(failCount)"])
+            let errorMsg = String(localized: "cloudkit_partial_upload_failed_detail \(failCount)")
+            throw NSError(domain: "CloudKit", code: 500, userInfo: [NSLocalizedDescriptionKey: errorMsg])
         }
         
         // 7) 更新最後同步時間

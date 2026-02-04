@@ -90,9 +90,16 @@ class AppViewModel: ObservableObject {
     @Published var selectedCycle: Cycle? = nil {
         didSet {
             guard selectedCycle?.id != oldValue?.id else { return }
+            // 🔧 清除快取，讓 filteredTrips 重新計算
+            _filteredTripsCache = nil
+            _groupedTripsCache = nil
             objectWillChange.send()
         }
     }
+    
+    // 🔧 快取過濾後的行程，避免重複計算
+    private var _filteredTripsCache: [Trip]? = nil
+    private var _groupedTripsCache: [DailyTripGroup]? = nil
     
     private var modelContext: ModelContext?
     private var currentUserId: String?
@@ -153,6 +160,10 @@ class AppViewModel: ObservableObject {
             // 載入通勤路線
             self.commuterRoutes = try context.fetch(FetchDescriptor<CommuterRoute>())
             
+            // 🔧 清除快取
+            _filteredTripsCache = nil
+            _groupedTripsCache = nil
+            
             print("✅ SwiftData 載入完畢: \(trips.count) 行程（近 3 個月）、\(favorites.count) 常用路線、\(commuterRoutes.count) 通勤路線")
         } catch {
             print("❌ 資料載入失敗: \(error)")
@@ -206,34 +217,57 @@ class AppViewModel: ObservableObject {
     }
     
     var filteredTrips: [Trip] {
+        // 🔧 如果有快取就直接回傳，避免重複計算
+        if let cached = _filteredTripsCache {
+            return cached
+        }
+        
+        let result: [Trip]
         if let cycle = activeCycle {
             let range = cycleDateRange(for: cycle)
+            let cycleId = cycle.id
             
-            return trips.filter { trip in
+            result = trips.filter { trip in
+                // 先檢查日期範圍（最快的過濾條件）
                 guard trip.createdAt >= range.start && trip.createdAt <= range.end else { return false }
-                if let tripCycleId = trip.cycleId { return tripCycleId == cycle.id }
-                if let inferred = resolveCycle(for: trip.createdAt) { return inferred.id == cycle.id }
+                // 如果有 cycleId 就直接比對
+                if let tripCycleId = trip.cycleId { return tripCycleId == cycleId }
+                // 否則推論
+                if let inferred = resolveCycle(for: trip.createdAt) { return inferred.id == cycleId }
                 return true
             }.sorted { $0.createdAt < $1.createdAt }
         } else {
             let calendar = Calendar.current
             let now = Date()
             let components = calendar.dateComponents([.year, .month], from: now)
-            return trips.filter { trip in
+            result = trips.filter { trip in
                 let tC = calendar.dateComponents([.year, .month], from: trip.createdAt)
                 return tC.year == components.year && tC.month == components.month
             }.sorted { $0.createdAt < $1.createdAt }
         }
+        
+        // 🔧 儲存快取
+        _filteredTripsCache = result
+        return result
     }
     
     // MARK: - 列表分組
     var groupedTrips: [DailyTripGroup] {
+        // 🔧 如果有快取就直接回傳
+        if let cached = _groupedTripsCache {
+            return cached
+        }
+        
         let sorted = filteredTrips.sorted { $0.createdAt > $1.createdAt }
         let grouped = Dictionary(grouping: sorted) { $0.dateStr }
         let sortedDates = grouped.keys.sorted(by: >)
-        return sortedDates.map { date in
+        let result = sortedDates.map { date in
             DailyTripGroup(date: date, trips: grouped[date] ?? [])
         }
+        
+        // 🔧 儲存快取
+        _groupedTripsCache = result
+        return result
     }
     
     // MARK: - 1. 財務總覽
