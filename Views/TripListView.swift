@@ -1,5 +1,12 @@
 import SwiftUI
 
+// 🔥 轉乘選擇資料結構
+struct TransferSelectionData: Identifiable {
+    let id = UUID()
+    let trip: Trip
+    let region: TPASSRegion
+}
+
 struct TripListView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
@@ -23,9 +30,7 @@ struct TripListView: View {
     @State private var showCommuterRoutePicker = false
     
     // 🔥 新增：轉乘類型選擇
-    @State private var showTransferTypeSelection = false
-    @State private var selectedTrip: Trip?
-    @State private var selectedRegionForTransfer: TPASSRegion?
+    @State private var transferSelectionData: TransferSelectionData?
     
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
@@ -373,9 +378,7 @@ struct TripListView: View {
                 showAddTripSheet: $showAddTripSheet,
                 showFavoritesSheet: $showFavoritesSheet,
                 selectedTripToEdit: $selectedTripToEdit,
-                showTransferTypeSelection: $showTransferTypeSelection,
-                selectedTrip: $selectedTrip,
-                selectedRegionForTransfer: $selectedRegionForTransfer,
+                transferSelectionData: $transferSelectionData,
                 isProcessingSwipeAction: $isProcessingSwipeAction,
                 showToast: showToast
             ))
@@ -519,9 +522,7 @@ struct TripListView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     if availableTypes.count > 1 {
                         // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
-                        showTransferTypeSelection = true
-                        selectedTrip = trip
-                        selectedRegionForTransfer = region
+                        transferSelectionData = TransferSelectionData(trip: trip, region: region)
                         isProcessingSwipeAction = false
                     } else if availableTypes.count == 1 {
                         // 只有一個選項，直接使用
@@ -615,20 +616,21 @@ struct TripListView: View {
                 
                 let availableTypes = region.availableTransferTypes
                 
-                if availableTypes.count > 1 {
-                    // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
-                    showTransferTypeSelection = true
-                    selectedTrip = trip
-                    selectedRegionForTransfer = region
-                } else if availableTypes.count == 1 {
-                    // 只有一個選項，直接使用
-                    viewModel.setTransferType(trip, transferType: availableTypes[0])
-                    HapticManager.shared.impact(style: .medium)
-                    showToast(message: "transfer_added")
+                // 🔥 使用延遲確保資料準備完成
+                DispatchQueue.main.async {
+                    if availableTypes.count > 1 {
+                        // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
+                        transferSelectionData = TransferSelectionData(trip: trip, region: region)
+                    } else if availableTypes.count == 1 {
+                        // 只有一個選項，直接使用
+                        viewModel.setTransferType(trip, transferType: availableTypes[0])
+                        HapticManager.shared.impact(style: .medium)
+                        showToast(message: "transfer_added")
+                    }
                 }
             }
         } label: {
-            Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.minus" : "link")
+            Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "xmark.circle" : "link")
         }
         
         Button {
@@ -933,9 +935,7 @@ struct TripListSheetsModifier: ViewModifier {
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var selectedTripToEdit: Trip?
-    @Binding var showTransferTypeSelection: Bool
-    @Binding var selectedTrip: Trip?
-    @Binding var selectedRegionForTransfer: TPASSRegion?
+    @Binding var transferSelectionData: TransferSelectionData?
     @Binding var isProcessingSwipeAction: Bool
     let showToast: (LocalizedStringKey) -> Void
     
@@ -961,27 +961,28 @@ struct TripListSheetsModifier: ViewModifier {
                 .presentationDragIndicator(.hidden)
             }
             // 🔥 新增：轉乘類型選擇菜單
-            .sheet(isPresented: $showTransferTypeSelection) {
-                if let trip = selectedTrip, let region = selectedRegionForTransfer {
-                    TransferTypeSelectionView(
-                        trip: trip,
-                        region: region,
-                        viewModel: viewModel,
-                        isPresented: $showTransferTypeSelection,
-                        onSelected: { selectedType in
-                            if selectedType != nil {
-                                showToast("transfer_added")
-                            } else {
-                                showToast("transfer_cancelled")
-                            }
-                            isProcessingSwipeAction = false
+            .sheet(item: $transferSelectionData) { data in
+                TransferTypeSelectionView(
+                    trip: data.trip,
+                    region: data.region,
+                    viewModel: viewModel,
+                    isPresented: Binding(
+                        get: { transferSelectionData != nil },
+                        set: { if !$0 { transferSelectionData = nil } }
+                    ),
+                    onSelected: { selectedType in
+                        if selectedType != nil {
+                            showToast("transfer_added")
+                        } else {
+                            showToast("transfer_cancelled")
                         }
-                    )
-                    .environmentObject(auth) // 🔥 傳遞 auth 服務
-                    .environmentObject(themeManager) // 🔥 傳遞 themeManager
-                    .presentationDetents([.height(420), .medium])
-                    .presentationDragIndicator(.visible)
-                }
+                        isProcessingSwipeAction = false
+                    }
+                )
+                .environmentObject(auth) // 🔥 傳遞 auth 服務
+                .environmentObject(themeManager) // 🔥 傳遞 themeManager
+                .presentationDetents([.height(420), .medium])
+                .presentationDragIndicator(.visible)
             }
     }
 }

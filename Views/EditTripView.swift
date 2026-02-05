@@ -107,6 +107,24 @@ struct EditTripView: View {
                 _endLineCode = State(initialValue: line.code)
             }
         }
+        // 🔥 台中捷運線路反查
+        else if trip.type == .tcmrt {
+            if let line = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.startStation) }) {
+                _startLineCode = State(initialValue: line.code)
+            }
+            if let line = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.endStation) }) {
+                _endLineCode = State(initialValue: line.code)
+            }
+        }
+        // 🔥 高雄捷運線路反查
+        else if trip.type == .kmrt {
+            if let line = KMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.startStation) }) {
+                _startLineCode = State(initialValue: line.code)
+            }
+            if let line = KMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.endStation) }) {
+                _endLineCode = State(initialValue: line.code)
+            }
+        }
     }
     
     var body: some View {
