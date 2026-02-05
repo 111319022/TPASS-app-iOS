@@ -324,8 +324,9 @@ class AppViewModel: ObservableObject {
             cycleMonthlyStats[monthKey]!.counts[trip.type, default: 0] += 1
         }
         
-        // 🔧 優化：只統計當前週期內的行程，而非所有 trips
-        for trip in targetTrips {
+        // � R2 跨方案計算：統計所有週期在同一日曆月的搭乘次數（不限當前週期）
+        // 這樣才能正確計算跨方案的回饋百分比
+        for trip in trips {  // 使用所有 trips，不只是 targetTrips
             let monthKey = String(trip.dateStr.prefix(7))
             if globalMonthlyCounts[monthKey] == nil { globalMonthlyCounts[monthKey] = [:] }
             globalMonthlyCounts[monthKey]![trip.type, default: 0] += 1
@@ -342,6 +343,7 @@ class AppViewModel: ObservableObject {
             let stats = cycleMonthlyStats[month]!
             let gCounts = globalMonthlyCounts[month] ?? [:]
             
+            // 🔥 R1 北捷：用所有週期的北捷次數判斷回饋%，但金額只計算當前週期
             let mrtCount = gCounts[.mrt] ?? 0
             let mrtSum = stats.originalSums[.mrt] ?? 0
             var mrtRate = 0.0
@@ -362,6 +364,7 @@ class AppViewModel: ObservableObject {
                 )
             }
             
+            // 🔥 R1 台鐵：用所有週期的台鐵次數判斷回饋%，但金額只計算當前週期
             let traCount = gCounts[.tra] ?? 0
             let traSum = stats.originalSums[.tra] ?? 0
             var traRate = 0.0
@@ -382,17 +385,22 @@ class AppViewModel: ObservableObject {
                 )
             }
             
+            // 🔥 R2軌道類：包含所有捷運系統 + 台鐵 + 輕軌（跨方案計算）
             let c_mrt = gCounts[.mrt] ?? 0
             let c_tra = gCounts[.tra] ?? 0
             let c_tymrt = gCounts[.tymrt] ?? 0
+            let c_tcmrt = gCounts[.tcmrt] ?? 0
+            let c_kmrt = gCounts[.kmrt] ?? 0
             let c_lrt = gCounts[.lrt] ?? 0
-            let railCount = c_mrt + c_tra + c_tymrt + c_lrt
+            let railCount = c_mrt + c_tra + c_tymrt + c_tcmrt + c_kmrt + c_lrt
             
             let p_mrt = stats.paidSums[.mrt] ?? 0
             let p_tra = stats.paidSums[.tra] ?? 0
             let p_tymrt = stats.paidSums[.tymrt] ?? 0
+            let p_tcmrt = stats.paidSums[.tcmrt] ?? 0
+            let p_kmrt = stats.paidSums[.kmrt] ?? 0
             let p_lrt = stats.paidSums[.lrt] ?? 0
-            let railPaid = p_mrt + p_tra + p_tymrt + p_lrt
+            let railPaid = p_mrt + p_tra + p_tymrt + p_tcmrt + p_kmrt + p_lrt
             
             if railCount >= 11 {
                 let rebate = Int(Double(railPaid) * 0.02)

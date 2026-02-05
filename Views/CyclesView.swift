@@ -276,11 +276,11 @@ struct AddCycleView: View {
     @State private var showOverlapAlert = false
     
     init() {
-        // 🔥 初始化：開始日期為今天0:00，結束日期為今天+30天0:00
+        // 🔥 初始化：開始日期為今天0:00，結束日期為今天+29天0:00（含開始日共30天）
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         _startDate = State(initialValue: today)
-        _endDate = State(initialValue: calendar.date(byAdding: .day, value: 30, to: today) ?? today.addingTimeInterval(86400 * 30))
+        _endDate = State(initialValue: calendar.date(byAdding: .day, value: 29, to: today) ?? today.addingTimeInterval(86400 * 29))
     }
     
     private var hasDateOverlap: Bool {
@@ -297,10 +297,10 @@ struct AddCycleView: View {
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
                         .onChange(of: startDate) { oldDate, newDate in
-                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+30天，時間都為0:00
+                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+29天，時間都為0:00（含開始日共30天）
                             let calendar = Calendar.current
                             let startOfDay = calendar.startOfDay(for: newDate)
-                            endDate = calendar.date(byAdding: .day, value: 30, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 30)
+                            endDate = calendar.date(byAdding: .day, value: 29, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 29)
                         }
                     DatePicker("end_date", selection: $endDate, displayedComponents: .date)
                 }
@@ -397,10 +397,10 @@ struct EditCycleView: View {
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
                         .onChange(of: startDate) { oldDate, newDate in
-                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+30天，時間都為0:00
+                            // 🔥 當開始日期改變時，自動設定結束日期為開始日期+29天，時間都為0:00（含開始日共30天）
                             let calendar = Calendar.current
                             let startOfDay = calendar.startOfDay(for: newDate)
-                            endDate = calendar.date(byAdding: .day, value: 30, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 30)
+                            endDate = calendar.date(byAdding: .day, value: 29, to: startOfDay) ?? startOfDay.addingTimeInterval(86400 * 29)
                         }
                     DatePicker("end_date", selection: $endDate, displayedComponents: .date)
                 }
