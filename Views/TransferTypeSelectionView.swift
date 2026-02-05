@@ -22,7 +22,7 @@ struct TransferTypeSelectionView: View {
                 Section {
                     // 注意：請確認 TPASSRegion 的屬性名稱是 availableTransferTypes 還是 supportedTransferTypes
                     // 根據您提供的代碼維持 availableTransferTypes
-                    ForEach(region.availableTransferTypes) { transferType in
+                    ForEach(region.availableTransferTypes, id: \.self) { transferType in
                         Button(action: {
                             HapticManager.shared.impact(style: .medium)
                             

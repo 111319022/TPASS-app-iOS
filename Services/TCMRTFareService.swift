@@ -1,7 +1,7 @@
 import Foundation
 
 class TCMRTFareService {
-    static let shared = TCMRTFareService()
+    @MainActor static let shared = TCMRTFareService()
     
     // 台中捷運票價表 (單程票 - 一般成人)
     // 來源：官方票價資料 (TicketType: 1, FareClass: 1)
@@ -196,7 +196,7 @@ class TCMRTFareService {
     ]
     
     /// 取得台中捷運票價
-    func getFare(from startStation: String, to endStation: String) -> Int? {
+    @MainActor func getFare(from startStation: String, to endStation: String) -> Int? {
         // 站名標準化
         let start = TCMRTStationData.shared.normalizeStationNameToZH(startStation)
         let end = TCMRTStationData.shared.normalizeStationNameToZH(endStation)

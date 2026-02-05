@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 class CSVManager {
-    static let shared = CSVManager()
+    @MainActor static let shared = CSVManager()
     
     // 定義 CSV 表頭 (使用英文欄位名，確保跨語言相容)
     private let header = "id,date,type,startStation,endStation,price,paidPrice,isTransfer,isFree,routeId,note,transferDiscountType,cycleId"

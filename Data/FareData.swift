@@ -1,7 +1,7 @@
 import Foundation
 
 class FareService {
-    static let shared = FareService()
+    @MainActor static let shared = FareService()
     
     // 格式範例： "動物園-木柵": 20,
     private let fareDB: [String: Int] = [
@@ -10,7 +10,7 @@ class FareService {
     ]
     
     // 對應 Web 版的 getOfficialFare
-    func getFare(from start: String, to end: String) -> Int? {
+    @MainActor func getFare(from start: String, to end: String) -> Int? {
         if start.isEmpty || end.isEmpty { return nil }
         let startZH = StationData.shared.normalizeStationNameToZH(start)
         let endZH = StationData.shared.normalizeStationNameToZH(end)

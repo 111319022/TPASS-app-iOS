@@ -12,7 +12,7 @@ struct TRARegion: Identifiable, Hashable {
 }
 
 class TRAStationData {
-    static let shared = TRAStationData()
+    @MainActor static let shared = TRAStationData()
     
     // 全台車站清單（完整版）
     let allStations: [TRAStation] = [

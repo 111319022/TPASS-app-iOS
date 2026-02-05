@@ -3,8 +3,9 @@ import UserNotifications
 import UIKit
 import Combine // 👈 修正1：必須引入這個框架，才能使用 @Published 和 ObservableObject
 
+@MainActor
 class NotificationManager: ObservableObject {
-    static let shared = NotificationManager()
+    @MainActor static let shared = NotificationManager()
     
     @Published var isAuthorized = false
     
@@ -14,12 +15,16 @@ class NotificationManager: ObservableObject {
     
     // 檢查權限
     func checkAuthorizationStatus() {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            Task { @MainActor in
-                self.isAuthorized = (settings.authorizationStatus == .authorized)
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                // 🔥 2. 先把狀態取出來變成一個簡單的值 (Int/Enum 是安全的)
+                let status = settings.authorizationStatus
+                
+                Task { @MainActor in
+                    // 🔥 3. 在這裡只使用剛剛取出的 status，不直接碰 settings 物件
+                    self.isAuthorized = (status == .authorized)
+                }
             }
         }
-    }
     
     // 請求權限
     func requestAuthorization() {

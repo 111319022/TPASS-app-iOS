@@ -1,7 +1,7 @@
 import Foundation
 
 class KMRTFareService {
-    static let shared = KMRTFareService()
+    @MainActor static let shared = KMRTFareService()
     
     // 高雄捷運票價表 (Single Journey Ticket)
     // 僅儲存單向，透過 getFare 的雙向查找邏輯來支援
@@ -747,7 +747,7 @@ class KMRTFareService {
     ]
     
     /// 取得高雄捷運或輕軌票價
-    func getFare(from startStation: String, to endStation: String) -> Int? {
+    @MainActor func getFare(from startStation: String, to endStation: String) -> Int? {
         // 中文化處理
         let start = KMRTStationData.shared.normalizeStationNameToZH(startStation)
         let end = KMRTStationData.shared.normalizeStationNameToZH(endStation)

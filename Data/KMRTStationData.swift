@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 class KMRTStationData {
-    static let shared = KMRTStationData()
+    @MainActor static let shared = KMRTStationData()
     
     // 高雄捷運線路定義
     let lines: [MRTLine] = [

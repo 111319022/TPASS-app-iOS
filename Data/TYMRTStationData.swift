@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 class TYMRTStationData {
-    static let shared = TYMRTStationData()
+    @MainActor static let shared = TYMRTStationData()
     
     // 機捷線路定義
     let line: MRTLine = MRTLine(

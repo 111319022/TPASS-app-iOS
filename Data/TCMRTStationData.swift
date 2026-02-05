@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 class TCMRTStationData {
-    static let shared = TCMRTStationData()
+    @MainActor static let shared = TCMRTStationData()
     
     // 台中捷運線路定義 (目前僅有一條綠線)
     let lines: [MRTLine] = [

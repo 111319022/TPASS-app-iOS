@@ -10,7 +10,7 @@ struct MRTLine: Identifiable, Hashable {
 }
 
 class StationData {
-    static let shared = StationData()
+    @MainActor static let shared = StationData()
     
     // 對應 Web 版的 MRT_LINES
     let lines: [MRTLine] = [

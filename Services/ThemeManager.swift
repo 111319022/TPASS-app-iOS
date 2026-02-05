@@ -47,7 +47,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
 // MARK: - 主題管理器
 class ThemeManager: ObservableObject {
-    static let shared = ThemeManager()
+    @MainActor static let shared = ThemeManager()
     
     @AppStorage("selectedTheme") var currentTheme: AppTheme = .system
     

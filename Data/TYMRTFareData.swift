@@ -1,7 +1,7 @@
 import Foundation
 
 class TYMRTFareService {
-    static let shared = TYMRTFareService()
+    @MainActor static let shared = TYMRTFareService()
     
     // 您的完整票價資料
     private let fareDB: [String: Int] = [
@@ -77,7 +77,7 @@ class TYMRTFareService {
     ]
     
     // 取得票價 (支援雙向查詢)
-    func getFare(from start: String, to end: String) -> Int? {
+    @MainActor func getFare(from start: String, to end: String) -> Int? {
         if start.isEmpty || end.isEmpty { return nil }
         
         let startZH = TYMRTStationData.shared.normalizeStationNameToZH(start)

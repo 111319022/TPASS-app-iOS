@@ -1,19 +1,34 @@
 import Foundation
 import SQLite3
 
+@MainActor
 class TRAFareService {
     static let shared = TRAFareService()
     var db: OpaquePointer?
+
+    // 🔥 1. 新增這個 Helper 屬性，用來自動切換 Bundle
+    var currentBundle: Bundle {
+        #if SWIFT_PACKAGE
+        return Bundle.module  // 給 Swift Playgrounds 用
+        #else
+        return Bundle.main    // 給一般 Xcode 專案用
+        #endif
+    }
 
     init() {
         setupDatabase()
     }
 
     private func setupDatabase() {
-        if let path = Bundle.main.path(forResource: "TRA_Fares_Fixed", ofType: "sqlite") {
+        // 🔥 2. 修改這裡：把 Bundle.main 改成 self.currentBundle
+        if let path = currentBundle.path(forResource: "TRA_Fares_Fixed", ofType: "sqlite") {
             if sqlite3_open(path, &db) != SQLITE_OK {
-                print("無法開啟台鐵資料庫")
+                print("❌ 無法開啟台鐵資料庫，路徑：\(path)")
+            } else {
+                print("✅ 台鐵資料庫載入成功")
             }
+        } else {
+            print("❌ 找不到 TRA_Fares_Fixed.sqlite 檔案！請確認是否已複製到 Package 內")
         }
     }
 
