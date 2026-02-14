@@ -470,9 +470,16 @@ struct EditTripView: View {
     
     @ViewBuilder
     private var busSelectionView: some View {
-        TextField("route_example 307", text: $routeId)
-            .padding(12)
-            .foregroundColor(themeManager.primaryTextColor)
+        VStack(spacing: 0) {
+            TextField("route_example 307", text: $routeId)
+                .padding(12)
+                .foregroundColor(themeManager.primaryTextColor)
+            Divider().opacity(0.5).padding(.leading, 12)
+            
+            StationInputRow(label: "start_point", type: selectedType, lineCode: $startLineCode, stationName: $startStation, currentRegion: currentRegion)
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(label: "end_point", type: selectedType, lineCode: $endLineCode, stationName: $endStation, currentRegion: currentRegion)
+        }
             .background(inputBackgroundColor)
             .cornerRadius(10)
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))

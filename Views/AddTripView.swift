@@ -113,9 +113,30 @@ struct AddTripView: View {
     private var routeStationContent: some View {
         switch selectedType {
         case .bus:
-            TextField("route_example 307", text: $routeId)
-                .padding(12)
-                .foregroundColor(themeManager.primaryTextColor)
+            VStack(spacing: 0) {
+                TextField("route_example 307", text: $routeId)
+                    .padding(12)
+                    .foregroundColor(themeManager.primaryTextColor)
+                Divider().opacity(0.5).padding(.leading, 12)
+
+                StationInputRow(
+                    label: "start_point",
+                    type: selectedType,
+                    lineCode: $startLineCode,
+                    stationName: $startStation,
+                    currentRegion: currentRegion
+                )
+
+                Divider().opacity(0.5).padding(.leading, 12)
+
+                StationInputRow(
+                    label: "end_point",
+                    type: selectedType,
+                    lineCode: $endLineCode,
+                    stationName: $endStation,
+                    currentRegion: currentRegion
+                )
+            }
 
         case .coach:
             VStack(spacing: 0) {

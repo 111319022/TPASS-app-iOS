@@ -2617,13 +2617,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter station name"
+            "value" : "Enter station name (Optional)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "輸入站名"
+            "value" : "輸入站名（選填）"
           }
         }
       }
