@@ -34,7 +34,6 @@
 		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
 		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */; };
 		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
-		FB4CF3F82F308ACD002DA5E0 /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */; };
 		FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */; };
 		FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */; };
 		FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */; };
@@ -49,6 +48,7 @@
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
 		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
 		FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */; };
+		FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC660092F4214A900188CEB /* ViewFrameKey.swift */; };
 		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -83,7 +83,6 @@
 		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
 		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
 		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
-		FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
 		FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
 		FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTStationData.swift; sourceTree = "<group>"; };
@@ -98,6 +97,7 @@
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
 		FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferIntroductionView.swift; sourceTree = "<group>"; };
+		FBC660092F4214A900188CEB /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
 		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -190,11 +190,11 @@
 				FB009D712F27108200E30499 /* FavoritesManagementView.swift */,
 				FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */,
 				FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */,
-				FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */,
 				FB4CF4032F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift */,
 				FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */,
 				FBB948322F31FDAF0038F0FA /* CyclesView.swift */,
 				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
+				FBC660092F4214A900188CEB /* ViewFrameKey.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -298,7 +298,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB4CF3F82F308ACD002DA5E0 /* ViewFrameKey.swift in Sources */,
 				FB4CF4042F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift in Sources */,
 				FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */,
 				FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */,
@@ -319,6 +318,7 @@
 				FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */,
 				FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */,
 				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
+				FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */,
 				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
 				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */,
 				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
@@ -476,7 +476,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 38;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -492,7 +492,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -518,7 +518,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 38;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -534,7 +534,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -1,9 +1,9 @@
 import SwiftUI
 
 // 1. 定義 Key：用來收集各個元件的位置
-struct ViewFrameKey: @MainActor PreferenceKey {
-    @MainActor static var defaultValue: [String: CGRect] = [:]
-    
+struct ViewFrameKey: PreferenceKey {
+    static var defaultValue: [String: CGRect] = [:]
+
     static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
         value.merge(nextValue()) { $1 }
     }
