@@ -1,7 +1,7 @@
 import Foundation
 import UserNotifications
 import UIKit
-import Combine // 👈 修正1：必須引入這個框架，才能使用 @Published 和 ObservableObject
+import Combine // 修正1：必須引入這個框架，才能使用 @Published 和 ObservableObject
 
 @MainActor
 class NotificationManager: ObservableObject {
@@ -16,11 +16,11 @@ class NotificationManager: ObservableObject {
     // 檢查權限
     func checkAuthorizationStatus() {
             UNUserNotificationCenter.current().getNotificationSettings { settings in
-                // 🔥 2. 先把狀態取出來變成一個簡單的值 (Int/Enum 是安全的)
+                // 2. 先把狀態取出來變成一個簡單的值 (Int/Enum 是安全的)
                 let status = settings.authorizationStatus
                 
                 Task { @MainActor in
-                    // 🔥 3. 在這裡只使用剛剛取出的 status，不直接碰 settings 物件
+                    // 3. 在這裡只使用剛剛取出的 status，不直接碰 settings 物件
                     self.isAuthorized = (status == .authorized)
                 }
             }
@@ -89,7 +89,7 @@ class NotificationManager: ObservableObject {
         // 先清掉舊排程，避免重複
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
         
-        // 👈 修正2：因為您的 Model 沒有 endDate，我們用 start + 30 天來推算
+        // 修正2：因為您的 Model 沒有 endDate，我們用 start + 30 天來推算
         guard let currentCycle else {
             print("無法設定週期提醒：找不到 cycle")
             return

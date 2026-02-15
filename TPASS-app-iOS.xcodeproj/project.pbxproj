@@ -32,7 +32,7 @@
 		FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */; };
 		FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFA92F2DA8B500E09054 /* CSVManager.swift */; };
 		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
-		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */; };
+		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */; };
 		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
 		FB4CF3F82F308ACD002DA5E0 /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */; };
 		FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */; };
@@ -48,6 +48,7 @@
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
 		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
+		FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */; };
 		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -80,7 +81,7 @@
 		FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FB31BFA92F2DA8B500E09054 /* CSVManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManager.swift; sourceTree = "<group>"; };
 		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
-		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareData.swift; sourceTree = "<group>"; };
+		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
 		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
 		FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
 		FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
@@ -96,6 +97,7 @@
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
+		FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferIntroductionView.swift; sourceTree = "<group>"; };
 		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -124,7 +126,6 @@
 				FB0D94562F20BC4F00B687D3 /* Models */,
 				FB0D948D2F20E2C400B687D3 /* Data */,
 				FB0D945A2F20BC7E00B687D3 /* Helpers */,
-				FB0D94822F20C13A00B687D3 /* Frameworks */,
 				FB0D94472F20BC1600B687D3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -160,6 +161,7 @@
 				FB6197402F2F67D6000D80B6 /* TRAFareService.swift */,
 				FB4CF3FF2F30C514002DA5E0 /* KMRTFareService.swift */,
 				FB4CF4002F30C514002DA5E0 /* TCMRTFareService.swift */,
+				FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */,
 				FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */,
 			);
 			path = Services;
@@ -190,6 +192,7 @@
 				FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */,
 				FB4CF3F72F308ACD002DA5E0 /* ViewFrameKey.swift */,
 				FB4CF4032F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift */,
+				FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */,
 				FBB948322F31FDAF0038F0FA /* CyclesView.swift */,
 				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
 			);
@@ -204,13 +207,6 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		FB0D94822F20C13A00B687D3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		FB0D948D2F20E2C400B687D3 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -218,7 +214,6 @@
 				FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */,
 				FB0D948E2F20E2D700B687D3 /* StationData.swift */,
 				FB0D948F2F20E2EC00B687D3 /* FareData.swift */,
-				FB31BFAD2F2E1E1F00E09054 /* TYMRTFareData.swift */,
 				FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */,
 				FB6197462F2F73AC000D80B6 /* TRAStationData.swift */,
 			);
@@ -305,6 +300,7 @@
 			files = (
 				FB4CF3F82F308ACD002DA5E0 /* ViewFrameKey.swift in Sources */,
 				FB4CF4042F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift in Sources */,
+				FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */,
 				FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */,
 				FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */,
 				FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */,
@@ -324,7 +320,7 @@
 				FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */,
 				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
 				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
-				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareData.swift in Sources */,
+				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */,
 				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
 				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
 				FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */,

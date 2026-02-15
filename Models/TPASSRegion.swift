@@ -27,7 +27,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .north:
             return "plan_north"
         case .taoZhuZhu:
-            return "plan_taoyuan_hsinchu_miaoli"
+            return "plan_taoyuan_hsinchu"
         case .taoZhuZhuMiao:
             return "plan_TaoMiao"
         case .zhuZhuMiao:
@@ -88,7 +88,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .central, .centralCitizen:
             return [.tcmrt, .bus, .coach, .tra, .bike]
         case .south, .kaohsiung:
-            return [.kmrt, .bus, .coach, .tra, .bike, .lrt]
+            return [.kmrt, .bus, .coach, .tra, .bike, .lrt, .ferry]
         }
     }
     
@@ -126,11 +126,11 @@ enum TPASSRegion: String, CaseIterable, Codable {
     var supportedTransferTypes: [TransferDiscountType] {
         switch self {
         case .north:
-            return [.taipei]
+            return [.taipei, .taoyuan_tymrt_bus, .taoyuan_bus_tymrt]
         case .taoZhuZhu:
-            return [.taoyuan, .hsinchu]
+            return [.taoyuan_tymrt_bus, .taoyuan_bus_tymrt, .hsinchu]
         case .taoZhuZhuMiao:
-            return [.taoyuan, .hsinchu]
+            return [.taoyuan_tymrt_bus, .taoyuan_bus_tymrt,  .hsinchu]
         case .zhuZhuMiao:
             return [.hsinchu]
         case .beiYiMegaPASS, .beiYi:
@@ -146,7 +146,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         }
     }
     
-    // 🔥 別名：可用的轉乘優惠類型
+    // 別名：可用的轉乘優惠類型
     var availableTransferTypes: [TransferDiscountType] {
         return supportedTransferTypes
     }
@@ -157,9 +157,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .north:
             return .taipei
         case .taoZhuZhu:
-            return .taoyuan
+            return .taoyuan_tymrt_bus
         case .taoZhuZhuMiao, .zhuZhuMiao:
-            return .taoyuan
+            return .taoyuan_tymrt_bus
         case .beiYiMegaPASS, .beiYi:
             return .taipei
         case .yilan, .yilan3Days:

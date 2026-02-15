@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TransferTypeSelectionView: View {
     @EnvironmentObject var themeManager: ThemeManager
-    @EnvironmentObject var auth: AuthService // 🔥 引入 Auth 服務以獲取正確身份
+    @EnvironmentObject var auth: AuthService // 引入 Auth 服務以獲取正確身份
     
     let trip: Trip
     let region: TPASSRegion
@@ -10,7 +10,7 @@ struct TransferTypeSelectionView: View {
     @Binding var isPresented: Bool
     let onSelected: (TransferDiscountType?) -> Void
     
-    // 🔥 獲取當前使用者身份，預設為成人
+    // 獲取當前使用者身份，預設為成人
     private var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
     }
@@ -38,10 +38,10 @@ struct TransferTypeSelectionView: View {
                                         .font(.headline)
                                         .foregroundColor(.primary)
                                     
-                                    // 🔥 [修正] 手動計算折扣後價格 (取代不存在的 getDiscountedPrice)
+                                    // [修正] 手動計算折扣後價格 (取代不存在的 getDiscountedPrice)
                                     let discountedPrice = max(0, trip.originalPrice - transferType.discount(for: currentIdentity))
                                     
-                                    // 🌐 雙語化：使用本地化字串
+                                    // 雙語化：使用本地化字串
                                     HStack(spacing: 4) {
                                         Text("discounted_price")
                                             .foregroundColor(.secondary)
@@ -91,7 +91,7 @@ struct TransferTypeSelectionView: View {
                                 Text("no_transfer_discount")
                                     .font(.headline)
                                     .foregroundColor(.red)
-                                // 🌐 雙語化：使用本地化字串
+                                // 雙語化：使用本地化字串
                                 HStack(spacing: 4) {
                                     Text("keep_original_price")
                                         .foregroundColor(.secondary)

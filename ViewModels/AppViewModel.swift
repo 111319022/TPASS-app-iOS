@@ -484,11 +484,16 @@ class AppViewModel: ObservableObject {
         
         if let topMode = typeCounts.max(by: { a, b in a.value < b.value })?.key {
             switch topMode {
-            case .mrt: tags.append(DNATag(text: "dna_mrt_addict", description: "dna_mrt_addict_desc", color: Color(hex: "#00d2ff")))
-            case .bus: tags.append(DNATag(text: "dna_bus_master", description: "dna_bus_master_desc", color: Color(hex: "#2ecc71")))
-            case .tra: tags.append(DNATag(text: "dna_tra_fan", description: "dna_tra_fan_desc", color: Color(hex: "#bdc3c7")))
-            case .tymrt: tags.append(DNATag(text: "dna_tymrt_flyer", description: "dna_tymrt_flyer_desc", color: Color(hex: "#9b59b6")))
-            default: break
+            case .mrt, .tcmrt, .kmrt, .lrt:
+                tags.append(DNATag(text: "dna_mrt_addict", description: "dna_mrt_addict_desc", color: Color(hex: "#00d2ff")))
+            case .bus:
+                tags.append(DNATag(text: "dna_bus_master", description: "dna_bus_master_desc", color: Color(hex: "#2ecc71")))
+            case .tra:
+                tags.append(DNATag(text: "dna_tra_fan", description: "dna_tra_fan_desc", color: Color(hex: "#bdc3c7")))
+            case .tymrt:
+                tags.append(DNATag(text: "dna_tymrt_flyer", description: "dna_tymrt_flyer_desc", color: Color(hex: "#9b59b6")))
+            default:
+                break
             }
         }
         
@@ -498,7 +503,8 @@ class AppViewModel: ObservableObject {
             tags.append(DNATag(text: "dna_regular_life", description: "dna_regular_life_desc", color: Color(hex: "#55efc4")))
         }
         
-        let netProfit = financialStats.totalOriginal - 1200
+        let monthlyPrice = activeCycle?.region.monthlyPrice ?? AuthService.shared.currentRegion.monthlyPrice
+        let netProfit = financialStats.totalOriginal - monthlyPrice
         if netProfit > 1200 {
             tags.append(DNATag(text: "dna_netprofit_king", description: "dna_netprofit_king_desc", color: Color(hex: "#ffeaa7")))
         } else if netProfit > 0 {
@@ -523,10 +529,12 @@ class AppViewModel: ObservableObject {
         }
         
         let c_mrt = typeCounts[.mrt] ?? 0
+        let c_tcmrt = typeCounts[.tcmrt] ?? 0
+        let c_kmrt = typeCounts[.kmrt] ?? 0
         let c_tra = typeCounts[.tra] ?? 0
         let c_tymrt = typeCounts[.tymrt] ?? 0
         let c_lrt = typeCounts[.lrt] ?? 0
-        let railCount = c_mrt + c_tra + c_tymrt + c_lrt
+        let railCount = c_mrt + c_tcmrt + c_kmrt + c_tra + c_tymrt + c_lrt
         
         if railCount / totalCount > 0.8 {
             tags.append(DNATag(text: "dna_rail_friend", description: "dna_rail_friend_desc", color: Color(hex: "#81ecec")))

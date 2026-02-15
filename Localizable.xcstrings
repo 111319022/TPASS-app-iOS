@@ -968,6 +968,23 @@
         }
       }
     },
+    "Bus_TYMRT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[Taoyuan Citizen] Buses in Taoyuan→A.P. MRT "
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[桃園市民] 桃園市公車→機場捷運 "
+          }
+        }
+      }
+    },
     "By Raaay" : {
 
     },
@@ -2772,6 +2789,22 @@
         }
       }
     },
+    "ferry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferry"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "渡輪"
+          }
+        }
+      }
+    },
     "free" : {
 
     },
@@ -3468,14 +3501,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "No Transfer Discount"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "不使用轉乘折扣"
+            "value" : "無轉乘折扣"
           }
         }
       }
@@ -4059,7 +4092,25 @@
         }
       }
     },
+    "plan_taoyuan_hsinchu" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TaoZhuZhu PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃竹竹"
+          }
+        }
+      }
+    },
     "plan_taoyuan_hsinchu_miaoli" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5008,6 +5059,102 @@
         }
       }
     },
+    "transfer_intro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer Guide"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉乘介紹"
+          }
+        }
+      }
+    },
+    "transfer_intro_discount_format" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per-ride discount $%lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "單趟折抵 $%lld"
+          }
+        }
+      }
+    },
+    "transfer_intro_footer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actual rules may vary by operator. Please refer to official notices."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "實際規則依各運輸單位公告為準。"
+          }
+        }
+      }
+    },
+    "transfer_intro_identity_label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current identity"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前身分"
+          }
+        }
+      }
+    },
+    "transfer_intro_summary" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows transfer discounts by TPASS plan and identity."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依 TPASS 方案與身分列出可用的轉乘優惠。"
+          }
+        }
+      }
+    },
+    "transfer_intro_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer Guide"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉乘介紹"
+          }
+        }
+      }
+    },
     "transfer_kaohsiung_bike" : {
       "localizations" : {
         "en" : {
@@ -5110,13 +5257,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Taipei (-8)"
+            "value" : "[TPE] Standard(-8)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "雙北 (-8)"
+            "value" : "雙北標準 (-8)"
           }
         }
       }
@@ -5126,29 +5273,45 @@
         "en" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Taipei (-6)"
+            "value" : "[TPE] Standard (-6)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "雙北 (-6)"
+            "value" : "雙北標準 (-6)"
           }
         }
       }
     },
-    "transfer_taoyuan_citizen" : {
+    "transfer_taoyuan_bus_tymrt" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Taoyuan Citizen Trans.(-7)"
+            "state" : "translated",
+            "value" : "[TYCitizen] Bus→TYMRT (-9)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "桃園市民 機捷↔公車 (-7)"
+            "value" : "桃園市民 公車→ 機捷(-9)"
+          }
+        }
+      }
+    },
+    "transfer_taoyuan_tymrt_bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[TYCitizen] TYMRT→Bus (-18)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民 機捷→公車 (-18)"
           }
         }
       }
@@ -5171,6 +5334,12 @@
     },
     "transfer_yilan_adult" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan Bus-Coach(-15)"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5192,6 +5361,408 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "宜蘭公車客運(-10)"
+          }
+        }
+      }
+    },
+    "TransGuide_Bus_TYMRT" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TY Citizen | Bus  → A.P. MRT"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民｜公車 → 機捷"
+          }
+        }
+      }
+    },
+    "TransGuide_Hsinchu_Bus_Bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HsinChu | Bus ↔ Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新竹｜公車 ↔ 公車"
+          }
+        }
+      }
+    },
+    "TransGuide_Taipei_Bus_Metro Bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TPE | Metro ↔ Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雙北｜北捷 ↔ 公車"
+          }
+        }
+      }
+    },
+    "TransGuide_Taipei_Metro_Bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TPE | Metro Bus ↔ Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雙北｜幹線公車  ↔ 公車"
+          }
+        }
+      }
+    },
+    "TransGuide_transfer_kaohsiung_bike" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "KH | Youbike ↔ Metro/LRT/TR/Bus/Ferry"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄｜YouBike ↔ 高捷/輕軌/台鐵/公車/渡輪"
+          }
+        }
+      }
+    },
+    "TransGuide_transfer_kaohsiung_mrt_bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KH | Metro ↔ Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高雄｜高捷 ↔ 公車"
+          }
+        }
+      }
+    },
+    "TransGuide_transfer_taichung_citizen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TC Citizen | Bus over 10 km discount"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中市民｜公車超出10km上限10元"
+          }
+        }
+      }
+    },
+    "TransGuide_transfer_tainan_tra_bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan | TR  → Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南｜台鐵 → 公車"
+          }
+        }
+      }
+    },
+    "TransGuide_transfer_yilan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan | Bus ↔ Coach"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭｜公車 ↔ 客運"
+          }
+        }
+      }
+    },
+    "TransGuide_TYMRT_Bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TY Citizen | A.P. MRT → Bus"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民｜機捷 → 公車"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Bus_TYMRT_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TYCitizens within an hour, -$9 / Adult"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民一小時內，-$9 / 全票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Bus_TYMRT_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TYCitizens within an hour, -$9 / Student"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民一小時內，-$9 / 學生票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Hsinchu_Bus_Bus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within 4 hrs, 2nd ride FREE, -$15"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4小時內，第二趟公車免費，-$15"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_kaohsiung_bike" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Within an hour, -$5"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$5"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_kaohsiung_mrt_bus_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Within an hour, -$3 / Adult"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$3 / 全票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_kaohsiung_mrt_bus_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Within an hour, -$3 / Student"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$3 / 學生票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_tainan_tra_bus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within an hour, -$9"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$9"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Taipei_Bus_MetroBus_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within an hour, -$8 / Adult"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$8 / 全票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Taipei_Bus_MetroBus_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within an hour, -$8 / Student"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$6 / 學生票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Taipei_Metro_Bus_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within an hour, -$8 / Adult"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$8 / 全票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_Taipei_Metro_Bus_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within an hour, -$8 / Student"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一小時內，-$6 / 學生票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_TYMRT_Bus_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TYCitizens within an hour, -$9 / Adult"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民一小時內，-$9 / 全票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_TYMRT_Bus_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TYCitizens within an hour, -$9 / Student"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃園市民一小時內，-$9 / 學生票"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_yilan_adult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within 6 hrs, Bus FREE, -$21"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6小時內，公車免費，-$21"
+          }
+        }
+      }
+    },
+    "TransGuideInfo_yilan_student" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Within 6 hrs, Bus FREE, -$15"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6小時內，公車免費，-$15"
           }
         }
       }
@@ -5574,6 +6145,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "快速按鈕與刪除"
+          }
+        }
+      }
+    },
+    "tutorial_trips_finish_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go set your first cycle in Cycle Page!"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往週期頁面設定第一個週期吧！"
+          }
+        }
+      }
+    },
+    "tutorial_trips_finish_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutorial END"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "教學結束"
           }
         }
       }

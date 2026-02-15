@@ -6,7 +6,7 @@ class TRAFareService {
     static let shared = TRAFareService()
     var db: OpaquePointer?
 
-    // 🔥 1. 新增這個 Helper 屬性，用來自動切換 Bundle
+    // 1. 新增 Helper 屬性，用來自動切換 Bundle
     var currentBundle: Bundle {
         #if SWIFT_PACKAGE
         return Bundle.module  // 給 Swift Playgrounds 用
@@ -20,7 +20,7 @@ class TRAFareService {
     }
 
     private func setupDatabase() {
-        // 🔥 2. 修改這裡：把 Bundle.main 改成 self.currentBundle
+        // 2. 修改：把 Bundle.main 改成 self.currentBundle
         if let path = currentBundle.path(forResource: "TRA_Fares_Fixed", ofType: "sqlite") {
             if sqlite3_open(path, &db) != SQLITE_OK {
                 print("❌ 無法開啟台鐵資料庫，路徑：\(path)")

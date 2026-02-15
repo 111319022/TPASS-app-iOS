@@ -7,7 +7,7 @@ enum SpotlightTutorialStep: Int, CaseIterable {
     case addButton = 2         // 新增按鈕
     case swipeActions = 3      // 左滑右滑編輯/刪除
     case longPressCommuter = 4 // 長按設定通勤路線
-    case favoritesButton = 5   // 右上角星星按鈕
+    case favoritesButton = 5   // 右上角星星按鈕（結束 Trip 頁面教學）
     case finish = 6            // 完成
 }
 
@@ -17,6 +17,9 @@ struct TutorialPositions {
     var cycleSelectorFrame: CGRect = .zero
     var tripRowFrame: CGRect = .zero
     var favoritesButtonFrame: CGRect = .zero
+    var dashboardTabFrame: CGRect = .zero
+    var settingsTabFrame: CGRect = .zero
+    var cycleButtonFrame: CGRect = .zero
 }
 
 struct SpotlightTutorialOverlay: View {
@@ -214,7 +217,7 @@ struct SpotlightTutorialOverlay: View {
         case .favoritesButton:
             return "tutorial_favorites_title"
         case .finish:
-            return "tutorial_finish_title"
+            return "tutorial_trips_finish_title"
         }
     }
     
@@ -233,7 +236,7 @@ struct SpotlightTutorialOverlay: View {
         case .favoritesButton:
             return "tutorial_favorites_desc"
         case .finish:
-            return "tutorial_finish_desc"
+            return "tutorial_trips_finish_desc"
         }
     }
     

@@ -92,6 +92,14 @@ struct SettingsView: View {
                             Text("region_intro")
                         }
                     }
+
+                    // 轉乘介紹
+                    NavigationLink(destination: TransferIntroductionView()) {
+                        HStack {
+                            Image(systemName: "arrow.triangle.2.circlepath.circle.fill").foregroundColor(.orange)
+                            Text("transfer_intro")
+                        }
+                    }
                 }
                 
                 // MARK: - 3. 偏好設定
