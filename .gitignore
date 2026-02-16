@@ -12,5 +12,12 @@
 # Python
 .venv/
 
+# Editor
+.vscode/
+
+# Local files
+*.local
+.local/
+
 # Ignore large data
 TRA_Fares_API.json

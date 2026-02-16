@@ -315,21 +315,23 @@ class AppViewModel: ObservableObject {
             typeCounts[trip.type, default: 0] += 1
             
             let monthKey = String(trip.dateStr.prefix(7))
-            if cycleMonthlyStats[monthKey] == nil { cycleMonthlyStats[monthKey] = MonthStats() }
-            
+            var monthStats = cycleMonthlyStats[monthKey] ?? MonthStats()
+
             let r1OriginalPrice = trip.isFree ? 0 : trip.originalPrice
-            cycleMonthlyStats[monthKey]!.originalSums[trip.type, default: 0] += r1OriginalPrice
-            
-            cycleMonthlyStats[monthKey]!.paidSums[trip.type, default: 0] += trip.paidPrice
-            cycleMonthlyStats[monthKey]!.counts[trip.type, default: 0] += 1
+            monthStats.originalSums[trip.type, default: 0] += r1OriginalPrice
+
+            monthStats.paidSums[trip.type, default: 0] += trip.paidPrice
+            monthStats.counts[trip.type, default: 0] += 1
+            cycleMonthlyStats[monthKey] = monthStats
         }
         
         // � R2 跨方案計算：統計所有週期在同一日曆月的搭乘次數（不限當前週期）
         // 這樣才能正確計算跨方案的回饋百分比
         for trip in trips {  // 使用所有 trips，不只是 targetTrips
             let monthKey = String(trip.dateStr.prefix(7))
-            if globalMonthlyCounts[monthKey] == nil { globalMonthlyCounts[monthKey] = [:] }
-            globalMonthlyCounts[monthKey]![trip.type, default: 0] += 1
+            var monthCounts = globalMonthlyCounts[monthKey] ?? [:]
+            monthCounts[trip.type, default: 0] += 1
+            globalMonthlyCounts[monthKey] = monthCounts
         }
         
         var r1_total = 0
@@ -340,7 +342,7 @@ class AppViewModel: ObservableObject {
         let sortedMonths = cycleMonthlyStats.keys.sorted()
         
         for month in sortedMonths {
-            let stats = cycleMonthlyStats[month]!
+            guard let stats = cycleMonthlyStats[month] else { continue }
             let gCounts = globalMonthlyCounts[month] ?? [:]
             
             // 🔥 R1 北捷：用所有週期的北捷次數判斷回饋%，但金額只計算當前週期
@@ -603,7 +605,7 @@ class AppViewModel: ObservableObject {
         var runningTotal = 0
         let grouped = Dictionary(grouping: filteredTrips) { trip -> Date in
             let c = Calendar.current.dateComponents([.year, .month, .day], from: trip.createdAt)
-            return Calendar.current.date(from: c)!
+            return Calendar.current.date(from: c) ?? Calendar.current.startOfDay(for: trip.createdAt)
         }
         let sortedDates = grouped.keys.sorted()
         for date in sortedDates {
@@ -621,9 +623,11 @@ class AppViewModel: ObservableObject {
         
         var stats: [TransportType: (cost: Int, count: Int, max: Int)] = [:]
         for t in trips {
-            stats[t.type, default: (0,0,0)].cost += t.paidPrice
-            stats[t.type, default: (0,0,0)].count += 1
-            if t.originalPrice > stats[t.type]!.max { stats[t.type]!.max = t.originalPrice }
+            var entry = stats[t.type] ?? (0, 0, 0)
+            entry.cost += t.paidPrice
+            entry.count += 1
+            if t.originalPrice > entry.max { entry.max = t.originalPrice }
+            stats[t.type] = entry
         }
         
         return stats.map { (type, val) in
@@ -693,8 +697,11 @@ class AppViewModel: ObservableObject {
             } else { continue }
             
             if routes[key] == nil { routes[key] = RouteStat(id: key, name: name, count: 0, totalCost: 0, type: trip.type, routeId: routeId) }
-            routes[key]!.count += 1
-            routes[key]!.totalCost += (trip.isFree ? 0 : trip.paidPrice)
+            if var route = routes[key] {
+                route.count += 1
+                route.totalCost += (trip.isFree ? 0 : trip.paidPrice)
+                routes[key] = route
+            }
         }
         return Array(routes.values).sorted { $0.count > $1.count }.prefix(5).map { $0 }
     }

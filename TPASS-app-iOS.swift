@@ -10,9 +10,10 @@ struct TPASS_app_iOSApp: App {
 
     
     // 🔥 設定 SwiftData ModelContainer
-    let modelContainer: ModelContainer
+    let modelContainer: ModelContainer?
     
     init() {
+        var container: ModelContainer? = nil
         do {
             // 🔥🔥🔥 新增這段：手動建立 Application Support 資料夾
             let fileManager = FileManager.default
@@ -27,10 +28,14 @@ struct TPASS_app_iOSApp: App {
             // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
             let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false, cloudKitDatabase: .none)
-            modelContainer = try ModelContainer(for: schema, configurations: config)
+            container = try ModelContainer(for: schema, configurations: config)
         } catch {
-            fatalError("無法建立 ModelContainer: \(error)")
+            print("⚠️ 無法建立持久化 ModelContainer: \(error)")
+            let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
+            let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+            container = try? ModelContainer(for: schema, configurations: fallbackConfig)
         }
+        modelContainer = container
     }
     
     var body: some Scene {
@@ -39,8 +44,12 @@ struct TPASS_app_iOSApp: App {
                 if authService.isRestoringSession {
                     LaunchSplashView()
                 } else if authService.isSignedIn {
-                    MainTabView()
-                        .modelContainer(modelContainer)
+                    if let container = modelContainer {
+                        MainTabView()
+                            .modelContainer(container)
+                    } else {
+                        DataStoreErrorView()
+                    }
                 } else {
                     IntroView()
                 }
@@ -55,10 +64,10 @@ struct TPASS_app_iOSApp: App {
             
             // 2. 監聽登入狀態並啟動 ViewModel + 執行遷移
             .onChange(of: authService.isSignedIn) { oldStatus, isNowSignedIn in
-                if isNowSignedIn, let userId = authService.currentUser?.id {
+                if isNowSignedIn, let userId = authService.currentUser?.id, let container = modelContainer {
                     // 登入成功時，傳入 Context 讓 ViewModel 開始搬資料
                     Task { @MainActor in
-                        appViewModel.start(modelContext: modelContainer.mainContext, userId: userId)
+                        appViewModel.start(modelContext: container.mainContext, userId: userId)
                     }
                     
                     // 處理通知權限
@@ -72,13 +81,29 @@ struct TPASS_app_iOSApp: App {
             
             // 3. 處理自動登入的情況
             .onAppear {
-                if authService.isSignedIn, let userId = authService.currentUser?.id {
+                if authService.isSignedIn, let userId = authService.currentUser?.id, let container = modelContainer {
                     Task { @MainActor in
-                        appViewModel.start(modelContext: modelContainer.mainContext, userId: userId)
+                        appViewModel.start(modelContext: container.mainContext, userId: userId)
                     }
                 }
             }
         }
+    }
+}
+
+private struct DataStoreErrorView: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundColor(.orange)
+            Text("資料庫初始化失敗")
+                .font(.headline)
+            Text("請重新啟動 App，或稍後再試。")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding(24)
     }
 }
 

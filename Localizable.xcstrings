@@ -6196,6 +6196,12 @@
     "繁體中文" : {
 
     },
+    "請重新啟動 App，或稍後再試。" : {
+
+    },
+    "資料庫初始化失敗" : {
+
+    },
     "選擇站點" : {
       "comment" : "Select station placeholder",
       "localizations" : {
