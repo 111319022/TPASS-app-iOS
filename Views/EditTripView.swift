@@ -10,10 +10,10 @@ struct EditTripView: View {
     let trip: Trip
     var onSuccess: (() -> Void)? = nil
     
-    // 🔥 新增：取得目前選中周期的方案，若無則用日期自動解析
+    // 新增：取得目前選中周期的方案，若無則用日期自動解析
     private var resolvedCycleForTrip: Cycle? {
         if let cycle = viewModel.cycleById(trip.cycleId) { return cycle }
-        return viewModel.cycleForTrip(date: date)
+        return viewModel.resolveCycle(for: date)
     }
     
     private var currentRegion: TPASSRegion {
@@ -46,7 +46,7 @@ struct EditTripView: View {
     @State private var startLineCode: String = ""
     @State private var endLineCode: String = ""
     
-    // 🔥 台鐵區域選擇
+    // 台鐵區域選擇
     @State private var selectedStartRegion: TRARegion?
     @State private var selectedEndRegion: TRARegion?
     
@@ -55,8 +55,8 @@ struct EditTripView: View {
     @State private var note: String
     @State private var isTransfer: Bool
     @State private var isFree: Bool
-    @State private var transferDiscountType: TransferDiscountType?  // 🔥 新增：轉乘優惠類型
-    @State private var showTransferTypePicker = false  // 🔥 新增：顯示轉乘類型選擇器
+    @State private var transferDiscountType: TransferDiscountType?  // 新增：轉乘優惠類型
+    @State private var showTransferTypePicker = false  // 新增：顯示轉乘類型選擇器
     
     // Identity (for calculating discount)
     var currentIdentity: Identity {
@@ -81,7 +81,7 @@ struct EditTripView: View {
         return isDark ? Color(uiColor: .secondarySystemBackground) : Color.white
     }
     
-    // 🔥 Custom init to load existing trip data
+    // Custom init to load existing trip data
     init(trip: Trip, onSuccess: (() -> Void)? = nil) {
         self.trip = trip
         self.onSuccess = onSuccess
@@ -107,7 +107,7 @@ struct EditTripView: View {
                 _endLineCode = State(initialValue: line.code)
             }
         }
-        // 🔥 台中捷運線路反查
+        // 台中捷運線路反查
         else if trip.type == .tcmrt {
             if let line = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.startStation) }) {
                 _startLineCode = State(initialValue: line.code)
@@ -116,7 +116,7 @@ struct EditTripView: View {
                 _endLineCode = State(initialValue: line.code)
             }
         }
-        // 🔥 高雄捷運線路反查
+        // 高雄捷運線路反查
         else if trip.type == .kmrt {
             if let line = KMRTStationData.shared.lines.first(where: { $0.stations.contains(trip.startStation) }) {
                 _startLineCode = State(initialValue: line.code)
@@ -147,15 +147,15 @@ struct EditTripView: View {
                         
                         // 2. Transport Type (Grid)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
-                            // 🔥 修改：只顯示該地區支援的運具
+                            // 修改：只顯示該地區支援的運具
                             ForEach(currentRegion.supportedModes) { type in
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         selectedType = type
-                                        // 🔥 切換運具時清空起讫站
+                                        // 切換運具時清空起讫站
                                         if type == .bus {
                                             startStation = ""; endStation = ""
-                                            // 🔥 修改：根據地區與身分取得預設票價
+                                            // 修改：根據地區與身分取得預設票價
                                             if price.isEmpty { price = currentRegion.defaultBusPrice(identity: currentIdentity) }
                                         } else {
                                             if type != .coach { routeId = "" }
@@ -202,7 +202,7 @@ struct EditTripView: View {
                             .cornerRadius(10)
                             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                             
-                            // 🔥 修改：轉乘按鈕可選擇優惠類型
+                            // 修改：轉乘按鈕可選擇優惠類型
                             Button(action: {
                                 if currentRegion.supportedTransferTypes.count == 1 {
                                     // 只有一種轉乘類型，直接切換
@@ -214,7 +214,7 @@ struct EditTripView: View {
                                         transferDiscountType = currentRegion.defaultTransferType
                                     }
                                 } else {
-                                    // 🔥 多種轉乘類型，總是顯示選擇器
+                                    // 多種轉乘類型，總是顯示選擇器
                                     showTransferTypePicker = true
                                 }
                             }) {
@@ -376,7 +376,7 @@ struct EditTripView: View {
     func calculatePaidPrice() -> Int {
         if isFree { return 0 }
         let p = Int(price) ?? 0
-        // 🔥 修改：使用轉乘優惠類型計算折扣
+        // 修改：使用轉乘優惠類型計算折扣
         let discount: Int
         if isTransfer, let type = transferDiscountType {
             discount = type.discount(for: currentIdentity)
@@ -406,7 +406,7 @@ struct EditTripView: View {
         finalComps.second = timeChanged ? 0 : originalSecond
         let finalDate = calendar.date(from: finalComps) ?? date
         
-        // 🔥 修改：使用轉乘優惠類型計算折扣
+        // 修改：使用轉乘優惠類型計算折扣
         let discount: Int
         if isTransfer, let type = transferDiscountType {
             discount = type.discount(for: currentIdentity)
@@ -435,7 +435,7 @@ struct EditTripView: View {
         
         viewModel.updateTrip(updatedTrip)
         
-        // 🔥 新增：成功震動回饋
+        // 新增：成功震動回饋
         HapticManager.shared.notification(type: .success)
         
         onSuccess?()
@@ -529,15 +529,37 @@ struct EditTripView: View {
     // 自動反查區域 (當進入編輯模式時)
     private func restoreTRARegions() {
         if selectedType == .tra {
+            let normalizedStartId = normalizedTRAStationId(startStation)
+            let normalizedEndId = normalizedTRAStationId(endStation)
+            startStation = normalizedStartId
+            endStation = normalizedEndId
+
             // 找起點（使用站代碼比對）
-            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == startStation }) }) {
+            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == normalizedStartId }) }) {
                 selectedStartRegion = found
+            } else if selectedStartRegion == nil, let fallback = availableTRARegions.first {
+                selectedStartRegion = fallback
             }
+
             // 找終點（使用站代碼比對）
-            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == endStation }) }) {
+            if let found = availableTRARegions.first(where: { $0.stations.contains(where: { $0.id == normalizedEndId }) }) {
                 selectedEndRegion = found
+            } else if selectedEndRegion == nil, let fallback = availableTRARegions.first {
+                selectedEndRegion = fallback
             }
         }
+    }
+
+    private func normalizedTRAStationId(_ value: String) -> String {
+        if value.isEmpty { return value }
+        if availableTRARegions.contains(where: { $0.stations.contains(where: { $0.id == value }) }) {
+            return value
+        }
+        let zhName = TRAStationData.shared.normalizeStationNameToZH(value)
+        if let station = TRAStationData.shared.allStations.first(where: { $0.name == zhName }) {
+            return station.id
+        }
+        return value
     }
     
     @ViewBuilder

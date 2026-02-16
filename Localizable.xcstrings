@@ -243,23 +243,6 @@
         }
       }
     },
-    "add" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新增"
-          }
-        }
-      }
-    },
     "add_commuter" : {
       "localizations" : {
         "en" : {
@@ -368,23 +351,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新增行程"
-          }
-        }
-      }
-    },
-    "addCycle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add Cycle"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新增週期"
           }
         }
       }
@@ -565,23 +531,6 @@
         }
       }
     },
-    "backup_delete_failed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete failed: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除失敗：%@"
-          }
-        }
-      }
-    },
     "backup_delete_success_message" : {
       "localizations" : {
         "en" : {
@@ -710,23 +659,6 @@
         }
       }
     },
-    "backup_restore_failed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore failed: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "恢復失敗：%@"
-          }
-        }
-      }
-    },
     "backup_restore_section_title" : {
       "localizations" : {
         "en" : {
@@ -803,23 +735,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上傳"
-          }
-        }
-      }
-    },
-    "backup_upload_failed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upload failed: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳失敗：%@"
           }
         }
       }
@@ -1100,23 +1015,6 @@
         }
       }
     },
-    "cloudkit_partial_upload_failed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Some records failed to upload (%d)."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "部分記錄上傳失敗 (%d 筆)"
-          }
-        }
-      }
-    },
     "cloudkit_partial_upload_failed_detail %lld" : {
       "localizations" : {
         "en" : {
@@ -1177,23 +1075,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "客運"
-          }
-        }
-      }
-    },
-    "comingSoon" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coming Soon"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "即將推出"
           }
         }
       }
@@ -2609,23 +2490,6 @@
         }
       }
     },
-    "endDate" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "End Date"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "結束日期"
-          }
-        }
-      }
-    },
     "English" : {
 
     },
@@ -3513,23 +3377,6 @@
         }
       }
     },
-    "noCycleSet" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No cycle set. Using calendar month."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "尚無設定週期，將使用自然月計算"
-          }
-        }
-      }
-    },
     "notBreakeven $%lld" : {
       "localizations" : {
         "en" : {
@@ -3915,23 +3762,6 @@
         }
       }
     },
-    "other_regions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Other Regions"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "其他地區"
-          }
-        }
-      }
-    },
     "past_cycles" : {
       "localizations" : {
         "en" : {
@@ -4098,23 +3928,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "TaoZhuZhu PASS"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "桃竹竹"
-          }
-        }
-      }
-    },
-    "plan_taoyuan_hsinchu_miaoli" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "TaoZhuZhu PASS"
           }
         },
@@ -4595,23 +4408,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "起點"
-          }
-        }
-      }
-    },
-    "startDate" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start Date"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開始日期"
           }
         }
       }

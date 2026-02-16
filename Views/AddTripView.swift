@@ -848,6 +848,10 @@ struct TRALineStationInputRow: View {
                 if let region = selectedRegion {
                     Picker("Station", selection: $stationId) {
                         Text("select_station").tag("")
+                        if !stationId.isEmpty, !region.stations.contains(where: { $0.id == stationId }) {
+                            Text(TRAStationData.shared.displayStationName(stationId, languageCode: languageCode))
+                                .tag(stationId)
+                        }
                         ForEach(region.stations) { station in
                             Text(TRAStationData.shared.displayStationName(station.id, languageCode: languageCode))
                                 .tag(station.id)
@@ -879,6 +883,12 @@ struct TRALineStationInputRow: View {
             }
         }
         .onChange(of: selectedRegion?.id) { _, _ in
+            guard let region = selectedRegion else {
+                stationId = ""
+                return
+            }
+            if stationId.isEmpty { return }
+            if region.stations.contains(where: { $0.id == stationId }) { return }
             stationId = ""
         }
         .frame(height: 48)

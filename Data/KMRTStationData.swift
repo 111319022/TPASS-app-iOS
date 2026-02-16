@@ -25,52 +25,56 @@ class KMRTStationData {
             color: Color(hex: "#FF6B35"), // 高雄捷運橘線標準色
             stations: [
                 "哈瑪星", "鹽埕埔", "前金", "美麗島", "信義國小", "文化中心", "五塊厝",
-                "苓雅運動園區", "衛武營", "鳳山西站", "鳳山", " 大東", "鳳山國中", "大寮"
+                "苓雅運動園區", "衛武營", "鳳山西站", "鳳山", "大東", "鳳山國中", "大寮"
             ]
         )
     ]
     
     // 英文站名對照表 (已更新至最新版本)
     private let stationNameENByZH: [String: String] = [
-        "三多商圈": "Sanduo Shopping Dist.",
-        "世運": "World Game",
-        "中央公園": "Central Park",
-        "五塊厝": "Wukuaicuo",
-        "信義國小": "Sinyi Ele. School",
-        "凱旋": "Kaisyuan",
-        "凹子底": "Aozihdi",
-        "前金": "Cianjin",
-        "前鎮高中": "Cianjhen Sr. High School",
-        "哈瑪星": "Hamasen",
-        "大寮": "Daliao",
-        "大東": "Dadong",
-        "小港": "Siaogang",
-        "岡山車站": "Gangshan Station",
-        "岡山高醫": "KMU Gangshan Hospital",
-        "左營": "Zuoying",
-        "巨蛋": "Kaohsiung Arena",
-        "後勁": "Houjing",
-        "後驛": "Houyi",
-        "文化中心": "Cultural Center",
-        "楠梓科技園區": "Nanzih Tech. Industrial Park",
-        "橋頭火車站": "Ciaotou Station",
-        "橋頭糖廠": "Ciaotou Sugar Refinery",
-        "油廠國小": "Oil Refinery Ele. School",
-        "獅甲": "Shihjia",
-        "生態園區": "Ecological District",
-        "美麗島": "Formosa Boulevard",
-        "苓雅運動園區": "Lingya Sports Park",
-        "草衙": "Caoya",
-        "衛武營": "Weiwuying",
-        "都會公園": "Metropolitan Park",
-        "青埔": "Cingpu",
-        "高雄國際機場": "Kaohsiung Intl. Airport",
-        "高雄車站": "Kaohsiung Main Sta.",
-        "鳳山": "Fongshan",
-        "鳳山國中": "Fongshan Jr. High School",
-        "鳳山西站": "Fongshan West",
-        "鹽埕埔": "Yanchengpu"
-    ]
+            // MARK: - 紅線 Red Line (北到南)
+            "岡山車站": "Gangshan Station",
+            "岡山高醫": "KMU Gangshan Hospital",
+            "橋頭火車站": "Ciaotou Station",
+            "橋頭糖廠": "Ciaotou Sugar Refinery",
+            "青埔": "Cingpu",
+            "都會公園": "Metropolitan Park",
+            "後勁": "Houjing",
+            "楠梓科技園區": "Nanzih Tech. Industrial Park",
+            "油廠國小": "Oil Refinery Ele. School",
+            "世運": "World Game",
+            "左營": "Zuoying",
+            "生態園區": "Ecological District",
+            "巨蛋": "Kaohsiung Arena",
+            "凹子底": "Aozihdi",
+            "後驛": "Houyi",
+            "高雄車站": "Kaohsiung Main Sta.",
+            "美麗島": "Formosa Boulevard", // 紅橘線交會
+            "中央公園": "Central Park",
+            "三多商圈": "Sanduo Shopping Dist.",
+            "獅甲": "Shihjia",
+            "凱旋": "Kaisyuan",
+            "前鎮高中": "Cianjhen Sr. High School",
+            "草衙": "Caoya",
+            "高雄國際機場": "Kaohsiung Intl. Airport",
+            "小港": "Siaogang",
+            
+            // MARK: - 橘線 Orange Line (西到東)
+            "哈瑪星": "Hamasen",
+            "鹽埕埔": "Yanchengpu",
+            "前金": "Cianjin",
+            // "美麗島" 已在上方紅線區段
+            "信義國小": "Sinyi Ele. School",
+            "文化中心": "Cultural Center",
+            "五塊厝": "Wukuaicuo",
+            "苓雅運動園區": "Lingya Sports Park",
+            "衛武營": "Weiwuying",
+            "鳳山西站": "Fongshan West",
+            "鳳山": "Fongshan",
+            "大東": "Dadong",
+            "鳳山國中": "Fongshan Jr. High School",
+            "大寮": "Daliao"
+        ]
     
     // MARK: - Helper Methods
     
