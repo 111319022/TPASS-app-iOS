@@ -310,7 +310,7 @@ class CloudKitSyncService: ObservableObject {
         let status = try await container.accountStatus()
         guard status == .available else { return }
         
-        var recordIDsToDelete: [CKRecord.ID] = []
+        var _: [CKRecord.ID] = []
         
         // 為了避免複雜的 async 邏輯，這裡簡化：只刪除 meta，讓系統自動清理 reference (如果設定了 deleteSelf)
         // 或者使用上面定義的安全查詢方法

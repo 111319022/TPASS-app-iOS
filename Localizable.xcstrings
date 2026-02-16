@@ -889,7 +889,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "[Taoyuan Citizen] Buses in Taoyuan→A.P. MRT "
+            "value" : "[Taoyuan Citizen] Buses in Taoyuan→A.P.MRT "
           }
         },
         "zh-Hant" : {
@@ -2126,14 +2126,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "🚇 MRT Addict"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🚇 北捷成癮者"
+            "value" : "🚇 捷運成癮者"
           }
         }
       }
@@ -2143,7 +2143,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Most trips by MRT"
+            "value" : "Most trips by Metro"
           }
         },
         "zh-Hant" : {
@@ -3094,7 +3094,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MRT"
+            "value" : "Metro"
           }
         },
         "zh-Hant" : {
@@ -3237,7 +3237,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MRT"
+            "value" : "Metro"
           }
         },
         "zh-Hant" : {
@@ -3285,7 +3285,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MRT"
+            "value" : "Metro"
           }
         },
         "zh-Hant" : {
@@ -4076,7 +4076,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ MRT (%2$lld trips) %3$lld%%"
+            "value" : "%1$@ TPE Metro (%2$lld trips) %3$lld%%"
           }
         },
         "zh-Hant" : {
@@ -4517,7 +4517,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MRT"
+            "value" : "Metro"
           }
         },
         "zh-Hant" : {
@@ -4972,7 +4972,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "KH MRT↔Bus (-3)"
+            "value" : "KH Metro↔Bus (-3)"
           }
         },
         "zh-Hant" : {
@@ -5085,7 +5085,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "[TYCitizen] Bus→TYMRT (-9)"
+            "value" : "[TYCitizen] Bus→A.P.MRT (-9)"
           }
         },
         "zh-Hant" : {
@@ -5101,7 +5101,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "[TYCitizen] TYMRT→Bus (-18)"
+            "value" : "[TYCitizen] A.P.MRT→Bus (-18)"
           }
         },
         "zh-Hant" : {
@@ -5166,7 +5166,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TY Citizen | Bus  → A.P. MRT"
+            "value" : "TY Citizen | Bus  → A.P.MRT"
           }
         },
         "zh-Hant" : {
@@ -5310,7 +5310,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TY Citizen | A.P. MRT → Bus"
+            "value" : "TY Citizen | A.P.MRT → Bus"
           }
         },
         "zh-Hant" : {
