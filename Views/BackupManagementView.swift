@@ -58,8 +58,8 @@ struct BackupManagementView: View {
                             Spacer()
                         }
                         .padding(.vertical, 10)
-                        .disabled(cloudKitService.isSyncing)
                     }
+                    .disabled(cloudKitService.isSyncing || isExecuting)
                     
                     if let lastSync = cloudKitService.lastSyncDate {
                         HStack {
@@ -204,6 +204,7 @@ struct BackupManagementView: View {
                         .background(themeManager.accentColor)
                         .cornerRadius(12)
                 }
+                .disabled(cloudKitService.isSyncing || isExecuting)
                 Button("cancel", role: .cancel) {
                     showUploadConfirm = false
                 }
@@ -282,6 +283,9 @@ struct BackupManagementView: View {
     }
     
     private func performUpload() async {
+        let canStart = await MainActor.run { !cloudKitService.isSyncing && !isExecuting }
+        guard canStart else { return }
+
         do {
             let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) in
                 let trips = appViewModel.trips.map {

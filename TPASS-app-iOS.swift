@@ -26,14 +26,14 @@ struct TPASS_app_iOSApp: App {
             // 🔥🔥🔥 結束
 
             // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
-            let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
-            let config = ModelConfiguration(isStoredInMemoryOnly: false, cloudKitDatabase: .none)
-            container = try ModelContainer(for: schema, configurations: config)
+            let schema = Schema(versionedSchema: TPASSSchemaV2.self)
+            let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
+            container = try ModelContainer(for: schema, migrationPlan: TPASSMigrationPlan.self, configurations: config)
         } catch {
             print("⚠️ 無法建立持久化 ModelContainer: \(error)")
-            let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
-            let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
-            container = try? ModelContainer(for: schema, configurations: fallbackConfig)
+            let schema = Schema(versionedSchema: TPASSSchemaV2.self)
+            let fallbackConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+            container = try? ModelContainer(for: schema, migrationPlan: TPASSMigrationPlan.self, configurations: fallbackConfig)
         }
         modelContainer = container
     }

@@ -21,10 +21,14 @@ struct BackupRecord: Identifiable, Hashable {
     let cycleCount: Int
     
     var formattedDate: String {
+        return Self.formatter.string(from: timestamp)
+    }
+
+    private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm"
-        return formatter.string(from: timestamp)
-    }
+        return formatter
+    }()
 }
 
 struct TripSnapshot: Hashable {
@@ -83,6 +87,7 @@ class CloudKitSyncService: ObservableObject {
     
     // MARK: - 上傳備份到 CloudKit
     func uploadBackup(trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) async throws {
+        guard !isSyncing else { return }
         isSyncing = true
         syncError = nil
         

@@ -103,6 +103,39 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
     case tainanTraBus = "tainan_tra_bus"              // 台南台鐵↔公車 -9元
     
     var id: String { rawValue }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+
+        if let value = TransferDiscountType(rawValue: rawValue) {
+            self = value
+            return
+        }
+
+        switch rawValue {
+        case "taipei":
+            self = .taipei
+        case "taoyuan_tymrt_bus":
+            self = .taoyuan_tymrt_bus
+        case "taoyuan_bus_tymrt":
+            self = .taoyuan_bus_tymrt
+        case "taichung":
+            self = .taichung
+        case "yilan":
+            self = .yilan
+        case "hsinchu":
+            self = .hsinchu
+        case "kaohsiungMrtBus":
+            self = .kaohsiungMrtBus
+        case "kaohsiungBike":
+            self = .kaohsiungBike
+        case "tainanTraBus":
+            self = .tainanTraBus
+        default:
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot initialize TransferDiscountType from invalid String value \(rawValue)")
+        }
+    }
     
     var displayName: LocalizedStringKey {
         switch self {
