@@ -6,7 +6,7 @@ struct Cycle: Identifiable, Codable, Hashable {
     var start: Date
     var end: Date
     var displayName: String?
-    var region: TPASSRegion = .north  // 🔥 新增：綁定該週期的方案
+    var region: TPASSRegion = .north  // 綁定該週期的方案
 
     var title: String {
         if let name = displayName, !name.isEmpty { return name }
@@ -19,11 +19,11 @@ struct Cycle: Identifiable, Codable, Hashable {
         case id, start, end, displayName, region
     }
     
-    // 🔥 [關鍵修正] 讀取邏輯 (Decoding)
+    //  讀取邏輯 (Decoding)
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        // 1. 🔥 ID 容錯：如果是數字 (Web版舊資料)，就轉成字串；如果是字串就直接讀
+        // 1. ID 容錯：如果是數字 (Web版舊資料)，就轉成字串；如果是字串就直接讀
         if let idString = try? container.decode(String.self, forKey: .id) {
             id = idString
         } else if let idInt = try? container.decode(Int64.self, forKey: .id) {
@@ -88,7 +88,6 @@ struct User: Identifiable, Codable, Equatable {
     var email: String
     var cycles: [Cycle]
     var identity: Identity
-    var isVIP: Bool = false // 🔥 VIP 用戶才能同步 Firebase
     
     // UI 顯示用 (不存入 Firestore)
     var displayName: String?
@@ -118,8 +117,6 @@ struct User: Identifiable, Codable, Equatable {
         // Identity 讀取 (預設 adult)
         identity = (try? container.decode(Identity.self, forKey: .identity)) ?? .adult
         
-        // isVIP 讀取 (預設 false)
-        isVIP = (try? container.decode(Bool.self, forKey: .isVIP)) ?? false
         
         displayName = nil
         photoURL = nil
@@ -132,7 +129,6 @@ struct User: Identifiable, Codable, Equatable {
         try container.encode(email, forKey: .email)
         try container.encode(cycles, forKey: .cycles)
         try container.encode(identity, forKey: .identity)
-        try container.encode(isVIP, forKey: .isVIP)
     }
     
     // 手動初始化
@@ -141,7 +137,6 @@ struct User: Identifiable, Codable, Equatable {
         self.email = email
         self.cycles = cycles
         self.identity = identity
-        self.isVIP = isVIP
         self.displayName = displayName
         self.photoURL = photoURL
     }
@@ -151,7 +146,6 @@ struct User: Identifiable, Codable, Equatable {
                lhs.email == rhs.email &&
                lhs.cycles == rhs.cycles &&
                lhs.identity == rhs.identity &&
-               lhs.isVIP == rhs.isVIP &&
                lhs.photoURL == rhs.photoURL
     }
 }
