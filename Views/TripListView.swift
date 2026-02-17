@@ -196,6 +196,8 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
+                        .accessibilityLabel(Text("a11y_favorites"))
+                        .accessibilityHint(Text("a11y_favorites_hint"))
                         // 🔥 關鍵：回報星星按鈕的準確座標給教學系統
                         .reportFrame(id: "favoritesButton", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
@@ -678,6 +680,13 @@ struct CycleSelectorView: View {
             return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
         }
     }
+
+    private var cycleAccessibilityValue: Text {
+        if let region = viewModel.activeCycle?.region ?? auth.currentUser?.cycles.first?.region {
+            return Text(viewModel.cycleDateRange) + Text(", ") + Text(region.displayNameKey)
+        }
+        return Text(viewModel.cycleDateRange)
+    }
     
     var body: some View {
         Menu {
@@ -730,6 +739,10 @@ struct CycleSelectorView: View {
                     .stroke(Color.gray.opacity(0.1), lineWidth: 1)
             )
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("a11y_cycle"))
+        .accessibilityValue(cycleAccessibilityValue)
+        .accessibilityHint(Text("a11y_cycle_hint"))
     }
 }
 
@@ -782,6 +795,8 @@ struct DailyHeaderView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(StaticButtonStyle())
+                .accessibilityLabel(Text("a11y_day_actions"))
+                .accessibilityHint(Text("a11y_day_actions_hint \(group.date)"))
                 .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
                     Button("duplicate_day") {
                         HapticManager.shared.impact(style: .medium)
@@ -823,6 +838,45 @@ struct TripRowView: View {
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: lang)
         }
+    }
+
+    private var accessibilitySummary: String {
+        let separator = String(localized: "a11y_list_separator")
+        var parts: [String] = [NSLocalizedString(trip.type.displayNameKey, comment: "")]
+
+        if !trip.routeId.isEmpty {
+            parts.append(String(format: NSLocalizedString("a11y_route_format", comment: ""), trip.routeId))
+        }
+
+        if !trip.startStation.isEmpty || !trip.endStation.isEmpty {
+            let startName = trip.startStation.isEmpty ? "" : displayStationName(trip.startStation, type: trip.type)
+            let endName = trip.endStation.isEmpty ? "" : displayStationName(trip.endStation, type: trip.type)
+            if !startName.isEmpty && !endName.isEmpty {
+                parts.append(String(format: NSLocalizedString("a11y_station_range_format", comment: ""), startName, endName))
+            } else if !startName.isEmpty {
+                parts.append(String(format: NSLocalizedString("a11y_start_format", comment: ""), startName))
+            } else if !endName.isEmpty {
+                parts.append(String(format: NSLocalizedString("a11y_end_format", comment: ""), endName))
+            }
+        }
+
+        parts.append(String(format: NSLocalizedString("a11y_time_format", comment: ""), trip.timeStr))
+        parts.append(String(format: NSLocalizedString("a11y_paid_format", comment: ""), trip.paidPrice))
+
+        if trip.paidPrice != trip.originalPrice {
+            parts.append(String(format: NSLocalizedString("a11y_original_format", comment: ""), trip.originalPrice))
+        }
+        if trip.isFree {
+            parts.append(NSLocalizedString("a11y_free_trip", comment: ""))
+        }
+        if trip.isTransfer {
+            parts.append(NSLocalizedString("a11y_transfer_discount", comment: ""))
+        }
+        if !trip.note.isEmpty {
+            parts.append(NSLocalizedString("a11y_has_note", comment: ""))
+        }
+
+        return parts.joined(separator: separator)
     }
     
     var body: some View {
@@ -894,6 +948,8 @@ struct TripRowView: View {
             }
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 }
 

@@ -180,6 +180,9 @@ struct EditTripView: View {
                                     .cornerRadius(10)
                                     .shadow(color: selectedType == type ? themeManager.transportColor(type).opacity(0.3) : Color.black.opacity(0.02), radius: 3, x: 0, y: 1)
                                 }
+                                .accessibilityLabel(Text(type.displayName))
+                                .accessibilityValue(selectedType == type ? Text("a11y_selected") : Text("a11y_not_selected"))
+                                .accessibilityAddTraits(selectedType == type ? .isSelected : [])
                             }
                         }
                         .padding(.bottom, 5)
@@ -241,6 +244,9 @@ struct EditTripView: View {
                                 .cornerRadius(10)
                             }
                             .frame(height: 50)
+                            .accessibilityLabel(Text("a11y_transfer_discount"))
+                            .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
+                            .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
                             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
                                 ForEach(currentRegion.supportedTransferTypes) { type in
                                     Button(action: {
@@ -274,6 +280,8 @@ struct EditTripView: View {
                                 .foregroundColor(isFree ? .white : themeManager.secondaryTextColor)
                                 .cornerRadius(8)
                             }
+                            .accessibilityLabel(Text("a11y_free_trip"))
+                            .accessibilityValue(isFree ? Text("a11y_on") : Text("a11y_off"))
                             
                             TextField("notes_placeholder", text: $note)
                                 .padding(10)
@@ -309,6 +317,8 @@ struct EditTripView: View {
                         Image(systemName: "xmark")
                             .foregroundColor(themeManager.secondaryTextColor)
                     }
+                    .accessibilityLabel(Text("a11y_close"))
+                    .accessibilityHint(Text("a11y_close_edit_trip_hint"))
                 }
             }
         }
@@ -628,6 +638,7 @@ struct EditTripView: View {
             Image(systemName: icon).font(.caption).foregroundColor(themeManager.secondaryTextColor)
             DatePicker("", selection: selection, displayedComponents: components)
                 .labelsHidden().scaleEffect(0.85).accentColor(themeManager.accentColor)
+                .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
         }
         .padding(.horizontal, 8).padding(.vertical, 4)
         .frame(maxWidth: .infinity)

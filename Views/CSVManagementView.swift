@@ -37,6 +37,7 @@ struct CSVManagementView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .accessibilityHidden(true)
                         }
                     }
                     
@@ -53,6 +54,7 @@ struct CSVManagementView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .accessibilityHidden(true)
                         }
                     }
                 } header: {

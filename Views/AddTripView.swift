@@ -9,7 +9,7 @@ struct AddTripView: View {
     
     var onSuccess: (() -> Void)? = nil
     
-    // 🔥 新增：取得目前選中周期的方案，若無則用日期自動解析
+    // 新增：取得目前選中周期的方案，若無則用日期自動解析
     private var resolvedCycleForDate: Cycle? {
         viewModel.cycleForTrip(date: date)
     }
@@ -53,8 +53,8 @@ struct AddTripView: View {
     @State private var note: String = ""
     @State private var isTransfer: Bool = false
     @State private var isFree: Bool = false
-    @State private var transferDiscountType: TransferDiscountType? = nil  // 🔥 新增：轉乘優惠類型
-    @State private var showTransferTypePicker = false  // 🔥 新增：顯示轉乘類型選擇器
+    @State private var transferDiscountType: TransferDiscountType? = nil  // 新增：轉乘優惠類型
+    @State private var showTransferTypePicker = false  // 新增：顯示轉乘類型選擇器
     
     var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
@@ -292,6 +292,8 @@ struct AddTripView: View {
                 .foregroundColor(isFree ? .white : themeManager.secondaryTextColor)
                 .cornerRadius(8)
             }
+            .accessibilityLabel(Text("a11y_free_trip"))
+            .accessibilityValue(isFree ? Text("a11y_on") : Text("a11y_off"))
 
             TextField("notes_placeholder_add", text: $note)
                 .padding(10)
@@ -358,6 +360,8 @@ struct AddTripView: View {
                         Image(systemName: "xmark")
                             .foregroundColor(themeManager.secondaryTextColor)
                     }
+                    .accessibilityLabel(Text("a11y_close"))
+                    .accessibilityHint(Text("a11y_close_add_trip_hint"))
                 }
             }
         }
@@ -559,6 +563,9 @@ struct AddTripView: View {
             .cornerRadius(10)
             .shadow(color: shadowColor, radius: 3, x: 0, y: 1)
         }
+        .accessibilityLabel(Text(type.displayName))
+        .accessibilityValue(isSelected ? Text("a11y_selected") : Text("a11y_not_selected"))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
     
     func transferButton() -> some View {
@@ -605,6 +612,9 @@ struct AddTripView: View {
             .foregroundColor(fgColor)
             .cornerRadius(10)
         }
+        .accessibilityLabel(Text("a11y_transfer_discount"))
+        .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
+        .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
     }
     
     func compactDatePicker(icon: String, selection: Binding<Date>, components: DatePickerComponents) -> some View {
@@ -617,6 +627,7 @@ struct AddTripView: View {
                 .scaleEffect(0.85)
                 .accentColor(themeManager.accentColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
@@ -705,6 +716,9 @@ struct StationInputRow: View {
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
             }
             .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(label) + Text(" line"))
+            .accessibilityValue(lineCode.isEmpty ? Text("select_route") : Text(displayLine(dataSource.first(where: { $0.code == lineCode })?.name ?? "")))
         }
         
         Divider()
@@ -732,6 +746,9 @@ struct StationInputRow: View {
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
             .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(label) + Text(" station"))
+            .accessibilityValue(stationName.isEmpty ? Text("select_station") : Text(displayStation(stationName)))
         }
     }
     
@@ -840,6 +857,9 @@ struct TRALineStationInputRow: View {
                 .frame(maxHeight: .infinity)
                 .frame(maxWidth: .infinity)
                 .background(Color.gray.opacity(0.05))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(label) + Text(" region"))
+                .accessibilityValue(Text(selectedLineText))
             }
 
             Divider()
@@ -880,6 +900,9 @@ struct TRALineStationInputRow: View {
                 .padding(.horizontal, 12)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .opacity(selectedRegion == nil ? 0.6 : 1.0)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(label) + Text(" station"))
+                .accessibilityValue(stationId.isEmpty ? Text("select_station") : Text(TRAStationData.shared.displayStationName(stationId, languageCode: languageCode)))
             }
         }
         .onChange(of: selectedRegion?.id) { _, _ in

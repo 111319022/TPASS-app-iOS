@@ -74,6 +74,7 @@ struct CommuterRoutePickerOverlay: View {
             .cornerRadius(16)
             .shadow(radius: 10)
             .padding(24)
+            .accessibilityAddTraits(.isModal)
         }
     }
 }

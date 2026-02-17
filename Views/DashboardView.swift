@@ -239,7 +239,10 @@ struct DashboardView: View {
     
     private var roiRaceSection: some View {
         let monthlyPrice = currentCycleRegion.monthlyPrice
-        return ChartContainer(title: "tpassRaceProgress", icon: "flag.checkered") {
+        let latest = viewModel.dailyCumulativeStats.last?.cumulative ?? 0
+        let progressPct = monthlyPrice > 0 ? Int(Double(latest) / Double(monthlyPrice) * 100) : 0
+        let summary = String(format: NSLocalizedString("a11y_tpass_progress", comment: ""), latest, monthlyPrice, progressPct)
+        return ChartContainer(title: "tpassRaceProgress", icon: "flag.checkered", accessibilitySummary: Text(summary)) {
             Chart {
                 RuleMark(y: .value("TPASS", monthlyPrice))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
@@ -264,7 +267,10 @@ struct DashboardView: View {
     }
     
     private var heatmapSection: some View {
-        ChartContainer(title: "commuterHeatmap", icon: "calendar") {
+        let activeDays = viewModel.heatmapData.filter { $0.level > 0 }.count
+        let totalDays = viewModel.heatmapData.count
+        let summary = String(format: NSLocalizedString("a11y_active_days", comment: ""), activeDays, totalDays)
+        return ChartContainer(title: "commuterHeatmap", icon: "calendar", accessibilitySummary: Text(summary)) {
             HeatmapView(data: viewModel.heatmapData)
         }
     }
@@ -273,6 +279,7 @@ struct DashboardView: View {
         VStack(alignment: .leading) {
             HStack {
                 Image(systemName: "tram.fill")
+                    .accessibilityHidden(true)
                 Text("transportInsight")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -299,7 +306,8 @@ struct DashboardView: View {
     
     private var timeDistributionSection: some View {
         let ws = viewModel.weekStats
-        return ChartContainer(title: "timeDistribution", icon: "calendar.badge.clock") {
+        let summary = String(format: NSLocalizedString("a11y_weekday_weekend", comment: ""), ws.weekday, ws.weekdayPct, ws.weekend, ws.weekendPct)
+        return ChartContainer(title: "timeDistribution", icon: "calendar.badge.clock", accessibilitySummary: Text(summary)) {
             timeDistributionChart(ws)
         }
     }
@@ -308,6 +316,7 @@ struct DashboardView: View {
         VStack(alignment: .leading) {
             HStack {
                 Image(systemName: "map.fill")
+                    .accessibilityHidden(true)
                 Text("topRoutes")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -505,6 +514,9 @@ struct DashboardView: View {
             let monthlyPrice = region.monthlyPrice  // 🔥 改用傳入的方案
             let diff = monthlyPrice - actual
             let saved = actual < monthlyPrice ? 0 : actual - monthlyPrice
+            let statusText = saved > 0
+                ? String(format: NSLocalizedString("a11y_breakeven_saved", comment: ""), saved)
+                : String(format: NSLocalizedString("a11y_not_breakeven_remaining", comment: ""), diff)
             
             ZStack {
                 cardBackground
@@ -531,6 +543,9 @@ struct DashboardView: View {
                 }.padding(.bottom, -10)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(String(format: NSLocalizedString("a11y_actual_vs_tpass", comment: ""), actual, monthlyPrice)))
+            .accessibilityValue(Text(statusText))
         }
     }
     
@@ -558,6 +573,9 @@ struct DashboardView: View {
                     }
                     .padding(15)
                 }
+                .accessibilityLabel(Text(title))
+                .accessibilityValue(Text("$\(amount)"))
+                .accessibilityHint(details.isEmpty ? Text("a11y_no_details") : Text(isExpanded ? "a11y_hide_details" : "a11y_show_details"))
                 if isExpanded && !details.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(details.indices, id: \.self) { idx in
@@ -611,6 +629,9 @@ struct DashboardView: View {
                     }
                     .padding(15)
                 }
+                .accessibilityLabel(Text(title))
+                .accessibilityValue(Text("$\(amount)"))
+                .accessibilityHint(details.isEmpty ? Text("a11y_no_details") : Text(isExpanded ? "a11y_hide_details" : "a11y_show_details"))
                 if isExpanded && !details.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(details) { d in
@@ -676,6 +697,9 @@ struct DashboardView: View {
                     }
                     .padding(15)
                 }
+                .accessibilityLabel(Text(title))
+                .accessibilityValue(Text("$\(amount)"))
+                .accessibilityHint(details.isEmpty ? Text("a11y_no_details") : Text(isExpanded ? "a11y_hide_details" : "a11y_show_details"))
                 if isExpanded && !details.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(details) { d in
@@ -714,6 +738,7 @@ struct DashboardView: View {
                         .overlay(RoundedRectangle(cornerRadius: 3).stroke(themeManager.primaryTextColor, lineWidth: Calendar.current.isDateInToday(item.date) ? 1.5 : 0))
                 }
             }
+            .accessibilityHidden(true)
         }
         
         func colorForLevel(_ level: Int) -> Color {
@@ -744,7 +769,19 @@ struct DashboardView: View {
     struct ChartContainer<Content: View>: View {
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.colorScheme) var colorScheme
-        let title: LocalizedStringKey; let icon: String; let content: () -> Content
+        let title: LocalizedStringKey; let icon: String; var accessibilitySummary: Text? = nil; let content: () -> Content
+
+        init(
+            title: LocalizedStringKey,
+            icon: String,
+            accessibilitySummary: Text? = nil,
+            @ViewBuilder content: @escaping () -> Content
+        ) {
+            self.title = title
+            self.icon = icon
+            self.accessibilitySummary = accessibilitySummary
+            self.content = content
+        }
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -760,11 +797,28 @@ struct DashboardView: View {
         }
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 15) {
-                HStack { Image(systemName: icon); Text(title).font(.headline).foregroundColor(themeManager.primaryTextColor) }
+            let base = VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Image(systemName: icon)
+                        .accessibilityHidden(true)
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(themeManager.primaryTextColor)
+                }
                 content()
             }
-            .padding().background(cardBackground).cornerRadius(16).padding(.horizontal)
+            .padding()
+            .background(cardBackground)
+            .cornerRadius(16)
+            .padding(.horizontal)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(title))
+
+            if let summary = accessibilitySummary {
+                base.accessibilityValue(summary)
+            } else {
+                base
+            }
         }
     }
     
@@ -797,6 +851,9 @@ struct DashboardView: View {
                 }
             }
             .frame(maxWidth: .infinity).padding().background(cardBackground).cornerRadius(12)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(title))
+            .accessibilityValue(unit == nil ? Text(value) : Text(value) + Text(" ") + Text(unit!))
         }
     }
     
@@ -840,6 +897,9 @@ struct DashboardView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             .frame(maxWidth: .infinity).padding(12).background(cardBackground).cornerRadius(12)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(title))
+            .accessibilityValue(val + Text(", ") + sub)
         }
     }
     
@@ -901,6 +961,9 @@ struct DashboardView: View {
                 }
                 .foregroundColor(.gray)
             }.padding(.vertical, 5)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(getTransportDisplayName(stat.type)))
+            .accessibilityValue(Text(String(format: NSLocalizedString("a11y_transport_stats", comment: ""), stat.count, stat.total, stat.avg, stat.max)))
         }
     }
     
@@ -982,6 +1045,9 @@ struct DashboardView: View {
                     .foregroundColor(themeManager.primaryTextColor)
             }
             .padding(.vertical, 8)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(String(format: NSLocalizedString("a11y_ranked_route_format", comment: ""), rank)) + routeNameText)
+            .accessibilityValue(Text(String(format: NSLocalizedString("a11y_route_stats_format", comment: ""), route.count, route.totalCost)))
         }
     }
 }

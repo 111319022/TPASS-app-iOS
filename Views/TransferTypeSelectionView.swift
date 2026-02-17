@@ -20,8 +20,7 @@ struct TransferTypeSelectionView: View {
             List {
                 // 可用的轉乘類型列表
                 Section {
-                    // 注意：請確認 TPASSRegion 的屬性名稱是 availableTransferTypes 還是 supportedTransferTypes
-                    // 根據您提供的代碼維持 availableTransferTypes
+                   
                     ForEach(region.availableTransferTypes, id: \.self) { transferType in
                         Button(action: {
                             HapticManager.shared.impact(style: .medium)
@@ -69,6 +68,7 @@ struct TransferTypeSelectionView: View {
                                 if trip.transferDiscountType == transferType {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.blue)
+                                        .accessibilityHidden(true)
                                 }
                             }
                         }
@@ -108,6 +108,7 @@ struct TransferTypeSelectionView: View {
                             if trip.transferDiscountType == nil {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.blue)
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
