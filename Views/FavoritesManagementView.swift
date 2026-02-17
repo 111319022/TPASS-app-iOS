@@ -153,7 +153,7 @@ struct FavoritesManagementView: View {
         return Text("\(start) → \(end)")
     }
     
-    // 🔥 新增：取得本地化的路線名稱字串 (解決 Toast 顯示資料庫代碼的問題)
+    //     新增：取得本地化的路線名稱字串 (解決 Toast 顯示資料庫代碼的問題)
     private func getLocalizedRouteName(_ fav: FavoriteRoute) -> String {
         let lang = Locale.current.identifier
         
@@ -189,12 +189,12 @@ struct FavoritesManagementView: View {
     @ViewBuilder
     private func favoriteButtonWithActions(_ fav: FavoriteRoute) -> some View {
         Button(action: {
-            // 🔥 修正：使用 getLocalizedRouteName 取得正確的站名
+            //     修正：使用 getLocalizedRouteName 取得正確的站名
             let routeName = getLocalizedRouteName(fav)
             
             viewModel.quickAddTrip(from: fav)
             
-            // 🔥 [新增] 震動：快速新增成功
+            //     [新增] 震動：快速新增成功
             HapticManager.shared.notification(type: .success)
             
             dismiss()
@@ -214,7 +214,7 @@ struct FavoritesManagementView: View {
                 viewModel.removeFavorite(fav)
                 swipedFavIds.remove(fav.id)
                 
-                // 🔥 [新增] 震動：刪除成功
+                //     [新增] 震動：刪除成功
                 HapticManager.shared.notification(type: .success)
             } label: {
                 Label("delete", systemImage: "trash.fill")
@@ -238,7 +238,7 @@ struct FavoritesManagementView: View {
                 let routeName = route.name
                 viewModel.quickAddCommuterRoute(route)
                 
-                // 🔥 [新增] 震動：快速新增整組成功
+                //     [新增] 震動：快速新增整組成功
                 HapticManager.shared.notification(type: .success)
                 
                 showToast(message: "favorites_added_commuter \(routeName)")
@@ -293,7 +293,7 @@ struct FavoritesManagementView: View {
                 viewModel.removeCommuterRoute(route)
                 swipedCommuterIds.remove(route.id)
                 
-                // 🔥 [新增] 震動：刪除成功
+                //     [新增] 震動：刪除成功
                 HapticManager.shared.notification(type: .success)
             } label: {
                 Label("delete", systemImage: "trash.fill")

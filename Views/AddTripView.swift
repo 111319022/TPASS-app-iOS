@@ -35,7 +35,7 @@ struct AddTripView: View {
     @State private var startLineCode: String = ""
     @State private var endLineCode: String = ""
     
-    // 🔥 TRA 雙欄選擇狀態
+    //     TRA 雙欄選擇狀態
     @State private var startTRARegion: TRARegion?
     @State private var endTRARegion: TRARegion?
     
@@ -434,7 +434,7 @@ struct AddTripView: View {
             startStation = ""
             endStation = ""
             
-            // 🔥 [修改] 台中捷運只有一條綠線，直接預設選取
+            //     [修改] 台中捷運只有一條綠線，直接預設選取
             if newType == .tcmrt {
                 startLineCode = "GREEN"
                 endLineCode = "GREEN"
@@ -509,7 +509,7 @@ struct AddTripView: View {
     func calculatePaidPrice() -> Int {
         if isFree { return 0 }
         let p = Int(price) ?? 0
-        // 🔥 修改：使用轉乘優惠類型計算折扣
+        //     修改：使用轉乘優惠類型計算折扣
         let discount: Int
         if isTransfer, let type = transferDiscountType {
             discount = type.discount(for: currentIdentity)
@@ -555,7 +555,7 @@ struct AddTripView: View {
         )
         viewModel.addTrip(newTrip)
         
-        // 🔥 新增：成功震動回饋
+        //     新增：成功震動回饋
         HapticManager.shared.notification(type: .success)
         
         presentationMode.wrappedValue.dismiss()
@@ -702,7 +702,7 @@ struct StationInputRow: View {
                     displayStation: { KMRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
                 )
 
-            // === 3. 台中捷運 (TCMRT) [🔥 新增這裡] ===
+            // === 3. 台中捷運 (TCMRT) [    新增這裡] ===
             } else if type == .tcmrt {
                 mrtSelector(
                     dataSource: TCMRTStationData.shared.lines,

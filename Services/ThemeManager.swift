@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import UIKit // 🔥 必須引入
+import UIKit //     必須引入
 
 // MARK: - 主題定義
 enum AppTheme: String, CaseIterable, Identifiable {
@@ -96,7 +96,7 @@ class ThemeManager: ObservableObject {
         }
     }
     
-    // 🔥 這是 MainTabView 需要的變數
+    //     這是 MainTabView 需要的變數
     var accentColor: Color {
         switch currentTheme {
         case .muji: 
@@ -206,7 +206,7 @@ class ThemeManager: ObservableObject {
     }
 }
 
-// MARK: - 🔥 [擴充功能] 放置於此以確保可見性
+// MARK: -     [擴充功能] 放置於此以確保可見性
 // 這裡使用了純 Swift 寫法，避免 lroundf 報錯
 extension Color {
     init(hex: String) {

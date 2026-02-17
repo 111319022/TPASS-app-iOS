@@ -37,8 +37,8 @@ class CSVManager {
                 trip.isFree ? "1" : "0",
                 trip.routeId,
                 cleanNote,
-                trip.transferDiscountType?.rawValue ?? "", // 🔥 新增：轉乘優惠類型
-                trip.cycleId ?? "" // 🔥 新增：週期 ID
+                trip.transferDiscountType?.rawValue ?? "", //     新增：轉乘優惠類型
+                trip.cycleId ?? "" //     新增：週期 ID
             ].joined(separator: ",")
             
             csvString.append(row + "\n")
@@ -72,7 +72,7 @@ class CSVManager {
             
             let id = columns[0]
             
-            // 🔥 檢查重複：如果資料庫已經有這個 ID，就跳過 (或是你可以選擇更新)
+            //     檢查重複：如果資料庫已經有這個 ID，就跳過 (或是你可以選擇更新)
             let descriptor = FetchDescriptor<Trip>(predicate: #Predicate { $0.id == id })
             if let existingCount = try? context.fetchCount(descriptor), existingCount > 0 {
                 print("⚠️ 跳過重複資料: \(id)")
@@ -95,7 +95,7 @@ class CSVManager {
             // 處理備註的引號還原
             let note = columns[10]
             
-            // 🔥 新增：解析轉乘優惠類型和週期 ID（向後兼容舊格式）
+            //     新增：解析轉乘優惠類型和週期 ID（向後兼容舊格式）
             var transferDiscountType: TransferDiscountType? = nil
             var cycleId: String? = nil
             

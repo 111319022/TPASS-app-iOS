@@ -17,8 +17,8 @@ final class Trip {
     var endStation: String
     var routeId: String
     var note: String
-    var transferDiscountType: TransferDiscountType? // 🔥 新增：轉乘優惠類型
-    var cycleId: String? // 🔥 新增：所屬週期（避免重疊週期混算）
+    var transferDiscountType: TransferDiscountType? //     新增：轉乘優惠類型
+    var cycleId: String? //     新增：所屬週期（避免重疊週期混算）
     
     // 🔧 效能優化：共享 DateFormatter 避免重複建立
     private static let dateFormatter: DateFormatter = {

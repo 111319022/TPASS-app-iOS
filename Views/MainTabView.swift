@@ -5,7 +5,7 @@ import Combine
 struct MainTabView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
-    // 🔥 1. 新增：引入 ThemeManager
+    //     1. 新增：引入 ThemeManager
     @EnvironmentObject var themeManager: ThemeManager
     //@EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.modelContext) private var modelContext
@@ -43,7 +43,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
         }
-        // 🔥 2. 修改：改用 ThemeManager 的顏色，解決 Color(hex:) 報錯問題
+        //     2. 修改：改用 ThemeManager 的顏色，解決 Color(hex:) 報錯問題
         .accentColor(themeManager.accentColor)
     }
 }

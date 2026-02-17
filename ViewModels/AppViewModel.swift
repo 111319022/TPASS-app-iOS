@@ -81,7 +81,7 @@ struct HeatmapItem: Identifiable {
 }
 
 class AppViewModel: ObservableObject {
-    // 🔥 改用 @Model Class 的陣列
+    //     改用 @Model Class 的陣列
     @Published var trips: [Trip] = [] {
         didSet {
             invalidateTripCaches()
@@ -380,7 +380,7 @@ class AppViewModel: ObservableObject {
             guard let stats = cycleMonthlyStats[month] else { continue }
             let gCounts = globalMonthlyCounts[month] ?? [:]
             
-            // 🔥 R1 北捷：用所有週期的北捷次數判斷回饋%，但金額只計算當前週期
+            //     R1 北捷：用所有週期的北捷次數判斷回饋%，但金額只計算當前週期
             let mrtCount = gCounts[.mrt] ?? 0
             let mrtSum = stats.originalSums[.mrt] ?? 0
             var mrtRate = 0.0
@@ -401,7 +401,7 @@ class AppViewModel: ObservableObject {
                 )
             }
             
-            // 🔥 R1 台鐵：用所有週期的台鐵次數判斷回饋%，但金額只計算當前週期
+            //     R1 台鐵：用所有週期的台鐵次數判斷回饋%，但金額只計算當前週期
             let traCount = gCounts[.tra] ?? 0
             let traSum = stats.originalSums[.tra] ?? 0
             var traRate = 0.0
@@ -422,7 +422,7 @@ class AppViewModel: ObservableObject {
                 )
             }
             
-            // 🔥 R2軌道類：包含所有捷運系統 + 台鐵 + 輕軌（跨方案計算）
+            //     R2軌道類：包含所有捷運系統 + 台鐵 + 輕軌（跨方案計算）
             let c_mrt = gCounts[.mrt] ?? 0
             let c_tra = gCounts[.tra] ?? 0
             let c_tymrt = gCounts[.tymrt] ?? 0
@@ -1159,7 +1159,7 @@ class AppViewModel: ObservableObject {
         saveContext()
     }
     
-    // 🔥 新增：根據轉乘類型更新行程
+    //     新增：根據轉乘類型更新行程
     @MainActor
     func setTransferType(_ trip: Trip, transferType: TransferDiscountType?) {
         let identity = AuthService.shared.currentUser?.identity ?? .adult

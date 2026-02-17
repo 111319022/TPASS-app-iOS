@@ -173,7 +173,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         }
     }
     
-    // 🔥 5. 台鐵區域定義 - 統一整合所有TPASS方案的台鐵站點範圍
+    // 5. 台鐵區域定義 - 統一整合所有TPASS方案的台鐵站點範圍
     // 每個方案對應的台鐵可用站點範圍
     struct TRARegionInfo {
         let name: String

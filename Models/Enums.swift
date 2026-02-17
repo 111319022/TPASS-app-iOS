@@ -165,7 +165,7 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         }
     }
     
-    // 🔥 新增：根據身份返回動態的 displayNameKey
+    //     新增：根據身份返回動態的 displayNameKey
     func displayNameKey(for identity: Identity) -> LocalizedStringKey {
         switch self {
         case .taipei:
@@ -202,7 +202,7 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         }
     }
     
-    // 🔥 修正：計算折扣後的價格，使用正確的身份
+    //     修正：計算折扣後的價格，使用正確的身份
     func getDiscountedPrice(originalPrice: Int, region: TPASSRegion, identity: Identity) -> Int {
         let discountAmount = discount(for: identity)
         let discountedPrice = max(originalPrice - discountAmount, 0)

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// 🔥 轉乘選擇資料結構
+//     轉乘選擇資料結構
 struct TransferSelectionData: Identifiable {
     let id = UUID()
     let trip: Trip
@@ -33,7 +33,7 @@ struct TripListView: View {
     @State private var showCommuterNamePrompt = false
     @State private var showCommuterRoutePicker = false
     
-    // 🔥 新增：轉乘類型選擇
+    //     新增：轉乘類型選擇
     @State private var transferSelectionData: TransferSelectionData?
     
     @State private var isToastShowing = false
@@ -104,7 +104,7 @@ struct TripListView: View {
             )
             .opacity(0.98)
             .allowsHitTesting(false)
-            // 🔥 關鍵：回報演示行程的準確座標給教學系統
+            //     關鍵：回報演示行程的準確座標給教學系統
             .reportFrame(id: "tripRow", in: .global)
             .onPreferenceChange(ViewFrameKey.self) { frames in
                 if let rowFrame = frames["tripRow"] {
@@ -223,7 +223,7 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("a11y_favorites"))
                         .accessibilityHint(Text("a11y_favorites_hint"))
-                        // 🔥 關鍵：回報星星按鈕的準確座標給教學系統
+                        //     關鍵：回報星星按鈕的準確座標給教學系統
                         .reportFrame(id: "favoritesButton", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
                             if let favFrame = frames["favoritesButton"] {
@@ -237,7 +237,7 @@ struct TripListView: View {
                     CycleSelectorView()
                         .padding(.horizontal, horizontalPagePadding)
                         .padding(.bottom, 10)
-                        // 🔥 關鍵：回報週期選擇器的準確座標給教學系統
+                        //     關鍵：回報週期選擇器的準確座標給教學系統
                         .reportFrame(id: "cycleSelector", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
                             if let selectorFrame = frames["cycleSelector"] {
@@ -297,7 +297,7 @@ struct TripListView: View {
                                             tripRowWithActions(trip)
                                         }
                                     } header: {
-                                        // 🔥 關鍵修正：日期 Header 放在 Section header
+                                        //     關鍵修正：日期 Header 放在 Section header
                                         // 這樣 SwiftUI 就不會把它當成「第一個 swipe row」
                                         DailyHeaderView(
                                             group: group,
@@ -351,7 +351,7 @@ struct TripListView: View {
                         .cornerRadius(30)
                         .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
-                    // 🔥 關鍵：回報按鈕的準確座標給教學系統
+                    //     關鍵：回報按鈕的準確座標給教學系統
                     .reportFrame(id: "addButton", in: .global)
                     .padding(.bottom, 20)
                     .onPreferenceChange(ViewFrameKey.self) { frames in
@@ -384,7 +384,7 @@ struct TripListView: View {
                         .zIndex(101)
                 }
                 
-                // === 🔥 新增：教學遮罩層 ===
+                // ===     新增：教學遮罩層 ===
                 if showTutorial {
                     SpotlightTutorialOverlay(
                         currentStep: $currentTutorialStep,
@@ -755,7 +755,7 @@ struct TripListView: View {
                 
                 let availableTypes = region.availableTransferTypes
                 
-                // 🔥 使用延遲確保資料準備完成
+                //     使用延遲確保資料準備完成
                 DispatchQueue.main.async {
                     if availableTypes.count > 1 {
                         // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
@@ -1134,8 +1134,8 @@ struct StaticButtonStyle: ButtonStyle {
 
 struct TripListSheetsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
-    @EnvironmentObject var auth: AuthService // 🔥 添加 auth 以傳遞給子視圖
-    @EnvironmentObject var themeManager: ThemeManager // 🔥 添加 themeManager 以傳遞給子視圖
+    @EnvironmentObject var auth: AuthService //     添加 auth 以傳遞給子視圖
+    @EnvironmentObject var themeManager: ThemeManager //     添加 themeManager 以傳遞給子視圖
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var selectedTripToEdit: Trip?
@@ -1164,7 +1164,7 @@ struct TripListSheetsModifier: ViewModifier {
                 .presentationDetents([.height(650)])
                 .presentationDragIndicator(.hidden)
             }
-            // 🔥 新增：轉乘類型選擇菜單
+            //     新增：轉乘類型選擇菜單
             .sheet(item: $transferSelectionData) { data in
                 TransferTypeSelectionView(
                     trip: data.trip,
@@ -1183,8 +1183,8 @@ struct TripListSheetsModifier: ViewModifier {
                         isProcessingSwipeAction = false
                     }
                 )
-                .environmentObject(auth) // 🔥 傳遞 auth 服務
-                .environmentObject(themeManager) // 🔥 傳遞 themeManager
+                .environmentObject(auth) //     傳遞 auth 服務
+                .environmentObject(themeManager) //     傳遞 themeManager
                 .presentationDetents([.height(420), .medium])
                 .presentationDragIndicator(.visible)
             }

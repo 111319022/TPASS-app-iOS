@@ -9,13 +9,13 @@ struct TPASS_app_iOSApp: App {
     @StateObject var themeManager = ThemeManager.shared
 
     
-    // 🔥 設定 SwiftData ModelContainer
+    //     設定 SwiftData ModelContainer
     let modelContainer: ModelContainer?
     
     init() {
         var container: ModelContainer? = nil
         do {
-            // 🔥🔥🔥 新增這段：手動建立 Application Support 資料夾
+            //           新增這段：手動建立 Application Support 資料夾
             let fileManager = FileManager.default
             if let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
                 if !fileManager.fileExists(atPath: appSupportURL.path) {
@@ -23,7 +23,7 @@ struct TPASS_app_iOSApp: App {
                     try fileManager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
                 }
             }
-            // 🔥🔥🔥 結束
+            //           結束
 
             // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
             let schema = Schema(versionedSchema: TPASSSchemaV2.self)

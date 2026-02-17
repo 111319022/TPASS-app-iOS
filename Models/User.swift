@@ -52,7 +52,7 @@ struct Cycle: Identifiable, Codable, Hashable {
             end = Date()
         }
         
-        // 🔥 新增：讀取該週期綁定的方案，若無則預設為 north
+        //     新增：讀取該週期綁定的方案，若無則預設為 north
         if let regionRaw = try? container.decode(String.self, forKey: .region),
            let decodedRegion = TPASSRegion(rawValue: regionRaw) {
             region = decodedRegion

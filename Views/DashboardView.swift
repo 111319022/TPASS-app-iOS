@@ -26,7 +26,7 @@ struct DashboardView: View {
     
     private var tripsUnitKey: LocalizedStringKey { "trips_unit" }
     
-    // 🔥 新增：獲取當前周期的方案，若無則用當前設置方案
+    //     新增：獲取當前周期的方案，若無則用當前設置方案
     private var currentCycleRegion: TPASSRegion {
         viewModel.activeCycle?.region ?? auth.currentRegion
     }
@@ -501,7 +501,7 @@ struct DashboardView: View {
         @EnvironmentObject var auth: AuthService
         @Environment(\.colorScheme) var colorScheme
         let financialStats: FinancialBreakdown
-        let region: TPASSRegion  // 🔥 新增：接收該週期的方案
+        let region: TPASSRegion  //     新增：接收該週期的方案
         
         var cardBackground: Color {
             switch themeManager.currentTheme {
@@ -518,7 +518,7 @@ struct DashboardView: View {
         
         var body: some View {
             let actual = financialStats.totalPaid - financialStats.r1Total - financialStats.r2Total
-            let monthlyPrice = region.monthlyPrice  // 🔥 改用傳入的方案
+            let monthlyPrice = region.monthlyPrice  //     改用傳入的方案
             let diff = monthlyPrice - actual
             let saved = actual < monthlyPrice ? 0 : actual - monthlyPrice
             let statusText = saved > 0
@@ -749,7 +749,7 @@ struct DashboardView: View {
         }
         
         func colorForLevel(_ level: Int) -> Color {
-            // 🔥 無印風特製熱力圖色階
+            //     無印風特製熱力圖色階
             if themeManager.currentTheme == .muji {
                 switch level {
                 case 0: return Color.gray.opacity(0.1)
@@ -941,7 +941,7 @@ struct DashboardView: View {
         var body: some View {
             VStack(spacing: 8) {
                 HStack {
-                    // 🔥 使用 ThemeManager 顏色
+                    //     使用 ThemeManager 顏色
                     Image(systemName: stat.type.systemIconName).foregroundColor(themeManager.transportColor(stat.type))
                     Text(getTransportDisplayName(stat.type)).bold().foregroundColor(themeManager.primaryTextColor)
                     Spacer()
@@ -959,7 +959,7 @@ struct DashboardView: View {
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
-                // 🔥 使用 ThemeManager 顏色
+                //     使用 ThemeManager 顏色
                 GeometryReader { geo in Rectangle().fill(themeManager.transportColor(stat.type)).frame(width: geo.size.width * stat.percent) }.frame(height: 4).cornerRadius(2).background(Color.gray.opacity(0.1))
                 HStack {
                     (Text("average") + Text(" $\(stat.avg)")).font(.caption)
@@ -984,7 +984,7 @@ struct DashboardView: View {
         private var routeNameText: Text {
             let lang = Locale.current.identifier
             
-            // 🔥 整合修改：統一處理 北捷、機捷、台鐵、台中捷運、高雄捷運 的雙語站名顯示
+            //     整合修改：統一處理 北捷、機捷、台鐵、台中捷運、高雄捷運 的雙語站名顯示
             if route.type == .mrt || route.type == .tymrt || route.type == .tra || route.type == .tcmrt || route.type == .kmrt {
                 // 拆解 "起點 ↔ 終點" 字串
                 let parts = route.name.split(separator: "↔").map { $0.trimmingCharacters(in: .whitespaces) }

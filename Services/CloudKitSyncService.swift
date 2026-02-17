@@ -59,7 +59,7 @@ struct FavoriteRouteSnapshot: Hashable {
     let isFree: Bool
 }
 
-// 🔥 加上 @MainActor 確保整個 Service 都在主執行緒運行
+//  加上 @MainActor 確保整個 Service 都在主執行緒運行
 @MainActor
 class CloudKitSyncService: ObservableObject {
     static let shared = CloudKitSyncService()
