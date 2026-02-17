@@ -160,8 +160,28 @@ struct SettingsView: View {
                             Spacer()
                         }
                     }
+/*
+                    // 清理行程（維護工具）
+                    NavigationLink(destination: AllTripsCleanupView().environmentObject(appViewModel)) {
+                        HStack {
+                            Image(systemName: "trash.circle.fill")
+                                .foregroundColor(.red)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("清理行程")
+                                    .font(.headline)
+                                    .foregroundColor(themeManager.primaryTextColor)
+
+                                Text("列出所有行程並支援刪除，清理錯誤資料")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+                        }
+                    }*/
                 }
-                
+
                 // MARK: - 5. 其他
                 Section {
                     Button(action: {

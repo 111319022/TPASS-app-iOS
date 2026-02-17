@@ -166,14 +166,14 @@ struct TransferIntroductionView: View {
                     arrowType: .double
                 ),
                 TransferRule(
-                    leftIcon: "bus.fill",
-                    rightIcon: "bus.doubledecker.fill",
+                    leftIcon: "bus.doubledecker.fill",
+                    rightIcon: "bus.fill",
                     title: "TransGuide_transfer_yilan",
                     detailByIdentity: [
                         Identity.adult: LocalizedStringKey("TransGuideInfo_yilan_adult"),
                         Identity.student: LocalizedStringKey("TransGuideInfo_yilan_student"),
                     ],
-                    arrowType: .double
+                    arrowType: .single
                 ),
             ]
         ),
@@ -203,15 +203,15 @@ struct TransferIntroductionView: View {
                     ],
                     arrowType: .double
                 ),
-                TransferRule(
-                    leftIcon: "bus.fill",
-                    rightIcon: "bus.doubledecker.fill",
+                   TransferRule(
+                    leftIcon: "bus.doubledecker.fill",
+                    rightIcon: "bus.fill",
                     title: "TransGuide_transfer_yilan",
                     detailByIdentity: [
                         Identity.adult: LocalizedStringKey("TransGuideInfo_yilan_adult"),
                         Identity.student: LocalizedStringKey("TransGuideInfo_yilan_student"),
                     ],
-                    arrowType: .double
+                    arrowType: .single
                 ),
             ]
         ),
@@ -221,15 +221,15 @@ struct TransferIntroductionView: View {
             title: "plan_Yilan",
             subtitle: "yilan",
             rules: [
-                TransferRule(
-                    leftIcon: "bus.fill",
-                    rightIcon: "bus.doubledecker.fill",
+                   TransferRule(
+                    leftIcon: "bus.doubledecker.fill",
+                    rightIcon: "bus.fill",
                     title: "TransGuide_transfer_yilan",
                     detailByIdentity: [
                         Identity.adult: LocalizedStringKey("TransGuideInfo_yilan_adult"),
                         Identity.student: LocalizedStringKey("TransGuideInfo_yilan_student"),
                     ],
-                    arrowType: .double
+                    arrowType: .single
                 ),
             ]
         ),
@@ -239,15 +239,15 @@ struct TransferIntroductionView: View {
             title: "plan_Yilan3Days",
             subtitle: "yilan_3_days",
             rules: [
-                TransferRule(
-                    leftIcon: "bus.fill",
-                    rightIcon: "bus.doubledecker.fill",
+                   TransferRule(
+                    leftIcon: "bus.doubledecker.fill",
+                    rightIcon: "bus.fill",
                     title: "TransGuide_transfer_yilan",
                     detailByIdentity: [
                         Identity.adult: LocalizedStringKey("TransGuideInfo_yilan_adult"),
                         Identity.student: LocalizedStringKey("TransGuideInfo_yilan_student"),
                     ],
-                    arrowType: .double
+                    arrowType: .single
                 ),
             ]
         ),
