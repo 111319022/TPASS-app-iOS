@@ -1084,10 +1084,25 @@ class AppViewModel: ObservableObject {
         let dayTrips = trips.filter { $0.dateStr == dateStr }
         guard !dayTrips.isEmpty else { return }
         let targetDay = preferredDuplicateDay(for: dayTrips)
-        
+        duplicateDayTrips(from: dateStr, targetDay: targetDay)
+    }
+
+    @MainActor
+    func duplicateDayTrips(from dateStr: String, targetDay: Date) {
+        guard let userId = currentUserId else { return }
+        let calendar = Calendar.current
+        let dayTrips = trips.filter { $0.dateStr == dateStr }
+        guard !dayTrips.isEmpty else { return }
+        let normalizedTarget = calendar.startOfDay(for: targetDay)
+
         for trip in dayTrips {
             let comps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
-            let newDate = calendar.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: comps.second ?? 0, of: targetDay) ?? targetDay
+            let newDate = calendar.date(
+                bySettingHour: comps.hour ?? 0,
+                minute: comps.minute ?? 0,
+                second: comps.second ?? 0,
+                of: normalizedTarget
+            ) ?? normalizedTarget
             let cycleId = trip.cycleId ?? cycleForTrip(date: newDate)?.id
             let newTrip = Trip(
                 id: UUID().uuidString,

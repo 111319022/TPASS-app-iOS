@@ -22,7 +22,11 @@ struct TripListView: View {
     @State private var showFavoritesSheet = false
     @State private var selectedTripToEdit: Trip?
     @State private var isProcessingSwipeAction = false
-    @State private var pendingDuplicateDate: String? = nil
+    @State private var pendingDuplicateTrip: Trip? = nil
+    @State private var pendingDuplicateTripUseHaptic = false
+    @State private var pendingDuplicateDaySourceDate: String? = nil
+    @State private var pendingDuplicateDayTargetDate = Date()
+    @State private var showDuplicateDayPicker = false
     @State private var pendingDeleteDate: String? = nil
     @State private var pendingCommuterTrip: Trip? = nil
     @State private var commuterRouteName: String = ""
@@ -45,6 +49,27 @@ struct TripListView: View {
     
     var cardBackground: Color {
         themeManager.cardBackgroundColor
+    }
+
+    private var selectedCycleDateRange: ClosedRange<Date>? {
+        guard let cycle = viewModel.activeCycle else { return nil }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return start...end
+    }
+
+    private var isSelectedCyclePast: Bool {
+        guard let cycle = viewModel.activeCycle else { return false }
+        let today = Calendar.current.startOfDay(for: Date())
+        return cycle.end < today
+    }
+
+    private var isSelectedCycleCurrent: Bool {
+        guard let cycle = viewModel.activeCycle else { return false }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        return cycle.start <= today && cycle.end >= today
     }
 
     private var demoTrip: Trip {
@@ -247,7 +272,9 @@ struct TripListView: View {
                                     let today = Date().formatted(date: .numeric, time: .omitted)
                                     DailyHeaderView(
                                         group: DailyTripGroup(date: today, trips: [demoTrip]),
-                                        onDuplicate: {},
+                                        showDuplicateToToday: true,
+                                        onDuplicateToToday: {},
+                                        onDuplicateToDate: {},
                                         onDelete: {}
                                     )
                                         .frame(maxWidth: .infinity)
@@ -274,9 +301,12 @@ struct TripListView: View {
                                         // 這樣 SwiftUI 就不會把它當成「第一個 swipe row」
                                         DailyHeaderView(
                                             group: group,
-                                            onDuplicate: {
-                                                viewModel.duplicateDayTrips(from: group.date)
-                                                showToast(message: "copied_day \(group.date)")
+                                            showDuplicateToToday: isSelectedCycleCurrent,
+                                            onDuplicateToToday: {
+                                                duplicateDayToToday(group)
+                                            },
+                                            onDuplicateToDate: {
+                                                requestDuplicateDayToDate(group)
                                             },
                                             onDelete: {
                                                 viewModel.deleteDayTrips(on: group.date)
@@ -385,18 +415,84 @@ struct TripListView: View {
                 showToast: showToast
             ))
             .modifier(TripListAlertsModifier(
-                pendingDuplicateDate: $pendingDuplicateDate,
                 pendingDeleteDate: $pendingDeleteDate,
                 showCommuterNamePrompt: $showCommuterNamePrompt,
                 commuterRouteName: $commuterRouteName,
                 pendingCommuterTrip: $pendingCommuterTrip,
                 showToast: showToast
             ))
+            .alert("duplicate_trip_past_title", isPresented: Binding(
+                get: { pendingDuplicateTrip != nil },
+                set: { if !$0 { pendingDuplicateTrip = nil } }
+            )) {
+                Button("cancel", role: .cancel) { pendingDuplicateTrip = nil }
+                Button("continue_copy") {
+                    if let trip = pendingDuplicateTrip {
+                        performDuplicateTrip(trip, useHaptic: pendingDuplicateTripUseHaptic)
+                    }
+                    pendingDuplicateTrip = nil
+                }
+            } message: {
+                Text("duplicate_trip_past_message")
+            }
+            .sheet(isPresented: $showDuplicateDayPicker) {
+                let range = selectedCycleDateRange ?? (Date()...Date())
+                VStack(spacing: 16) {
+                    Text("duplicate_day_select_title")
+                        .font(.headline)
+                        .foregroundColor(themeManager.primaryTextColor)
+
+                    Text("duplicate_day_select_message")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+
+                    DatePicker(
+                        "",
+                        selection: $pendingDuplicateDayTargetDate,
+                        in: range,
+                        displayedComponents: .date
+                    )
+                    .labelsHidden()
+                    .datePickerStyle(.graphical)
+
+                    HStack(spacing: 12) {
+                        Button("cancel", role: .cancel) {
+                            pendingDuplicateDaySourceDate = nil
+                            showDuplicateDayPicker = false
+                        }
+
+                        Spacer()
+
+                        Button("confirm_duplicate_day") {
+                            if let source = pendingDuplicateDaySourceDate {
+                                let calendar = Calendar.current
+                                let targetDay = calendar.startOfDay(for: pendingDuplicateDayTargetDate)
+                                viewModel.duplicateDayTrips(from: source, targetDay: targetDay)
+                                let formatted = DateFormatter.localizedString(
+                                    from: targetDay,
+                                    dateStyle: .medium,
+                                    timeStyle: .none
+                                )
+                                showToast(message: "copied_day_to \(formatted)")
+                            }
+                            pendingDuplicateDaySourceDate = nil
+                            showDuplicateDayPicker = false
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(20)
+                .presentationDetents([.height(560), .large])
+                .presentationDragIndicator(.visible)
+            }
             
         }
         .onAppear {
-            if let user = auth.currentUser, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
-                viewModel.selectedCycle = firstCycle
+            if let user = auth.currentUser, viewModel.selectedCycle == nil {
+                let sortedCycles = user.cycles.sorted { $0.start > $1.start }
+                if let firstCycle = sortedCycles.first {
+                    viewModel.selectedCycle = firstCycle
+                }
             }
             
             // 檢查是否需要顯示教學
@@ -417,8 +513,11 @@ struct TripListView: View {
             }
         }
         .onChange(of: auth.currentUser) { oldUser, user in
-            if let user = user, viewModel.selectedCycle == nil, let firstCycle = user.cycles.first {
-                viewModel.selectedCycle = firstCycle
+            if let user = user, viewModel.selectedCycle == nil {
+                let sortedCycles = user.cycles.sorted { $0.start > $1.start }
+                if let firstCycle = sortedCycles.first {
+                    viewModel.selectedCycle = firstCycle
+                }
             }
         }
         .onChange(of: currentTutorialStep) { oldStep, step in
@@ -448,6 +547,54 @@ struct TripListView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { isToastShowing = false }
         }
+    }
+
+    private func performDuplicateTrip(_ trip: Trip, useHaptic: Bool) {
+        viewModel.duplicateTrip(trip)
+        if useHaptic {
+            HapticManager.shared.impact(style: .medium)
+        }
+        showToast(message: "trip_duplicated")
+    }
+
+    private func duplicateDayToToday(_ group: DailyTripGroup) {
+        viewModel.duplicateDayTrips(from: group.date)
+        showToast(message: "copied_day \(group.date)")
+    }
+
+    private func requestDuplicateTrip(_ trip: Trip, useDelay: Bool) {
+        if useDelay {
+            guard !isProcessingSwipeAction else { return }
+            isProcessingSwipeAction = true
+        }
+
+        if isSelectedCyclePast {
+            pendingDuplicateTrip = trip
+            pendingDuplicateTripUseHaptic = useDelay
+            if useDelay {
+                isProcessingSwipeAction = false
+            }
+            return
+        }
+
+        if useDelay {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                performDuplicateTrip(trip, useHaptic: true)
+                isProcessingSwipeAction = false
+            }
+        } else {
+            performDuplicateTrip(trip, useHaptic: false)
+        }
+    }
+
+    private func requestDuplicateDayToDate(_ group: DailyTripGroup) {
+        guard let range = selectedCycleDateRange else { return }
+        pendingDuplicateDaySourceDate = group.date
+        let calendar = Calendar.current
+        let preferredDate = group.trips.first?.createdAt ?? range.lowerBound
+        let normalized = calendar.startOfDay(for: preferredDate)
+        pendingDuplicateDayTargetDate = range.contains(normalized) ? normalized : range.upperBound
+        showDuplicateDayPicker = true
     }
     
     @ViewBuilder
@@ -545,17 +692,7 @@ struct TripListView: View {
         .disabled(isProcessingSwipeAction)
         
         Button {
-            guard !isProcessingSwipeAction else { return }
-            isProcessingSwipeAction = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                let tx = Transaction(animation: nil)
-                withTransaction(tx) {
-                    viewModel.duplicateTrip(trip)
-                }
-                HapticManager.shared.impact(style: .medium)
-                showToast(message: "trip_duplicated")
-                isProcessingSwipeAction = false
-            }
+            requestDuplicateTrip(trip, useDelay: true)
         } label: {
             Label("duplicate_trip", systemImage: "doc.on.doc.fill")
         }
@@ -636,8 +773,7 @@ struct TripListView: View {
         }
         
         Button {
-            viewModel.duplicateTrip(trip)
-            showToast(message: "trip_duplicated")
+            requestDuplicateTrip(trip, useDelay: false)
         } label: {
             Label("duplicate_trip", systemImage: "doc.on.doc.fill")
         }
@@ -681,8 +817,12 @@ struct CycleSelectorView: View {
         }
     }
 
+    private var sortedCycles: [Cycle] {
+        (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
+    }
+
     private var cycleAccessibilityValue: Text {
-        if let region = viewModel.activeCycle?.region ?? auth.currentUser?.cycles.first?.region {
+        if let region = viewModel.activeCycle?.region ?? sortedCycles.first?.region {
             return Text(viewModel.cycleDateRange) + Text(", ") + Text(region.displayNameKey)
         }
         return Text(viewModel.cycleDateRange)
@@ -695,8 +835,8 @@ struct CycleSelectorView: View {
                 else { Text("currentCycleAuto") }
             }
             Divider()
-            if let cycles = auth.currentUser?.cycles {
-                ForEach(cycles) { cycle in
+            if !sortedCycles.isEmpty {
+                ForEach(sortedCycles) { cycle in
                     Button { viewModel.selectedCycle = cycle } label: {
                         if viewModel.selectedCycle?.id == cycle.id { Label(cycle.title, systemImage: "checkmark") }
                         else { Text(cycle.title) }
@@ -750,7 +890,9 @@ struct DailyHeaderView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.colorScheme) var colorScheme
     let group: DailyTripGroup
-    let onDuplicate: () -> Void
+    let showDuplicateToToday: Bool
+    let onDuplicateToToday: () -> Void
+    let onDuplicateToDate: () -> Void
     let onDelete: () -> Void
     @State private var showActions = false
     
@@ -798,9 +940,15 @@ struct DailyHeaderView: View {
                 .accessibilityLabel(Text("a11y_day_actions"))
                 .accessibilityHint(Text("a11y_day_actions_hint \(group.date)"))
                 .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
-                    Button("duplicate_day") {
+                    if showDuplicateToToday {
+                        Button("duplicate_day_to_today") {
+                            HapticManager.shared.impact(style: .medium)
+                            onDuplicateToToday()
+                        }
+                    }
+                    Button("duplicate_day_to_date") {
                         HapticManager.shared.impact(style: .medium)
-                        onDuplicate()
+                        onDuplicateToDate()
                     }
                     Button("delete_day", role: .destructive) {
                         HapticManager.shared.notification(type: .warning)
@@ -1045,7 +1193,6 @@ struct TripListSheetsModifier: ViewModifier {
 
 struct TripListAlertsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
-    @Binding var pendingDuplicateDate: String?
     @Binding var pendingDeleteDate: String?
     @Binding var showCommuterNamePrompt: Bool
     @Binding var commuterRouteName: String
@@ -1054,20 +1201,6 @@ struct TripListAlertsModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("duplicate_day", isPresented: Binding(get: { pendingDuplicateDate != nil }, set: { if !$0 { pendingDuplicateDate = nil } })) {
-                Button("cancel", role: .cancel) { pendingDuplicateDate = nil }
-                Button("duplicate_day") {
-                    if let date = pendingDuplicateDate {
-                        viewModel.duplicateDayTrips(from: date)
-                        showToast("copied_day \(date)")
-                    }
-                    pendingDuplicateDate = nil
-                }
-            } message: {
-                if let date = pendingDuplicateDate {
-                    Text("confirm_duplicate \(date)")
-                }
-            }
             .alert("delete_day", isPresented: Binding(get: { pendingDeleteDate != nil }, set: { if !$0 { pendingDeleteDate = nil } })) {
                 Button("cancel", role: .cancel) { pendingDeleteDate = nil }
                 Button("delete_day", role: .destructive) {

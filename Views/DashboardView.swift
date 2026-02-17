@@ -70,13 +70,19 @@ struct DashboardView: View {
             }
         }
         .onAppear {
-            if viewModel.selectedCycle == nil, let first = auth.currentUser?.cycles.first {
-                viewModel.selectedCycle = first
+            if viewModel.selectedCycle == nil, let cycles = auth.currentUser?.cycles {
+                let sortedCycles = cycles.sorted { $0.start > $1.start }
+                if let first = sortedCycles.first {
+                    viewModel.selectedCycle = first
+                }
             }
         }
         .onChange(of: auth.currentUser) { oldValue, newValue in
-            if viewModel.selectedCycle == nil, let first = newValue?.cycles.first {
-                viewModel.selectedCycle = first
+            if viewModel.selectedCycle == nil, let cycles = newValue?.cycles {
+                let sortedCycles = cycles.sorted { $0.start > $1.start }
+                if let first = sortedCycles.first {
+                    viewModel.selectedCycle = first
+                }
             }
         }
     }
@@ -103,13 +109,14 @@ struct DashboardView: View {
     }
     
     private var cyclePickerSection: some View {
-        Menu {
+        let sortedCycles = (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
+        return Menu {
             Button { viewModel.selectedCycle = nil } label: {
                 Label("currentCycleAuto", systemImage: viewModel.selectedCycle == nil ? "checkmark" : "")
             }
             Divider()
-            if let cycles = auth.currentUser?.cycles {
-                ForEach(cycles) { cycle in
+            if !sortedCycles.isEmpty {
+                ForEach(sortedCycles) { cycle in
                     Button { viewModel.selectedCycle = cycle } label: {
                         Label(cycle.title, systemImage: viewModel.selectedCycle?.id == cycle.id ? "checkmark" : "")
                     }
