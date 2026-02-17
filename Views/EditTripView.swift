@@ -57,6 +57,7 @@ struct EditTripView: View {
     @State private var isFree: Bool
     @State private var transferDiscountType: TransferDiscountType?  // 新增：轉乘優惠類型
     @State private var showTransferTypePicker = false  // 新增：顯示轉乘類型選擇器
+    @State private var showDateOutOfRangeAlert = false
     
     // Identity (for calculating discount)
     var currentIdentity: Identity {
@@ -79,6 +80,18 @@ struct EditTripView: View {
             }
         }()
         return isDark ? Color(uiColor: .secondarySystemBackground) : Color.white
+    }
+
+    private var allowedCycle: Cycle? {
+        viewModel.cycleById(trip.cycleId) ?? viewModel.selectedCycle ?? viewModel.resolveCycle(for: trip.createdAt)
+    }
+
+    private var allowedDateRange: ClosedRange<Date>? {
+        guard let cycle = allowedCycle else { return nil }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return start...end
     }
     
     // Custom init to load existing trip data
@@ -322,6 +335,11 @@ struct EditTripView: View {
                 }
             }
         }
+        .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
+            Button("ok", role: .cancel) { }
+        } message: {
+            Text("date_out_of_cycle_message")
+        }
         // Auto-fill logic triggers
         .onChange(of: startStation) { _, _ in recalculateMRTPrice() }
         .onChange(of: endStation) { _, _ in recalculateMRTPrice() }
@@ -414,7 +432,14 @@ struct EditTripView: View {
         finalComps.year = dateComps.year; finalComps.month = dateComps.month; finalComps.day = dateComps.day
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute
         finalComps.second = timeChanged ? 0 : originalSecond
-        let finalDate = calendar.date(from: finalComps) ?? date
+        var finalDate = calendar.date(from: finalComps) ?? date
+        if let range = allowedDateRange, !range.contains(finalDate) {
+            let clamped = min(max(finalDate, range.lowerBound), range.upperBound)
+            finalDate = clamped
+            date = clamped
+            time = clamped
+            showDateOutOfRangeAlert = true
+        }
         
         // 修改：使用轉乘優惠類型計算折扣
         let discount: Int
@@ -636,9 +661,19 @@ struct EditTripView: View {
     func compactDatePicker(icon: String, selection: Binding<Date>, components: DatePickerComponents) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon).font(.caption).foregroundColor(themeManager.secondaryTextColor)
-            DatePicker("", selection: selection, displayedComponents: components)
-                .labelsHidden().scaleEffect(0.85).accentColor(themeManager.accentColor)
-                .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            if let range = allowedDateRange, components.contains(.date) {
+                DatePicker("", selection: selection, in: range, displayedComponents: components)
+                    .labelsHidden()
+                    .scaleEffect(0.85)
+                    .accentColor(themeManager.accentColor)
+                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            } else {
+                DatePicker("", selection: selection, displayedComponents: components)
+                    .labelsHidden()
+                    .scaleEffect(0.85)
+                    .accentColor(themeManager.accentColor)
+                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            }
         }
         .padding(.horizontal, 8).padding(.vertical, 4)
         .frame(maxWidth: .infinity)

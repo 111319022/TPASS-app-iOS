@@ -178,8 +178,18 @@ class CloudKitSyncService: ObservableObject {
         var cursor: CKQueryOperation.Cursor? = nil
         
         repeat {
-            let (matchResults, nextCursor) = try await privateDatabase.records(matching: query, inZoneWith: nil, desiredKeys: ["timestamp", "tripCount", "favoriteCount", "cycleCount"], resultsLimit: CKQueryOperation.maximumResults)
-            
+            let matchResults: [(CKRecord.ID, Result<CKRecord, Error>)]
+            let nextCursor: CKQueryOperation.Cursor?
+            if let currentCursor = cursor {
+                (matchResults, nextCursor) = try await privateDatabase.records(continuingMatchFrom: currentCursor)
+            } else {
+                (matchResults, nextCursor) = try await privateDatabase.records(
+                    matching: query,
+                    inZoneWith: nil,
+                    desiredKeys: ["timestamp", "tripCount", "favoriteCount", "cycleCount"],
+                    resultsLimit: CKQueryOperation.maximumResults
+                )
+            }
             cursor = nextCursor
             
             for result in matchResults {

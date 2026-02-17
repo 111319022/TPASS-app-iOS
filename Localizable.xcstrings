@@ -2412,6 +2412,38 @@
         }
       }
     },
+    "date_out_of_cycle_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose the date in the current cycle."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請選擇週期內日期"
+          }
+        }
+      }
+    },
+    "date_out_of_cycle_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date out of cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期超出週期範圍"
+          }
+        }
+      }
+    },
     "date_overlap_message" : {
       "localizations" : {
         "en" : {
@@ -4435,6 +4467,9 @@
           }
         }
       }
+    },
+    "ok" : {
+
     },
     "original_price_label $%lld" : {
       "localizations" : {

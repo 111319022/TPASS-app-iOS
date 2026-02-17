@@ -82,7 +82,11 @@ struct HeatmapItem: Identifiable {
 
 class AppViewModel: ObservableObject {
     // 🔥 改用 @Model Class 的陣列
-    @Published var trips: [Trip] = []
+    @Published var trips: [Trip] = [] {
+        didSet {
+            invalidateTripCaches()
+        }
+    }
     @Published var favorites: [FavoriteRoute] = []
     @Published var commuterRoutes: [CommuterRoute] = []
     
@@ -100,6 +104,11 @@ class AppViewModel: ObservableObject {
     // 🔧 快取過濾後的行程，避免重複計算
     private var _filteredTripsCache: [Trip]? = nil
     private var _groupedTripsCache: [DailyTripGroup]? = nil
+
+    private func invalidateTripCaches() {
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
+    }
     
     // 🔧 效能優化：共享 DateFormatter 避免重複建立
     private static let dateFormatter: DateFormatter = {
@@ -195,6 +204,32 @@ class AppViewModel: ObservableObject {
         let start = calendar.startOfDay(for: cycle.start)
         let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
         return (start, end)
+    }
+
+    private func isDate(_ date: Date, in cycle: Cycle) -> Bool {
+        let range = cycleDateRange(for: cycle)
+        return date >= range.start && date <= range.end
+    }
+
+    private func preferredDuplicateDate(for trip: Trip) -> Date {
+        guard let cycle = selectedCycle else { return Date() }
+        if isDate(Date(), in: cycle) { return Date() }
+        if isDate(trip.createdAt, in: cycle) { return trip.createdAt }
+        let range = cycleDateRange(for: cycle)
+        return range.start
+    }
+
+    private func preferredDuplicateDay(for dayTrips: [Trip]) -> Date {
+        let calendar = Calendar.current
+        guard let cycle = selectedCycle else {
+            return calendar.startOfDay(for: Date())
+        }
+        if isDate(Date(), in: cycle) { return calendar.startOfDay(for: Date()) }
+        if let firstTrip = dayTrips.first, isDate(firstTrip.createdAt, in: cycle) {
+            return calendar.startOfDay(for: firstTrip.createdAt)
+        }
+        let range = cycleDateRange(for: cycle)
+        return calendar.startOfDay(for: range.end)
     }
     
     @MainActor
@@ -839,6 +874,7 @@ class AppViewModel: ObservableObject {
         }
 
         saveContext()
+        invalidateTripCaches()
         fetchAllData()
     }
 
@@ -962,6 +998,7 @@ class AppViewModel: ObservableObject {
             commuterRoutes.append(newRoute)
         }
         saveContext()
+        invalidateTripCaches()
     }
     
     @MainActor
@@ -985,7 +1022,7 @@ class AppViewModel: ObservableObject {
     @MainActor
     func duplicateTrip(_ trip: Trip) {
         guard let userId = currentUserId else { return }
-        let createdAt = Date()
+        let createdAt = preferredDuplicateDate(for: trip)
         let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
         let newTrip = Trip(
             id: UUID().uuidString,
@@ -1015,7 +1052,7 @@ class AppViewModel: ObservableObject {
         let shouldSwap = (trip.type != .bus)
         let newStart = shouldSwap ? trip.endStation : trip.startStation
         let newEnd = shouldSwap ? trip.startStation : trip.endStation
-        let createdAt = Date()
+        let createdAt = preferredDuplicateDate(for: trip)
         let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
         
         let newTrip = Trip(
@@ -1044,13 +1081,13 @@ class AppViewModel: ObservableObject {
     func duplicateDayTrips(from dateStr: String) {
         guard let userId = currentUserId else { return }
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
         let dayTrips = trips.filter { $0.dateStr == dateStr }
         guard !dayTrips.isEmpty else { return }
+        let targetDay = preferredDuplicateDay(for: dayTrips)
         
         for trip in dayTrips {
             let comps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
-            let newDate = calendar.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: comps.second ?? 0, of: today) ?? today
+            let newDate = calendar.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: comps.second ?? 0, of: targetDay) ?? targetDay
             let cycleId = trip.cycleId ?? cycleForTrip(date: newDate)?.id
             let newTrip = Trip(
                 id: UUID().uuidString,
@@ -1071,8 +1108,7 @@ class AppViewModel: ObservableObject {
             trips.insert(newTrip, at: 0)
         }
         saveContext()
-        _filteredTripsCache = nil
-        _groupedTripsCache = nil
+        invalidateTripCaches()
     }
     
     @MainActor
@@ -1125,7 +1161,6 @@ class AppViewModel: ObservableObject {
         }
         
         saveContext()
-        _filteredTripsCache = nil
-        _groupedTripsCache = nil
+        invalidateTripCaches()
     }
 }

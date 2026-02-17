@@ -26,6 +26,7 @@ struct AddTripView: View {
     @State private var date = Date()
     @State private var time = Date()
     @State private var selectedType: TransportType = .mrt
+    @State private var showDateOutOfRangeAlert = false
     
     // 路線與站點
     @State private var routeId: String = ""
@@ -63,7 +64,7 @@ struct AddTripView: View {
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
     }
-    
+
     // 輸入框背景色
     var inputBackgroundColor: Color {
         let isDark: Bool = {
@@ -77,6 +78,18 @@ struct AddTripView: View {
             }
         }()
         return isDark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground)
+    }
+
+    private var allowedCycle: Cycle? {
+        viewModel.activeCycle
+    }
+
+    private var allowedDateRange: ClosedRange<Date>? {
+        guard let cycle = allowedCycle else { return nil }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return start...end
     }
 
     @ViewBuilder
@@ -368,12 +381,20 @@ struct AddTripView: View {
         // 固定高度，取消滑動展開
         .presentationDetents([.height(650)])
         .presentationDragIndicator(.hidden)
+        .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
+            Button("ok", role: .cancel) { }
+        } message: {
+            Text("date_out_of_cycle_message")
+        }
         
         .onAppear {
             // 初始化 selectedType 為當前地區支持的第一種運具
             if let firstMode = currentRegion.supportedModes.first {
                 selectedType = firstMode
                 handleTypeChange(firstMode)
+            }
+            if let range = allowedDateRange, !range.contains(date) {
+                date = range.lowerBound
             }
         }
         .onChange(of: startStation) { _, _ in tryAutoFillFromHistory() }
@@ -507,8 +528,15 @@ struct AddTripView: View {
         var finalComps = DateComponents()
         finalComps.year = dateComps.year; finalComps.month = dateComps.month; finalComps.day = dateComps.day
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute; finalComps.second = secondsNow
-        let finalDate = calendar.date(from: finalComps) ?? date
-        
+        var finalDate = calendar.date(from: finalComps) ?? date
+        if let range = allowedDateRange, !range.contains(finalDate) {
+            let clamped = min(max(finalDate, range.lowerBound), range.upperBound)
+            finalDate = clamped
+            date = clamped
+            time = clamped
+            showDateOutOfRangeAlert = true
+        }
+
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
@@ -622,12 +650,21 @@ struct AddTripView: View {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
-            DatePicker("", selection: selection, displayedComponents: components)
-                .labelsHidden()
-                .scaleEffect(0.85)
-                .accentColor(themeManager.accentColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            if let range = allowedDateRange, components.contains(.date) {
+                DatePicker("", selection: selection, in: range, displayedComponents: components)
+                    .labelsHidden()
+                    .scaleEffect(0.85)
+                    .accentColor(themeManager.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            } else {
+                DatePicker("", selection: selection, displayedComponents: components)
+                    .labelsHidden()
+                    .scaleEffect(0.85)
+                    .accentColor(themeManager.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)

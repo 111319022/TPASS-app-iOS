@@ -54,10 +54,10 @@ class CSVManager {
         // 嘗試用 UTF-8 讀取，如果失敗嘗試用 ASCII (避免編碼問題)
         let content = try String(contentsOf: url, encoding: .utf8)
         
-        var rows = content.components(separatedBy: .newlines)
+        var rows = parseCSVContent(content)
         
         // 移除標題列
-        if !rows.isEmpty && rows[0].hasPrefix("id,date") {
+        if let firstRow = rows.first, firstRow.count >= 2, firstRow[0] == "id", firstRow[1] == "date" {
             rows.removeFirst()
         }
         
@@ -65,8 +65,7 @@ class CSVManager {
         var invalidCycleCount = 0
         
         // 2. 解析每一行
-        for row in rows where !row.isEmpty {
-            let columns = parseCSVRow(row)
+        for columns in rows where !columns.isEmpty {
             
             // 🔧 向後兼容：支援舊格式（11 欄位）和新格式（13 欄位）
             guard columns.count >= 11 else { continue }
@@ -86,7 +85,7 @@ class CSVManager {
                   let originalPrice = Int(columns[5]),
                   let paidPrice = Int(columns[6])
             else {
-                print("❌ 資料解析失敗: \(row)")
+                print("❌ 資料解析失敗: \(columns)")
                 continue
             }
             
@@ -94,7 +93,7 @@ class CSVManager {
             let isFree = (columns[8] == "1" || columns[8].lowercased() == "true")
             
             // 處理備註的引號還原
-            let note = columns[10].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            let note = columns[10]
             
             // 🔥 新增：解析轉乘優惠類型和週期 ID（向後兼容舊格式）
             var transferDiscountType: TransferDiscountType? = nil
@@ -149,23 +148,50 @@ class CSVManager {
         return (imported: successCount, invalidCycles: invalidCycleCount)
     }
     
-    // 簡單的 CSV 行解析器 (處理引號內的逗號)
-    private func parseCSVRow(_ row: String) -> [String] {
-        var result: [String] = []
-        var current = ""
+    // CSV 內容解析器：支援引號、逗號與換行
+    private func parseCSVContent(_ content: String) -> [[String]] {
+        var rows: [[String]] = []
+        var row: [String] = []
+        var field = ""
         var insideQuotes = false
+        let chars = Array(content)
+        var index = 0
         
-        for char in row {
+        while index < chars.count {
+            let char = chars[index]
+            
             if char == "\"" {
-                insideQuotes.toggle()
+                if insideQuotes, index + 1 < chars.count, chars[index + 1] == "\"" {
+                    field.append("\"")
+                    index += 1
+                } else {
+                    insideQuotes.toggle()
+                }
             } else if char == "," && !insideQuotes {
-                result.append(current)
-                current = ""
+                row.append(field)
+                field = ""
+            } else if (char == "\n" || char == "\r") && !insideQuotes {
+                row.append(field)
+                field = ""
+                if !row.isEmpty {
+                    rows.append(row)
+                }
+                row = []
+                if char == "\r", index + 1 < chars.count, chars[index + 1] == "\n" {
+                    index += 1
+                }
             } else {
-                current.append(char)
+                field.append(char)
             }
+            
+            index += 1
         }
-        result.append(current)
-        return result
+        
+        if !field.isEmpty || !row.isEmpty {
+            row.append(field)
+            rows.append(row)
+        }
+        
+        return rows
     }
 }
