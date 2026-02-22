@@ -13,9 +13,10 @@ enum TPASSRegion: String, CaseIterable, Codable {
     case centralCitizen = "中彰投苗(市民)"
     case south = "南高屏"
     case kaohsiung = "高雄"
+    case flexible = "彈性記帳週期"  // 🆕 新增：全運具開放的彈性記帳週期
 
     static var allCases: [TPASSRegion] {
-        return [.north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung]
+        return [.flexible, .north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung]
     }
     
     var displayName: String {
@@ -24,6 +25,8 @@ enum TPASSRegion: String, CaseIterable, Codable {
     
     var displayNameKey: LocalizedStringKey {
         switch self {
+        case .flexible:
+            return "plan_flexible"  // 🆕 彈性記帳週期
         case .north:
             return "plan_north"
         case .taoZhuZhu:
@@ -53,6 +56,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
 
     var monthlyPrice: Int {
         switch self {
+        case .flexible: return 0  // 🆕 彈性記帳週期沒有月費
         case .north: return 1200
         case .taoZhuZhu: return 799
         case .taoZhuZhuMiao: return 1200
@@ -71,6 +75,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
     // 1. 定義該地區支援的運具
     var supportedModes: [TransportType] {
         switch self {
+        case .flexible:
+            // 🆕 彈性記帳週期：支援所有運具類型
+            return [.mrt, .bus, .coach, .tra, .tymrt, .tcmrt, .kmrt, .lrt, .bike, .ferry]
         case .north:
             return [.mrt, .bus, .coach, .tra, .tymrt, .lrt, .bike]
         case .taoZhuZhu:
@@ -95,6 +102,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
     // 2. 定義該地區公車的預設起跳價
     func defaultBusPrice(identity: Identity) -> String {
         switch self {
+        case .flexible:
+            // 🆕 彈性記帳週期：使用雙北公車價格作為預設值
+            return identity == .student ? "12" : "15"
         case .north:
             // 雙北公車：全票15，學生12
             return identity == .student ? "12" : "15"
@@ -125,6 +135,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
     // 3. 定義該地區支援的轉乘優惠類型
     var supportedTransferTypes: [TransferDiscountType] {
         switch self {
+        case .flexible:
+            // 🆕 彈性記帳週期：支援所有轉乘優惠類型
+            return [.taipei, .taoyuan_tymrt_bus, .taoyuan_bus_tymrt, .hsinchu, .yilan, .taichung, .kaohsiungMrtBus, .kaohsiungBike, .tainanTraBus]
         case .north:
             return [.taipei, .taoyuan_tymrt_bus, .taoyuan_bus_tymrt]
         case .taoZhuZhu:
@@ -154,6 +167,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
     // 4. 獲取該地區的預設轉乘優惠類型
     var defaultTransferType: TransferDiscountType {
         switch self {
+        case .flexible:
+            // 🆕 彈性記帳週期：預設使用雙北轉乘優惠
+            return .taipei
         case .north:
             return .taipei
         case .taoZhuZhu:
@@ -181,6 +197,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
     }
     
     private static let traRegionMap: [TPASSRegion: TRARegionInfo] = [
+        .flexible: TRARegionInfo(name: "全台灣", ranges: [("0900", "9999")]),  // 🆕 彈性記帳：全部台鐵站點
         .north: TRARegionInfo(name: "基北北桃(全部)", ranges: [("0900", "1140"), ("7290", "7390")]),
         .taoZhuZhu: TRARegionInfo(name: "桃竹竹", ranges: [("1080", "1230")]),
         .taoZhuZhuMiao: TRARegionInfo(name: "桃竹竹苗", ranges: [("1080", "1250"), ("2110", "2180"), ("3140", "3190")]),
@@ -218,6 +235,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
     /// 陣列設計是為了支援不連續的區間（例如主線 + 支線）
     func traStationIDRange() -> [(String, String)] {
         switch self {
+        case .flexible:
+            // 🆕 彈性記帳：支援全部台鐵站點
+            return [("0900", "9999")]
         case .north:
             return [
                 ("0900", "1140"), // 基隆 - 新富

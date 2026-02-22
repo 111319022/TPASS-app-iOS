@@ -283,6 +283,36 @@ struct AddCycleView: View {
         _endDate = State(initialValue: calendar.date(byAdding: .day, value: 29, to: today) ?? today.addingTimeInterval(86400 * 29))
     }
     
+    // 🆕 新增：根據方案類型自動調整日期範圍
+    private func adjustDatesForRegion(_ region: TPASSRegion) {
+        if region == .flexible {
+            // 彈性記帳週期：自動設定為當月月初到月底
+            let calendar = Calendar.current
+            let now = Date()
+            
+            // 取得當月第一天
+            let components = calendar.dateComponents([.year, .month], from: now)
+            if let firstDay = calendar.date(from: components) {
+                startDate = firstDay
+                
+                // 取得當月最後一天（下個月第一天 - 1秒）
+                if let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay),
+                   let lastDay = calendar.date(byAdding: .second, value: -1, to: nextMonth) {
+                    endDate = calendar.startOfDay(for: lastDay)
+                } else {
+                    // 若計算失敗，使用備用方法：當天+29天
+                    endDate = calendar.date(byAdding: .day, value: 29, to: firstDay) ?? firstDay
+                }
+            }
+        } else {
+            // 一般方案：使用30天週期
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            startDate = today
+            endDate = calendar.date(byAdding: .day, value: 29, to: today) ?? today.addingTimeInterval(86400 * 29)
+        }
+    }
+    
     private var hasDateOverlap: Bool {
         let cycles = auth.currentUser?.cycles ?? []
         return cycles.contains { existingCycle in
@@ -313,6 +343,10 @@ struct AddCycleView: View {
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()
+                    .onChange(of: selectedRegion) { oldValue, newValue in
+                        // 🆕 當方案改變時，自動調整日期範圍
+                        adjustDatesForRegion(newValue)
+                    }
                 }
             }
             .navigationTitle("add_new_cycle")

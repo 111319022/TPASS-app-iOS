@@ -1049,7 +1049,9 @@ class AppViewModel: ObservableObject {
     @MainActor
     func createReturnTrip(_ trip: Trip) {
         guard let userId = currentUserId else { return }
-        let shouldSwap = (trip.type != .bus)
+        // 🔧 修正：如果有填寫起訖站就對調，無論是什麼運具
+        let hasStations = !trip.startStation.isEmpty && !trip.endStation.isEmpty
+        let shouldSwap = hasStations
         let newStart = shouldSwap ? trip.endStation : trip.startStation
         let newEnd = shouldSwap ? trip.startStation : trip.endStation
         let createdAt = preferredDuplicateDate(for: trip)

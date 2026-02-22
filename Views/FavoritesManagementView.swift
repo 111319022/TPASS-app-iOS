@@ -144,9 +144,21 @@ struct FavoritesManagementView: View {
     }
 
     private func favoriteTitleText(_ fav: FavoriteRoute) -> Text {
+        // 🔧 修正：檢查是否有起訖站資訊
+        let hasStations = !fav.startStation.isEmpty && !fav.endStation.isEmpty
+        
         if fav.type == .bus || fav.type == .coach {
-            return Text("route_title_bus \(fav.routeId)") + Text(" (") + Text(fav.type.displayName) + Text(")")
+            // 如果有起訖站就顯示，沒有就只顯示路線編號
+            if hasStations {
+                let lang = Locale.current.identifier
+                let start = displayStationName(fav.startStation, type: fav.type, languageCode: lang)
+                let end = displayStationName(fav.endStation, type: fav.type, languageCode: lang)
+                return Text("route_title_bus \(fav.routeId)") + Text(" (") + Text(fav.type.displayName) + Text(")") + Text("\n\(start) → \(end)")
+            } else {
+                return Text("route_title_bus \(fav.routeId)") + Text(" (") + Text(fav.type.displayName) + Text(")")
+            }
         }
+        
         let lang = Locale.current.identifier
         let start = displayStationName(fav.startStation, type: fav.type, languageCode: lang)
         let end = displayStationName(fav.endStation, type: fav.type, languageCode: lang)
@@ -157,12 +169,27 @@ struct FavoritesManagementView: View {
     private func getLocalizedRouteName(_ fav: FavoriteRoute) -> String {
         let lang = Locale.current.identifier
         
+        // 🔧 修正：檢查是否有起訖站資訊
+        let hasStations = !fav.startStation.isEmpty && !fav.endStation.isEmpty
+        
         // 1. 公車/客運
         if fav.type == .bus || fav.type == .coach {
-            if lang.hasPrefix("en") {
-                return "Route \(fav.routeId)"
+            if hasStations {
+                // 有起訖站，顯示完整資訊
+                let start = displayStationName(fav.startStation, type: fav.type, languageCode: lang)
+                let end = displayStationName(fav.endStation, type: fav.type, languageCode: lang)
+                if lang.hasPrefix("en") {
+                    return "Route \(fav.routeId) (\(start) → \(end))"
+                } else {
+                    return String(localized: "route_title_bus \(fav.routeId)") + " (\(start) → \(end))"
+                }
             } else {
-                return String(localized: "route_title_bus \(fav.routeId)")
+                // 沒有起訖站，只顯示路線編號
+                if lang.hasPrefix("en") {
+                    return "Route \(fav.routeId)"
+                } else {
+                    return String(localized: "route_title_bus \(fav.routeId)")
+                }
             }
         }
         
@@ -455,9 +482,20 @@ struct CommuterRouteDetailView: View {
         }
 
         private func tripTitleText(_ trip: CommuterTripTemplate) -> Text {
+            // 🔧 修正：檢查是否有起訖站資訊
+            let hasStations = !trip.startStation.isEmpty && !trip.endStation.isEmpty
+            
             if trip.type == .bus || trip.type == .coach {
-                return Text("route_title_bus \(trip.routeId)") + Text(" (") + Text(trip.type.displayName) + Text(")")
+                // 如果有起訖站就顯示，沒有就只顯示路線編號
+                if hasStations {
+                    let start = displayStationNameForCommuter(trip.startStation, type: trip.type)
+                    let end = displayStationNameForCommuter(trip.endStation, type: trip.type)
+                    return Text("route_title_bus \(trip.routeId)") + Text(" (") + Text(trip.type.displayName) + Text(")") + Text("\n\(start) → \(end)")
+                } else {
+                    return Text("route_title_bus \(trip.routeId)") + Text(" (") + Text(trip.type.displayName) + Text(")")
+                }
             }
+            
             let start = displayStationNameForCommuter(trip.startStation, type: trip.type)
             let end = displayStationNameForCommuter(trip.endStation, type: trip.type)
             return Text("\(start) → \(end)")

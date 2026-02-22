@@ -29,6 +29,8 @@ struct TPASSRegionSelectionView: View {
             return "kaohsiung_tainan_pingtung"
         case .kaohsiung:
             return "kaohsiung_only"
+        case .flexible:
+            return "flexible"
         }
     }
     

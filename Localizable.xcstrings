@@ -4,6 +4,16 @@
     "" : {
 
     },
+    "\n%@ → %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "\n%1$@ → %2$@"
+          }
+        }
+      }
+    },
     " " : {
 
     },
@@ -1669,9 +1679,6 @@
           }
         }
       }
-    },
-    "Card" : {
-
     },
     "choose_commuter" : {
       "localizations" : {
@@ -3585,6 +3592,9 @@
         }
       }
     },
+    "flexible" : {
+
+    },
     "free" : {
 
     },
@@ -4796,6 +4806,9 @@
           }
         }
       }
+    },
+    "plan_flexible" : {
+
     },
     "plan_kaohsiung" : {
       "localizations" : {
