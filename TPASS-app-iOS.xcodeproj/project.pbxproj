@@ -44,6 +44,8 @@
 		FB6197472F2F73AC000D80B6 /* TRAStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6197462F2F73AC000D80B6 /* TRAStationData.swift */; };
 		FB67606B2F2F91960011F98E /* TRA_Fares_Fixed.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */; };
 		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
+		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
+		FBA13DD62F4589990059D64F /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD52F4589920059D64F /* NFCReader.swift */; };
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
 		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
@@ -94,6 +96,8 @@
 		FB6197462F2F73AC000D80B6 /* TRAStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAStationData.swift; sourceTree = "<group>"; };
 		FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = TRA_Fares_Fixed.sqlite; sourceTree = "<group>"; };
 		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
+		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
+		FBA13DD52F4589920059D64F /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
@@ -157,6 +161,7 @@
 			children = (
 				FBB948342F3358680038F0FA /* HapticManager.swift */,
 				FB05D3162F25B9A90084F64D /* NotificationManager.swift */,
+				FBA13DD52F4589920059D64F /* NFCReader.swift */,
 				FB05D3052F2211410084F64D /* ThemeManager.swift */,
 				FB31BFA92F2DA8B500E09054 /* CSVManager.swift */,
 				FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */,
@@ -198,6 +203,7 @@
 				FBB948322F31FDAF0038F0FA /* CyclesView.swift */,
 				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
 				FBC660092F4214A900188CEB /* ViewFrameKey.swift */,
+				FBA13DD32F4589380059D64F /* CardScannerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -308,6 +314,7 @@
 				FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */,
 				FB009D732F27108200E30499 /* FavoritesManagementView.swift in Sources */,
 				FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */,
+				FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */,
 				FB0D94882F20C2DB00B687D3 /* DashboardView.swift in Sources */,
 				FB0D94742F20BEFB00B687D3 /* TPASS-app-iOS.swift in Sources */,
 				FB0D94782F20BFEA00B687D3 /* AuthService.swift in Sources */,
@@ -334,6 +341,7 @@
 				FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */,
 				FB009D762F27111B00E30499 /* SwiftDataModels.swift in Sources */,
 				FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */,
+				FBA13DD62F4589990059D64F /* NFCReader.swift in Sources */,
 				FB009D702F27103900E30499 /* CloudKitSyncService.swift in Sources */,
 				FB0D947A2F20BFFD00B687D3 /* TripListView.swift in Sources */,
 				FB05D3192F25B9CC0084F64D /* NotificationSettingsView.swift in Sources */,
@@ -490,6 +498,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TPASS-app-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = TPASS.calc;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NFCReaderUsageDescription = "This app uses NFC to read physical transit cards.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -532,6 +542,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TPASS-app-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = TPASS.calc;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NFCReaderUsageDescription = "This app uses NFC to read physical transit cards.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

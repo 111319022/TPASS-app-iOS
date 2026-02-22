@@ -5,7 +5,7 @@ import Combine
 struct MainTabView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
-    //     1. 新增：引入 ThemeManager
+    // 1. 新增：引入 ThemeManager
     @EnvironmentObject var themeManager: ThemeManager
     //@EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.modelContext) private var modelContext
@@ -36,14 +36,25 @@ struct MainTabView: View {
                 }
                 .tag(2)
             
-            // 頁籤 4: 設定
+            /*
+            // 新增：頁籤 4: 實體卡片 NFC
+            // 請確認你的檔案名稱是 CardScannerView 還是 CardView，這裡填入對應名稱
+            CardScannerView()
+                .tabItem {
+                    // 使用 "sensor.tag.radiowaves.forward" 或 "wave.3.right" 很有感應的感覺
+                    Label("Card", systemImage: "wave.3.right")
+                }
+                .tag(3)
+            */
+            
+            // 頁籤 5: 設定 (順延為 tag 4，讓它保持在最右邊)
             SettingsView()
                 .tabItem {
                     Label("settings", systemImage: "gearshape.fill")
                 }
-                .tag(3)
+                .tag(4)
         }
-        //     2. 修改：改用 ThemeManager 的顏色，解決 Color(hex:) 報錯問題
+        // 2. 修改：改用 ThemeManager 的顏色
         .accentColor(themeManager.accentColor)
     }
 }
