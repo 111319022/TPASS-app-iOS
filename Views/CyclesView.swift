@@ -7,7 +7,7 @@ struct CyclesView: View {
     
     @State private var showAddCycleSheet = false
     @State private var selectedCycleForEdit: Cycle? = nil
-    @State private var showFlexibleCycleSheet = false  // 🆕 彈性記帳週期的新增頁面
+    @State private var showFlexibleCycleSheet = false  // 彈性記帳週期的新增頁面
     
     private var currentCycles: [Cycle] {
         let now = Date()
@@ -78,7 +78,7 @@ struct CyclesView: View {
                 AddCycleView()
             }
             .sheet(isPresented: $showFlexibleCycleSheet) {
-                AddFlexibleCycleView()  // 🆕 彈性記帳週期的新增頁面
+                AddFlexibleCycleView()  // 彈性記帳週期的新增頁面
             }
             .sheet(item: $selectedCycleForEdit) { cycle in
                 EditCycleView(cycle: cycle)
@@ -91,46 +91,48 @@ struct CyclesView: View {
     private var flexibleCycleButton: some View {
         VStack(spacing: 12) {
             Button(action: { showFlexibleCycleSheet = true }) {
-                HStack(spacing: 12) {
-                    // 圖示
-                    ZStack {
-                        Circle()
-                            .fill(Color.purple.opacity(0.15))
-                            .frame(width: 44, height: 44)
-                        Image(systemName: "calendar.badge.plus")
-                            .font(.title3)
-                            .foregroundColor(.purple)
-                    }
-                    
-                    // 文字說明
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("flexible_cycle_title")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(themeManager.primaryTextColor)
-                        Text("flexible_cycle_subtitle")
-                            .font(.caption)
-                            .foregroundColor(themeManager.secondaryTextColor)
-                    }
-                    
-                    Spacer()
-                    
-                    // 箭頭
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(themeManager.secondaryTextColor)
+                HStack {
+                    Image(systemName: "calendar.badge.plus")
+                        .font(.title3)
+                    Text("flexible_cycle_button")
+                        .font(.headline)
+                        .fontWeight(.semibold)
                 }
-                .padding(16)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.purple.opacity(0.08))
+                    LinearGradient(
+                        colors: [flexibleCycleColor, flexibleCycleColor.opacity(0.8)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-                )
+                .cornerRadius(12)
+                .shadow(color: flexibleCycleColor.opacity(0.3), radius: 8, x: 0, y: 4)
             }
-            .buttonStyle(.plain)
+            
+            // 提示文字
+            Text("flexible_cycle_reminder")
+                .font(.caption)
+                .foregroundColor(themeManager.secondaryTextColor)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+        }
+    }
+    
+    // MARK: - 彈性週期配色
+    private var flexibleCycleColor: Color {
+        switch themeManager.currentTheme {
+        case .muji:
+            return Color(hex: "#B07D62") // Muji 暖棕色
+        case .dark:
+            return Color(hex: "#5AC8FA") // 深色模式青色
+        case .light:
+            return Color(hex: "#34C759") // 淺色模式綠色
+        case .system:
+            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
+            return isDark ? Color(hex: "#5AC8FA") : Color(hex: "#34C759")
         }
     }
     
@@ -398,7 +400,7 @@ struct AddCycleView: View {
                     .pickerStyle(.inline)
                     .labelsHidden()
                     .onChange(of: selectedRegion) { oldValue, newValue in
-                        // 🆕 當方案改變時，自動調整日期範圍
+                        // 當方案改變時，自動調整日期範圍
                         adjustDatesForRegion(newValue)
                     }
                 }
@@ -648,11 +650,11 @@ struct AddFlexibleCycleView: View {
         VStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.purple.opacity(0.15))
+                    .fill(flexibleCycleColor.opacity(0.15))
                     .frame(width: 60, height: 60)
                 Image(systemName: "calendar.badge.plus")
                     .font(.system(size: 28))
-                    .foregroundColor(.purple)
+                    .foregroundColor(flexibleCycleColor)
             }
             
             Text("flexible_cycle_header_title")
@@ -674,7 +676,7 @@ struct AddFlexibleCycleView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "calendar")
-                    .foregroundColor(.purple)
+                    .foregroundColor(flexibleCycleColor)
                 Text("cycle_period")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -710,7 +712,7 @@ struct AddFlexibleCycleView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+                    .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
             )
         }
     }
@@ -720,7 +722,7 @@ struct AddFlexibleCycleView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "info.circle.fill")
-                    .foregroundColor(.purple)
+                    .foregroundColor(flexibleCycleColor)
                 Text("flexible_cycle_features")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -730,7 +732,7 @@ struct AddFlexibleCycleView: View {
                 featureRow(icon: "bus.doubledecker.fill", title: "flexible_feature_all_modes", color: .green)
                 featureRow(icon: "location.fill", title: "flexible_feature_all_regions", color: .blue)
                 featureRow(icon: "dollarsign.circle", title: "flexible_feature_no_monthly_fee", color: .orange)
-                featureRow(icon: "chart.bar.fill", title: "flexible_feature_expense_tracking", color: .purple)
+                featureRow(icon: "chart.bar.fill", title: "flexible_feature_expense_tracking", color: flexibleCycleColor)
             }
             .padding(16)
             .background(
@@ -739,7 +741,7 @@ struct AddFlexibleCycleView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+                    .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
             )
         }
     }
@@ -749,7 +751,7 @@ struct AddFlexibleCycleView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "lightbulb.fill")
-                    .foregroundColor(.yellow)
+                    .foregroundColor(flexibleCycleColor)
                 Text("flexible_cycle_use_cases")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -763,11 +765,11 @@ struct AddFlexibleCycleView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.yellow.opacity(0.08))
+                    .fill(themeManager.cardBackgroundColor)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                    .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
             )
         }
     }
@@ -792,12 +794,12 @@ struct AddFlexibleCycleView: View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.yellow.opacity(0.3))
+                    .fill(flexibleCycleColor.opacity(0.2))
                     .frame(width: 24, height: 24)
                 Text(number)
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.orange)
+                    .foregroundColor(flexibleCycleColor)
             }
             
             Text(text)
@@ -805,6 +807,21 @@ struct AddFlexibleCycleView: View {
                 .foregroundColor(themeManager.secondaryTextColor)
             
             Spacer()
+        }
+    }
+    
+    // MARK: - 彈性週期配色
+    private var flexibleCycleColor: Color {
+        switch themeManager.currentTheme {
+        case .muji:
+            return Color(hex: "#B07D62") // Muji 暖棕色
+        case .dark:
+            return Color(hex: "#5AC8FA") // 深色模式青色
+        case .light:
+            return Color(hex: "#34C759") // 淺色模式綠色
+        case .system:
+            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
+            return isDark ? Color(hex: "#5AC8FA") : Color(hex: "#34C759")
         }
     }
     

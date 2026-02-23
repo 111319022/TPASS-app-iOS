@@ -1984,23 +1984,6 @@
         }
       }
     },
-    "confirm_duplicate %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirm duplicating all trips from %@?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "確定要複製 %@ 的整日行程？"
-          }
-        }
-      }
-    },
     "confirm_duplicate_day" : {
       "localizations" : {
         "en" : {
@@ -2415,6 +2398,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "週期"
+          }
+        }
+      }
+    },
+    "cycle_period" : {
+      "comment" : "Cycle period label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycle Period"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "週期期間"
           }
         }
       }
@@ -3188,23 +3188,6 @@
         }
       }
     },
-    "duplicate_day" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate Day"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "複製整日"
-          }
-        }
-      }
-    },
     "duplicate_day_select_message" : {
       "localizations" : {
         "en" : {
@@ -3592,8 +3575,243 @@
         }
       }
     },
-    "flexible" : {
-
+    "flexible_cycle_button" : {
+      "comment" : "Button to add flexible cycle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Flexible Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增彈性記帳週期"
+          }
+        }
+      }
+    },
+    "flexible_cycle_features" : {
+      "comment" : "Features section title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Features"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能說明"
+          }
+        }
+      }
+    },
+    "flexible_cycle_header_subtitle" : {
+      "comment" : "Header subtitle in flexible cycle view",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track your transit expenses without a monthly pass"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記錄您的交通支出，無需購買月票"
+          }
+        }
+      }
+    },
+    "flexible_cycle_header_title" : {
+      "comment" : "Header title in flexible cycle view",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexible Expense Tracking"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彈性記帳週期"
+          }
+        }
+      }
+    },
+    "flexible_cycle_reminder" : {
+      "comment" : "Reminder text for flexible cycle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For users without a monthly pass or outside the coverage area"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "給未買月票或位於使用範圍外的使用者記帳"
+          }
+        }
+      }
+    },
+    "flexible_cycle_title" : {
+      "comment" : "Title for flexible cycle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexible Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彈性記帳週期"
+          }
+        }
+      }
+    },
+    "flexible_cycle_use_cases" : {
+      "comment" : "Use cases section title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ideal For"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用情境"
+          }
+        }
+      }
+    },
+    "flexible_feature_all_modes" : {
+      "comment" : "Feature: all transport modes",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All transport modes available"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可記錄所有交通工具"
+          }
+        }
+      }
+    },
+    "flexible_feature_all_regions" : {
+      "comment" : "Feature: all regions",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All regions supported"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限使用區域"
+          }
+        }
+      }
+    },
+    "flexible_feature_expense_tracking" : {
+      "comment" : "Feature: expense tracking",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track your transit expenses"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計交通支出"
+          }
+        }
+      }
+    },
+    "flexible_feature_no_monthly_fee" : {
+      "comment" : "Feature: no monthly fee",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No monthly pass required"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無需購買月票"
+          }
+        }
+      }
+    },
+    "flexible_tip_1" : {
+      "comment" : "Use case tip 1",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transit expenses outside TPASS coverage area"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在 TPASS 適用範圍內的交通支出"
+          }
+        }
+      }
+    },
+    "flexible_tip_2" : {
+      "comment" : "Use case tip 2",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temporary expense tracking without a monthly pass"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫時沒買月票時記錄交通開支"
+          }
+        }
+      }
+    },
+    "flexible_tip_3" : {
+      "comment" : "Use case tip 3",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare costs to decide if a monthly pass is worth it"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比較費用以決定是否購買月票"
+          }
+        }
+      }
     },
     "free" : {
 
@@ -4808,7 +5026,20 @@
       }
     },
     "plan_flexible" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Flexible Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彈性週期"
+          }
+        }
+      }
     },
     "plan_kaohsiung" : {
       "localizations" : {

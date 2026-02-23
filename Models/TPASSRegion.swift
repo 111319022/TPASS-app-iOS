@@ -203,7 +203,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
     }
     
     private static let traRegionMap: [TPASSRegion: TRARegionInfo] = [
-        .flexible: TRARegionInfo(name: "全台灣", ranges: [("0900", "9999")]),  // 🆕 彈性記帳：全部台鐵站點
+        .flexible: TRARegionInfo(name: "全台灣", ranges: [("0900", "9999")]),  // 彈性記帳：全部台鐵站點
         .north: TRARegionInfo(name: "基北北桃(全部)", ranges: [("0900", "1140"), ("7290", "7390")]),
         .taoZhuZhu: TRARegionInfo(name: "桃竹竹", ranges: [("1080", "1230")]),
         .taoZhuZhuMiao: TRARegionInfo(name: "桃竹竹苗", ranges: [("1080", "1250"), ("2110", "2180"), ("3140", "3190")]),
