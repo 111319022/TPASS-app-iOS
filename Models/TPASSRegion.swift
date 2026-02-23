@@ -16,7 +16,13 @@ enum TPASSRegion: String, CaseIterable, Codable {
     case flexible = "彈性記帳週期"  // 🆕 新增：全運具開放的彈性記帳週期
 
     static var allCases: [TPASSRegion] {
-        return [.flexible, .north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung]
+        // 🔧 彈性記帳週期不在一般方案列表中，需要單獨處理
+        return [.north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung]
+    }
+    
+    /// 取得所有方案（包含彈性記帳週期）
+    static var allRegions: [TPASSRegion] {
+        return [.flexible] + allCases
     }
     
     var displayName: String {

@@ -46,7 +46,6 @@
 		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
 		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
 		FBA13DD62F4589990059D64F /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD52F4589920059D64F /* NFCReader.swift */; };
-		FBB37DDC2F4B6A9D00349C20 /* FLEXIBLE_CYCLE_IMPLEMENTATION.md in Resources */ = {isa = PBXBuildFile; fileRef = FBB37DDB2F4B6A9D00349C20 /* FLEXIBLE_CYCLE_IMPLEMENTATION.md */; };
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
 		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
@@ -99,7 +98,6 @@
 		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
 		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
 		FBA13DD52F4589920059D64F /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
-		FBB37DDB2F4B6A9D00349C20 /* FLEXIBLE_CYCLE_IMPLEMENTATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = FLEXIBLE_CYCLE_IMPLEMENTATION.md; sourceTree = "<group>"; };
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
@@ -206,7 +204,6 @@
 				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
 				FBC660092F4214A900188CEB /* ViewFrameKey.swift */,
 				FBA13DD32F4589380059D64F /* CardScannerView.swift */,
-				FBB37DDB2F4B6A9D00349C20 /* FLEXIBLE_CYCLE_IMPLEMENTATION.md */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -297,7 +294,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FBB37DDC2F4B6A9D00349C20 /* FLEXIBLE_CYCLE_IMPLEMENTATION.md in Resources */,
 				FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */,
 				FB67606B2F2F91960011F98E /* TRA_Fares_Fixed.sqlite in Resources */,
 				FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */,

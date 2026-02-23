@@ -30,7 +30,8 @@ struct TPASSRegionSelectionView: View {
         case .kaohsiung:
             return "kaohsiung_only"
         case .flexible:
-            return "flexible"
+            // 🔧 彈性記帳週期不應該出現在這個列表中
+            return ""
         }
     }
     

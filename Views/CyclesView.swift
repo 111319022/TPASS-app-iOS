@@ -7,6 +7,7 @@ struct CyclesView: View {
     
     @State private var showAddCycleSheet = false
     @State private var selectedCycleForEdit: Cycle? = nil
+    @State private var showFlexibleCycleSheet = false  // 🆕 彈性記帳週期的新增頁面
     
     private var currentCycles: [Cycle] {
         let now = Date()
@@ -41,6 +42,9 @@ struct CyclesView: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 20) {
                         
+                        // 🆕 彈性記帳週期按鈕（獨立區塊）
+                        flexibleCycleButton
+                        
                         // 添加周期按钮
                         addCycleButton
                         
@@ -73,11 +77,61 @@ struct CyclesView: View {
             .sheet(isPresented: $showAddCycleSheet) {
                 AddCycleView()
             }
+            .sheet(isPresented: $showFlexibleCycleSheet) {
+                AddFlexibleCycleView()  // 🆕 彈性記帳週期的新增頁面
+            }
             .sheet(item: $selectedCycleForEdit) { cycle in
                 EditCycleView(cycle: cycle)
             }
         }
         .navigationViewStyle(.stack)
+    }
+    
+    // MARK: - 🆕 彈性記帳週期按鈕（獨立）
+    private var flexibleCycleButton: some View {
+        VStack(spacing: 12) {
+            Button(action: { showFlexibleCycleSheet = true }) {
+                HStack(spacing: 12) {
+                    // 圖示
+                    ZStack {
+                        Circle()
+                            .fill(Color.purple.opacity(0.15))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "calendar.badge.plus")
+                            .font(.title3)
+                            .foregroundColor(.purple)
+                    }
+                    
+                    // 文字說明
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("flexible_cycle_title")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(themeManager.primaryTextColor)
+                        Text("flexible_cycle_subtitle")
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                    }
+                    
+                    Spacer()
+                    
+                    // 箭頭
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.purple.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+        }
     }
     
     // MARK: - 添加周期按钮
@@ -494,3 +548,278 @@ struct EditCycleView: View {
         }
     }
 }
+// MARK: - 🆕 彈性記帳週期新增頁面
+struct AddFlexibleCycleView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    @State private var startDate = Date()
+    @State private var endDate = Date()
+    @State private var showOverlapAlert = false
+    @State private var showInfoSheet = false  // 顯示說明頁面
+    
+    init() {
+        // 初始化：自動設定為當月月初到月底
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.year, .month], from: now)
+        
+        if let firstDay = calendar.date(from: components) {
+            _startDate = State(initialValue: firstDay)
+            
+            // 計算當月最後一天
+            if let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay),
+               let lastDay = calendar.date(byAdding: .second, value: -1, to: nextMonth) {
+                _endDate = State(initialValue: calendar.startOfDay(for: lastDay))
+            } else {
+                _endDate = State(initialValue: calendar.date(byAdding: .day, value: 29, to: firstDay) ?? firstDay)
+            }
+        }
+    }
+    
+    private var hasDateOverlap: Bool {
+        let cycles = auth.currentUser?.cycles ?? []
+        return cycles.contains { existingCycle in
+            !(endDate < existingCycle.start || startDate > existingCycle.end)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Rectangle()
+                    .fill(themeManager.backgroundColor)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // 🎨 標題區塊
+                        headerSection
+                        
+                        // 📅 日期選擇
+                        dateSection
+                        
+                        // ℹ️ 功能說明
+                        infoSection
+                        
+                        // 💡 使用提示
+                        tipsSection
+                        
+                        Spacer(minLength: 20)
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationTitle("flexible_cycle_title")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("save") {
+                        if hasDateOverlap {
+                            showOverlapAlert = true
+                        } else {
+                            saveFlexibleCycle()
+                        }
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+            .alert("date_overlap_warning", isPresented: $showOverlapAlert) {
+                Button("cancel", role: .cancel) { }
+                Button("proceed", role: .destructive) {
+                    HapticManager.shared.notification(type: .warning)
+                    saveFlexibleCycle()
+                }
+            } message: {
+                Text("date_overlap_message")
+            }
+        }
+    }
+    
+    // MARK: - 標題區塊
+    private var headerSection: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.purple.opacity(0.15))
+                    .frame(width: 60, height: 60)
+                Image(systemName: "calendar.badge.plus")
+                    .font(.system(size: 28))
+                    .foregroundColor(.purple)
+            }
+            
+            Text("flexible_cycle_header_title")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(themeManager.primaryTextColor)
+            
+            Text("flexible_cycle_header_subtitle")
+                .font(.subheadline)
+                .foregroundColor(themeManager.secondaryTextColor)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 8)
+    }
+    
+    // MARK: - 日期選擇
+    private var dateSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "calendar")
+                    .foregroundColor(.purple)
+                Text("cycle_period")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            VStack(spacing: 12) {
+                HStack {
+                    Text("start_date")
+                        .font(.subheadline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                        .frame(width: 80, alignment: .leading)
+                    
+                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                        .labelsHidden()
+                }
+                
+                Divider()
+                
+                HStack {
+                    Text("end_date")
+                        .font(.subheadline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                        .frame(width: 80, alignment: .leading)
+                    
+                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                        .labelsHidden()
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(themeManager.cardBackgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+            )
+        }
+    }
+    
+    // MARK: - 功能說明
+    private var infoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(.purple)
+                Text("flexible_cycle_features")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                featureRow(icon: "bus.doubledecker.fill", title: "flexible_feature_all_modes", color: .green)
+                featureRow(icon: "location.fill", title: "flexible_feature_all_regions", color: .blue)
+                featureRow(icon: "dollarsign.circle", title: "flexible_feature_no_monthly_fee", color: .orange)
+                featureRow(icon: "chart.bar.fill", title: "flexible_feature_expense_tracking", color: .purple)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(themeManager.cardBackgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+            )
+        }
+    }
+    
+    // MARK: - 使用提示
+    private var tipsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundColor(.yellow)
+                Text("flexible_cycle_use_cases")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            VStack(alignment: .leading, spacing: 10) {
+                tipRow(number: "1", text: "flexible_tip_1")
+                tipRow(number: "2", text: "flexible_tip_2")
+                tipRow(number: "3", text: "flexible_tip_3")
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.yellow.opacity(0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+    
+    // MARK: - 輔助 Views
+    private func featureRow(icon: String, title: LocalizedStringKey, color: Color) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(color)
+                .frame(width: 28)
+            
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(themeManager.primaryTextColor)
+            
+            Spacer()
+        }
+    }
+    
+    private func tipRow(number: String, text: LocalizedStringKey) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.yellow.opacity(0.3))
+                    .frame(width: 24, height: 24)
+                Text(number)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
+            }
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(themeManager.secondaryTextColor)
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - 儲存方法
+    private func saveFlexibleCycle() {
+        HapticManager.shared.impact(style: .medium)
+        auth.addCycle(start: startDate, end: endDate, region: .flexible)
+        
+        let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
+        if isCycleNotifOn {
+            let tempCycle = Cycle(id: UUID().uuidString, start: startDate, end: endDate, region: .flexible)
+            NotificationManager.shared.scheduleCycleReminders(enabled: true, currentCycle: tempCycle)
+        }
+        
+        presentationMode.wrappedValue.dismiss()
+    }
+}
+
