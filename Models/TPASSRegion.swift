@@ -155,7 +155,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
             // 宜蘭：全票15，學生10
             return identity == .student ? "10" : "15"
         case .central:
-            // 台中市區公車：全票20，學生15
+            // 台中市區公車：全票學生15
             return identity == .student ? "15" : "15"
         case .south, .kaohsiung:
             // 高雄公車：全票12x，學生10
@@ -165,7 +165,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return identity == .student ? "0" : "0"
         case .tainanNoTRA, .tainanWithTRA, .tainanChiayiTRA, .chiayiTainan:
             // 🆕 台南公車：全票18，學生10
-            return identity == .student ? "15" : "18"
+            return identity == .student ? "9" : "18"
         }
     }
     
