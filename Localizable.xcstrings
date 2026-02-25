@@ -3592,6 +3592,23 @@
         }
       }
     },
+    "hsr" : {
+      "comment" : "High Speed Rail",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSR"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高鐵"
+          }
+        }
+      }
+    },
     "flexible_cycle_button" : {
       "comment" : "Button to add flexible cycle",
       "localizations" : {

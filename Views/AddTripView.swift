@@ -741,7 +741,7 @@ struct StationInputRow: View {
             }
         } label: {
             HStack {
-                Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
+                Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor)
                 Spacer()
                 if let line = dataSource.first(where: { $0.code == lineCode }) {
                     Text(displayLine(line.name))
@@ -750,8 +750,9 @@ struct StationInputRow: View {
                 } else {
                     Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
                 }
-                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
+            .padding(.horizontal, 16)
             .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text(label) + Text(" line"))
@@ -782,7 +783,7 @@ struct StationInputRow: View {
                 Spacer()
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
-            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text(label) + Text(" station"))
             .accessibilityValue(stationName.isEmpty ? Text("select_station") : Text(displayStation(stationName)))
@@ -825,7 +826,7 @@ struct StationInputRow: View {
                 Spacer()
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
-            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
@@ -878,7 +879,6 @@ struct TRALineStationInputRow: View {
                     Text(label)
                         .font(.caption)
                         .foregroundColor(themeManager.primaryTextColor)
-                        .padding(.leading, 12)
                     Spacer()
                     Text(selectedLineText)
                         .font(.subheadline)
@@ -889,8 +889,8 @@ struct TRALineStationInputRow: View {
                     Image(systemName: "chevron.down")
                         .font(.caption2)
                         .foregroundColor(themeManager.primaryTextColor)
-                        .padding(.trailing, 8)
                 }
+                .padding(.horizontal, 16)
                 .frame(maxHeight: .infinity)
                 .frame(maxWidth: .infinity)
                 .background(Color.gray.opacity(0.05))
@@ -934,7 +934,7 @@ struct TRALineStationInputRow: View {
                         .font(.caption2)
                         .foregroundColor(themeManager.primaryTextColor)
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .opacity(selectedRegion == nil ? 0.6 : 1.0)
                 .accessibilityElement(children: .combine)

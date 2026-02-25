@@ -99,7 +99,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
         switch self {
         case .flexible:
             // 🆕 彈性記帳週期：支援所有運具類型
-            return [.mrt, .bus, .coach, .tra, .tymrt, .tcmrt, .kmrt, .lrt, .bike, .ferry]
+            return [.mrt, .bus, .coach, .tra, .hsr, .tymrt, .tcmrt, .kmrt, .lrt, .bike, .ferry]
         case .north:
             return [.mrt, .bus, .coach, .tra, .tymrt, .lrt, .bike]
         case .taoZhuZhu:

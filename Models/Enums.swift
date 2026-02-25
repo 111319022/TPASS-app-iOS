@@ -6,6 +6,7 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
     case mrt, bus, coach, tra, tymrt, lrt, bike, ferry
     case tcmrt // 新增：台中捷運
     case kmrt  // 新增：高雄捷運
+    case hsr   // 新增：高鐵
     
     var id: String { rawValue }
     
@@ -21,6 +22,7 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
         case .ferry: return "ferry"
         case .tcmrt: return "tcmrt"
         case .kmrt: return "kmrt"
+        case .hsr: return "hsr"
         }
     }
 
@@ -40,6 +42,7 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
         case .ferry: return Color(hex: "#1E88E5")
         case .tcmrt: return Color(hex: "#E31937")  // 台中捷運紅色
         case .kmrt: return Color(hex: "#FF6B35")   // 高雄捷運橘色
+        case .hsr: return Color(hex: "#FF6600")    // 高鐵橘色
         }
     }
     
@@ -55,6 +58,7 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
         case .ferry: return "ferry.fill"
         case .tcmrt: return "tram.fill"
         case .kmrt: return "tram.fill"
+        case .hsr: return "train.side.rear.car"
         }
     }
 }

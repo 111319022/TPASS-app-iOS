@@ -147,6 +147,7 @@ class ThemeManager: ObservableObject {
             case .bike: return Color(hex: "#FF7F50")
             case .lrt: return Color(hex: "#FFD93D")
             case .ferry: return Color(hex: "#1E88E5")
+            case .hsr: return Color(hex: "#FF6600")
             }
         case .system where isDark, .dark:
             // 深色模式（包括跟隨系統且當前為深色）
@@ -161,6 +162,7 @@ class ThemeManager: ObservableObject {
             case .coach: return Color(hex: "#FF453A")
             case .bike: return Color(hex: "#FF9F0A")
             case .ferry: return Color(hex: "#64B5F6")
+            case .hsr: return Color(hex: "#FF6600")
             }
         default:
             return type.color

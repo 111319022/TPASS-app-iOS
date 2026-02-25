@@ -213,7 +213,7 @@ struct EditTripView: View {
                                     .foregroundColor(themeManager.primaryTextColor)
                             }
                             .frame(height: 50)
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 16)
                             .background(inputBackgroundColor)
                             .cornerRadius(10)
                             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
@@ -251,7 +251,7 @@ struct EditTripView: View {
                                             .font(.caption2)
                                     }
                                 }
-                                .frame(maxHeight: .infinity).padding(.horizontal, 12)
+                                .frame(maxHeight: .infinity).padding(.horizontal, 16)
                                 .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
                                 .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
                                 .cornerRadius(10)
@@ -288,7 +288,7 @@ struct EditTripView: View {
                                     Text("free_trip")
                                         .font(.subheadline).fontWeight(.medium)
                                 }
-                                .padding(.horizontal, 12).padding(.vertical, 10)
+                                .padding(.horizontal, 16).padding(.vertical, 10)
                                 .background(isFree ? themeManager.accentColor : inputBackgroundColor)
                                 .foregroundColor(isFree ? .white : themeManager.secondaryTextColor)
                                 .cornerRadius(8)
