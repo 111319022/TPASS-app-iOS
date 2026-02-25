@@ -13,11 +13,15 @@ enum TPASSRegion: String, CaseIterable, Codable {
     case centralCitizen = "中彰投苗(市民)"
     case south = "南高屏"
     case kaohsiung = "高雄"
+    case tainanNoTRA = "大台南不含台鐵"  // 🆕 新增：台南方案（不含台鐵）
+    case tainanWithTRA = "大台南台鐵"  // 🆕 新增：台南方案（含台鐵）
+    case tainanChiayiTRA = "大台南加嘉義台鐵"  // 🆕 新增：台南加嘉義台鐵
+    case chiayiTainan = "嘉嘉南"  // 🆕 新增：嘉義台南全區
     case flexible = "彈性記帳週期"  // 🆕 新增：全運具開放的彈性記帳週期
 
     static var allCases: [TPASSRegion] {
         // 🔧 彈性記帳週期不在一般方案列表中，需要單獨處理
-        return [.north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung]
+        return [.north, .taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao, .beiYiMegaPASS, .beiYi, .yilan, .yilan3Days, .central, .centralCitizen, .south, .kaohsiung, .tainanNoTRA, .tainanWithTRA, .tainanChiayiTRA, .chiayiTainan]
     }
     
     /// 取得所有方案（包含彈性記帳週期）
@@ -57,6 +61,14 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return "plan_south"
         case .kaohsiung:
             return "plan_kaohsiung"
+        case .tainanNoTRA:
+            return "plan_tainan_no_tra"
+        case .tainanWithTRA:
+            return "plan_tainan_with_tra"
+        case .tainanChiayiTRA:
+            return "plan_tainan_chiayi_tra"
+        case .chiayiTainan:
+            return "plan_chiayi_tainan"
         }
     }
 
@@ -75,6 +87,10 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .centralCitizen: return 699
         case .south: return 999
         case .kaohsiung: return 399
+        case .tainanNoTRA: return 299  // 🆕 大台南不含台鐵
+        case .tainanWithTRA: return 399  // 🆕 大台南台鐵
+        case .tainanChiayiTRA: return 799  // 🆕 大台南加嘉義台鐵
+        case .chiayiTainan: return 999  // 🆕 嘉嘉南
         }
     }
     
@@ -102,6 +118,18 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return [.tcmrt, .bus, .coach, .tra, .bike]
         case .south, .kaohsiung:
             return [.kmrt, .bus, .coach, .tra, .bike, .lrt, .ferry]
+        case .tainanNoTRA:
+            // 🆕 大台南不含台鐵：公車 + YouBike
+            return [.bus, .bike]
+        case .tainanWithTRA:
+            // 🆕 大台南台鐵：台鐵 + 公車 + YouBike
+            return [.tra, .bus, .bike]
+        case .tainanChiayiTRA:
+            // 🆕 大台南加嘉義台鐵：嘉義-台南內台鐵 + 台南市境內公車 + 台南地區YouBike
+            return [.tra, .bus, .bike]
+        case .chiayiTainan:
+            // 🆕 嘉嘉南：嘉義-台南境內台鐵、公車、公路客運、YouBike
+            return [.tra, .bus, .coach, .bike]
         }
     }
     
@@ -135,6 +163,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .centralCitizen:
             // 台中市區公車：市民前十公里0
             return identity == .student ? "0" : "0"
+        case .tainanNoTRA, .tainanWithTRA, .tainanChiayiTRA, .chiayiTainan:
+            // 🆕 台南公車：全票18，學生10
+            return identity == .student ? "15" : "18"
         }
     }
     
@@ -162,6 +193,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return [.kaohsiungMrtBus, .kaohsiungBike, .tainanTraBus]
         case .kaohsiung:
             return [.kaohsiungMrtBus, .kaohsiungBike]
+        case .tainanNoTRA, .tainanWithTRA, .tainanChiayiTRA, .chiayiTainan:
+            // 🆕 台南/台南嘉義 方案：支援台南台鐵轉公車優惠
+            return [.tainanTraBus]
         }
     }
     
@@ -174,7 +208,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
     var defaultTransferType: TransferDiscountType {
         switch self {
         case .flexible:
-            // 🆕 彈性記帳週期：預設使用雙北轉乘優惠
+            // 彈性記帳週期：預設使用雙北轉乘優惠
             return .taipei
         case .north:
             return .taipei
@@ -192,6 +226,9 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return .kaohsiungMrtBus
         case .kaohsiung:
             return .kaohsiungMrtBus
+        case .tainanNoTRA, .tainanWithTRA, .tainanChiayiTRA, .chiayiTainan:
+            // 🆕 台南方案：預設使用台南台鐵轉公車優惠
+            return .tainanTraBus
         }
     }
     
@@ -229,7 +266,11 @@ enum TPASSRegion: String, CaseIterable, Codable {
             ("3430", "3436")
         ]),
         .south: TRARegionInfo(name: "南高屏", ranges: [("4110", "5160")]),
-        .kaohsiung: TRARegionInfo(name: "高雄", ranges: [("4290", "4460")])
+        .kaohsiung: TRARegionInfo(name: "高雄", ranges: [("4290", "4460")]),
+        .tainanNoTRA: TRARegionInfo(name: "大台南不含台鐵", ranges: []),  // TN不含台鐵
+        .tainanWithTRA: TRARegionInfo(name: "大台南台鐵", ranges: [("4110", "4272")]),  // 台南市區內台鐵站
+        .tainanChiayiTRA: TRARegionInfo(name: "大台南加嘉義台鐵", ranges: [("4050", "4272")]),  // 嘉義-台南台鐵
+        .chiayiTainan: TRARegionInfo(name: "嘉嘉南", ranges: [("4050", "4272")])  // 嘉義-台南台鐵
     ]
     
     func traRegionName() -> String {
@@ -299,6 +340,21 @@ enum TPASSRegion: String, CaseIterable, Codable {
         case .kaohsiung:
             return [
                 ("4290", "4460")  // 大湖 - 九曲堂
+            ]
+        case .tainanNoTRA:
+            // 大台南不含台鐵：不含台鐵站點
+            return []
+        case .tainanWithTRA:
+            // 大台南台鐵：台南市區內台鐵站（新營-保安+沙崙線）
+            return [
+                ("4110", "4270"), // 後壁 - 保安
+                ("4270", "4272")  // 沙崙線：中洲-沙崙
+            ]
+        case .tainanChiayiTRA, .chiayiTainan:
+            // 大台南加嘉義台鐵 / 嘉嘉南：嘉義-台南內台鐵（嘉北-保安+沙崙線）
+            return [
+                ("4050", "4270"), // 嘉北 - 保安
+                ("4270", "4272")  // 沙崙線：中洲-沙崙
             ]
         }
     }

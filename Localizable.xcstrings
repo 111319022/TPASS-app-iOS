@@ -1680,6 +1680,23 @@
         }
       }
     },
+    "chiayi_tainan_description" : {
+      "comment" : "Description for Chiayi & Tainan plan",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "TRA, Bus, Coach, YouBike in Chiayi-Tainan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "嘉義、台南"
+          }
+        }
+      }
+    },
     "choose_commuter" : {
       "localizations" : {
         "en" : {
@@ -5025,6 +5042,23 @@
         }
       }
     },
+    "plan_chiayi_tainan" : {
+      "comment" : "Chiayi & Tainan",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiayi & Tainan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "嘉嘉南"
+          }
+        }
+      }
+    },
     "plan_flexible" : {
       "localizations" : {
         "en" : {
@@ -5085,6 +5119,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "南高屏"
+          }
+        }
+      }
+    },
+    "plan_tainan_chiayi_tra" : {
+      "comment" : "Tainan + TRA to Chiayi",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan + TRA to Chiayi"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大台南加嘉義台鐵"
+          }
+        }
+      }
+    },
+    "plan_tainan_no_tra" : {
+      "comment" : "Tainan plan without TRA",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan without TRA"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大台南不含台鐵"
+          }
+        }
+      }
+    },
+    "plan_tainan_with_tra" : {
+      "comment" : "Tainan plan with TRA",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan with TRA"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大台南台鐵"
           }
         }
       }
@@ -5642,6 +5727,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台中、彰化、南投、苗栗（台中市民/就學）"
+          }
+        }
+      }
+    },
+    "tainan_chiayi_tra_description" : {
+      "comment" : "Description for Tainan + TRA to Chiayi",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan, Chiayi-Tainan TRA"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南、台鐵至嘉義"
+          }
+        }
+      }
+    },
+    "tainan_no_tra_description" : {
+      "comment" : "Description for Tainan plan without TRA",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan (Only Buses and Youbike)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南（僅公車+YouBike）"
+          }
+        }
+      }
+    },
+    "tainan_with_tra_description" : {
+      "comment" : "Description for Tainan plan with TRA",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南"
           }
         }
       }

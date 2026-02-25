@@ -838,8 +838,25 @@ struct CycleSelectorView: View {
             if !sortedCycles.isEmpty {
                 ForEach(sortedCycles) { cycle in
                     Button { viewModel.selectedCycle = cycle } label: {
-                        if viewModel.selectedCycle?.id == cycle.id { Label(cycle.title, systemImage: "checkmark") }
-                        else { Text(cycle.title) }
+                        if viewModel.selectedCycle?.id == cycle.id {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(cycle.title)
+                                    Text(cycle.region.displayNameKey)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "checkmark")
+                            }
+                        } else {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(cycle.title)
+                                Text(cycle.region.displayNameKey)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                     }
                 }
             }

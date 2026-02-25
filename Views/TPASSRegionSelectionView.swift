@@ -29,6 +29,14 @@ struct TPASSRegionSelectionView: View {
             return "kaohsiung_tainan_pingtung"
         case .kaohsiung:
             return "kaohsiung_only"
+        case .tainanNoTRA:
+            return "tainan_no_tra_description"
+        case .tainanWithTRA:
+            return "tainan_with_tra_description"
+        case .tainanChiayiTRA:
+            return "tainan_chiayi_tra_description"
+        case .chiayiTainan:
+            return "chiayi_tainan_description"
         case .flexible:
             // 🔧 彈性記帳週期不應該出現在這個列表中
             return ""

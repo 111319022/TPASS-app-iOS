@@ -307,14 +307,19 @@ struct CyclesView: View {
     }
     
     private func daysRemaining(_ cycle: Cycle) -> String {
-        let now = Date()
-        if cycle.end < now {
+        let calendar = Calendar.current
+        let now = calendar.startOfDay(for: Date())
+        let endDay = calendar.startOfDay(for: cycle.end)
+        let startDay = calendar.startOfDay(for: cycle.start)
+        
+        if endDay < now {
             return String(localized: "expired")
-        } else if cycle.start > now {
-            let days = Calendar.current.dateComponents([.day], from: now, to: cycle.start).day ?? 0
+        } else if startDay > now {
+            let days = calendar.dateComponents([.day], from: now, to: startDay).day ?? 0
             return String(format: NSLocalizedString("days_until_start", comment: ""), days)
         } else {
-            let days = Calendar.current.dateComponents([.day], from: now, to: cycle.end).day ?? 0
+            // 計算剩餘天數，包含今天（+1）
+            let days = (calendar.dateComponents([.day], from: now, to: endDay).day ?? 0) + 1
             return String(format: NSLocalizedString("days_remaining", comment: ""), days)
         }
     }
