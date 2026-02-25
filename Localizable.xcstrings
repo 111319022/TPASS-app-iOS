@@ -4911,6 +4911,40 @@
         }
       }
     },
+    "first_time_hint_title" : {
+      "comment" : "Title for first-time user hint",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歡迎使用"
+          }
+        }
+      }
+    },
+    "first_time_hint_message" : {
+      "comment" : "Message for first-time user hint about flexible cycle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can start recording trips with this flexible cycle, or set up your first regular cycle in the Cycles page."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您可以依照此彈性週期開始記錄，或者至週期頁面設置第一個正式週期。"
+          }
+        }
+      }
+    },
     "ok" : {
 
     },

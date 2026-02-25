@@ -43,6 +43,7 @@ struct TripListView: View {
     // 使用 AppStorage 自動記住使用者是否看過教學
     @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
     @AppStorage("tutorialStep_v1") private var savedTutorialStep: Int = 0
+    @AppStorage("hasShownFirstTimeHint") private var hasShownFirstTimeHint = false
     @State private var currentTutorialStep: SpotlightTutorialStep = .welcome
     @State private var showTutorial = false
     @State private var tutorialPositions = TutorialPositions()
@@ -245,7 +246,7 @@ struct TripListView: View {
                             }
                         }
                     
-                    if viewModel.groupedTrips.isEmpty && !shouldShowDemoTripRow && !showTutorial {
+                    if viewModel.groupedTrips.isEmpty && !shouldShowDemoTripRow {
                         VStack(spacing: 16) {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 36))
@@ -253,9 +254,51 @@ struct TripListView: View {
                             Text("noTripsRecorded")
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
+                            
+                            // 新使用者提示：只在首次且當前週期是彈性週期時顯示
+                            if let cycle = viewModel.activeCycle, cycle.region == .flexible, !hasShownFirstTimeHint {
+                                VStack(spacing: 12) {
+                                    Text("first_time_hint_title")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(themeManager.primaryTextColor)
+                                    
+                                    Text("first_time_hint_message")
+                                        .font(.subheadline)
+                                        .foregroundColor(themeManager.secondaryTextColor)
+                                        .multilineTextAlignment(.center)
+                                        .lineSpacing(4)
+                                }
+                                .padding(20)
+                                .background(themeManager.cardBackgroundColor)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1.5)
+                                )
+                                .padding(.horizontal, 40)
+                                .padding(.top, 8)
+                                .onTapGesture {
+                                    // 點擊後標記為已顯示
+                                    hasShownFirstTimeHint = true
+                                }
+                                .onAppear {
+                                    print("🎉 [DEBUG] First time hint displayed!")
+                                    print("   - Cycle: \(cycle.title)")
+                                    print("   - Region: \(cycle.region)")
+                                    print("   - hasShownFirstTimeHint: \(hasShownFirstTimeHint)")
+                                }
+                            }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .multilineTextAlignment(.center)
+                        .onAppear {
+                            print("📋 [DEBUG] Empty trips view displayed")
+                            print("   - activeCycle: \(viewModel.activeCycle?.title ?? "nil")")
+                            print("   - activeCycle region: \(viewModel.activeCycle?.region.rawValue ?? "nil")")
+                            print("   - hasShownFirstTimeHint: \(hasShownFirstTimeHint)")
+                            print("   - shouldShowDemoTripRow: \(shouldShowDemoTripRow)")
+                        }
                     } else {
                         List {
                             // 教學模式：只顯示演示行程

@@ -44,15 +44,47 @@ final class AuthService: NSObject, ObservableObject {
     }
     
     func createAnonymousUser(identity: Identity) {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // 自動創建當月的彈性週期（從1號到月底）
+        guard let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now)),
+              let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth) else {
+            // 如果日期計算失敗，創建不含週期的用戶
+            let user = User(
+                id: UUID().uuidString,
+                email: "",
+                cycles: [],
+                identity: identity
+            )
+            currentUser = user
+            saveLocalUser()
+            isRestoringSession = false
+            return
+        }
+        
+        let idVal = Int64(Date().timeIntervalSince1970 * 1000)
+        let startAtMidnight = calendar.startOfDay(for: startOfMonth)
+        let endAtMidnight = calendar.startOfDay(for: endOfMonth)
+        
+        let initialCycle = Cycle(
+            id: String(idVal),
+            start: startAtMidnight,
+            end: endAtMidnight,
+            region: .flexible
+        )
+        
         let user = User(
             id: UUID().uuidString,
             email: "",
-            cycles: [],
+            cycles: [initialCycle],
             identity: identity
         )
         currentUser = user
         saveLocalUser()
         isRestoringSession = false
+        
+        print("🎉 [Auth] Created first-time user with flexible cycle: \(startOfMonth.formatted(date: .abbreviated, time: .omitted)) - \(endOfMonth.formatted(date: .abbreviated, time: .omitted))")
     }
     
     // MARK: - 用戶設定更新（本地保存）

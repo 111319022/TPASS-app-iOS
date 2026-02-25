@@ -335,7 +335,10 @@ struct SettingsView: View {
             "saved_trips_v1",
             "saved_favorites_v1",
             "isDailyReminderEnabled",
-            "isCycleReminderEnabled"
+            "isCycleReminderEnabled",
+            "hasShownFirstTimeHint",
+            "hasShownTutorial_v1",
+            "tutorialStep_v1"
         ]
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
         UserDefaults.standard.synchronize()
