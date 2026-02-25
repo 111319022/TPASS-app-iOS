@@ -353,7 +353,41 @@ struct TransferIntroductionView: View {
             ]
         ),
         
+        //台南
+        TransferIntroSection(
+            title: "plan_tainan",
+            subtitle: "TransGuide_tainan",
+            rules: [
+                TransferRule(
+                    leftIcon: "train.side.front.car",
+                    rightIcon: "bus.fill",
+                    title: "TransGuide_transfer_tainan_tra_bus",
+                    detailByIdentity: [
+                        Identity.adult: LocalizedStringKey("TransGuideInfo_tainan_tra_bus"),
+                        Identity.student: LocalizedStringKey("TransGuideInfo_tainan_tra_bus"),
+                    ],
+                    arrowType: .single
+                ),
+            ]
+        ),
         
+        //嘉南
+        TransferIntroSection(
+            title: "plan_chiayi_tainan",
+            subtitle: "TransGuide_Chayi_tainan",
+            rules: [
+                TransferRule(
+                    leftIcon: "train.side.front.car",
+                    rightIcon: "bus.fill",
+                    title: "TransGuide_transfer_tainan_tra_bus",
+                    detailByIdentity: [
+                        Identity.adult: LocalizedStringKey("TransGuideInfo_tainan_tra_bus"),
+                        Identity.student: LocalizedStringKey("TransGuideInfo_tainan_tra_bus"),
+                    ],
+                    arrowType: .single
+                ),
+            ]
+        ),
     ]
 
     var body: some View {
