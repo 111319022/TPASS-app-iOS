@@ -212,6 +212,76 @@ enum TransferDiscountType: String, Codable, CaseIterable, Identifiable {
         let discountedPrice = max(originalPrice - discountAmount, 0)
         return discountedPrice
     }
+    
+    // 市民限定轉乘方案的縣市要求
+    var citizenRequirement: TaiwanCity? {
+        switch self {
+        case .taoyuan_tymrt_bus, .taoyuan_bus_tymrt:
+            return .taoyuan  // 桃園市民限定
+        default:
+            return nil  // 無市民限定
+        }
+    }
+    
+    // 檢查是否為市民限定方案
+    var isCitizenOnly: Bool {
+        return citizenRequirement != nil
+    }
+}
+
+// MARK: - 台灣縣市
+enum TaiwanCity: String, Codable, CaseIterable, Identifiable {
+    case taipei = "台北市"
+    case newTaipei = "新北市"
+    case taoyuan = "桃園市"
+    case taichung = "台中市"
+    case tainan = "台南市"
+    case kaohsiung = "高雄市"
+    case keelung = "基隆市"
+    case hsinchu = "新竹市"
+    case chiayi = "嘉義市"
+    case yilan = "宜蘭縣"
+    case hsinchuCounty = "新竹縣"
+    case miaoli = "苗栗縣"
+    case changhua = "彰化縣"
+    case nantou = "南投縣"
+    case yunlin = "雲林縣"
+    case chiayiCounty = "嘉義縣"
+    case pingtung = "屏東縣"
+    case taitung = "台東縣"
+    case hualien = "花蓮縣"
+    case penghu = "澎湖縣"
+    case kinmen = "金門縣"
+    case lienchiang = "連江縣"
+    
+    var id: String { rawValue }
+    
+    var displayName: LocalizedStringKey {
+        switch self {
+        case .taipei: return "city_taipei"
+        case .newTaipei: return "city_new_taipei"
+        case .taoyuan: return "city_taoyuan"
+        case .taichung: return "city_taichung"
+        case .tainan: return "city_tainan"
+        case .kaohsiung: return "city_kaohsiung"
+        case .keelung: return "city_keelung"
+        case .hsinchu: return "city_hsinchu"
+        case .chiayi: return "city_chiayi"
+        case .yilan: return "city_yilan"
+        case .hsinchuCounty: return "city_hsinchu_county"
+        case .miaoli: return "city_miaoli"
+        case .changhua: return "city_changhua"
+        case .nantou: return "city_nantou"
+        case .yunlin: return "city_yunlin"
+        case .chiayiCounty: return "city_chiayi_county"
+        case .pingtung: return "city_pingtung"
+        case .taitung: return "city_taitung"
+        case .hualien: return "city_hualien"
+        case .penghu: return "city_penghu"
+        case .kinmen: return "city_kinmen"
+        case .lienchiang: return "city_lienchiang"
+        }
+    }
 }
 
 // MARK: - 捷運資料來源

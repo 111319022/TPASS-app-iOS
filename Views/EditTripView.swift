@@ -64,6 +64,27 @@ struct EditTripView: View {
         auth.currentUser?.identity ?? .adult
     }
     
+    // 根據市民設定篩選轉乘類型
+    private var filteredTransferTypes: [TransferDiscountType] {
+        let allTypes = currentRegion.supportedTransferTypes
+        let userCity = auth.currentUser?.citizenCity
+        
+        // 如果用戶未設定市民縣市（nil），顯示全部
+        guard let userCity = userCity else {
+            return allTypes
+        }
+        
+        // 如果用戶有設定市民縣市，只顯示：
+        // 1. 非市民限定的方案
+        // 2. 符合用戶所屬縣市的市民限定方案
+        return allTypes.filter { transferType in
+            if let requiredCity = transferType.citizenRequirement {
+                return requiredCity == userCity
+            }
+            return true  // 非市民限定的方案都顯示
+        }
+    }
+    
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
     }
@@ -220,17 +241,21 @@ struct EditTripView: View {
                             
                             // 修改：轉乘按鈕可選擇優惠類型
                             Button(action: {
-                                if currentRegion.supportedTransferTypes.count == 1 {
-                                    // 只有一種轉乘類型，直接切換
+                                if filteredTransferTypes.count == 1 {
+                                    // 只有一個轉乘選項，直接切換並帶入
                                     if isTransfer {
                                         isTransfer = false
                                         transferDiscountType = nil
                                     } else {
                                         isTransfer = true
-                                        transferDiscountType = currentRegion.defaultTransferType
+                                        transferDiscountType = filteredTransferTypes.first
                                     }
+                                } else if filteredTransferTypes.isEmpty {
+                                    // 沒有可用的轉乘選項
+                                    isTransfer = false
+                                    transferDiscountType = nil
                                 } else {
-                                    // 多種轉乘類型，總是顯示選擇器
+                                    // 多個轉乘選項，顯示選擇器
                                     showTransferTypePicker = true
                                 }
                             }) {
@@ -246,7 +271,7 @@ struct EditTripView: View {
                                         Text("transfer")
                                             .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
                                     }
-                                    if currentRegion.supportedTransferTypes.count > 1 && isTransfer {
+                                    if filteredTransferTypes.count > 1 && isTransfer {
                                         Image(systemName: "chevron.down")
                                             .font(.caption2)
                                     }
@@ -257,11 +282,12 @@ struct EditTripView: View {
                                 .cornerRadius(10)
                             }
                             .frame(height: 50)
+                            .disabled(filteredTransferTypes.isEmpty)
                             .accessibilityLabel(Text("a11y_transfer_discount"))
                             .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-                            .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+                            .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
                             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
-                                ForEach(currentRegion.supportedTransferTypes) { type in
+                                ForEach(filteredTransferTypes) { type in
                                     Button(action: {
                                         isTransfer = true
                                         transferDiscountType = type

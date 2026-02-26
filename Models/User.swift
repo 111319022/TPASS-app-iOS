@@ -88,13 +88,14 @@ struct User: Identifiable, Codable, Equatable {
     var email: String
     var cycles: [Cycle]
     var identity: Identity
+    var citizenCity: TaiwanCity?  // 市民縣市設定（nil 表示顯示全部）
     
     // UI 顯示用 (不存入 Firestore)
     var displayName: String?
     var photoURL: URL?
     
     enum CodingKeys: String, CodingKey {
-        case id, email, cycles, identity, isVIP
+        case id, email, cycles, identity, isVIP, citizenCity
     }
     
     // 讀取
@@ -117,6 +118,8 @@ struct User: Identifiable, Codable, Equatable {
         // Identity 讀取 (預設 adult)
         identity = (try? container.decode(Identity.self, forKey: .identity)) ?? .adult
         
+        // CitizenCity 讀取 (預設 nil，顯示全部)
+        citizenCity = try? container.decode(TaiwanCity.self, forKey: .citizenCity)
         
         displayName = nil
         photoURL = nil
@@ -129,14 +132,16 @@ struct User: Identifiable, Codable, Equatable {
         try container.encode(email, forKey: .email)
         try container.encode(cycles, forKey: .cycles)
         try container.encode(identity, forKey: .identity)
+        try container.encodeIfPresent(citizenCity, forKey: .citizenCity)
     }
     
     // 手動初始化
-    init(id: String, email: String, cycles: [Cycle], identity: Identity, isVIP: Bool = false, displayName: String? = nil, photoURL: URL? = nil) {
+    init(id: String, email: String, cycles: [Cycle], identity: Identity, isVIP: Bool = false, citizenCity: TaiwanCity? = nil, displayName: String? = nil, photoURL: URL? = nil) {
         self.id = id
         self.email = email
         self.cycles = cycles
         self.identity = identity
+        self.citizenCity = citizenCity
         self.displayName = displayName
         self.photoURL = photoURL
     }
@@ -146,6 +151,7 @@ struct User: Identifiable, Codable, Equatable {
                lhs.email == rhs.email &&
                lhs.cycles == rhs.cycles &&
                lhs.identity == rhs.identity &&
+               lhs.citizenCity == rhs.citizenCity &&
                lhs.photoURL == rhs.photoURL
     }
 }

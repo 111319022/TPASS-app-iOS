@@ -69,7 +69,7 @@ struct SettingsView: View {
                 }
                 
                 // MARK: - 2. TPASS 設定
-                Section(header: Text("tpassSettings")) {
+                Section {
                     // 身分選擇
                     Picker(selection: Binding(
                         get: { auth.currentUser?.identity ?? .adult },
@@ -82,6 +82,22 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "person.text.rectangle").foregroundColor(.blue)
                             Text("ticketType")
+                        }
+                    }
+                    
+                    // 市民縣市選擇
+                    Picker(selection: Binding(
+                        get: { auth.currentUser?.citizenCity },
+                        set: { auth.updateCitizenCity($0) }
+                    )) {
+                        Text("citizen_city_all").tag(nil as TaiwanCity?)
+                        ForEach(TaiwanCity.allCases) { city in
+                            Text(city.displayName).tag(city as TaiwanCity?)
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "building.2.fill").foregroundColor(.green)
+                            Text("citizen_city")
                         }
                     }
                     
@@ -100,6 +116,12 @@ struct SettingsView: View {
                             Text("transfer_intro")
                         }
                     }
+                } header: {
+                    Text("tpassSettings")
+                } footer: {
+                    Text("citizen_city_footer")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 
                 // MARK: - 3. 偏好設定

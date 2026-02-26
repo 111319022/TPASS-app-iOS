@@ -96,6 +96,13 @@ final class AuthService: NSObject, ObservableObject {
         saveLocalUser()
     }
     
+    func updateCitizenCity(_ city: TaiwanCity?) {
+        guard var user = currentUser else { return }
+        user.citizenCity = city
+        currentUser = user
+        saveLocalUser()
+    }
+    
     func addCycle(start: Date, end: Date, region: TPASSRegion = .north) {
         guard var user = currentUser else { return }
         
