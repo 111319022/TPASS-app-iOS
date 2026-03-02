@@ -68,6 +68,7 @@ struct QuickAddHomeView: View {
     @State private var showTransferTypePicker = false
     @State private var showDateOutOfRangeAlert = false
     @State private var showNoHomeStationsAlert = false
+    @State private var showHomeStationSettings = false
     
     var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
@@ -288,15 +289,33 @@ struct QuickAddHomeView: View {
                             .foregroundColor(themeManager.secondaryTextColor)
                     }
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showHomeStationSettings = true }) {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundColor(themeManager.accentColor)
+                    }
+                }
             }
             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
                 transferTypeDialogActions
+            }
+            .sheet(isPresented: $showHomeStationSettings) {
+                NavigationView {
+                    HomeStationSettingsView(showCloseButton: true)
+                }
             }
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
             Button("ok", role: .cancel) { }
         } message: {
             Text("date_out_of_cycle_message")
+        }
+        .onAppear {
+            // 設定當前時間，避免秒數錯誤
+            let now = Date()
+            date = now
+            time = now
         }
         .onChange(of: startStation) { _, _ in
             if let homeStation = selectedHomeStation {

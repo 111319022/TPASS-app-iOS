@@ -409,6 +409,11 @@ struct AddTripView: View {
         }
         
         .onAppear {
+            // 設定當前時間，避免秒數錯誤
+            let now = Date()
+            date = now
+            time = now
+            
             // 初始化 selectedType 為當前地區支持的第一種運具
             if let firstMode = currentRegion.supportedModes.first {
                 selectedType = firstMode

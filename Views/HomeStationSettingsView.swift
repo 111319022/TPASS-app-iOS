@@ -2,9 +2,11 @@ import SwiftUI
 
 struct HomeStationSettingsView: View {
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
     
+    var showCloseButton: Bool = false
     @State private var showAddStation = false
     
     var homeStations: [HomeStation] {
@@ -47,6 +49,17 @@ struct HomeStationSettingsView: View {
         .navigationTitle("home_stations_settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if showCloseButton {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(themeManager.secondaryTextColor)
+                    }
+                }
+            }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     showAddStation = true
@@ -137,7 +150,7 @@ struct AddHomeStationView: View {
                     Picker("transport_type", selection: $selectedType) {
                         ForEach(TransportType.allCases.filter { type in
                             // 只顯示有站點的運具類型
-                            type == .mrt || type == .tra || type == .bus || type == .tymrt || type == .tcmrt || type == .kmrt
+                            type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .bike
                         }) { type in
                             HStack {
                                 Image(systemName: type.systemIconName)
@@ -267,7 +280,7 @@ struct AddHomeStationView: View {
                             }
                         }
                     } else {
-                        // 公車站手動輸入
+                        // 公車、客運、Ubike 站點手動輸入
                         TextField("station_name", text: $stationName)
                     }
                 } header: {
