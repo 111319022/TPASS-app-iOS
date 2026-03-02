@@ -70,18 +70,38 @@ struct DashboardView: View {
             }
         }
         .onAppear {
-            if viewModel.selectedCycle == nil, let cycles = auth.currentUser?.cycles {
-                let sortedCycles = cycles.sorted { $0.start > $1.start }
-                if let first = sortedCycles.first {
-                    viewModel.selectedCycle = first
+            if let user = auth.currentUser {
+                let sortedCycles = user.cycles.sorted { $0.start > $1.start }
+                
+                // 檢查 selectedCycle 是否有效（存在於週期列表中）
+                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                    user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
+                
+                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
+                if !isSelectedCycleValid {
+                    let newCycle = sortedCycles.first
+                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
+                    if viewModel.selectedCycle?.id != newCycle?.id {
+                        viewModel.selectedCycle = newCycle
+                    }
                 }
             }
         }
-        .onChange(of: auth.currentUser) { oldValue, newValue in
-            if viewModel.selectedCycle == nil, let cycles = newValue?.cycles {
-                let sortedCycles = cycles.sorted { $0.start > $1.start }
-                if let first = sortedCycles.first {
-                    viewModel.selectedCycle = first
+        .onChange(of: auth.currentUser?.cycles.count) { oldCount, newCount in
+            if let user = auth.currentUser {
+                let sortedCycles = user.cycles.sorted { $0.start > $1.start }
+                
+                // 檢查 selectedCycle 是否有效（存在於週期列表中）
+                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                    user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
+                
+                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
+                if !isSelectedCycleValid {
+                    let newCycle = sortedCycles.first
+                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
+                    if viewModel.selectedCycle?.id != newCycle?.id {
+                        viewModel.selectedCycle = newCycle
+                    }
                 }
             }
         }
@@ -111,30 +131,24 @@ struct DashboardView: View {
     private var cyclePickerSection: some View {
         let sortedCycles = (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
         return Menu {
-            Button { viewModel.selectedCycle = nil } label: {
-                Label("currentCycleAuto", systemImage: viewModel.selectedCycle == nil ? "checkmark" : "")
-            }
-            Divider()
             if !sortedCycles.isEmpty {
                 ForEach(sortedCycles) { cycle in
                     Button { viewModel.selectedCycle = cycle } label: {
                         if viewModel.selectedCycle?.id == cycle.id {
                             Label {
-                                VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 4) {
                                     Text(cycle.title)
+                                    Text("·")
                                     Text(cycle.region.displayNameKey)
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
                                 }
                             } icon: {
                                 Image(systemName: "checkmark")
                             }
                         } else {
-                            VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 4) {
                                 Text(cycle.title)
+                                Text("·")
                                 Text(cycle.region.displayNameKey)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -153,12 +167,12 @@ struct DashboardView: View {
                         .foregroundColor(.secondary)
                 }
                 
-                if let region = currentCycleRegion as TPASSRegion? {
+                if let cycle = viewModel.selectedCycle {
                     HStack(spacing: 6) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.caption2)
                             .foregroundColor(themeManager.accentColor)
-                        Text(region.displayNameKey)
+                        Text(cycle.region.displayNameKey)
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                         Spacer()

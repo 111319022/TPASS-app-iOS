@@ -15,6 +15,8 @@ struct TripListView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) var modelContext
     
+    @SceneStorage("mainTab.selectedTab") private var selectedTab: Int = 0
+    
     // 統一的水平邊距，確保所有元素對齊
     private let horizontalPagePadding: CGFloat = 20
     
@@ -37,6 +39,7 @@ struct TripListView: View {
     //     新增：轉乘類型選擇
     @State private var transferSelectionData: TransferSelectionData?
     
+    @State private var showNoCycleAlert = false
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
     
@@ -217,7 +220,13 @@ struct TripListView: View {
                             .foregroundColor(themeManager.primaryTextColor)
                         Spacer()
                         
-                        Button(action: { showQuickAddHomeSheet = true }) {
+                        Button(action: { 
+                            if auth.currentUser?.cycles.isEmpty ?? true {
+                                showNoCycleAlert = true
+                            } else {
+                                showQuickAddHomeSheet = true
+                            }
+                        }) {
                             Image(systemName: "house.circle.fill")
                                 .font(.system(size: 28))
                                 .foregroundColor(themeManager.accentColor)
@@ -265,8 +274,11 @@ struct TripListView: View {
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
                             
-                            // 新使用者提示：只在首次且當前週期是彈性週期時顯示
-                            if let cycle = viewModel.activeCycle, cycle.region == .flexible, !hasShownFirstTimeHint {
+                            // 新使用者提示：只在首次、只有一個週期、且該週期是彈性週期時顯示
+                            if let cycle = viewModel.activeCycle, 
+                               cycle.region == .flexible,
+                               (auth.currentUser?.cycles.count ?? 0) <= 1,
+                               !hasShownFirstTimeHint {
                                 VStack(spacing: 12) {
                                     Text("first_time_hint_title")
                                         .font(.headline)
@@ -390,7 +402,13 @@ struct TripListView: View {
                 // 浮動新增按鈕
                 VStack {
                     Spacer()
-                    Button(action: { showAddTripSheet = true }) {
+                    Button(action: { 
+                        if auth.currentUser?.cycles.isEmpty ?? true {
+                            showNoCycleAlert = true
+                        } else {
+                            showAddTripSheet = true
+                        }
+                    }) {
                         HStack(spacing: 8) {
                             Image(systemName: "plus")
                                 .font(.system(size: 20, weight: .bold))
@@ -473,6 +491,8 @@ struct TripListView: View {
                 showCommuterNamePrompt: $showCommuterNamePrompt,
                 commuterRouteName: $commuterRouteName,
                 pendingCommuterTrip: $pendingCommuterTrip,
+                showNoCycleAlert: $showNoCycleAlert,
+                selectedTab: $selectedTab,
                 showToast: showToast
             ))
             .alert("duplicate_trip_past_title", isPresented: Binding(
@@ -542,10 +562,20 @@ struct TripListView: View {
             
         }
         .onAppear {
-            if let user = auth.currentUser, viewModel.selectedCycle == nil {
+            if let user = auth.currentUser {
                 let sortedCycles = user.cycles.sorted { $0.start > $1.start }
-                if let firstCycle = sortedCycles.first {
-                    viewModel.selectedCycle = firstCycle
+                
+                // 檢查 selectedCycle 是否有效（存在於週期列表中）
+                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                    user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
+                
+                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
+                if !isSelectedCycleValid {
+                    let newCycle = sortedCycles.first
+                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
+                    if viewModel.selectedCycle?.id != newCycle?.id {
+                        viewModel.selectedCycle = newCycle
+                    }
                 }
             }
             
@@ -566,11 +596,21 @@ struct TripListView: View {
                 }
             }
         }
-        .onChange(of: auth.currentUser) { oldUser, user in
-            if let user = user, viewModel.selectedCycle == nil {
+        .onChange(of: auth.currentUser?.cycles.count) { oldCount, newCount in
+            if let user = auth.currentUser {
                 let sortedCycles = user.cycles.sorted { $0.start > $1.start }
-                if let firstCycle = sortedCycles.first {
-                    viewModel.selectedCycle = firstCycle
+                
+                // 檢查 selectedCycle 是否有效（存在於週期列表中）
+                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                    user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
+                
+                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
+                if !isSelectedCycleValid {
+                    let newCycle = sortedCycles.first
+                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
+                    if viewModel.selectedCycle?.id != newCycle?.id {
+                        viewModel.selectedCycle = newCycle
+                    }
                 }
             }
         }
@@ -884,31 +924,24 @@ struct CycleSelectorView: View {
     
     var body: some View {
         Menu {
-            Button { viewModel.selectedCycle = nil } label: {
-                if viewModel.selectedCycle == nil { Label("currentCycleAuto", systemImage: "checkmark") }
-                else { Text("currentCycleAuto") }
-            }
-            Divider()
             if !sortedCycles.isEmpty {
                 ForEach(sortedCycles) { cycle in
                     Button { viewModel.selectedCycle = cycle } label: {
                         if viewModel.selectedCycle?.id == cycle.id {
                             Label {
-                                VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 4) {
                                     Text(cycle.title)
+                                    Text("·")
                                     Text(cycle.region.displayNameKey)
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
                                 }
                             } icon: {
                                 Image(systemName: "checkmark")
                             }
                         } else {
-                            VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 4) {
                                 Text(cycle.title)
+                                Text("·")
                                 Text(cycle.region.displayNameKey)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -1270,10 +1303,13 @@ struct TripListSheetsModifier: ViewModifier {
 
 struct TripListAlertsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
+    @EnvironmentObject var auth: AuthService
     @Binding var pendingDeleteDate: String?
     @Binding var showCommuterNamePrompt: Bool
     @Binding var commuterRouteName: String
     @Binding var pendingCommuterTrip: Trip?
+    @Binding var showNoCycleAlert: Bool
+    @Binding var selectedTab: Int
     let showToast: (LocalizedStringKey) -> Void
     
     func body(content: Content) -> some View {
@@ -1309,6 +1345,14 @@ struct TripListAlertsModifier: ViewModifier {
                 }
             } message: {
                 Text("commuter_name_prompt")
+            }
+            .alert("no_cycles_yet", isPresented: $showNoCycleAlert) {
+                Button("cancel", role: .cancel) { }
+                Button("add_new_cycle") {
+                    selectedTab = 2 // 切換到週期頁面
+                }
+            } message: {
+                Text("no_cycles_description")
             }
     }
 }

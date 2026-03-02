@@ -44,6 +44,9 @@
     ":" : {
 
     },
+    "·" : {
+
+    },
     "(" : {
 
     },
@@ -2836,6 +2839,7 @@
       }
     },
     "currentCycleAuto" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6854,14 +6858,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "TPASS Settings"
+            "state" : "needs_review",
+            "value" : "TPASS"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "TPASS 設定"
+            "value" : "TPASS"
           }
         }
       }
