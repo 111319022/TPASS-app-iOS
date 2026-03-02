@@ -367,6 +367,11 @@ class TRAStationData {
         return getRegions(for: region).flatMap { $0.stations }
     }
     
+    /// 獲取全台灣所有線路（不受 TPASS 方案限制）
+    func getAllRegions() -> [TRARegion] {
+        return rawRegions
+    }
+    
     // 雙語化支援：中文站名 → 英文站名 (依照 ID 0900-7390 排序)
     private let stationNameENByZH: [String: String] = [
         // 0900 - 0990

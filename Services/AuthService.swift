@@ -103,6 +103,34 @@ final class AuthService: NSObject, ObservableObject {
         saveLocalUser()
     }
     
+    // MARK: - 回家站點管理
+    
+    func addHomeStation(name: String, transportType: TransportType, lineCode: String? = nil) {
+        guard var user = currentUser else { return }
+        let newStation = HomeStation(name: name, transportType: transportType, lineCode: lineCode)
+        user.homeStations.append(newStation)
+        currentUser = user
+        saveLocalUser()
+    }
+    
+    func deleteHomeStation(_ station: HomeStation) {
+        guard var user = currentUser else { return }
+        user.homeStations.removeAll { $0.id == station.id }
+        currentUser = user
+        saveLocalUser()
+    }
+    
+    func updateHomeStation(_ station: HomeStation, name: String, transportType: TransportType, lineCode: String? = nil) {
+        guard var user = currentUser else { return }
+        if let index = user.homeStations.firstIndex(where: { $0.id == station.id }) {
+            user.homeStations[index].name = name
+            user.homeStations[index].transportType = transportType
+            user.homeStations[index].lineCode = lineCode
+            currentUser = user
+            saveLocalUser()
+        }
+    }
+    
     func addCycle(start: Date, end: Date, region: TPASSRegion = .north) {
         guard var user = currentUser else { return }
         

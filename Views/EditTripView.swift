@@ -69,20 +69,30 @@ struct EditTripView: View {
         let allTypes = currentRegion.supportedTransferTypes
         let userCity = auth.currentUser?.citizenCity
         
+        var filtered: [TransferDiscountType]
+        
         // 如果用戶未設定市民縣市（nil），顯示全部
-        guard let userCity = userCity else {
-            return allTypes
+        if let userCity = userCity {
+            // 如果用戶有設定市民縣市，只顯示：
+            // 1. 非市民限定的方案
+            // 2. 符合用戶所屬縣市的市民限定方案
+            filtered = allTypes.filter { transferType in
+                if let requiredCity = transferType.citizenRequirement {
+                    return requiredCity == userCity
+                }
+                return true  // 非市民限定的方案都顯示
+            }
+        } else {
+            filtered = allTypes
         }
         
-        // 如果用戶有設定市民縣市，只顯示：
-        // 1. 非市民限定的方案
-        // 2. 符合用戶所屬縣市的市民限定方案
-        return allTypes.filter { transferType in
-            if let requiredCity = transferType.citizenRequirement {
-                return requiredCity == userCity
-            }
-            return true  // 非市民限定的方案都顯示
+        // 重要：如果當前選擇的轉乘類型不在篩選結果中，也要加入
+        // 這樣才能保持編輯時的原有狀態
+        if let currentType = transferDiscountType, !filtered.contains(currentType) {
+            filtered.append(currentType)
         }
+        
+        return filtered
     }
     
     var isFormValid: Bool {
@@ -445,19 +455,21 @@ struct EditTripView: View {
         
         let calendar = Calendar.current
         let dateComps = calendar.dateComponents([.year, .month, .day], from: date)
-        let timeComps = calendar.dateComponents([.hour, .minute], from: time)
+        let timeComps = calendar.dateComponents([.hour, .minute, .second], from: time)
         
         // 获取原始时间的秒数和时分
         let originalTimeComps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
-        let originalSecond = originalTimeComps.second ?? 0
         
         // 判断时间是否有变化
         let timeChanged = (timeComps.hour != originalTimeComps.hour) || (timeComps.minute != originalTimeComps.minute)
         
+        // 使用當前時間的秒數，如果時間有變化則設為 0
+        let finalSecond = timeChanged ? 0 : (timeComps.second ?? 0)
+        
         var finalComps = DateComponents()
         finalComps.year = dateComps.year; finalComps.month = dateComps.month; finalComps.day = dateComps.day
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute
-        finalComps.second = timeChanged ? 0 : originalSecond
+        finalComps.second = finalSecond
         var finalDate = calendar.date(from: finalComps) ?? date
         if let range = allowedDateRange, !range.contains(finalDate) {
             let clamped = min(max(finalDate, range.lowerBound), range.upperBound)

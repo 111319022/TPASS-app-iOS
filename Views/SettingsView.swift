@@ -116,6 +116,14 @@ struct SettingsView: View {
                             Text("transfer_intro")
                         }
                     }
+                    
+                    // 回家站點設定
+                    NavigationLink(destination: HomeStationSettingsView()) {
+                        HStack {
+                            Image(systemName: "house.fill").foregroundColor(.indigo)
+                            Text("home_stations_settings")
+                        }
+                    }
                 } header: {
                     Text("tpassSettings")
                 } footer: {

@@ -636,6 +636,38 @@
         }
       }
     },
+    "a11y_quick_add_home" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Home Trip"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速新增回家路線"
+          }
+        }
+      }
+    },
+    "a11y_quick_add_home_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quickly add a trip to your home station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速新增到回家站點的行程"
+          }
+        }
+      }
+    },
     "a11y_ranked_route_format" : {
       "localizations" : {
         "en" : {
@@ -1004,6 +1036,22 @@
         }
       }
     },
+    "add_home_station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Home Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增回家站點"
+          }
+        }
+      }
+    },
     "add_new_cycle" : {
       "localizations" : {
         "en" : {
@@ -1080,6 +1128,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "補轉乘"
+          }
+        }
+      }
+    },
+    "add_trip_button" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Trip"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增行程"
           }
         }
       }
@@ -4299,6 +4363,22 @@
         }
       }
     },
+    "go_to_settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前往設定"
+          }
+        }
+      }
+    },
     "highest" : {
       "localizations" : {
         "en" : {
@@ -4311,6 +4391,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "最高"
+          }
+        }
+      }
+    },
+    "home_station_info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station Information"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "站點資訊"
+          }
+        }
+      }
+    },
+    "home_stations_list" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Home Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的回家站點"
+          }
+        }
+      }
+    },
+    "home_stations_settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回家站點設定"
           }
         }
       }
@@ -4723,7 +4851,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metro"
+            "value" : "KH. Metro"
           }
         },
         "zh-Hant" : {
@@ -4917,7 +5045,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metro"
+            "value" : "TPE. Metro"
           }
         },
         "zh-Hant" : {
@@ -4988,6 +5116,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "尚未建立週期"
+          }
+        }
+      }
+    },
+    "no_home_stations" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Home Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未設定回家站點"
+          }
+        }
+      }
+    },
+    "no_home_stations_available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Available Home Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前沒有可用的回家站點"
+          }
+        }
+      }
+    },
+    "no_home_stations_available_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The current plan doesn't support the transport types of your saved home stations. Please add home stations that match your current plan."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前方案不支援已儲存的回家站點運具類型。請新增符合目前方案的回家站點。"
+          }
+        }
+      }
+    },
+    "no_home_stations_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add home stations to quickly add trips when heading home"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增回家站點後，可以快速新增回家路線"
           }
         }
       }
@@ -5722,6 +5914,23 @@
         }
       }
     },
+    "please_select" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請選擇"
+          }
+        }
+      }
+    },
     "preferences" : {
       "localizations" : {
         "en" : {
@@ -5799,6 +6008,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "繼續"
+          }
+        }
+      }
+    },
+    "quick_add_home_trip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Home Trip"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速新增回家路線"
           }
         }
       }
@@ -6002,6 +6227,38 @@
         }
       }
     },
+    "select_home_station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Home Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇回家站點"
+          }
+        }
+      }
+    },
+    "select_line" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Line"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇線路"
+          }
+        }
+      }
+    },
     "select_region" : {
       "localizations" : {
         "en" : {
@@ -6077,7 +6334,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇車站"
+            "value" : "選擇站點"
           }
         }
       }
@@ -6095,6 +6352,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選擇轉乘方案"
+          }
+        }
+      }
+    },
+    "select_transport_type" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transport Type"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇運具類型"
           }
         }
       }
@@ -6147,8 +6420,40 @@
         }
       }
     },
+    "station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "站點"
+          }
+        }
+      }
+    },
     "Station" : {
 
+    },
+    "station_name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station Name"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "站點名稱"
+          }
+        }
+      }
     },
     "submit_button" : {
       "localizations" : {
@@ -6303,7 +6608,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metro"
+            "value" : "TC. Metro"
           }
         },
         "zh-Hant" : {
@@ -7377,6 +7682,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "6小時內，公車免費，-$15"
+          }
+        }
+      }
+    },
+    "transport_type" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transport Type"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "運具類型"
           }
         }
       }

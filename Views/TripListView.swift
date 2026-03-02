@@ -20,6 +20,7 @@ struct TripListView: View {
     
     @State private var showAddTripSheet = false
     @State private var showFavoritesSheet = false
+    @State private var showQuickAddHomeSheet = false
     @State private var selectedTripToEdit: Trip?
     @State private var isProcessingSwipeAction = false
     @State private var pendingDuplicateTrip: Trip? = nil
@@ -215,6 +216,15 @@ struct TripListView: View {
                             .fontWeight(.bold)
                             .foregroundColor(themeManager.primaryTextColor)
                         Spacer()
+                        
+                        Button(action: { showQuickAddHomeSheet = true }) {
+                            Image(systemName: "house.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(themeManager.accentColor)
+                                .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
+                        }
+                        .accessibilityLabel(Text("a11y_quick_add_home"))
+                        .accessibilityHint(Text("a11y_quick_add_home_hint"))
                         
                         Button(action: { showFavoritesSheet = true }) {
                             Image(systemName: "star.circle.fill")
@@ -452,6 +462,7 @@ struct TripListView: View {
             .modifier(TripListSheetsModifier(
                 showAddTripSheet: $showAddTripSheet,
                 showFavoritesSheet: $showFavoritesSheet,
+                showQuickAddHomeSheet: $showQuickAddHomeSheet,
                 selectedTripToEdit: $selectedTripToEdit,
                 transferSelectionData: $transferSelectionData,
                 isProcessingSwipeAction: $isProcessingSwipeAction,
@@ -1198,6 +1209,7 @@ struct TripListSheetsModifier: ViewModifier {
     @EnvironmentObject var themeManager: ThemeManager //     添加 themeManager 以傳遞給子視圖
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
+    @Binding var showQuickAddHomeSheet: Bool
     @Binding var selectedTripToEdit: Trip?
     @Binding var transferSelectionData: TransferSelectionData?
     @Binding var isProcessingSwipeAction: Bool
@@ -1215,6 +1227,11 @@ struct TripListSheetsModifier: ViewModifier {
                     showToast("favorites_added \(routeName)")
                 }, onQuickAddCommuter: { routeName in
                     showToast("favorites_added_commuter \(routeName)")
+                })
+            }
+            .sheet(isPresented: $showQuickAddHomeSheet) {
+                QuickAddHomeView(onSuccess: {
+                    showToast("trip_added")
                 })
             }
             .sheet(item: $selectedTripToEdit) { trip in

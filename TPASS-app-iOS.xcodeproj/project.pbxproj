@@ -44,6 +44,8 @@
 		FB6197472F2F73AC000D80B6 /* TRAStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6197462F2F73AC000D80B6 /* TRAStationData.swift */; };
 		FB67606B2F2F91960011F98E /* TRA_Fares_Fixed.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */; };
 		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
+		FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */; };
+		FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */; };
 		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
@@ -95,6 +97,8 @@
 		FB6197462F2F73AC000D80B6 /* TRAStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAStationData.swift; sourceTree = "<group>"; };
 		FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = TRA_Fares_Fixed.sqlite; sourceTree = "<group>"; };
 		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
+		FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStationSettingsView.swift; sourceTree = "<group>"; };
+		FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddHomeView.swift; sourceTree = "<group>"; };
 		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
@@ -201,6 +205,8 @@
 				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
 				FBC660092F4214A900188CEB /* ViewFrameKey.swift */,
 				FBA13DD32F4589380059D64F /* CardScannerView.swift */,
+				FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */,
+				FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -322,6 +328,8 @@
 				FB0D947C2F20C00600B687D3 /* AppViewModel.swift in Sources */,
 				FB6197412F2F67D6000D80B6 /* TRAFareService.swift in Sources */,
 				FB05D3112F2314EE0084F64D /* User.swift in Sources */,
+				FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */,
+				FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */,
 				FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */,
 				FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */,
 				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
@@ -488,7 +496,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -531,7 +539,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
