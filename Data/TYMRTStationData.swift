@@ -94,6 +94,9 @@ class TYMRTStationData {
     /// 根據 TPASS 方案返回可用的機場捷運站點
     func availableStations(for region: TPASSRegion) -> [String] {
         switch region {
+        case .flexible:
+            // 彈性週期：全線可用
+            return line.stations
         case .north:
             // 基北北桃：全線可用（台北車站-老街溪）
             return line.stations

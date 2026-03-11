@@ -401,38 +401,56 @@ struct EditTripView: View {
     // MARK: - Logic
     
     func recalculateMRTPrice() {
+        let oldPrice = price
+        
         // 1. 北捷
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                isTransfer = false // 重置轉乘狀態
+                // 只有當票價實際改變時才重置轉乘狀態
+                if oldPrice != price {
+                    isTransfer = false
+                    transferDiscountType = nil
+                }
             }
         }
         // 2. 機捷
         else if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                isTransfer = false
+                if oldPrice != price {
+                    isTransfer = false
+                    transferDiscountType = nil
+                }
             }
         }
         // 3. 台鐵
         else if selectedType == .tra, !startStation.isEmpty, !endStation.isEmpty {
             let fare = TRAFareService.shared.getFare(from: startStation, to: endStation)
             price = String(fare)
-            isTransfer = false
+            if oldPrice != price {
+                isTransfer = false
+                transferDiscountType = nil
+            }
         }
         // 4. 台中捷運
         else if selectedType == .tcmrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = TCMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                isTransfer = false
+                if oldPrice != price {
+                    isTransfer = false
+                    transferDiscountType = nil
+                }
             }
         }
         // 5. 高雄捷運
         else if selectedType == .kmrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                isTransfer = false
+                if oldPrice != price {
+                    isTransfer = false
+                    transferDiscountType = nil
+                }
             }
         }
     }
@@ -596,6 +614,21 @@ struct EditTripView: View {
         }
         .onAppear {
             restoreTRARegions()
+            
+            // 驗證並修正轉乘資料：如果有轉乘標記但沒有轉乘類型，自動補上
+            if isTransfer && transferDiscountType == nil {
+                // 優先使用當前方案支援的轉乘類型
+                if let firstType = filteredTransferTypes.first {
+                    transferDiscountType = firstType
+                } else {
+                    // 如果當前方案不支援任何轉乘，清除轉乘標記
+                    isTransfer = false
+                }
+            }
+            
+            // 驗證轉乘類型是否在當前方案支援的列表中
+            // 如果不在，但有設定轉乘類型，這是合法的（可能是從其他方案複製過來的）
+            // filteredTransferTypes 已經包含了這個保護邏輯
         }
     }
 

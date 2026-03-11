@@ -25,15 +25,27 @@ struct TPASS_app_iOSApp: App {
             }
             //           結束
 
-            // 注意：使用 SwiftDataModels.swift 裡定義的 class 名稱
-            let schema = Schema(versionedSchema: TPASSSchemaV2.self)
+            // 先嘗試使用當前 models（不使用 versioned schema）
+            // 這樣可以載入舊的非版本化資料庫
+            let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
             let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
-            container = try ModelContainer(for: schema, migrationPlan: TPASSMigrationPlan.self, configurations: config)
+            container = try ModelContainer(for: schema, configurations: config)
+            print("✅ 成功載入資料庫（非版本化模式）")
         } catch {
-            print("⚠️ 無法建立持久化 ModelContainer: \(error)")
-            let schema = Schema(versionedSchema: TPASSSchemaV2.self)
-            let fallbackConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
-            container = try? ModelContainer(for: schema, migrationPlan: TPASSMigrationPlan.self, configurations: fallbackConfig)
+            print("⚠️ 無法以非版本化模式載入: \(error)")
+            // 如果失敗，嘗試使用版本化 schema 和 migration plan
+            do {
+                let schema = Schema(versionedSchema: TPASSSchemaV2.self)
+                let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
+                container = try ModelContainer(for: schema, migrationPlan: TPASSMigrationPlan.self, configurations: config)
+                print("✅ 成功載入資料庫（版本化模式）")
+            } catch {
+                print("⚠️ 版本化模式也失敗: \(error)")
+                // 最後使用記憶體模式
+                let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
+                let fallbackConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+                container = try? ModelContainer(for: schema, configurations: fallbackConfig)
+            }
         }
         modelContainer = container
     }

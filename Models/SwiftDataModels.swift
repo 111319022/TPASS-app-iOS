@@ -79,6 +79,7 @@ final class FavoriteRoute {
     var price: Int
     var isTransfer: Bool
     var isFree: Bool
+    var transferDiscountType: TransferDiscountType?
     
     @Transient var title: String {
         if type == .bus || type == .coach {
@@ -90,7 +91,7 @@ final class FavoriteRoute {
     
     @Transient var displayTitle: String { title }
 
-    init(id: UUID = UUID(), type: TransportType, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool) {
+    init(id: UUID = UUID(), type: TransportType, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool, transferDiscountType: TransferDiscountType? = nil) {
         self.id = id
         self.type = type
         self.startStation = startStation
@@ -99,6 +100,7 @@ final class FavoriteRoute {
         self.price = price
         self.isTransfer = isTransfer
         self.isFree = isFree
+        self.transferDiscountType = transferDiscountType
     }
 }
 
@@ -131,6 +133,59 @@ struct CommuterTripTemplate: Identifiable, Codable, Equatable {
     var isFree: Bool
     var note: String
     var timeSeconds: Int
+    var transferDiscountType: TransferDiscountType?
+    
+    // 自定義 Codable 實作以支持向後兼容
+    enum CodingKeys: String, CodingKey {
+        case id, type, startStation, endStation, routeId, price
+        case isTransfer, isFree, note, timeSeconds, transferDiscountType
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        type = try container.decode(TransportType.self, forKey: .type)
+        startStation = try container.decode(String.self, forKey: .startStation)
+        endStation = try container.decode(String.self, forKey: .endStation)
+        routeId = try container.decode(String.self, forKey: .routeId)
+        price = try container.decode(Int.self, forKey: .price)
+        isTransfer = try container.decode(Bool.self, forKey: .isTransfer)
+        isFree = try container.decode(Bool.self, forKey: .isFree)
+        note = try container.decode(String.self, forKey: .note)
+        timeSeconds = try container.decode(Int.self, forKey: .timeSeconds)
+        // 新欄位使用 decodeIfPresent 以支持舊資料
+        transferDiscountType = try container.decodeIfPresent(TransferDiscountType.self, forKey: .transferDiscountType)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(type, forKey: .type)
+        try container.encode(startStation, forKey: .startStation)
+        try container.encode(endStation, forKey: .endStation)
+        try container.encode(routeId, forKey: .routeId)
+        try container.encode(price, forKey: .price)
+        try container.encode(isTransfer, forKey: .isTransfer)
+        try container.encode(isFree, forKey: .isFree)
+        try container.encode(note, forKey: .note)
+        try container.encode(timeSeconds, forKey: .timeSeconds)
+        try container.encodeIfPresent(transferDiscountType, forKey: .transferDiscountType)
+    }
+    
+    // 標準初始化器
+    init(id: UUID = UUID(), type: TransportType, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool, note: String, timeSeconds: Int, transferDiscountType: TransferDiscountType? = nil) {
+        self.id = id
+        self.type = type
+        self.startStation = startStation
+        self.endStation = endStation
+        self.routeId = routeId
+        self.price = price
+        self.isTransfer = isTransfer
+        self.isFree = isFree
+        self.note = note
+        self.timeSeconds = timeSeconds
+        self.transferDiscountType = transferDiscountType
+    }
     
     var displayTitle: String {
         if type == .bus || type == .coach {

@@ -800,11 +800,11 @@ class AppViewModel: ObservableObject {
         guard let userId = AuthService.shared.currentUser?.id else { return }
         
         let identity = AuthService.shared.currentUser?.identity ?? .adult
-        let discount = (identity == .student) ? 6 : 8
         let paidPrice: Int
         if fav.isFree {
             paidPrice = 0
-        } else if fav.isTransfer {
+        } else if fav.isTransfer, let type = fav.transferDiscountType {
+            let discount = type.discount(for: identity)
             paidPrice = max(0, fav.price - discount)
         } else {
             paidPrice = fav.price
@@ -825,6 +825,7 @@ class AppViewModel: ObservableObject {
             endStation: fav.endStation,
             routeId: fav.routeId,
             note: "",
+            transferDiscountType: fav.transferDiscountType,
             cycleId: cycleId
         )
         
@@ -867,6 +868,7 @@ class AppViewModel: ObservableObject {
                 endStation: template.endStation,
                 routeId: template.routeId,
                 note: template.note,
+                transferDiscountType: template.transferDiscountType,
                 cycleId: cycleId
             )
 
@@ -882,9 +884,11 @@ class AppViewModel: ObservableObject {
     @MainActor
     private func paidPriceForTemplate(_ template: CommuterTripTemplate) -> Int {
         let identity = AuthService.shared.currentUser?.identity ?? .adult
-        let discount = (identity == .student) ? 6 : 8
         if template.isFree { return 0 }
-        if template.isTransfer { return max(0, template.price - discount) }
+        if template.isTransfer, let type = template.transferDiscountType {
+            let discount = type.discount(for: identity)
+            return max(0, template.price - discount)
+        }
         return template.price
     }
     
@@ -957,7 +961,8 @@ class AppViewModel: ObservableObject {
     func addToFavorites(from trip: Trip) {
         let newFav = FavoriteRoute(
             type: trip.type, startStation: trip.startStation, endStation: trip.endStation,
-            routeId: trip.routeId, price: trip.originalPrice, isTransfer: trip.isTransfer, isFree: trip.isFree
+            routeId: trip.routeId, price: trip.originalPrice, isTransfer: trip.isTransfer, isFree: trip.isFree,
+            transferDiscountType: trip.transferDiscountType
         )
         if !favorites.contains(where: { $0.title == newFav.title && $0.price == newFav.price }) {
             modelContext?.insert(newFav)
@@ -985,7 +990,8 @@ class AppViewModel: ObservableObject {
         let template = CommuterTripTemplate(
             type: trip.type, startStation: trip.startStation, endStation: trip.endStation,
             routeId: trip.routeId, price: trip.originalPrice, isTransfer: trip.isTransfer,
-            isFree: trip.isFree, note: trip.note, timeSeconds: timeSeconds
+            isFree: trip.isFree, note: trip.note, timeSeconds: timeSeconds,
+            transferDiscountType: trip.transferDiscountType
         )
         
         if let existingRoute = commuterRoutes.first(where: { $0.name.lowercased() == cleanName.lowercased() }) {
@@ -1037,6 +1043,7 @@ class AppViewModel: ObservableObject {
             endStation: trip.endStation,
             routeId: trip.routeId,
             note: trip.note,
+            transferDiscountType: trip.transferDiscountType,
             cycleId: cycleId
         )
         modelContext?.insert(newTrip)
@@ -1070,6 +1077,7 @@ class AppViewModel: ObservableObject {
             endStation: newEnd,
             routeId: trip.routeId,
             note: trip.note,
+            transferDiscountType: trip.transferDiscountType,
             cycleId: cycleId
         )
         modelContext?.insert(newTrip)
