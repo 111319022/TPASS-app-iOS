@@ -643,14 +643,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Quick Add Departure"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快速出門"
+            "value" : "快速新增出門路線"
           }
         }
       }
@@ -3260,14 +3260,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Departure Station List"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "出門站點列表"
+            "value" : "我的出門站點"
           }
         }
       }
@@ -4516,7 +4516,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My Home Stations"
+            "value" : "Home Stations Lists"
           }
         },
         "zh-Hant" : {
@@ -6411,14 +6411,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Select Departure Station"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇出發站"
+            "value" : "選擇出發站點"
           }
         }
       }
@@ -8584,17 +8584,6 @@
     },
     "可導入" : {
 
-    },
-    "快速出門" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quick Add Departure"
-          }
-        }
-      }
     },
     "悠遊卡交易查詢" : {
 
