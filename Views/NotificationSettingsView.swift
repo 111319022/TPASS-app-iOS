@@ -79,8 +79,6 @@ struct NotificationSettingsView: View {
             notifManager.checkAuthorizationStatus()
             
             // 確保預設時間是晚上 9:00 (如果還沒設過)
-            // 這裡用一個簡單的邏輯：如果 UserDefaults 裡沒有值，我們可以給預設值
-            // 但因為 @AppStorage 已經有初始值了，這裡我們手動初始化一次預設 21:00
             if UserDefaults.standard.object(forKey: "dailyReminderTime") == nil {
                 var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
                 components.hour = 21
