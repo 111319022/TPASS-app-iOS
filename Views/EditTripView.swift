@@ -64,37 +64,6 @@ struct EditTripView: View {
         auth.currentUser?.identity ?? .adult
     }
     
-    // 根據市民設定篩選轉乘類型
-    private var filteredTransferTypes: [TransferDiscountType] {
-        let allTypes = currentRegion.supportedTransferTypes
-        let userCity = auth.currentUser?.citizenCity
-        
-        var filtered: [TransferDiscountType]
-        
-        // 如果用戶未設定市民縣市（nil），顯示全部
-        if let userCity = userCity {
-            // 如果用戶有設定市民縣市，只顯示：
-            // 1. 非市民限定的方案
-            // 2. 符合用戶所屬縣市的市民限定方案
-            filtered = allTypes.filter { transferType in
-                if let requiredCity = transferType.citizenRequirement {
-                    return requiredCity == userCity
-                }
-                return true  // 非市民限定的方案都顯示
-            }
-        } else {
-            filtered = allTypes
-        }
-        
-        // 重要：如果當前選擇的轉乘類型不在篩選結果中，也要加入
-        // 這樣才能保持編輯時的原有狀態
-        if let currentType = transferDiscountType, !filtered.contains(currentType) {
-            filtered.append(currentType)
-        }
-        
-        return filtered
-    }
-    
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
     }
@@ -244,28 +213,24 @@ struct EditTripView: View {
                                     .foregroundColor(themeManager.primaryTextColor)
                             }
                             .frame(height: 50)
-                            .padding(.horizontal, 16)
+                            .padding(.horizontal, 12)
                             .background(inputBackgroundColor)
                             .cornerRadius(10)
                             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                             
                             // 修改：轉乘按鈕可選擇優惠類型
                             Button(action: {
-                                if filteredTransferTypes.count == 1 {
-                                    // 只有一個轉乘選項，直接切換並帶入
+                                if currentRegion.supportedTransferTypes.count == 1 {
+                                    // 只有一種轉乘類型，直接切換
                                     if isTransfer {
                                         isTransfer = false
                                         transferDiscountType = nil
                                     } else {
                                         isTransfer = true
-                                        transferDiscountType = filteredTransferTypes.first
+                                        transferDiscountType = currentRegion.defaultTransferType
                                     }
-                                } else if filteredTransferTypes.isEmpty {
-                                    // 沒有可用的轉乘選項
-                                    isTransfer = false
-                                    transferDiscountType = nil
                                 } else {
-                                    // 多個轉乘選項，顯示選擇器
+                                    // 多種轉乘類型，總是顯示選擇器
                                     showTransferTypePicker = true
                                 }
                             }) {
@@ -281,23 +246,22 @@ struct EditTripView: View {
                                         Text("transfer")
                                             .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
                                     }
-                                    if filteredTransferTypes.count > 1 && isTransfer {
+                                    if currentRegion.supportedTransferTypes.count > 1 && isTransfer {
                                         Image(systemName: "chevron.down")
                                             .font(.caption2)
                                     }
                                 }
-                                .frame(maxHeight: .infinity).padding(.horizontal, 16)
+                                .frame(maxHeight: .infinity).padding(.horizontal, 12)
                                 .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
                                 .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
                                 .cornerRadius(10)
                             }
                             .frame(height: 50)
-                            .disabled(filteredTransferTypes.isEmpty)
                             .accessibilityLabel(Text("a11y_transfer_discount"))
                             .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-                            .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+                            .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
                             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
-                                ForEach(filteredTransferTypes) { type in
+                                ForEach(currentRegion.supportedTransferTypes) { type in
                                     Button(action: {
                                         isTransfer = true
                                         transferDiscountType = type
@@ -324,7 +288,7 @@ struct EditTripView: View {
                                     Text("free_trip")
                                         .font(.subheadline).fontWeight(.medium)
                                 }
-                                .padding(.horizontal, 16).padding(.vertical, 10)
+                                .padding(.horizontal, 12).padding(.vertical, 10)
                                 .background(isFree ? themeManager.accentColor : inputBackgroundColor)
                                 .foregroundColor(isFree ? .white : themeManager.secondaryTextColor)
                                 .cornerRadius(8)
@@ -401,56 +365,38 @@ struct EditTripView: View {
     // MARK: - Logic
     
     func recalculateMRTPrice() {
-        let oldPrice = price
-        
         // 1. 北捷
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                // 只有當票價實際改變時才重置轉乘狀態
-                if oldPrice != price {
-                    isTransfer = false
-                    transferDiscountType = nil
-                }
+                isTransfer = false // 重置轉乘狀態
             }
         }
         // 2. 機捷
         else if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                if oldPrice != price {
-                    isTransfer = false
-                    transferDiscountType = nil
-                }
+                isTransfer = false
             }
         }
         // 3. 台鐵
         else if selectedType == .tra, !startStation.isEmpty, !endStation.isEmpty {
             let fare = TRAFareService.shared.getFare(from: startStation, to: endStation)
             price = String(fare)
-            if oldPrice != price {
-                isTransfer = false
-                transferDiscountType = nil
-            }
+            isTransfer = false
         }
         // 4. 台中捷運
         else if selectedType == .tcmrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = TCMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                if oldPrice != price {
-                    isTransfer = false
-                    transferDiscountType = nil
-                }
+                isTransfer = false
             }
         }
         // 5. 高雄捷運
         else if selectedType == .kmrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
-                if oldPrice != price {
-                    isTransfer = false
-                    transferDiscountType = nil
-                }
+                isTransfer = false
             }
         }
     }
@@ -473,21 +419,19 @@ struct EditTripView: View {
         
         let calendar = Calendar.current
         let dateComps = calendar.dateComponents([.year, .month, .day], from: date)
-        let timeComps = calendar.dateComponents([.hour, .minute, .second], from: time)
+        let timeComps = calendar.dateComponents([.hour, .minute], from: time)
         
         // 获取原始时间的秒数和时分
         let originalTimeComps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
+        let originalSecond = originalTimeComps.second ?? 0
         
         // 判断时间是否有变化
         let timeChanged = (timeComps.hour != originalTimeComps.hour) || (timeComps.minute != originalTimeComps.minute)
         
-        // 使用當前時間的秒數，如果時間有變化則設為 0
-        let finalSecond = timeChanged ? 0 : (timeComps.second ?? 0)
-        
         var finalComps = DateComponents()
         finalComps.year = dateComps.year; finalComps.month = dateComps.month; finalComps.day = dateComps.day
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute
-        finalComps.second = finalSecond
+        finalComps.second = timeChanged ? 0 : originalSecond
         var finalDate = calendar.date(from: finalComps) ?? date
         if let range = allowedDateRange, !range.contains(finalDate) {
             let clamped = min(max(finalDate, range.lowerBound), range.upperBound)
@@ -614,21 +558,6 @@ struct EditTripView: View {
         }
         .onAppear {
             restoreTRARegions()
-            
-            // 驗證並修正轉乘資料：如果有轉乘標記但沒有轉乘類型，自動補上
-            if isTransfer && transferDiscountType == nil {
-                // 優先使用當前方案支援的轉乘類型
-                if let firstType = filteredTransferTypes.first {
-                    transferDiscountType = firstType
-                } else {
-                    // 如果當前方案不支援任何轉乘，清除轉乘標記
-                    isTransfer = false
-                }
-            }
-            
-            // 驗證轉乘類型是否在當前方案支援的列表中
-            // 如果不在，但有設定轉乘類型，這是合法的（可能是從其他方案複製過來的）
-            // filteredTransferTypes 已經包含了這個保護邏輯
         }
     }
 

@@ -23,6 +23,7 @@ struct TripListView: View {
     @State private var showAddTripSheet = false
     @State private var showFavoritesSheet = false
     @State private var showQuickAddHomeSheet = false
+    @State private var showQuickAddOutboundSheet = false
     @State private var selectedTripToEdit: Trip?
     @State private var isProcessingSwipeAction = false
     @State private var pendingDuplicateTrip: Trip? = nil
@@ -234,6 +235,21 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("a11y_quick_add_home"))
                         .accessibilityHint(Text("a11y_quick_add_home_hint"))
+
+                        Button(action: {
+                            if auth.currentUser?.cycles.isEmpty ?? true {
+                                showNoCycleAlert = true
+                            } else {
+                                showQuickAddOutboundSheet = true
+                            }
+                        }) {
+                            Image(systemName: "figure.walk.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(themeManager.accentColor)
+                                .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
+                        }
+                        .accessibilityLabel(Text("a11y_quick_add_departure"))
+                        .accessibilityHint(Text("a11y_quick_add_departure_hint"))
                         
                         Button(action: { showFavoritesSheet = true }) {
                             Image(systemName: "star.circle.fill")
@@ -481,6 +497,7 @@ struct TripListView: View {
                 showAddTripSheet: $showAddTripSheet,
                 showFavoritesSheet: $showFavoritesSheet,
                 showQuickAddHomeSheet: $showQuickAddHomeSheet,
+                showQuickAddOutboundSheet: $showQuickAddOutboundSheet,
                 selectedTripToEdit: $selectedTripToEdit,
                 transferSelectionData: $transferSelectionData,
                 isProcessingSwipeAction: $isProcessingSwipeAction,
@@ -1243,6 +1260,7 @@ struct TripListSheetsModifier: ViewModifier {
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var showQuickAddHomeSheet: Bool
+    @Binding var showQuickAddOutboundSheet: Bool
     @Binding var selectedTripToEdit: Trip?
     @Binding var transferSelectionData: TransferSelectionData?
     @Binding var isProcessingSwipeAction: Bool
@@ -1264,6 +1282,11 @@ struct TripListSheetsModifier: ViewModifier {
             }
             .sheet(isPresented: $showQuickAddHomeSheet) {
                 QuickAddHomeView(onSuccess: {
+                    showToast("trip_added")
+                })
+            }
+            .sheet(isPresented: $showQuickAddOutboundSheet) {
+                QuickAddOutboundView(onSuccess: {
                     showToast("trip_added")
                 })
             }

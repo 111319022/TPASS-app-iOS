@@ -639,6 +639,38 @@
         }
       }
     },
+    "a11y_quick_add_departure" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Departure"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速出門"
+          }
+        }
+      }
+    },
+    "a11y_quick_add_departure_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quickly add a trip from your departure station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速新增從出門站出發的行程"
+          }
+        }
+      }
+    },
     "a11y_quick_add_home" : {
       "localizations" : {
         "en" : {
@@ -1035,6 +1067,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "加入"
+          }
+        }
+      }
+    },
+    "add_departure_station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Departure Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增出門站"
           }
         }
       }
@@ -3192,6 +3240,54 @@
         }
       }
     },
+    "departure_station_info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station Information"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "站點資訊"
+          }
+        }
+      }
+    },
+    "departure_stations_list" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departure Station List"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出門站點列表"
+          }
+        }
+      }
+    },
+    "departure_stations_settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Departure Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出門站點設定"
+          }
+        }
+      }
+    },
     "discounted_price" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5124,6 +5220,70 @@
         }
       }
     },
+    "no_departure_stations" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Departure Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未設定出門站點"
+          }
+        }
+      }
+    },
+    "no_departure_stations_available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Available Departure Stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前沒有可用的出門站"
+          }
+        }
+      }
+    },
+    "no_departure_stations_available_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The current plan doesn't support the transport types of your saved departure stations. Please add departure stations that match your current plan."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前方案不支援已儲存的出門站點運具類型。請新增符合目前方案的出門站點。"
+          }
+        }
+      }
+    },
+    "no_departure_stations_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add departure stations to quickly add trips when heading out"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增出門站點後，可以快速新增出門路線"
+          }
+        }
+      }
+    },
     "no_home_stations" : {
       "localizations" : {
         "en" : {
@@ -6016,6 +6176,22 @@
         }
       }
     },
+    "quick_add_departure" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Departure"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速出門"
+          }
+        }
+      }
+    },
     "quick_add_home_trip" : {
       "localizations" : {
         "en" : {
@@ -6227,6 +6403,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "儲存"
+          }
+        }
+      }
+    },
+    "select_departure_station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Departure Station"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇出發站"
           }
         }
       }
@@ -8324,6 +8516,17 @@
     },
     "可導入" : {
 
+    },
+    "快速出門" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Departure"
+          }
+        }
+      }
     },
     "悠遊卡交易查詢" : {
 

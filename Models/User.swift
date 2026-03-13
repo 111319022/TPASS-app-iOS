@@ -17,6 +17,23 @@ struct HomeStation: Identifiable, Codable, Equatable {
     }
 }
 
+// MARK: - 0-1. 出門站點 (OutboundStation)
+struct OutboundStation: Identifiable, Codable, Equatable {
+    var id: String
+    var name: String
+    var transportType: TransportType
+    var lineCode: String?
+    var createdAt: Date
+
+    init(id: String = UUID().uuidString, name: String, transportType: TransportType, lineCode: String? = nil, createdAt: Date = Date()) {
+        self.id = id
+        self.name = name
+        self.transportType = transportType
+        self.lineCode = lineCode
+        self.createdAt = createdAt
+    }
+}
+
 // MARK: - 1. 週期 (Cycle)
 struct Cycle: Identifiable, Codable, Hashable {
     var id: String
@@ -107,13 +124,14 @@ struct User: Identifiable, Codable, Equatable {
     var identity: Identity
     var citizenCity: TaiwanCity?  // 市民縣市設定（nil 表示顯示全部）
     var homeStations: [HomeStation] // 回家站點列表
+    var outboundStations: [OutboundStation] // 出門站點列表
     
     // UI 顯示用 (不存入 Firestore)
     var displayName: String?
     var photoURL: URL?
     
     enum CodingKeys: String, CodingKey {
-        case id, email, cycles, identity, isVIP, citizenCity, homeStations
+        case id, email, cycles, identity, isVIP, citizenCity, homeStations, outboundStations
     }
     
     // 讀取
@@ -141,6 +159,9 @@ struct User: Identifiable, Codable, Equatable {
         
         // HomeStations 讀取 (預設空陣列)
         homeStations = (try? container.decode([HomeStation].self, forKey: .homeStations)) ?? []
+
+        // OutboundStations 讀取 (預設空陣列)
+        outboundStations = (try? container.decode([OutboundStation].self, forKey: .outboundStations)) ?? []
         
         displayName = nil
         photoURL = nil
@@ -155,16 +176,18 @@ struct User: Identifiable, Codable, Equatable {
         try container.encode(identity, forKey: .identity)
         try container.encodeIfPresent(citizenCity, forKey: .citizenCity)
         try container.encode(homeStations, forKey: .homeStations)
+        try container.encode(outboundStations, forKey: .outboundStations)
     }
     
     // 手動初始化
-    init(id: String, email: String, cycles: [Cycle], identity: Identity, isVIP: Bool = false, citizenCity: TaiwanCity? = nil, homeStations: [HomeStation] = [], displayName: String? = nil, photoURL: URL? = nil) {
+    init(id: String, email: String, cycles: [Cycle], identity: Identity, isVIP: Bool = false, citizenCity: TaiwanCity? = nil, homeStations: [HomeStation] = [], outboundStations: [OutboundStation] = [], displayName: String? = nil, photoURL: URL? = nil) {
         self.id = id
         self.email = email
         self.cycles = cycles
         self.identity = identity
         self.citizenCity = citizenCity
         self.homeStations = homeStations
+        self.outboundStations = outboundStations
         self.displayName = displayName
         self.photoURL = photoURL
     }
@@ -176,6 +199,7 @@ struct User: Identifiable, Codable, Equatable {
                lhs.identity == rhs.identity &&
                lhs.citizenCity == rhs.citizenCity &&
                lhs.homeStations == rhs.homeStations &&
+               lhs.outboundStations == rhs.outboundStations &&
                lhs.photoURL == rhs.photoURL
     }
 }

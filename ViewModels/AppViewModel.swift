@@ -931,6 +931,7 @@ class AppViewModel: ObservableObject {
             original.endStation = trip.endStation
             original.routeId = trip.routeId
             original.note = trip.note
+            original.transferDiscountType = trip.transferDiscountType
             original.cycleId = trip.cycleId
             saveContext()
             // 🔧 優化：只清除快取，不重新載入

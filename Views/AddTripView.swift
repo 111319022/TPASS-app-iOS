@@ -61,27 +61,6 @@ struct AddTripView: View {
         auth.currentUser?.identity ?? .adult
     }
     
-    // 根據市民設定篩選轉乘類型
-    private var filteredTransferTypes: [TransferDiscountType] {
-        let allTypes = currentRegion.supportedTransferTypes
-        let userCity = auth.currentUser?.citizenCity
-        
-        // 如果用戶未設定市民縣市（nil），顯示全部
-        guard let userCity = userCity else {
-            return allTypes
-        }
-        
-        // 如果用戶有設定市民縣市，只顯示：
-        // 1. 非市民限定的方案
-        // 2. 符合用戶所屬縣市的市民限定方案
-        return allTypes.filter { transferType in
-            if let requiredCity = transferType.citizenRequirement {
-                return requiredCity == userCity
-            }
-            return true  // 非市民限定的方案都顯示
-        }
-    }
-    
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
     }
@@ -291,7 +270,7 @@ struct AddTripView: View {
 
     @ViewBuilder
     private var transferTypeDialogActions: some View {
-        ForEach(filteredTransferTypes) { type in
+        ForEach(currentRegion.supportedTransferTypes) { type in
             Button(action: {
                 isTransfer = true
                 transferDiscountType = type
@@ -409,11 +388,6 @@ struct AddTripView: View {
         }
         
         .onAppear {
-            // 設定當前時間，避免秒數錯誤
-            let now = Date()
-            date = now
-            time = now
-            
             // 初始化 selectedType 為當前地區支持的第一種運具
             if let firstMode = currentRegion.supportedModes.first {
                 selectedType = firstMode
@@ -625,24 +599,18 @@ struct AddTripView: View {
     func transferButton() -> some View {
         let bgColor = isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor
         let fgColor = isTransfer ? Color.white : themeManager.secondaryTextColor
-        let showChevron = filteredTransferTypes.count > 1 && isTransfer
+        let showChevron = currentRegion.supportedTransferTypes.count > 1 && isTransfer
         
         return Button(action: {
-            if filteredTransferTypes.count == 1 {
-                // 只有一個轉乘選項，直接切換並帶入
+            if currentRegion.supportedTransferTypes.count == 1 {
                 if isTransfer {
                     isTransfer = false
                     transferDiscountType = nil
                 } else {
                     isTransfer = true
-                    transferDiscountType = filteredTransferTypes.first
+                    transferDiscountType = currentRegion.defaultTransferType
                 }
-            } else if filteredTransferTypes.isEmpty {
-                // 沒有可用的轉乘選項
-                isTransfer = false
-                transferDiscountType = nil
             } else {
-                // 多個轉乘選項，顯示選擇器
                 showTransferTypePicker = true
             }
         }) {
@@ -672,10 +640,9 @@ struct AddTripView: View {
             .foregroundColor(fgColor)
             .cornerRadius(10)
         }
-        .disabled(filteredTransferTypes.isEmpty)
         .accessibilityLabel(Text("a11y_transfer_discount"))
         .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-        .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+        .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
     }
     
     func compactDatePicker(icon: String, selection: Binding<Date>, components: DatePickerComponents) -> some View {
@@ -774,7 +741,7 @@ struct StationInputRow: View {
             }
         } label: {
             HStack {
-                Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor)
+                Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
                 Spacer()
                 if let line = dataSource.first(where: { $0.code == lineCode }) {
                     Text(displayLine(line.name))
@@ -783,9 +750,8 @@ struct StationInputRow: View {
                 } else {
                     Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
                 }
-                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
             }
-            .padding(.horizontal, 16)
             .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text(label) + Text(" line"))
@@ -816,7 +782,7 @@ struct StationInputRow: View {
                 Spacer()
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
-            .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text(label) + Text(" station"))
             .accessibilityValue(stationName.isEmpty ? Text("select_station") : Text(displayStation(stationName)))
@@ -859,7 +825,7 @@ struct StationInputRow: View {
                 Spacer()
                 Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
             }
-            .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
@@ -912,6 +878,7 @@ struct TRALineStationInputRow: View {
                     Text(label)
                         .font(.caption)
                         .foregroundColor(themeManager.primaryTextColor)
+                        .padding(.leading, 12)
                     Spacer()
                     Text(selectedLineText)
                         .font(.subheadline)
@@ -922,8 +889,8 @@ struct TRALineStationInputRow: View {
                     Image(systemName: "chevron.down")
                         .font(.caption2)
                         .foregroundColor(themeManager.primaryTextColor)
+                        .padding(.trailing, 8)
                 }
-                .padding(.horizontal, 16)
                 .frame(maxHeight: .infinity)
                 .frame(maxWidth: .infinity)
                 .background(Color.gray.opacity(0.05))
@@ -967,7 +934,7 @@ struct TRALineStationInputRow: View {
                         .font(.caption2)
                         .foregroundColor(themeManager.primaryTextColor)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 12)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .opacity(selectedRegion == nil ? 0.6 : 1.0)
                 .accessibilityElement(children: .combine)

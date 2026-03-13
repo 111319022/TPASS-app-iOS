@@ -1,30 +1,30 @@
 import SwiftUI
 
-struct HomeStationSettingsView: View {
+struct OutboundStationSettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    
+
     var showCloseButton: Bool = false
     @State private var showAddStation = false
-    
-    var homeStations: [HomeStation] {
-        auth.currentUser?.homeStations ?? []
+
+    var outboundStations: [OutboundStation] {
+        auth.currentUser?.outboundStations ?? []
     }
-    
+
     var body: some View {
         List {
-            if homeStations.isEmpty {
+            if outboundStations.isEmpty {
                 Section {
                     VStack(spacing: 12) {
-                        Image(systemName: "house.fill")
+                        Image(systemName: "figure.walk.circle")
                             .font(.system(size: 48))
                             .foregroundColor(themeManager.secondaryTextColor)
-                        Text("no_home_stations")
+                        Text("no_departure_stations")
                             .font(.headline)
                             .foregroundColor(themeManager.secondaryTextColor)
-                        Text("no_home_stations_hint")
+                        Text("no_departure_stations_hint")
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                             .multilineTextAlignment(.center)
@@ -35,18 +35,18 @@ struct HomeStationSettingsView: View {
                 }
             } else {
                 Section {
-                    ForEach(homeStations) { station in
-                        HomeStationRow(station: station)
+                    ForEach(outboundStations) { station in
+                        OutboundStationRow(station: station)
                     }
                     .onDelete(perform: deleteStations)
                 } header: {
-                    Text("home_stations_list")
+                    Text("departure_stations_list")
                 }
             }
         }
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)
-        .navigationTitle("home_stations_settings")
+        .navigationTitle("departure_stations_settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if showCloseButton {
@@ -59,7 +59,7 @@ struct HomeStationSettingsView: View {
                     }
                 }
             }
-            
+
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     showAddStation = true
@@ -70,21 +70,21 @@ struct HomeStationSettingsView: View {
             }
         }
         .sheet(isPresented: $showAddStation) {
-            AddHomeStationView()
+            AddOutboundStationView()
         }
     }
-    
+
     private func deleteStations(at offsets: IndexSet) {
         for index in offsets {
-            let station = homeStations[index]
-            auth.deleteHomeStation(station)
+            let station = outboundStations[index]
+            auth.deleteOutboundStation(station)
         }
     }
 }
 
-struct HomeStationRow: View {
+struct OutboundStationRow: View {
     @EnvironmentObject var themeManager: ThemeManager
-    let station: HomeStation
+    let station: OutboundStation
 
     private var displayStationName: String {
         let lang = Locale.current.identifier
@@ -103,24 +103,24 @@ struct HomeStationRow: View {
             return station.name
         }
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: station.transportType.systemIconName)
                 .font(.title2)
                 .foregroundColor(themeManager.transportColor(station.transportType))
                 .frame(width: 40)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(displayStationName)
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
-                
+
                 HStack(spacing: 4) {
                     Text(station.transportType.displayName)
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
+
                     if let lineCode = station.lineCode, !lineCode.isEmpty {
                         Text("•")
                             .font(.caption)
@@ -131,43 +131,40 @@ struct HomeStationRow: View {
                     }
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 4)
     }
 }
 
-struct AddHomeStationView: View {
+struct AddOutboundStationView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    
+
     @State private var selectedType: TransportType = .mrt
     @State private var stationName: String = ""
     @State private var lineCode: String = ""
-    
-    // 雙層選單狀態
+
     @State private var selectedLine: String = ""
     @State private var showLineSelector = false
     @State private var showStationSelector = false
-    
+
     var currentRegion: TPASSRegion {
         auth.currentRegion
     }
-    
+
     var isFormValid: Bool {
         !stationName.isEmpty
     }
-    
+
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    // 運具類型選擇
                     Picker("transport_type", selection: $selectedType) {
                         ForEach(TransportType.allCases.filter { type in
-                            // 只顯示有站點的運具類型
                             type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .bike
                         }) { type in
                             HStack {
@@ -179,7 +176,6 @@ struct AddHomeStationView: View {
                     }
                     .pickerStyle(.menu)
                     .onChange(of: selectedType) { _, _ in
-                        // 切換運具類型時清空選擇
                         stationName = ""
                         lineCode = ""
                         selectedLine = ""
@@ -188,10 +184,9 @@ struct AddHomeStationView: View {
                     Text("select_transport_type")
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
-                
+
                 Section {
                     if selectedType == .mrt || selectedType == .tcmrt || selectedType == .kmrt {
-                        // 捷運：雙層選單（線路 -> 站點）
                         Button(action: {
                             showLineSelector = true
                         }) {
@@ -211,7 +206,7 @@ struct AddHomeStationView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        
+
                         if !selectedLine.isEmpty {
                             Button(action: {
                                 showStationSelector = true
@@ -234,7 +229,6 @@ struct AddHomeStationView: View {
                             }
                         }
                     } else if selectedType == .tymrt {
-                        // 機捷：直接選站點（沒有線路概念）
                         Button(action: {
                             showStationSelector = true
                         }) {
@@ -255,7 +249,6 @@ struct AddHomeStationView: View {
                             }
                         }
                     } else if selectedType == .tra {
-                        // 台鐵：雙層選單（區域 -> 站點）
                         Button(action: {
                             showLineSelector = true
                         }) {
@@ -275,7 +268,7 @@ struct AddHomeStationView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        
+
                         if !selectedLine.isEmpty {
                             Button(action: {
                                 showStationSelector = true
@@ -298,17 +291,16 @@ struct AddHomeStationView: View {
                             }
                         }
                     } else {
-                        // 公車、客運、Ubike 站點手動輸入
                         TextField("station_name", text: $stationName)
                     }
                 } header: {
-                    Text("home_station_info")
+                        Text("departure_station_info")
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
             }
             .scrollContentBackground(.hidden)
             .background(themeManager.backgroundColor)
-            .navigationTitle("add_home_station")
+                    .navigationTitle("add_departure_station")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -317,10 +309,10 @@ struct AddHomeStationView: View {
                     }
                     .foregroundColor(themeManager.accentColor)
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("save") {
-                        saveHomeStation()
+                        saveOutboundStation()
                     }
                     .disabled(!isFormValid)
                     .foregroundColor(isFormValid ? themeManager.accentColor : themeManager.secondaryTextColor)
@@ -335,85 +327,45 @@ struct AddHomeStationView: View {
         }
         .preferredColorScheme(themeManager.colorScheme)
     }
-    
+
     @ViewBuilder
     private func lineSelectorView() -> some View {
         NavigationView {
             List {
                 if selectedType == .mrt {
                     ForEach(StationData.shared.lines.filter { $0.code != "AIRTRAIN" }, id: \.code) { line in
-                        Button(action: {
+                        selectorRow(name: StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier), isSelected: selectedLine == line.name) {
                             selectedLine = line.name
                             lineCode = line.code
-                            stationName = ""  // 清空站點選擇
+                            stationName = ""
                             showLineSelector = false
-                        }) {
-                            HStack {
-                                Text(StationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                if selectedLine == line.name {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(themeManager.accentColor)
-                                }
-                            }
                         }
                     }
                 } else if selectedType == .tcmrt {
                     ForEach(TCMRTStationData.shared.lines, id: \.code) { line in
-                        Button(action: {
+                        selectorRow(name: TCMRTStationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier), isSelected: selectedLine == line.name) {
                             selectedLine = line.name
                             lineCode = line.code
                             stationName = ""
                             showLineSelector = false
-                        }) {
-                            HStack {
-                                Text(TCMRTStationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                if selectedLine == line.name {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(themeManager.accentColor)
-                                }
-                            }
                         }
                     }
                 } else if selectedType == .kmrt {
                     ForEach(KMRTStationData.shared.lines, id: \.code) { line in
-                        Button(action: {
+                        selectorRow(name: KMRTStationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier), isSelected: selectedLine == line.name) {
                             selectedLine = line.name
                             lineCode = line.code
                             stationName = ""
                             showLineSelector = false
-                        }) {
-                            HStack {
-                                Text(KMRTStationData.shared.displayLineName(line.name, languageCode: Locale.current.identifier))
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                if selectedLine == line.name {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(themeManager.accentColor)
-                                }
-                            }
                         }
                     }
                 } else if selectedType == .tra {
                     ForEach(TRAStationData.shared.getAllRegions(), id: \.name) { region in
-                        Button(action: {
+                        selectorRow(name: TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier), isSelected: selectedLine == region.name) {
                             selectedLine = region.name
                             lineCode = ""
                             stationName = ""
                             showLineSelector = false
-                        }) {
-                            HStack {
-                                Text(TRAStationData.shared.displayRegionName(region.name, languageCode: Locale.current.identifier))
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                if selectedLine == region.name {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(themeManager.accentColor)
-                                }
-                            }
                         }
                     }
                 }
@@ -433,7 +385,7 @@ struct AddHomeStationView: View {
         }
         .preferredColorScheme(themeManager.colorScheme)
     }
-    
+
     @ViewBuilder
     private func stationSelectorView() -> some View {
         NavigationView {
@@ -441,94 +393,45 @@ struct AddHomeStationView: View {
                 if selectedType == .mrt {
                     if let line = StationData.shared.lines.first(where: { $0.name == selectedLine }) {
                         ForEach(line.stations, id: \.self) { station in
-                            Button(action: {
+                            selectorRow(name: StationData.shared.displayStationName(station, languageCode: Locale.current.identifier), isSelected: stationName == station) {
                                 stationName = station
                                 showStationSelector = false
-                            }) {
-                                HStack {
-                                    Text(StationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Spacer()
-                                    if stationName == station {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(themeManager.accentColor)
-                                    }
-                                }
                             }
                         }
                     }
                 } else if selectedType == .tymrt {
                     let stations = TYMRTStationData.shared.availableStations(for: currentRegion)
                     ForEach(stations, id: \.self) { station in
-                        Button(action: {
+                        let displayName = TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier)
+                        selectorRow(name: displayName, isSelected: stationName == station) {
                             stationName = station
                             showStationSelector = false
-                        }) {
-                            HStack {
-                                Text(TYMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                                    .foregroundColor(themeManager.primaryTextColor)
-                                Spacer()
-                                if stationName == station {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(themeManager.accentColor)
-                                }
-                            }
                         }
                     }
                 } else if selectedType == .tcmrt {
                     if let line = TCMRTStationData.shared.lines.first(where: { $0.name == selectedLine }) {
                         ForEach(line.stations, id: \.self) { station in
-                            Button(action: {
+                            selectorRow(name: TCMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier), isSelected: stationName == station) {
                                 stationName = station
                                 showStationSelector = false
-                            }) {
-                                HStack {
-                                    Text(TCMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Spacer()
-                                    if stationName == station {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(themeManager.accentColor)
-                                    }
-                                }
                             }
                         }
                     }
                 } else if selectedType == .kmrt {
                     if let line = KMRTStationData.shared.lines.first(where: { $0.name == selectedLine }) {
                         ForEach(line.stations, id: \.self) { station in
-                            Button(action: {
+                            selectorRow(name: KMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier), isSelected: stationName == station) {
                                 stationName = station
                                 showStationSelector = false
-                            }) {
-                                HStack {
-                                    Text(KMRTStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Spacer()
-                                    if stationName == station {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(themeManager.accentColor)
-                                    }
-                                }
                             }
                         }
                     }
                 } else if selectedType == .tra {
                     if let region = TRAStationData.shared.getAllRegions().first(where: { $0.name == selectedLine }) {
                         ForEach(region.stations, id: \.id) { station in
-                            Button(action: {
+                            selectorRow(name: TRAStationData.shared.displayStationName(station.id, languageCode: Locale.current.identifier), isSelected: stationName == station.name) {
                                 stationName = station.name
                                 showStationSelector = false
-                            }) {
-                                HStack {
-                                    Text(TRAStationData.shared.displayStationName(station.id, languageCode: Locale.current.identifier))
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Spacer()
-                                    if stationName == station.name {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(themeManager.accentColor)
-                                    }
-                                }
                             }
                         }
                     }
@@ -550,10 +453,23 @@ struct AddHomeStationView: View {
         .preferredColorScheme(themeManager.colorScheme)
     }
 
-    
-    private func saveHomeStation() {
+    private func selectorRow(name: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(name)
+                    .foregroundColor(themeManager.primaryTextColor)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(themeManager.accentColor)
+                }
+            }
+        }
+    }
+
+    private func saveOutboundStation() {
         let finalLineCode = lineCode.isEmpty ? nil : lineCode
-        auth.addHomeStation(name: stationName, transportType: selectedType, lineCode: finalLineCode)
+        auth.addOutboundStation(name: stationName, transportType: selectedType, lineCode: finalLineCode)
         HapticManager.shared.notification(type: .success)
         presentationMode.wrappedValue.dismiss()
     }
@@ -595,7 +511,7 @@ struct AddHomeStationView: View {
 
 #Preview {
     NavigationStack {
-        HomeStationSettingsView()
+        OutboundStationSettingsView()
             .environmentObject(AuthService.shared)
             .environmentObject(ThemeManager.shared)
     }

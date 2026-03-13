@@ -142,6 +142,13 @@ struct SettingsView: View {
                         Text("home_stations_settings")
                         }
                     }
+
+                NavigationLink(destination: OutboundStationSettingsView()) {
+                    HStack {
+                        Image(systemName: "figure.walk.circle.fill").foregroundColor(.teal)
+                        Text("departure_stations_settings")
+                    }
+                }
                 }
                 
                 // MARK: - 4. 資料管理 (iCloud 備份 + CSV)
