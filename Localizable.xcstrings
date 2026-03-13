@@ -8229,6 +8229,74 @@
         }
       }
     },
+    "tutorial_quick_departure_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this button to quickly add a trip from your saved departure station."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用這個按鈕可從已儲存的出門站快速新增一筆行程。"
+          }
+        }
+      }
+    },
+    "tutorial_quick_departure_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Departure"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速出門"
+          }
+        }
+      }
+    },
+    "tutorial_quick_home_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this button to quickly add a trip to your saved home station."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用這個按鈕可快速新增一筆前往回家站的行程。"
+          }
+        }
+      }
+    },
+    "tutorial_quick_home_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Add Home"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速回家"
+          }
+        }
+      }
+    },
     "tutorial_start" : {
       "extractionState" : "manual",
       "localizations" : {

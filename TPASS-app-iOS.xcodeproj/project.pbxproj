@@ -46,8 +46,6 @@
 		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
 		FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */; };
 		FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */; };
-		FBD100012FABCDE100AAA111 /* OutboundStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */; };
-		FBD100022FABCDE100AAA111 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */; };
 		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
@@ -55,6 +53,8 @@
 		FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */; };
 		FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC660092F4214A900188CEB /* ViewFrameKey.swift */; };
 		FBC67F162F42C604002C03C6 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC67F152F42C604002C03C6 /* TPASSModelSchema.swift */; };
+		FBD100012FABCDE100AAA111 /* OutboundStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */; };
+		FBD100022FABCDE100AAA111 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */; };
 		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -101,8 +101,6 @@
 		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
 		FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStationSettingsView.swift; sourceTree = "<group>"; };
 		FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddHomeView.swift; sourceTree = "<group>"; };
-		FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboundStationSettingsView.swift; sourceTree = "<group>"; };
-		FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddOutboundView.swift; sourceTree = "<group>"; };
 		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
@@ -110,6 +108,8 @@
 		FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferIntroductionView.swift; sourceTree = "<group>"; };
 		FBC660092F4214A900188CEB /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
 		FBC67F152F42C604002C03C6 /* TPASSModelSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSModelSchema.swift; sourceTree = "<group>"; };
+		FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboundStationSettingsView.swift; sourceTree = "<group>"; };
+		FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddOutboundView.swift; sourceTree = "<group>"; };
 		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -504,7 +504,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 54;
+				CURRENT_PROJECT_VERSION = 56;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -521,7 +521,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.3;
+				MARKETING_VERSION = 1.6.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -547,7 +547,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 54;
+				CURRENT_PROJECT_VERSION = 56;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -564,7 +564,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.3;
+				MARKETING_VERSION = 1.6.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

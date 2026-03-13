@@ -7,8 +7,10 @@ enum SpotlightTutorialStep: Int, CaseIterable {
     case addButton = 2         // 新增按鈕
     case swipeActions = 3      // 左滑右滑編輯/刪除
     case longPressCommuter = 4 // 長按設定通勤路線
-    case favoritesButton = 5   // 右上角星星按鈕（結束 Trip 頁面教學）
-    case finish = 6            // 完成
+    case favoritesButton = 5   // 右上角星星按鈕
+    case quickHomeButton = 6   // 右上角快速回家
+    case quickDepartureButton = 7 // 右上角快速出門
+    case finish = 8            // 完成
 }
 
 // 用來傳遞關鍵位置信息
@@ -17,6 +19,8 @@ struct TutorialPositions {
     var cycleSelectorFrame: CGRect = .zero
     var tripRowFrame: CGRect = .zero
     var favoritesButtonFrame: CGRect = .zero
+    var quickHomeButtonFrame: CGRect = .zero
+    var quickDepartureButtonFrame: CGRect = .zero
     var dashboardTabFrame: CGRect = .zero
     var settingsTabFrame: CGRect = .zero
     var cycleButtonFrame: CGRect = .zero
@@ -199,6 +203,34 @@ struct SpotlightTutorialOverlay: View {
                     .frame(width: 40, height: 40)
                     .position(x: screenWidth - 50, y: safeAreaTop + 50)
             }
+
+        case .quickHomeButton:
+            if positions.quickHomeButtonFrame != .zero {
+                Circle()
+                    .frame(width: 40, height: 40)
+                    .position(
+                        x: positions.quickHomeButtonFrame.midX,
+                        y: positions.quickHomeButtonFrame.midY
+                    )
+            } else {
+                Circle()
+                    .frame(width: 40, height: 40)
+                    .position(x: screenWidth - 130, y: safeAreaTop + 50)
+            }
+
+        case .quickDepartureButton:
+            if positions.quickDepartureButtonFrame != .zero {
+                Circle()
+                    .frame(width: 40, height: 40)
+                    .position(
+                        x: positions.quickDepartureButtonFrame.midX,
+                        y: positions.quickDepartureButtonFrame.midY
+                    )
+            } else {
+                Circle()
+                    .frame(width: 40, height: 40)
+                    .position(x: screenWidth - 90, y: safeAreaTop + 50)
+            }
         }
     }
     
@@ -216,6 +248,10 @@ struct SpotlightTutorialOverlay: View {
             return "tutorial_longPress_title"
         case .favoritesButton:
             return "tutorial_favorites_title"
+        case .quickHomeButton:
+            return "tutorial_quick_home_title"
+        case .quickDepartureButton:
+            return "tutorial_quick_departure_title"
         case .finish:
             return "tutorial_trips_finish_title"
         }
@@ -235,6 +271,10 @@ struct SpotlightTutorialOverlay: View {
             return "tutorial_longPress_desc"
         case .favoritesButton:
             return "tutorial_favorites_desc"
+        case .quickHomeButton:
+            return "tutorial_quick_home_desc"
+        case .quickDepartureButton:
+            return "tutorial_quick_departure_desc"
         case .finish:
             return "tutorial_trips_finish_desc"
         }

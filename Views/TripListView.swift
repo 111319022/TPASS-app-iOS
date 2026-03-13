@@ -235,6 +235,12 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("a11y_quick_add_home"))
                         .accessibilityHint(Text("a11y_quick_add_home_hint"))
+                        .reportFrame(id: "quickHomeButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["quickHomeButton"] {
+                                tutorialPositions.quickHomeButtonFrame = frame
+                            }
+                        }
 
                         Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
@@ -250,6 +256,12 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("a11y_quick_add_departure"))
                         .accessibilityHint(Text("a11y_quick_add_departure_hint"))
+                        .reportFrame(id: "quickDepartureButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["quickDepartureButton"] {
+                                tutorialPositions.quickDepartureButtonFrame = frame
+                            }
+                        }
                         
                         Button(action: { showFavoritesSheet = true }) {
                             Image(systemName: "star.circle.fill")
