@@ -33,8 +33,11 @@ struct DashboardView: View {
     
     private var roiValue: Int {
         let monthlyPrice = currentCycleRegion.monthlyPrice
-        return monthlyPrice > 0 ? Int((Double(viewModel.financialStats.totalPaid) / Double(monthlyPrice)) * 100) : 0
+        let stats = viewModel.financialStats
+        let actualSpending = max(0, stats.totalPaid - stats.r1Total - stats.r2Total)
+        return monthlyPrice > 0 ? Int((Double(actualSpending) / Double(monthlyPrice)) * 100) : 0
     }
+    
     private var isBreakeven: Bool { roiValue >= 100 }
     
     var body: some View {
