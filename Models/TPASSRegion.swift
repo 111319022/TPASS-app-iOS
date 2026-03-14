@@ -159,7 +159,7 @@ enum TPASSRegion: String, CaseIterable, Codable {
             return identity == .student ? "15" : "15"
         case .south, .kaohsiung:
             // 高雄公車：全票12x，學生10
-            return identity == .student ? "10" : "12"
+            return identity == .student ? "10" : "15"
         case .centralCitizen:
             // 台中市區公車：市民前十公里0
             return identity == .student ? "0" : "0"
