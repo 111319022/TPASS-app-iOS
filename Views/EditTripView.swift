@@ -63,6 +63,20 @@ struct EditTripView: View {
     var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
     }
+
+    // 根據市民縣市篩選可用的轉乘類型
+    private var filteredTransferTypes: [TransferDiscountType] {
+        let allTypes = currentRegion.supportedTransferTypes
+        guard let userCity = auth.currentUser?.citizenCity else {
+            return allTypes
+        }
+        return allTypes.filter { type in
+            if let required = type.citizenRequirement {
+                return required == userCity
+            }
+            return true
+        }
+    }
     
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
@@ -220,14 +234,14 @@ struct EditTripView: View {
                             
                             // 修改：轉乘按鈕可選擇優惠類型
                             Button(action: {
-                                if currentRegion.supportedTransferTypes.count == 1 {
+                                if filteredTransferTypes.count == 1 {
                                     // 只有一種轉乘類型，直接切換
                                     if isTransfer {
                                         isTransfer = false
                                         transferDiscountType = nil
                                     } else {
                                         isTransfer = true
-                                        transferDiscountType = currentRegion.defaultTransferType
+                                        transferDiscountType = filteredTransferTypes.first ?? currentRegion.defaultTransferType
                                     }
                                 } else {
                                     // 多種轉乘類型，總是顯示選擇器
@@ -246,7 +260,7 @@ struct EditTripView: View {
                                         Text("transfer")
                                             .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
                                     }
-                                    if currentRegion.supportedTransferTypes.count > 1 && isTransfer {
+                                    if filteredTransferTypes.count > 1 && isTransfer {
                                         Image(systemName: "chevron.down")
                                             .font(.caption2)
                                     }
@@ -259,9 +273,9 @@ struct EditTripView: View {
                             .frame(height: 50)
                             .accessibilityLabel(Text("a11y_transfer_discount"))
                             .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-                            .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+                            .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
                             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
-                                ForEach(currentRegion.supportedTransferTypes) { type in
+                                ForEach(filteredTransferTypes) { type in
                                     Button(action: {
                                         isTransfer = true
                                         transferDiscountType = type
@@ -320,7 +334,11 @@ struct EditTripView: View {
                         .padding(.bottom, 20)
                     }
                     .padding(20)
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .navigationTitle("edit_trip_title")
             .navigationBarTitleDisplayMode(.inline)

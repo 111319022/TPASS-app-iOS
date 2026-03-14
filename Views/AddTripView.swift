@@ -60,7 +60,21 @@ struct AddTripView: View {
     var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
     }
-    
+
+    // 根據市民縣市篩選可用的轉乘類型
+    private var filteredTransferTypes: [TransferDiscountType] {
+        let allTypes = currentRegion.supportedTransferTypes
+        guard let userCity = auth.currentUser?.citizenCity else {
+            return allTypes
+        }
+        return allTypes.filter { type in
+            if let required = type.citizenRequirement {
+                return required == userCity
+            }
+            return true
+        }
+    }
+
     var isFormValid: Bool {
         (!price.isEmpty && Int(price) != nil) || isFree
     }
@@ -270,7 +284,7 @@ struct AddTripView: View {
 
     @ViewBuilder
     private var transferTypeDialogActions: some View {
-        ForEach(currentRegion.supportedTransferTypes) { type in
+        ForEach(filteredTransferTypes) { type in
             Button(action: {
                 isTransfer = true
                 transferDiscountType = type
@@ -363,7 +377,11 @@ struct AddTripView: View {
                         submitButtonSection
                     }
                     .padding(20)
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .navigationTitle("add_trip_title")
             .navigationBarTitleDisplayMode(.inline)
@@ -599,16 +617,16 @@ struct AddTripView: View {
     func transferButton() -> some View {
         let bgColor = isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor
         let fgColor = isTransfer ? Color.white : themeManager.secondaryTextColor
-        let showChevron = currentRegion.supportedTransferTypes.count > 1 && isTransfer
+        let showChevron = filteredTransferTypes.count > 1 && isTransfer
         
         return Button(action: {
-            if currentRegion.supportedTransferTypes.count == 1 {
+            if filteredTransferTypes.count == 1 {
                 if isTransfer {
                     isTransfer = false
                     transferDiscountType = nil
                 } else {
                     isTransfer = true
-                    transferDiscountType = currentRegion.defaultTransferType
+                    transferDiscountType = filteredTransferTypes.first ?? currentRegion.defaultTransferType
                 }
             } else {
                 showTransferTypePicker = true
@@ -642,7 +660,7 @@ struct AddTripView: View {
         }
         .accessibilityLabel(Text("a11y_transfer_discount"))
         .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-        .accessibilityHint(Text(currentRegion.supportedTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+        .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
     }
     
     func compactDatePicker(icon: String, selection: Binding<Date>, components: DatePickerComponents) -> some View {
