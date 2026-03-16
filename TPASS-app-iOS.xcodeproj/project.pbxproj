@@ -28,13 +28,11 @@
 		FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94892F20C34B00B687D3 /* AddTripView.swift */; };
 		FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948B2F20C4C200B687D3 /* SettingsView.swift */; };
 		FB0D94922F20E43800B687D3 /* StationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948E2F20E2D700B687D3 /* StationData.swift */; };
-		FB0D94932F20E43E00B687D3 /* FareData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948F2F20E2EC00B687D3 /* FareData.swift */; };
 		FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */; };
 		FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFA92F2DA8B500E09054 /* CSVManager.swift */; };
 		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
 		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */; };
 		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
-		FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */; };
 		FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */; };
 		FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */; };
 		FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */; };
@@ -47,7 +45,10 @@
 		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
 		FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */; };
 		FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */; };
+		FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */; };
 		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
+		FBE7C00230BBB00100C3D4E5 /* THSRFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */; };
+		FBB3AE112F67F76700D7ADE3 /* TPEMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */; };
 		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
 		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
 		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
@@ -84,13 +85,11 @@
 		FB0D94892F20C34B00B687D3 /* AddTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTripView.swift; sourceTree = "<group>"; };
 		FB0D948B2F20C4C200B687D3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FB0D948E2F20E2D700B687D3 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
-		FB0D948F2F20E2EC00B687D3 /* FareData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FareData.swift; sourceTree = "<group>"; };
 		FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FB31BFA92F2DA8B500E09054 /* CSVManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManager.swift; sourceTree = "<group>"; };
 		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
 		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
 		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
-		FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
 		FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTStationData.swift; sourceTree = "<group>"; };
@@ -103,7 +102,10 @@
 		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
 		FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStationSettingsView.swift; sourceTree = "<group>"; };
 		FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddHomeView.swift; sourceTree = "<group>"; };
+		FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
+		FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = THSRFareService.swift; sourceTree = "<group>"; };
+		FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPEMRTFareService.swift; sourceTree = "<group>"; };
 		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
 		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
@@ -173,10 +175,12 @@
 				FB31BFA92F2DA8B500E09054 /* CSVManager.swift */,
 				FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */,
 				FB0D94602F20BD3800B687D3 /* AuthService.swift */,
+				FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */,
 				FB6197402F2F67D6000D80B6 /* TRAFareService.swift */,
 				FB4CF3FF2F30C514002DA5E0 /* KMRTFareService.swift */,
 				FB4CF4002F30C514002DA5E0 /* TCMRTFareService.swift */,
 				FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */,
+				FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */,
 				FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */,
 			);
 			path = Services;
@@ -234,7 +238,6 @@
 				FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */,
 				FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */,
 				FB0D948E2F20E2D700B687D3 /* StationData.swift */,
-				FB0D948F2F20E2EC00B687D3 /* FareData.swift */,
 				FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */,
 				FB6197462F2F73AC000D80B6 /* TRAStationData.swift */,
 			);
@@ -341,19 +344,20 @@
 				FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */,
 				FBD100012FABCDE100AAA111 /* OutboundStationSettingsView.swift in Sources */,
 				FBD100022FABCDE100AAA111 /* QuickAddOutboundView.swift in Sources */,
+				FBB3AE112F67F76700D7ADE3 /* TPEMRTFareService.swift in Sources */,
 				FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */,
 				FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */,
 				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
 				FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */,
 				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
 				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */,
+				FBE7C00230BBB00100C3D4E5 /* THSRFareService.swift in Sources */,
 				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
 				FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */,
 				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
 				FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */,
 				FB0D94922F20E43800B687D3 /* StationData.swift in Sources */,
 				FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */,
-				FB0D94932F20E43E00B687D3 /* FareData.swift in Sources */,
 				FB6197472F2F73AC000D80B6 /* TRAStationData.swift in Sources */,
 				FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */,
 				FB009D762F27111B00E30499 /* SwiftDataModels.swift in Sources */,
@@ -508,7 +512,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 59;
+				CURRENT_PROJECT_VERSION = 60;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -551,7 +555,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 59;
+				CURRENT_PROJECT_VERSION = 60;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

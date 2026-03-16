@@ -469,7 +469,7 @@ struct QuickAddOutboundView: View {
 
         switch outboundStation.transportType {
         case .mrt:
-            if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
+            if let fare = TPEMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }
@@ -489,6 +489,11 @@ struct QuickAddOutboundView: View {
             }
         case .kmrt:
             if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                isTransfer = false
+            }
+        case .hsr:
+            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }

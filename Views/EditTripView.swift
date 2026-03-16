@@ -385,7 +385,7 @@ struct EditTripView: View {
     func recalculateMRTPrice() {
         // 1. 北捷
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
-            if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
+            if let fare = TPEMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false // 重置轉乘狀態
             }
@@ -413,6 +413,13 @@ struct EditTripView: View {
         // 5. 高雄捷運
         else if selectedType == .kmrt, !startStation.isEmpty, !endStation.isEmpty {
             if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                isTransfer = false
+            }
+        }
+        // 6. 高鐵
+        else if selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty {
+            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }

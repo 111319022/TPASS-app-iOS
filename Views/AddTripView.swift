@@ -468,7 +468,7 @@ struct AddTripView: View {
     func tryAutoFillFromHistory() {
         // 1. 北捷邏輯
         if selectedType == .mrt, !startStation.isEmpty, !endStation.isEmpty {
-            if let officialPrice = FareService.shared.getFare(from: startStation, to: endStation) {
+            if let officialPrice = TPEMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(officialPrice)
                 return
             }
@@ -500,7 +500,14 @@ struct AddTripView: View {
             price = String(traPrice)
             return
         }
-        // 6. 歷史紀錄查詢
+        // 6. 高鐵查價邏輯
+        if selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty {
+            if let thsrPrice = THSRFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(thsrPrice)
+                return
+            }
+        }
+        // 7. 歷史紀錄查詢
         let match = viewModel.trips.first { trip in
             guard trip.type == selectedType else { return false }
             

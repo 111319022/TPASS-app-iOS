@@ -1,7 +1,7 @@
 import Foundation
 
-class FareService {
-    @MainActor static let shared = FareService()
+class TPEMRTFareService {
+    @MainActor static let shared = TPEMRTFareService()
     
     // 格式範例： "動物園-木柵": 20,
     private let fareDB: [String: Int] = [

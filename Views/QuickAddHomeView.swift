@@ -487,7 +487,7 @@ struct QuickAddHomeView: View {
         
         switch homeStation.transportType {
         case .mrt:
-            if let fare = FareService.shared.getFare(from: startStation, to: endStation) {
+            if let fare = TPEMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }
@@ -507,6 +507,11 @@ struct QuickAddHomeView: View {
             }
         case .kmrt:
             if let fare = KMRTFareService.shared.getFare(from: startStation, to: endStation) {
+                price = String(fare)
+                isTransfer = false
+            }
+        case .hsr:
+            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }
