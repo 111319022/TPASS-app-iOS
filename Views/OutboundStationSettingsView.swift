@@ -93,6 +93,8 @@ struct OutboundStationRow: View {
             return StationData.shared.displayStationName(station.name, languageCode: lang)
         case .tymrt:
             return TYMRTStationData.shared.displayStationName(station.name, languageCode: lang)
+        case .hsr:
+            return HSRStationData.shared.displayStationName(station.name, languageCode: lang)
         case .tcmrt:
             return TCMRTStationData.shared.displayStationName(station.name, languageCode: lang)
         case .kmrt, .lrt:
@@ -165,7 +167,7 @@ struct AddOutboundStationView: View {
                 Section {
                     Picker("transport_type", selection: $selectedType) {
                         ForEach(TransportType.allCases.filter { type in
-                            type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .bike
+                            type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .hsr || type == .bike
                         }) { type in
                             HStack {
                                 Image(systemName: type.systemIconName)
@@ -228,7 +230,7 @@ struct AddOutboundStationView: View {
                                 }
                             }
                         }
-                    } else if selectedType == .tymrt {
+                    } else if selectedType == .tymrt || selectedType == .hsr {
                         Button(action: {
                             showStationSelector = true
                         }) {
@@ -408,6 +410,15 @@ struct AddOutboundStationView: View {
                             showStationSelector = false
                         }
                     }
+                } else if selectedType == .hsr {
+                    let stations = HSRStationData.shared.availableStations(for: currentRegion)
+                    ForEach(stations, id: \.self) { station in
+                        let displayName = HSRStationData.shared.displayStationName(station, languageCode: Locale.current.identifier)
+                        selectorRow(name: displayName, isSelected: stationName == station) {
+                            stationName = station
+                            showStationSelector = false
+                        }
+                    }
                 } else if selectedType == .tcmrt {
                     if let line = TCMRTStationData.shared.lines.first(where: { $0.name == selectedLine }) {
                         ForEach(line.stations, id: \.self) { station in
@@ -497,6 +508,8 @@ struct AddOutboundStationView: View {
             return StationData.shared.displayStationName(value, languageCode: lang)
         case .tymrt:
             return TYMRTStationData.shared.displayStationName(value, languageCode: lang)
+        case .hsr:
+            return HSRStationData.shared.displayStationName(value, languageCode: lang)
         case .tcmrt:
             return TCMRTStationData.shared.displayStationName(value, languageCode: lang)
         case .kmrt, .lrt:

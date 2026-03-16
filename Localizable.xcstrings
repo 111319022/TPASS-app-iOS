@@ -4576,6 +4576,23 @@
         }
       }
     },
+    "hsr_line_name" : {
+      "comment" : "Taiwan High Speed Rail line name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taiwan High Speed Rail"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台灣高鐵"
+          }
+        }
+      }
+    },
     "identity_adult" : {
       "localizations" : {
         "en" : {

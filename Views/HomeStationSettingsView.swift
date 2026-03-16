@@ -93,6 +93,8 @@ struct HomeStationRow: View {
             return StationData.shared.displayStationName(station.name, languageCode: lang)
         case .tymrt:
             return TYMRTStationData.shared.displayStationName(station.name, languageCode: lang)
+        case .hsr:
+            return HSRStationData.shared.displayStationName(station.name, languageCode: lang)
         case .tcmrt:
             return TCMRTStationData.shared.displayStationName(station.name, languageCode: lang)
         case .kmrt, .lrt:
@@ -168,7 +170,7 @@ struct AddHomeStationView: View {
                     Picker("transport_type", selection: $selectedType) {
                         ForEach(TransportType.allCases.filter { type in
                             // 只顯示有站點的運具類型
-                            type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .bike
+                            type == .mrt || type == .tra || type == .bus || type == .coach || type == .tymrt || type == .tcmrt || type == .kmrt || type == .hsr || type == .bike
                         }) { type in
                             HStack {
                                 Image(systemName: type.systemIconName)
@@ -233,7 +235,7 @@ struct AddHomeStationView: View {
                                 }
                             }
                         }
-                    } else if selectedType == .tymrt {
+                    } else if selectedType == .tymrt || selectedType == .hsr {
                         // 機捷：直接選站點（沒有線路概念）
                         Button(action: {
                             showStationSelector = true
@@ -475,6 +477,24 @@ struct AddHomeStationView: View {
                             }
                         }
                     }
+                } else if selectedType == .hsr {
+                    let stations = HSRStationData.shared.availableStations(for: currentRegion)
+                    ForEach(stations, id: \.self) { station in
+                        Button(action: {
+                            stationName = station
+                            showStationSelector = false
+                        }) {
+                            HStack {
+                                Text(HSRStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
+                                    .foregroundColor(themeManager.primaryTextColor)
+                                Spacer()
+                                if stationName == station {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(themeManager.accentColor)
+                                }
+                            }
+                        }
+                    }
                 } else if selectedType == .tcmrt {
                     if let line = TCMRTStationData.shared.lines.first(where: { $0.name == selectedLine }) {
                         ForEach(line.stations, id: \.self) { station in
@@ -581,6 +601,8 @@ struct AddHomeStationView: View {
             return StationData.shared.displayStationName(value, languageCode: lang)
         case .tymrt:
             return TYMRTStationData.shared.displayStationName(value, languageCode: lang)
+        case .hsr:
+            return HSRStationData.shared.displayStationName(value, languageCode: lang)
         case .tcmrt:
             return TCMRTStationData.shared.displayStationName(value, languageCode: lang)
         case .kmrt, .lrt:

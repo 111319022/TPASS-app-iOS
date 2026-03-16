@@ -366,7 +366,7 @@ struct QuickAddHomeView: View {
                     selectedRegion: $startTRARegion,
                     stationId: $startStation
                 )
-            } else if homeStation.transportType == .mrt || homeStation.transportType == .tymrt || homeStation.transportType == .tcmrt || homeStation.transportType == .kmrt {
+            } else if homeStation.transportType == .mrt || homeStation.transportType == .tymrt || homeStation.transportType == .tcmrt || homeStation.transportType == .kmrt || homeStation.transportType == .hsr {
                 StationInputRow(
                     label: "start_point",
                     type: homeStation.transportType,

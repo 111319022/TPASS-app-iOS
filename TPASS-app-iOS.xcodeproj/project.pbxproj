@@ -34,6 +34,7 @@
 		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
 		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */; };
 		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
+		FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */; };
 		FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */; };
 		FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */; };
 		FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */; };
@@ -89,6 +90,7 @@
 		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
 		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
 		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
+		FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
 		FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTStationData.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 		FB0D948D2F20E2C400B687D3 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */,
 				FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */,
 				FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */,
 				FB0D948E2F20E2D700B687D3 /* StationData.swift */,
@@ -345,6 +348,7 @@
 				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
 				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */,
 				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
+				FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */,
 				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
 				FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */,
 				FB0D94922F20E43800B687D3 /* StationData.swift in Sources */,
@@ -504,7 +508,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 56;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -521,7 +525,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.4;
+				MARKETING_VERSION = 1.6.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -547,7 +551,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 56;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -564,7 +568,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.4;
+				MARKETING_VERSION = 1.6.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

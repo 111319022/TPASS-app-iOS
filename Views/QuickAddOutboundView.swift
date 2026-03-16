@@ -350,7 +350,7 @@ struct QuickAddOutboundView: View {
                     selectedRegion: $endTRARegion,
                     stationId: $endStation
                 )
-            } else if outboundStation.transportType == .mrt || outboundStation.transportType == .tymrt || outboundStation.transportType == .tcmrt || outboundStation.transportType == .kmrt {
+            } else if outboundStation.transportType == .mrt || outboundStation.transportType == .tymrt || outboundStation.transportType == .tcmrt || outboundStation.transportType == .kmrt || outboundStation.transportType == .hsr {
                 StationInputRow(
                     label: "end_point",
                     type: outboundStation.transportType,

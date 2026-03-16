@@ -202,6 +202,8 @@ struct FavoritesManagementView: View {
     private func displayStationName(_ stationName: String, type: TransportType, languageCode: String) -> String {
         if type == .tymrt {
             return TYMRTStationData.shared.displayStationName(stationName, languageCode: languageCode)
+        } else if type == .hsr {
+            return HSRStationData.shared.displayStationName(stationName, languageCode: languageCode)
         } else if type == .tra {
             return TRAStationData.shared.displayStationName(stationName, languageCode: languageCode)
         } else if type == .tcmrt {
@@ -505,6 +507,8 @@ struct CommuterRouteDetailView: View {
             let lang = Locale.current.identifier
             if type == .tymrt {
                 return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+            } else if type == .hsr {
+                return HSRStationData.shared.displayStationName(stationName, languageCode: lang)
             } else if type == .tra {
                 return TRAStationData.shared.displayStationName(stationName, languageCode: lang)
             } else if type == .tcmrt {

@@ -731,8 +731,12 @@ struct StationInputRow: View {
             // === 4. 桃園機捷 (TYMRT) ===
             } else if type == .tymrt {
                 tymrtSelector
+
+            // === 5. 台灣高鐵 (HSR) ===
+            } else if type == .hsr {
+                hsrSelector
                 
-            // === 5. 其他運具 (手動輸入) ===
+            // === 6. 其他運具 (手動輸入) ===
             } else {
                 manualInput
             }
@@ -837,6 +841,45 @@ struct StationInputRow: View {
                     Text("選擇站點", comment: "Select station placeholder").foregroundColor(themeManager.secondaryTextColor)
                 } else {
                     Text(TYMRTStationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.9)
+                }
+                Spacer()
+                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor)
+            }
+            .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private var hsrSelector: some View {
+        let availableStations = HSRStationData.shared.availableStations(for: currentRegion)
+
+        HStack {
+            Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
+            Spacer()
+            Text("hsr_line_name")
+                .font(.subheadline).fontWeight(.bold).foregroundColor(Color(hex: "#FF6600"))
+                .lineLimit(1).minimumScaleFactor(0.8)
+            Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+        }
+        .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
+        .contentShape(Rectangle())
+
+        Divider()
+
+        Menu {
+            ForEach(availableStations, id: \.self) { station in
+                Button(action: { stationName = station }) {
+                    Text(HSRStationData.shared.displayStationName(station, languageCode: Locale.current.identifier))
+                }
+            }
+        } label: {
+            HStack {
+                if stationName.isEmpty {
+                    Text("select_station").foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text(HSRStationData.shared.displayStationName(stationName, languageCode: Locale.current.identifier))
                         .foregroundColor(themeManager.primaryTextColor)
                         .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.9)
                 }

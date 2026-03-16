@@ -1036,6 +1036,9 @@ struct DashboardView: View {
                     case .tymrt:
                         startName = TYMRTStationData.shared.displayStationName(parts[0], languageCode: lang)
                         endName = TYMRTStationData.shared.displayStationName(parts[1], languageCode: lang)
+                    case .hsr:
+                        startName = HSRStationData.shared.displayStationName(parts[0], languageCode: lang)
+                        endName = HSRStationData.shared.displayStationName(parts[1], languageCode: lang)
                     case .tra:
                         startName = TRAStationData.shared.displayStationName(parts[0], languageCode: lang)
                         endName = TRAStationData.shared.displayStationName(parts[1], languageCode: lang)
