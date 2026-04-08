@@ -710,6 +710,19 @@ class TRAStationData {
         let normalized = normalizedLookupKey(trimmed)
         return stationNameZHByEN[normalized] ?? trimmed
     }
+
+    /// 將使用者輸入值（站點 ID / 中文站名 / 英文站名）轉成台鐵站點 ID
+    func resolveStationID(_ input: String) -> String? {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        if allStations.contains(where: { $0.id == trimmed }) {
+            return trimmed
+        }
+
+        let zhName = normalizeStationNameToZH(trimmed)
+        return allStations.first(where: { $0.name == zhName })?.id
+    }
 }
 
 

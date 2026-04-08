@@ -440,8 +440,8 @@ struct AddOutboundStationView: View {
                 } else if selectedType == .tra {
                     if let region = TRAStationData.shared.getAllRegions().first(where: { $0.name == selectedLine }) {
                         ForEach(region.stations, id: \.id) { station in
-                            selectorRow(name: TRAStationData.shared.displayStationName(station.id, languageCode: Locale.current.identifier), isSelected: stationName == station.name) {
-                                stationName = station.name
+                            selectorRow(name: TRAStationData.shared.displayStationName(station.id, languageCode: Locale.current.identifier), isSelected: stationName == station.id) {
+                                stationName = station.id
                                 showStationSelector = false
                             }
                         }
@@ -479,8 +479,14 @@ struct AddOutboundStationView: View {
     }
 
     private func saveOutboundStation() {
+        let normalizedName: String
+        if selectedType == .tra {
+            normalizedName = TRAStationData.shared.resolveStationID(stationName) ?? stationName
+        } else {
+            normalizedName = stationName
+        }
         let finalLineCode = lineCode.isEmpty ? nil : lineCode
-        auth.addOutboundStation(name: stationName, transportType: selectedType, lineCode: finalLineCode)
+        auth.addOutboundStation(name: normalizedName, transportType: selectedType, lineCode: finalLineCode)
         HapticManager.shared.notification(type: .success)
         presentationMode.wrappedValue.dismiss()
     }

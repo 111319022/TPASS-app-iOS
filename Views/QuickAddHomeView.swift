@@ -37,7 +37,10 @@ struct QuickAddHomeView: View {
             // 如果是台鐵，需要額外檢查站點是否在方案範圍內
             if station.transportType == .tra {
                 let validStations = TRAStationData.shared.getStations(for: currentRegion)
-                return validStations.contains(where: { $0.name == station.name })
+                if let stationID = TRAStationData.shared.resolveStationID(station.name) {
+                    return validStations.contains(where: { $0.id == stationID })
+                }
+                return false
             }
             
             return true
@@ -497,7 +500,9 @@ struct QuickAddHomeView: View {
                 isTransfer = false
             }
         case .tra:
-            let fare = TRAFareService.shared.getFare(from: startStation, to: endStation)
+            guard let startStationID = TRAStationData.shared.resolveStationID(startStation),
+                  let endStationID = TRAStationData.shared.resolveStationID(endStation) else { return }
+            let fare = TRAFareService.shared.getFare(from: startStationID, to: endStationID)
             price = String(fare)
             isTransfer = false
         case .tcmrt:

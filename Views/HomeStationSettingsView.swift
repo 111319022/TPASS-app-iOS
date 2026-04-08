@@ -537,14 +537,14 @@ struct AddHomeStationView: View {
                     if let region = TRAStationData.shared.getAllRegions().first(where: { $0.name == selectedLine }) {
                         ForEach(region.stations, id: \.id) { station in
                             Button(action: {
-                                stationName = station.name
+                                stationName = station.id
                                 showStationSelector = false
                             }) {
                                 HStack {
                                     Text(TRAStationData.shared.displayStationName(station.id, languageCode: Locale.current.identifier))
                                         .foregroundColor(themeManager.primaryTextColor)
                                     Spacer()
-                                    if stationName == station.name {
+                                    if stationName == station.id {
                                         Image(systemName: "checkmark")
                                             .foregroundColor(themeManager.accentColor)
                                     }
@@ -572,8 +572,14 @@ struct AddHomeStationView: View {
 
     
     private func saveHomeStation() {
+        let normalizedName: String
+        if selectedType == .tra {
+            normalizedName = TRAStationData.shared.resolveStationID(stationName) ?? stationName
+        } else {
+            normalizedName = stationName
+        }
         let finalLineCode = lineCode.isEmpty ? nil : lineCode
-        auth.addHomeStation(name: stationName, transportType: selectedType, lineCode: finalLineCode)
+        auth.addHomeStation(name: normalizedName, transportType: selectedType, lineCode: finalLineCode)
         HapticManager.shared.notification(type: .success)
         presentationMode.wrappedValue.dismiss()
     }

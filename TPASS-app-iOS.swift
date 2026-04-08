@@ -24,7 +24,6 @@ struct TPASS_app_iOSApp: App {
                 }
             }
             //           結束
-
             // 先嘗試使用當前 models（不使用 versioned schema）
             // 這樣可以載入舊的非版本化資料庫
             let schema = Schema([Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self])
