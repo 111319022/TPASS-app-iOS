@@ -198,6 +198,22 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    @MainActor
+    func fetchAllHistoricalTrips() -> [Trip] {
+        guard let context = modelContext else { return [] }
+        
+        do {
+            // 🔧 新增：用於備份時載入所有歷史行程（不限制時間）
+            let tripDescriptor = FetchDescriptor<Trip>(
+                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            )
+            return try context.fetch(tripDescriptor)
+        } catch {
+            print("❌ 無法載入所有歷史行程: \(error)")
+            return []
+        }
+    }
+    
     // MARK: - 核心過濾邏輯
     private func cycleDateRange(for cycle: Cycle) -> (start: Date, end: Date) {
         let calendar = Calendar.current
@@ -965,7 +981,16 @@ class AppViewModel: ObservableObject {
             routeId: trip.routeId, price: trip.originalPrice, isTransfer: trip.isTransfer, isFree: trip.isFree,
             transferDiscountType: trip.transferDiscountType
         )
-        if !favorites.contains(where: { $0.title == newFav.title && $0.price == newFav.price }) {
+        // 🔧 修正：檢查所有字段都相同才不給新增（運具、公車號碼、起點站、終點站、票價、轉乘標記、免費標記）
+        if !favorites.contains(where: { fav in
+            fav.type == newFav.type &&
+            fav.routeId == newFav.routeId &&
+            fav.startStation == newFav.startStation &&
+            fav.endStation == newFav.endStation &&
+            fav.price == newFav.price &&
+            fav.isTransfer == newFav.isTransfer &&
+            fav.isFree == newFav.isFree
+        }) {
             modelContext?.insert(newFav)
             saveContext()
             favorites.append(newFav)

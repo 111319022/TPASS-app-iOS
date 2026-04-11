@@ -287,8 +287,10 @@ struct BackupManagementView: View {
         guard canStart else { return }
 
         do {
-            let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) in
-                let trips = appViewModel.trips.map {
+            let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle], uploadedTripCount: Int) in
+                // 🔧 修正：備份時載入所有歷史行程（不限制時間）
+                let allHistoricalTrips = appViewModel.fetchAllHistoricalTrips()
+                let trips = allHistoricalTrips.map {
                     TripSnapshot(
                         id: $0.id,
                         userId: $0.userId,
@@ -319,10 +321,10 @@ struct BackupManagementView: View {
                     )
                 }
                 let cycles = auth.currentUser?.cycles ?? []
-                return (trips, favorites, cycles)
+                return (trips, favorites, cycles, allHistoricalTrips.count)
             }
             
-            print("📤 準備上傳數據:")
+            print("📤 準備上傳數據（所有歷史記錄）:")
             print("   Trips: \(snapshot.trips.count)")
             print("   Favorites: \(snapshot.favorites.count)")
             print("   Cycles: \(snapshot.cycles.count)")
@@ -341,7 +343,7 @@ struct BackupManagementView: View {
 
             await MainActor.run {
                 self.successTitle = "backup_upload_success_title"
-                self.successMessage = "backup_upload_success_message \(tripCount) \(favoriteCount) \(cycleCount)"
+                self.successMessage = "backup_upload_success_message \(snapshot.uploadedTripCount) \(favoriteCount) \(cycleCount)"
                 self.showSuccessAlert = true
             }
         } catch {

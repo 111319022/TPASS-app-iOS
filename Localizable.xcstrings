@@ -8449,6 +8449,22 @@
         }
       }
     },
+    "tymrt_citizen_discount_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taoyuan citizen 30% off applied"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已套用桃園市民七折優惠"
+          }
+        }
+      }
+    },
     "update_button" : {
       "localizations" : {
         "en" : {
