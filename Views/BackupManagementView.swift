@@ -1,10 +1,12 @@
 import SwiftUI
 import CloudKit
+import SwiftData
 
 // MARK: - 備份管理頁面
 struct BackupManagementView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var appViewModel: AppViewModel
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var themeManager = ThemeManager.shared
     //@StateObject private var localizationManager = LocalizationManager.shared
     @StateObject private var cloudKitService = CloudKitSyncService.shared
@@ -249,7 +251,7 @@ struct BackupManagementView: View {
             Text(errorMessage)
         }
         .onAppear {
-            print("📱 BackupManagementView appeared - Trips: \(tripCount), Favorites: \(favoriteCount), Cycles: \(cycleCount)")
+            print("📱 BackupManagementView appeared - 全量 Trips: \(tripCount), 近三個月 Trips: \(appViewModel.trips.count), Favorites: \(favoriteCount), Cycles: \(cycleCount)")
             Task {
                 await loadBackupHistory()
             }
@@ -258,7 +260,14 @@ struct BackupManagementView: View {
     
     // MARK: - 輔助函數
     
-    private var tripCount: Int { appViewModel.trips.count }
+    private var tripCount: Int {
+        do {
+            return try modelContext.fetchCount(FetchDescriptor<Trip>())
+        } catch {
+            print("⚠️ 無法取得全量行程數量：\(error)")
+            return appViewModel.trips.count
+        }
+    }
     private var favoriteCount: Int { appViewModel.favorites.count }
     private var cycleCount: Int { auth.currentUser?.cycles.count ?? 0 }
     
@@ -288,8 +297,15 @@ struct BackupManagementView: View {
 
         do {
             let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle], uploadedTripCount: Int) in
-                // 🔧 修正：備份時載入所有歷史行程（不限制時間）
-                let allHistoricalTrips = appViewModel.fetchAllHistoricalTrips()
+                // 🔧 修正：直接從資料庫載入所有歷史行程（不限制時間）
+                var allHistoricalTrips: [Trip] = []
+                do {
+                    let descriptor = FetchDescriptor<Trip>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+                    allHistoricalTrips = try self.modelContext.fetch(descriptor)
+                    print("✅ 成功從資料庫載入全量歷史行程 \(allHistoricalTrips.count) 筆")
+                } catch {
+                    print("❌ 無法從資料庫載入行程: \(error)")
+                }
                 let trips = allHistoricalTrips.map {
                     TripSnapshot(
                         id: $0.id,
@@ -324,8 +340,8 @@ struct BackupManagementView: View {
                 return (trips, favorites, cycles, allHistoricalTrips.count)
             }
             
-            print("📤 準備上傳數據（所有歷史記錄）:")
-            print("   Trips: \(snapshot.trips.count)")
+            print("📤 準備上傳數據（全量歷史記錄）:")
+            print("   全量 Trips: \(snapshot.trips.count)")
             print("   Favorites: \(snapshot.favorites.count)")
             print("   Cycles: \(snapshot.cycles.count)")
             

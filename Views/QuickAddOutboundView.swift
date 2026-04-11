@@ -477,11 +477,7 @@ struct QuickAddOutboundView: View {
                 isTransfer = false
             }
         case .tymrt:
-            if auth.currentUser?.citizenCity == .taoyuan,
-               let citizenFare = TYMRTFareService.shared.getCitizenFare(from: startStation, to: endStation) {
-                price = String(citizenFare)
-                isTransfer = false
-            } else if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
+            if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }
