@@ -218,6 +218,7 @@ struct EditTripView: View {
                         routeStationInputView()
                         
                         // 4. Price & Options
+                        VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 12) {
                             HStack {
                                 Text("$").font(.headline).foregroundColor(themeManager.secondaryTextColor)
@@ -293,6 +294,13 @@ struct EditTripView: View {
                                     transferDiscountType = nil
                                 }
                             }
+                        }
+
+                        if selectedType == .tymrt && auth.currentUser?.citizenCity == .taoyuan {
+                            Text("tymrt_citizen_discount_hint")
+                                .font(.caption)
+                                .foregroundColor(.purple)
+                        }
                         }
                         
                         HStack(spacing: 12) {
@@ -390,9 +398,13 @@ struct EditTripView: View {
                 isTransfer = false // 重置轉乘狀態
             }
         }
-        // 2. 機捷
+        // 2. 機捷（桃園市民享七折）
         else if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
-            if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
+            if auth.currentUser?.citizenCity == .taoyuan,
+               let citizenFare = TYMRTFareService.shared.getCitizenFare(from: startStation, to: endStation) {
+                price = String(citizenFare)
+                isTransfer = false
+            } else if let fare = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
             }

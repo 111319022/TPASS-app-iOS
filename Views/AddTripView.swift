@@ -253,24 +253,37 @@ struct AddTripView: View {
         }
     }
 
-    private var priceAndTransferSection: some View {
-        HStack(spacing: 12) {
-            HStack {
-                Text("$")
-                    .font(.headline)
-                    .foregroundColor(themeManager.secondaryTextColor)
-                TextField("price_placeholder", text: $price)
-                    .keyboardType(.numberPad)
-                    .font(.title3.bold())
-                    .foregroundColor(themeManager.primaryTextColor)
-            }
-            .frame(height: 50)
-            .padding(.horizontal, 12)
-            .background(inputBackgroundColor)
-            .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    // 是否為桃園市民且正在使用機捷
+    private var isTaoyuanCitizenUsingTYMRT: Bool {
+        selectedType == .tymrt && auth.currentUser?.citizenCity == .taoyuan
+    }
 
-            transferButtonWithDialog
+    private var priceAndTransferSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 12) {
+                HStack {
+                    Text("$")
+                        .font(.headline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    TextField("price_placeholder", text: $price)
+                        .keyboardType(.numberPad)
+                        .font(.title3.bold())
+                        .foregroundColor(themeManager.primaryTextColor)
+                }
+                .frame(height: 50)
+                .padding(.horizontal, 12)
+                .background(inputBackgroundColor)
+                .cornerRadius(10)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+
+                transferButtonWithDialog
+            }
+
+            if isTaoyuanCitizenUsingTYMRT {
+                Text("tymrt_citizen_discount_hint")
+                    .font(.caption)
+                    .foregroundColor(.purple)
+            }
         }
     }
 
@@ -473,8 +486,13 @@ struct AddTripView: View {
                 return
             }
         }
-        // 2. 桃園機捷邏輯
+        // 2. 桃園機捷邏輯（桃園市民享七折）
         if selectedType == .tymrt, !startStation.isEmpty, !endStation.isEmpty {
+            if auth.currentUser?.citizenCity == .taoyuan,
+               let citizenPrice = TYMRTFareService.shared.getCitizenFare(from: startStation, to: endStation) {
+                price = String(citizenPrice)
+                return
+            }
             if let tymrtPrice = TYMRTFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(tymrtPrice)
                 return
