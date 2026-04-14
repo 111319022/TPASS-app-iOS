@@ -14,7 +14,6 @@ struct BackupManagementView: View {
     @State private var isLoadingBackups = false
     @State private var showUploadConfirm = false
     @State private var isExecuting = false
-    @State private var selectedBackupId: String? = nil
     @State private var pendingAction: PendingAction? = nil
     @State private var errorMessage = ""
     @State private var showErrorAlert = false
@@ -23,13 +22,13 @@ struct BackupManagementView: View {
     @State private var showSuccessAlert = false
     
     enum PendingAction: Identifiable {
-        case restore(backupId: String)
-        case delete(backupId: String)
+        case restore(backupId: String, isLegacy: Bool)
+        case delete(backupId: String, isLegacy: Bool)
         
         var id: String {
             switch self {
-            case .restore(let id): return "restore-\(id)"
-            case .delete(let id): return "delete-\(id)"
+            case .restore(let id, let isLegacy): return "restore-\(id)-\(isLegacy)"
+            case .delete(let id, let isLegacy): return "delete-\(id)-\(isLegacy)"
             }
         }
     }
@@ -69,6 +68,16 @@ struct BackupManagementView: View {
                                 .foregroundColor(.green)
                                 .font(.caption)
                             Text("backup_last_upload \(formatDate(lastSync))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    if cloudKitService.isSyncing, !cloudKitService.uploadProgress.isEmpty {
+                        HStack(spacing: 6) {
+                            ProgressView()
+                                .scaleEffect(0.75)
+                            Text(cloudKitService.uploadProgress)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -123,7 +132,7 @@ struct BackupManagementView: View {
                             
                             HStack(spacing: 8) {
                                 Button {
-                                    pendingAction = .restore(backupId: backup.id)
+                                    pendingAction = .restore(backupId: backup.id, isLegacy: backup.isLegacy)
                                 } label: {
                                     HStack {
                                         Image(systemName: "arrow.down.circle.fill")
@@ -141,7 +150,7 @@ struct BackupManagementView: View {
                                 .buttonStyle(BorderlessButtonStyle())
                                 
                                 Button {
-                                    pendingAction = .delete(backupId: backup.id)
+                                    pendingAction = .delete(backupId: backup.id, isLegacy: backup.isLegacy)
                                 } label: {
                                     HStack {
                                         Image(systemName: "trash.fill")
@@ -157,6 +166,13 @@ struct BackupManagementView: View {
                                     .cornerRadius(6)
                                 }
                                 .buttonStyle(BorderlessButtonStyle())
+                            }
+
+                            HStack {
+                                Text(backup.isLegacy ? "Legacy Backup" : "V2 Backup")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Spacer()
                             }
                         }
                         .padding(.vertical, 4)
@@ -219,22 +235,22 @@ struct BackupManagementView: View {
         }
         .alert(item: $pendingAction) { action in
             switch action {
-            case .restore(let backupId):
+            case .restore(let backupId, let isLegacy):
                 return Alert(
                     title: Text("backup_confirm_restore_title"),
                     message: Text("backup_confirm_restore_message"),
                     primaryButton: .destructive(Text("backup_confirm_restore_action")) {
-                        Task { await performRestore(backupId: backupId) }
+                        Task { await performRestore(backupId: backupId, isLegacy: isLegacy) }
                     },
                     secondaryButton: .cancel()
                 )
                 
-            case .delete(let backupId):
+            case .delete(let backupId, let isLegacy):
                 return Alert(
                     title: Text("backup_confirm_delete_title"),
                     message: Text("backup_confirm_delete_message"),
                     primaryButton: .destructive(Text("backup_confirm_delete_action")) {
-                        Task { await performDelete(backupId: backupId) }
+                        Task { await performDelete(backupId: backupId, isLegacy: isLegacy) }
                     },
                     secondaryButton: .cancel()
                 )
@@ -370,14 +386,14 @@ struct BackupManagementView: View {
         }
     }
     
-    private func performRestore(backupId: String) async {
+    private func performRestore(backupId: String, isLegacy: Bool) async {
         await MainActor.run { isExecuting = true }
         defer { Task { await MainActor.run { isExecuting = false } } }
         
-        print("🔄 開始恢復備份 ID: \(backupId)")
+        print("🔄 開始恢復備份 ID: \(backupId), legacy: \(isLegacy)")
         
         do {
-            let restored = try await cloudKitService.restoreFromBackup(backupId: backupId)
+            let restored = try await cloudKitService.restoreFromBackup(backupId: backupId, isLegacy: isLegacy)
             
             await MainActor.run {
                 appViewModel.replaceTripsWith(restored.trips)
@@ -404,14 +420,14 @@ struct BackupManagementView: View {
         }
     }
     
-    private func performDelete(backupId: String) async {
+    private func performDelete(backupId: String, isLegacy: Bool) async {
         await MainActor.run { isExecuting = true }
         defer { Task { await MainActor.run { isExecuting = false } } }
         
-        print("🗑️ 開始刪除備份 ID: \(backupId)")
+        print("🗑️ 開始刪除備份 ID: \(backupId), legacy: \(isLegacy)")
         
         do {
-            try await cloudKitService.deleteBackup(backupId: backupId)
+            try await cloudKitService.deleteBackup(backupId: backupId, isLegacy: isLegacy)
             
             await MainActor.run {
                 self.successTitle = "backup_delete_success_title"

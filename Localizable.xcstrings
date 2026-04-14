@@ -2293,6 +2293,7 @@
       }
     },
     "cloudkit_partial_upload_failed_detail %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5010,6 +5011,9 @@
           }
         }
       }
+    },
+    "Legacy Backup" : {
+
     },
     "Line" : {
 
@@ -8496,6 +8500,9 @@
           }
         }
       }
+    },
+    "V2 Backup" : {
+
     },
     "version" : {
       "localizations" : {
