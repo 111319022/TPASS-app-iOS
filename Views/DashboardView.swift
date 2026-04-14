@@ -10,6 +10,7 @@ struct DashboardView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var showDNAModal = false
     @State private var selectedDNATag: DNATag?
+    @State private var showCyclePickerSheet = false
     
     var cardBackground: Color {
         switch themeManager.currentTheme {
@@ -132,31 +133,8 @@ struct DashboardView: View {
     }
     
     private var cyclePickerSection: some View {
-        let sortedCycles = (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
-        return Menu {
-            if !sortedCycles.isEmpty {
-                ForEach(sortedCycles) { cycle in
-                    Button { viewModel.selectedCycle = cycle } label: {
-                        if viewModel.selectedCycle?.id == cycle.id {
-                            Label {
-                                HStack(spacing: 4) {
-                                    Text(cycle.title)
-                                    Text("·")
-                                    Text(cycle.region.displayNameKey)
-                                }
-                            } icon: {
-                                Image(systemName: "checkmark")
-                            }
-                        } else {
-                            HStack(spacing: 4) {
-                                Text(cycle.title)
-                                Text("·")
-                                Text(cycle.region.displayNameKey)
-                            }
-                        }
-                    }
-                }
-            }
+        Button {
+            showCyclePickerSheet = true
         } label: {
             VStack(spacing: 8) {
                 HStack {
@@ -187,6 +165,11 @@ struct DashboardView: View {
             .cornerRadius(12)
         }
         .padding(.horizontal)
+        .sheet(isPresented: $showCyclePickerSheet) {
+            CyclePickerSheet()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
+        }
     }
     
     @ViewBuilder

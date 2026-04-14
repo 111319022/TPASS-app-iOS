@@ -44,9 +44,6 @@
     ":" : {
 
     },
-    "·" : {
-
-    },
     "(" : {
 
     },
@@ -107,7 +104,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld commuter routes"
+            "value" : "%lld Commuter Routes"
           }
         },
         "zh-Hant" : {
@@ -155,7 +152,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld home stations"
+            "value" : "%lld Home Sta."
           }
         },
         "zh-Hant" : {
@@ -171,7 +168,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld departure stations"
+            "value" : "%lld Departure Sta."
           }
         },
         "zh-Hant" : {
@@ -3031,6 +3028,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "週期期間"
+          }
+        }
+      }
+    },
+    "cycle_picker_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇週期"
           }
         }
       }

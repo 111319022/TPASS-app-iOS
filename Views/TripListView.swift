@@ -928,6 +928,7 @@ struct CycleSelectorView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.colorScheme) var colorScheme
+    @State private var showCyclePickerSheet = false
     
     var cardBackground: Color {
         switch themeManager.currentTheme {
@@ -954,30 +955,8 @@ struct CycleSelectorView: View {
     }
     
     var body: some View {
-        Menu {
-            if !sortedCycles.isEmpty {
-                ForEach(sortedCycles) { cycle in
-                    Button { viewModel.selectedCycle = cycle } label: {
-                        if viewModel.selectedCycle?.id == cycle.id {
-                            Label {
-                                HStack(spacing: 4) {
-                                    Text(cycle.title)
-                                    Text("·")
-                                    Text(cycle.region.displayNameKey)
-                                }
-                            } icon: {
-                                Image(systemName: "checkmark")
-                            }
-                        } else {
-                            HStack(spacing: 4) {
-                                Text(cycle.title)
-                                Text("·")
-                                Text(cycle.region.displayNameKey)
-                            }
-                        }
-                    }
-                }
-            }
+        Button {
+            showCyclePickerSheet = true
         } label: {
             VStack(spacing: 8) {
                 HStack(spacing: 8) {
@@ -1014,10 +993,176 @@ struct CycleSelectorView: View {
                     .stroke(Color.gray.opacity(0.1), lineWidth: 1)
             )
         }
+        .sheet(isPresented: $showCyclePickerSheet) {
+            CyclePickerSheet()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("a11y_cycle"))
         .accessibilityValue(cycleAccessibilityValue)
         .accessibilityHint(Text("a11y_cycle_hint"))
+    }
+}
+
+// MARK: - Cycle Picker Sheet
+
+struct CyclePickerSheet: View {
+    @EnvironmentObject var viewModel: AppViewModel
+    @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var themeManager: ThemeManager
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
+
+    private var sortedCycles: [Cycle] {
+        (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
+    }
+
+    private var cardBackground: Color {
+        switch themeManager.currentTheme {
+        case .muji, .light:
+            return Color.white
+        case .dark:
+            return Color(uiColor: .secondarySystemGroupedBackground)
+        case .system:
+            return colorScheme == .dark
+                ? Color(uiColor: .secondarySystemGroupedBackground)
+                : Color.white
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // 拖曳指示器
+            Capsule()
+                .frame(width: 40, height: 5)
+                .foregroundColor(.secondary.opacity(0.3))
+                .padding(.top, 10)
+
+            // 標題
+            Text("cycle_picker_title")
+                .font(.title3.bold())
+                .foregroundColor(themeManager.primaryTextColor)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
+            if sortedCycles.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "calendar.badge.plus")
+                        .font(.system(size: 40))
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
+                    Text("no_cycles_yet")
+                        .font(.headline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+                .padding(.vertical, 40)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(sortedCycles) { cycle in
+                            cycleRow(cycle)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+            }
+        }
+        .background(themeManager.backgroundColor)
+    }
+
+    @ViewBuilder
+    private func cycleRow(_ cycle: Cycle) -> some View {
+        let isSelected = viewModel.selectedCycle?.id == cycle.id
+        let now = Date()
+        let isCurrent = cycle.start <= now && cycle.end >= now
+
+        Button {
+            HapticManager.shared.impact(style: .medium)
+            viewModel.selectedCycle = cycle
+            dismiss()
+        } label: {
+            HStack(spacing: 12) {
+                // 左側圖示
+                VStack {
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(isSelected ? .white : themeManager.accentColor)
+                }
+                .frame(width: 44, height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isSelected
+                              ? themeManager.accentColor
+                              : themeManager.accentColor.opacity(0.12))
+                )
+
+                // 中間：週期資訊
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(cycle.region.displayNameKey)
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(themeManager.primaryTextColor)
+
+                        if isCurrent {
+                            Text("active")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(themeManager.accentColor)
+                                .cornerRadius(4)
+                        }
+                    }
+
+                    Text(cycleDateRangeText(cycle))
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+
+                    if cycle.region.monthlyPrice > 0 {
+                        Text("$\(cycle.region.monthlyPrice)")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(themeManager.accentColor)
+                    }
+                }
+
+                Spacer()
+
+                // 右側：選中勾勾
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(themeManager.accentColor)
+                }
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected
+                          ? themeManager.accentColor.opacity(0.08)
+                          : cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected
+                            ? themeManager.accentColor.opacity(0.3)
+                            : Color.gray.opacity(0.1),
+                            lineWidth: 1)
+            )
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(cycle.region.displayNameKey))
+        .accessibilityValue(Text(cycleDateRangeText(cycle)))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func cycleDateRangeText(_ cycle: Cycle) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy/MM/dd"
+        return "\(f.string(from: cycle.start)) ~ \(f.string(from: cycle.end))"
     }
 }
 
