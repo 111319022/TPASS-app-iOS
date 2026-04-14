@@ -557,10 +557,15 @@ class AppViewModel: ObservableObject {
         }
         
         let monthlyPrice = activeCycle?.region.monthlyPrice ?? AuthService.shared.currentRegion.monthlyPrice
-        let netProfit = financialStats.totalOriginal - monthlyPrice
+        let actualTotalExpense = financialStats.totalOriginal
+        let netProfit = actualTotalExpense - monthlyPrice
+
         if netProfit > 1200 {
             tags.append(DNATag(text: "dna_netprofit_king", description: "dna_netprofit_king_desc", color: Color(hex: "#ffeaa7")))
-        } else if netProfit > 0 {
+        }
+
+        // 「回本大師」：使用實際總支出是否超過 TPASS 成本來判斷。
+        if actualTotalExpense > monthlyPrice {
             tags.append(DNATag(text: "dna_breakeven_master", description: "dna_breakeven_master_desc", color: Color(hex: "#55efc4")))
         }
         
