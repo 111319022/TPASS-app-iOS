@@ -102,6 +102,22 @@
     "%lld" : {
 
     },
+    "%lld commuter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld commuter routes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 通勤路線"
+          }
+        }
+      }
+    },
     "%lld cycles" : {
       "localizations" : {
         "en" : {
@@ -130,6 +146,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 常用路線"
+          }
+        }
+      }
+    },
+    "%lld home" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld home stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 快速回家站點"
+          }
+        }
+      }
+    },
+    "%lld outbound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld departure stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 快速出門站點"
           }
         }
       }
@@ -1536,6 +1584,7 @@
       }
     },
     "backup_restore_success_message %lld %lld %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1547,6 +1596,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "備份已恢復\n行程: %1$lld\n常用路線: %2$lld\n週期: %3$lld"
+          }
+        }
+      }
+    },
+    "backup_restore_success_message_v2 %lld %lld %lld %lld %lld %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup restored\nTrips: %1$lld\nFavorites: %2$lld\nCycles: %3$lld\nCommuter routes: %4$lld\nHome stations: %5$lld\nDeparture stations: %6$lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備份已恢復\n行程: %1$lld\n常用路線: %2$lld\n週期: %3$lld\n通勤路線: %4$lld\n快速回家站點: %5$lld\n快速出門站點: %6$lld"
           }
         }
       }
@@ -1648,6 +1713,7 @@
       }
     },
     "backup_upload_success_message %lld %lld %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1659,6 +1725,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "備份已上傳到 iCloud\n%1$lld 筆行程、%2$lld 個常用路線、%3$lld 個週期"
+          }
+        }
+      }
+    },
+    "backup_upload_success_message_v2 %lld %lld %lld %lld %lld %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup uploaded to iCloud\n%1$lld trips, %2$lld favorites, %3$lld cycles, %4$lld commuter routes, %5$lld home stations, %6$lld departure stations"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備份已上傳到 iCloud\n%1$lld 筆行程、%2$lld 個常用路線、%3$lld 個週期、%4$lld 條通勤路線、%5$lld 個快速回家站點、%6$lld 個快速出門站點"
           }
         }
       }
@@ -5011,9 +5093,6 @@
           }
         }
       }
-    },
-    "Legacy Backup" : {
-
     },
     "Line" : {
 
@@ -8500,9 +8579,6 @@
           }
         }
       }
-    },
-    "V2 Backup" : {
-
     },
     "version" : {
       "localizations" : {

@@ -115,17 +115,15 @@ struct BackupManagementView: View {
                                         .font(.headline)
                                         .foregroundColor(themeManager.primaryTextColor)
                                     
-                                    HStack(spacing: 12) {
-                                        Label("\(backup.tripCount)", systemImage: "figure.walk")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Label("\(backup.favoriteCount)", systemImage: "star.fill")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Label("\(backup.cycleCount)", systemImage: "calendar")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
+                                    HStack(spacing: 8) {
+                                        compactMetricCell(icon: "figure.walk", count: backup.tripCount)
+                                        compactMetricCell(icon: "star.fill", count: backup.favoriteCount)
+                                        compactMetricCell(icon: "calendar", count: backup.cycleCount)
+                                        compactMetricCell(icon: "figure.walk.motion", count: backup.commuterRouteCount)
+                                        compactMetricCell(icon: "house.fill", count: backup.homeStationCount)
+                                        compactMetricCell(icon: "arrowshape.turn.up.right.fill", count: backup.outboundStationCount)
                                     }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 Spacer()
                             }
@@ -167,13 +165,6 @@ struct BackupManagementView: View {
                                 }
                                 .buttonStyle(BorderlessButtonStyle())
                             }
-
-                            HStack {
-                                Text(backup.isLegacy ? "Legacy Backup" : "V2 Backup")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                            }
                         }
                         .padding(.vertical, 4)
                     }
@@ -202,11 +193,19 @@ struct BackupManagementView: View {
                 Text("backup_sheet_title")
                     .font(.title3.bold())
                     .foregroundColor(themeManager.primaryTextColor)
-                HStack(spacing: 12) {
-                    Label("\(tripCount) trips", systemImage: "figure.walk")
-                    Label("\(favoriteCount) favorites", systemImage: "star.fill")
-                    Label("\(cycleCount) cycles", systemImage: "calendar")
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        fullMetricCell(icon: "figure.walk", text: "\(tripCount) trips")
+                        fullMetricCell(icon: "star.fill", text: "\(favoriteCount) favorites")
+                        fullMetricCell(icon: "calendar", text: "\(cycleCount) cycles")
+                    }
+                    HStack(spacing: 8) {
+                        fullMetricCell(icon: "figure.walk.motion", text: "\(commuterRouteCount) commuter")
+                        fullMetricCell(icon: "house.fill", text: "\(homeStationCount) home")
+                        fullMetricCell(icon: "arrowshape.turn.up.right.fill", text: "\(outboundStationCount) outbound")
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 
@@ -286,6 +285,30 @@ struct BackupManagementView: View {
     }
     private var favoriteCount: Int { appViewModel.favorites.count }
     private var cycleCount: Int { auth.currentUser?.cycles.count ?? 0 }
+    private var commuterRouteCount: Int { appViewModel.commuterRoutes.count }
+    private var homeStationCount: Int { auth.currentUser?.homeStations.count ?? 0 }
+    private var outboundStationCount: Int { auth.currentUser?.outboundStations.count ?? 0 }
+
+    @ViewBuilder
+    private func compactMetricCell(icon: String, count: Int) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .frame(width: 14)
+            Text("\(count)")
+                .monospacedDigit()
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func fullMetricCell(icon: String, text: LocalizedStringKey) -> some View {
+        Label(text, systemImage: icon)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -312,7 +335,18 @@ struct BackupManagementView: View {
         guard canStart else { return }
 
         do {
-            let snapshot = await MainActor.run { () -> (trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle], uploadedTripCount: Int) in
+            let snapshot = await MainActor.run {
+                () -> (
+                    trips: [TripSnapshot],
+                    favorites: [FavoriteRouteSnapshot],
+                    cycles: [Cycle],
+                    commuterRoutes: [CommuterRoute],
+                    homeStations: [HomeStation],
+                    outboundStations: [OutboundStation],
+                    identity: Identity?,
+                    citizenCity: TaiwanCity?,
+                    uploadedTripCount: Int
+                ) in
                 // 🔧 修正：直接從資料庫載入所有歷史行程（不限制時間）
                 var allHistoricalTrips: [Trip] = []
                 do {
@@ -353,13 +387,31 @@ struct BackupManagementView: View {
                     )
                 }
                 let cycles = auth.currentUser?.cycles ?? []
-                return (trips, favorites, cycles, allHistoricalTrips.count)
+                let commuterRoutes = appViewModel.commuterRoutes
+                let homeStations = auth.currentUser?.homeStations ?? []
+                let outboundStations = auth.currentUser?.outboundStations ?? []
+                let identity = auth.currentUser?.identity
+                let citizenCity = auth.currentUser?.citizenCity
+                return (
+                    trips,
+                    favorites,
+                    cycles,
+                    commuterRoutes,
+                    homeStations,
+                    outboundStations,
+                    identity,
+                    citizenCity,
+                    allHistoricalTrips.count
+                )
             }
             
             print("📤 準備上傳數據（全量歷史記錄）:")
             print("   全量 Trips: \(snapshot.trips.count)")
             print("   Favorites: \(snapshot.favorites.count)")
             print("   Cycles: \(snapshot.cycles.count)")
+            print("   CommuterRoutes: \(snapshot.commuterRoutes.count)")
+            print("   HomeStations: \(snapshot.homeStations.count)")
+            print("   OutboundStations: \(snapshot.outboundStations.count)")
             
             // 檢查第一筆 Trip 的內容
             if let firstTrip = snapshot.trips.first {
@@ -367,7 +419,16 @@ struct BackupManagementView: View {
                 print("   第一筆 Trip UserID: \(firstTrip.userId)")
             }
             
-            try await cloudKitService.uploadBackup(trips: snapshot.trips, favorites: snapshot.favorites, cycles: snapshot.cycles)
+            try await cloudKitService.uploadBackup(
+                trips: snapshot.trips,
+                favorites: snapshot.favorites,
+                cycles: snapshot.cycles,
+                commuterRoutes: snapshot.commuterRoutes,
+                homeStations: snapshot.homeStations,
+                outboundStations: snapshot.outboundStations,
+                identity: snapshot.identity,
+                citizenCity: snapshot.citizenCity
+            )
 
             // CloudKit 可能有同步延遲，延遲 1 秒再刷新列表
             try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -375,7 +436,7 @@ struct BackupManagementView: View {
 
             await MainActor.run {
                 self.successTitle = "backup_upload_success_title"
-                self.successMessage = "backup_upload_success_message \(snapshot.uploadedTripCount) \(favoriteCount) \(cycleCount)"
+                self.successMessage = "backup_upload_success_message_v2 \(snapshot.uploadedTripCount) \(favoriteCount) \(cycleCount) \(snapshot.commuterRoutes.count) \(snapshot.homeStations.count) \(snapshot.outboundStations.count)"
                 self.showSuccessAlert = true
             }
         } catch {
@@ -398,19 +459,43 @@ struct BackupManagementView: View {
             await MainActor.run {
                 appViewModel.replaceTripsWith(restored.trips)
                 appViewModel.replaceFavoritesWith(restored.favorites)
+                if !isLegacy {
+                    appViewModel.replaceCommuterRoutesWith(restored.commuterRoutes ?? [])
+                }
                 
                 if var user = auth.currentUser {
                     // 🔧 按照日期排序週期（最新的在最前面）
                     user.cycles = restored.cycles.sorted { $0.start > $1.start }
+                    if !isLegacy {
+                        user.homeStations = restored.homeStations ?? []
+                        user.outboundStations = restored.outboundStations ?? []
+                        if let restoredIdentity = restored.identity {
+                            user.identity = restoredIdentity
+                        }
+                        user.citizenCity = restored.citizenCity
+                    }
                     auth.currentUser = user
                     auth.saveLocalUser()
                 }
+
+                let restoredCommuterCount = isLegacy
+                    ? appViewModel.commuterRoutes.count
+                    : (restored.commuterRoutes?.count ?? appViewModel.commuterRoutes.count)
+                let restoredHomeCount = auth.currentUser?.homeStations.count ?? 0
+                let restoredOutboundCount = auth.currentUser?.outboundStations.count ?? 0
                 
                 self.successTitle = "backup_restore_success_title"
-                self.successMessage = "backup_restore_success_message \(restored.trips.count) \(restored.favorites.count) \(restored.cycles.count)"
+                self.successMessage = "backup_restore_success_message_v2 \(restored.trips.count) \(restored.favorites.count) \(restored.cycles.count) \(restoredCommuterCount) \(restoredHomeCount) \(restoredOutboundCount)"
                 self.showSuccessAlert = true
             }
-            print("✅ 備份恢復成功 - Trips: \(restored.trips.count), Favorites: \(restored.favorites.count), Cycles: \(restored.cycles.count)")
+            let restoredCommuterCount = restored.commuterRoutes?.count ?? appViewModel.commuterRoutes.count
+            let restoredHomeCount = restored.homeStations?.count ?? auth.currentUser?.homeStations.count ?? 0
+            let restoredOutboundCount = restored.outboundStations?.count ?? auth.currentUser?.outboundStations.count ?? 0
+            let restoredIdentity = restored.identity?.rawValue ?? auth.currentUser?.identity.rawValue ?? "(unchanged)"
+            let restoredCitizen = restored.citizenCity?.rawValue ?? auth.currentUser?.citizenCity?.rawValue ?? "(unchanged)"
+            print(
+                "✅ 備份恢復成功 [\(isLegacy ? "LEGACY" : "V2")] - Trips: \(restored.trips.count), Favorites: \(restored.favorites.count), Cycles: \(restored.cycles.count), CommuterRoutes: \(restoredCommuterCount), HomeStations: \(restoredHomeCount), OutboundStations: \(restoredOutboundCount), Identity: \(restoredIdentity), CitizenCity: \(restoredCitizen)"
+            )
         } catch {
             await MainActor.run {
                 errorMessage = "\(error.localizedDescription)"

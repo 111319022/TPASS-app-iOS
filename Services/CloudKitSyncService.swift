@@ -10,6 +10,9 @@ struct BackupRecord: Identifiable, Hashable {
     let tripCount: Int
     let favoriteCount: Int
     let cycleCount: Int
+    let commuterRouteCount: Int
+    let homeStationCount: Int
+    let outboundStationCount: Int
     let isLegacy: Bool
     
     var formattedDate: String {
@@ -67,12 +70,80 @@ struct CycleSnapshot: Codable, Hashable {
     }
 }
 
-struct TPASSBackup: Codable, Hashable {
+struct CommuterRouteSnapshot: Codable {
+    let id: UUID
+    let name: String
+    let trips: [CommuterTripTemplate]
+
+    init(route: CommuterRoute) {
+        self.id = route.id
+        self.name = route.name
+        self.trips = route.trips
+    }
+}
+
+struct TPASSBackup: Codable {
     let schemaVersion: Int
     let createdAt: Date
     let trips: [TripSnapshot]
     let favorites: [FavoriteRouteSnapshot]
     let cycles: [CycleSnapshot]
+    let commuterRoutes: [CommuterRouteSnapshot]
+    let homeStations: [HomeStation]
+    let outboundStations: [OutboundStation]
+    let identity: Identity?
+    let citizenCity: TaiwanCity?
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case createdAt
+        case trips
+        case favorites
+        case cycles
+        case commuterRoutes
+        case homeStations
+        case outboundStations
+        case identity
+        case citizenCity
+    }
+
+    init(
+        schemaVersion: Int,
+        createdAt: Date,
+        trips: [TripSnapshot],
+        favorites: [FavoriteRouteSnapshot],
+        cycles: [CycleSnapshot],
+        commuterRoutes: [CommuterRouteSnapshot],
+        homeStations: [HomeStation],
+        outboundStations: [OutboundStation],
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) {
+        self.schemaVersion = schemaVersion
+        self.createdAt = createdAt
+        self.trips = trips
+        self.favorites = favorites
+        self.cycles = cycles
+        self.commuterRoutes = commuterRoutes
+        self.homeStations = homeStations
+        self.outboundStations = outboundStations
+        self.identity = identity
+        self.citizenCity = citizenCity
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = (try? container.decode(Int.self, forKey: .schemaVersion)) ?? 2
+        createdAt = (try? container.decode(Date.self, forKey: .createdAt)) ?? Date()
+        trips = (try? container.decode([TripSnapshot].self, forKey: .trips)) ?? []
+        favorites = (try? container.decode([FavoriteRouteSnapshot].self, forKey: .favorites)) ?? []
+        cycles = (try? container.decode([CycleSnapshot].self, forKey: .cycles)) ?? []
+        commuterRoutes = (try? container.decode([CommuterRouteSnapshot].self, forKey: .commuterRoutes)) ?? []
+        homeStations = (try? container.decode([HomeStation].self, forKey: .homeStations)) ?? []
+        outboundStations = (try? container.decode([OutboundStation].self, forKey: .outboundStations)) ?? []
+        identity = try? container.decode(Identity.self, forKey: .identity)
+        citizenCity = try? container.decode(TaiwanCity.self, forKey: .citizenCity)
+    }
 }
 
 //  加上 @MainActor 確保整個 Service 都在主執行緒運行
@@ -90,6 +161,9 @@ class CloudKitSyncService: ObservableObject {
         static let tripCount = "tripCount"
         static let favoriteCount = "favoriteCount"
         static let cycleCount = "cycleCount"
+        static let commuterRouteCount = "commuterRouteCount"
+        static let homeStationCount = "homeStationCount"
+        static let outboundStationCount = "outboundStationCount"
         static let payloadAsset = "payloadAsset"
         static let schemaVersion = "schemaVersion"
     }
@@ -117,7 +191,16 @@ class CloudKitSyncService: ObservableObject {
     }
     
     // MARK: - 上傳備份到 CloudKit
-    func uploadBackup(trips: [TripSnapshot], favorites: [FavoriteRouteSnapshot], cycles: [Cycle]) async throws {
+    func uploadBackup(
+        trips: [TripSnapshot],
+        favorites: [FavoriteRouteSnapshot],
+        cycles: [Cycle],
+        commuterRoutes: [CommuterRoute],
+        homeStations: [HomeStation],
+        outboundStations: [OutboundStation],
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) async throws {
         guard !isSyncing else { return }
         isSyncing = true
         syncError = nil
@@ -137,7 +220,12 @@ class CloudKitSyncService: ObservableObject {
                 createdAt: Date(),
                 trips: trips,
                 favorites: favorites,
-                cycles: cycles.map { CycleSnapshot(cycle: $0) }
+                cycles: cycles.map { CycleSnapshot(cycle: $0) },
+                commuterRoutes: commuterRoutes.map { CommuterRouteSnapshot(route: $0) },
+                homeStations: homeStations,
+                outboundStations: outboundStations,
+                identity: identity,
+                citizenCity: citizenCity
             )
 
             uploadProgress = "Encoding JSON..."
@@ -161,6 +249,9 @@ class CloudKitSyncService: ObservableObject {
             v2Record[FieldKey.tripCount] = backup.trips.count as CKRecordValue
             v2Record[FieldKey.favoriteCount] = backup.favorites.count as CKRecordValue
             v2Record[FieldKey.cycleCount] = backup.cycles.count as CKRecordValue
+            v2Record[FieldKey.commuterRouteCount] = backup.commuterRoutes.count as CKRecordValue
+            v2Record[FieldKey.homeStationCount] = backup.homeStations.count as CKRecordValue
+            v2Record[FieldKey.outboundStationCount] = backup.outboundStations.count as CKRecordValue
             v2Record[FieldKey.schemaVersion] = backup.schemaVersion as CKRecordValue
             v2Record[FieldKey.payloadAsset] = CKAsset(fileURL: tempURL)
 
@@ -199,7 +290,15 @@ class CloudKitSyncService: ObservableObject {
             v2Records = try await fetchRecords(
                 recordType: RecordType.v2Backup,
                 predicate: predicate,
-                desiredKeys: [FieldKey.timestamp, FieldKey.tripCount, FieldKey.favoriteCount, FieldKey.cycleCount]
+                desiredKeys: [
+                    FieldKey.timestamp,
+                    FieldKey.tripCount,
+                    FieldKey.favoriteCount,
+                    FieldKey.cycleCount,
+                    FieldKey.commuterRouteCount,
+                    FieldKey.homeStationCount,
+                    FieldKey.outboundStationCount
+                ]
             )
         } catch {
             if isMissingRecordTypeError(error) {
@@ -219,6 +318,9 @@ class CloudKitSyncService: ObservableObject {
                 tripCount: intValue(from: record[FieldKey.tripCount]),
                 favoriteCount: intValue(from: record[FieldKey.favoriteCount]),
                 cycleCount: intValue(from: record[FieldKey.cycleCount]),
+                commuterRouteCount: 0,
+                homeStationCount: 0,
+                outboundStationCount: 0,
                 isLegacy: true
             )
         }
@@ -231,6 +333,9 @@ class CloudKitSyncService: ObservableObject {
                 tripCount: intValue(from: record[FieldKey.tripCount]),
                 favoriteCount: intValue(from: record[FieldKey.favoriteCount]),
                 cycleCount: intValue(from: record[FieldKey.cycleCount]),
+                commuterRouteCount: intValue(from: record[FieldKey.commuterRouteCount]),
+                homeStationCount: intValue(from: record[FieldKey.homeStationCount]),
+                outboundStationCount: intValue(from: record[FieldKey.outboundStationCount]),
                 isLegacy: false
             )
         }
@@ -274,12 +379,30 @@ class CloudKitSyncService: ObservableObject {
     }
     
     // MARK: - 從 CloudKit 恢復特定備份
-    func restoreFromBackup(backupId: String) async throws -> (trips: [Trip], favorites: [FavoriteRoute], cycles: [Cycle]) {
+    func restoreFromBackup(backupId: String) async throws -> (
+        trips: [Trip],
+        favorites: [FavoriteRoute],
+        cycles: [Cycle],
+        commuterRoutes: [CommuterRoute]?,
+        homeStations: [HomeStation]?,
+        outboundStations: [OutboundStation]?,
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) {
         let isLegacy = backupHistory.first(where: { $0.id == backupId })?.isLegacy ?? true
         return try await restoreFromBackup(backupId: backupId, isLegacy: isLegacy)
     }
 
-    func restoreFromBackup(backupId: String, isLegacy: Bool) async throws -> (trips: [Trip], favorites: [FavoriteRoute], cycles: [Cycle]) {
+    func restoreFromBackup(backupId: String, isLegacy: Bool) async throws -> (
+        trips: [Trip],
+        favorites: [FavoriteRoute],
+        cycles: [Cycle],
+        commuterRoutes: [CommuterRoute]?,
+        homeStations: [HomeStation]?,
+        outboundStations: [OutboundStation]?,
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) {
         isSyncing = true
         defer { isSyncing = false }
 
@@ -306,7 +429,16 @@ class CloudKitSyncService: ObservableObject {
         }
     }
 
-    private func restoreFromLegacyBackup(backupId: String) async throws -> (trips: [Trip], favorites: [FavoriteRoute], cycles: [Cycle]) {
+    private func restoreFromLegacyBackup(backupId: String) async throws -> (
+        trips: [Trip],
+        favorites: [FavoriteRoute],
+        cycles: [Cycle],
+        commuterRoutes: [CommuterRoute]?,
+        homeStations: [HomeStation]?,
+        outboundStations: [OutboundStation]?,
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) {
         let metaRecordID = CKRecord.ID(recordName: backupId)
         let metaReference = CKRecord.Reference(recordID: metaRecordID, action: .deleteSelf)
 
@@ -317,10 +449,19 @@ class CloudKitSyncService: ObservableObject {
         let restoredTrips = tripRecords.compactMap(recordToTrip)
         let restoredFavorites = favRecords.compactMap(recordToFavorite)
         let restoredCycles = cycleRecords.compactMap(recordToCycle)
-        return (restoredTrips, restoredFavorites, restoredCycles)
+        return (restoredTrips, restoredFavorites, restoredCycles, nil, nil, nil, nil, nil)
     }
 
-    private func restoreFromV2Backup(backupId: String) async throws -> (trips: [Trip], favorites: [FavoriteRoute], cycles: [Cycle]) {
+    private func restoreFromV2Backup(backupId: String) async throws -> (
+        trips: [Trip],
+        favorites: [FavoriteRoute],
+        cycles: [Cycle],
+        commuterRoutes: [CommuterRoute]?,
+        homeStations: [HomeStation]?,
+        outboundStations: [OutboundStation]?,
+        identity: Identity?,
+        citizenCity: TaiwanCity?
+    ) {
         let recordID = CKRecord.ID(recordName: backupId)
         let record = try await privateDatabase.record(for: recordID)
         guard record.recordType == RecordType.v2Backup else {
@@ -340,7 +481,17 @@ class CloudKitSyncService: ObservableObject {
         let restoredTrips = try backup.trips.map { try snapshotToTrip($0) }
         let restoredFavorites = try backup.favorites.map { try snapshotToFavorite($0) }
         let restoredCycles = backup.cycles.map(snapshotToCycle)
-        return (restoredTrips, restoredFavorites, restoredCycles)
+        let restoredCommuterRoutes = backup.commuterRoutes.map(snapshotToCommuterRoute)
+        return (
+            restoredTrips,
+            restoredFavorites,
+            restoredCycles,
+            restoredCommuterRoutes,
+            backup.homeStations,
+            backup.outboundStations,
+            backup.identity,
+            backup.citizenCity
+        )
     }
     
     // 輔助方法：使用 async API 查詢，避免 Block 造成的 Data Race
@@ -531,6 +682,10 @@ class CloudKitSyncService: ObservableObject {
             displayName: snapshot.displayName,
             region: region
         )
+    }
+
+    private func snapshotToCommuterRoute(_ snapshot: CommuterRouteSnapshot) -> CommuterRoute {
+        CommuterRoute(id: snapshot.id, name: snapshot.name, trips: snapshot.trips)
     }
 
     // MARK: - Record to Model 轉換

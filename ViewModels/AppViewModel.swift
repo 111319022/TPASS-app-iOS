@@ -973,6 +973,15 @@ class AppViewModel: ObservableObject {
         saveContext()
         fetchAllData()
     }
+
+    @MainActor
+    func replaceCommuterRoutesWith(_ newRoutes: [CommuterRoute]) {
+        guard let context = modelContext else { return }
+        try? context.delete(model: CommuterRoute.self)
+        for route in newRoutes { context.insert(route) }
+        saveContext()
+        fetchAllData()
+    }
     
     @MainActor
     func addToFavorites(from trip: Trip) {
