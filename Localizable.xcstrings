@@ -44,9 +44,6 @@
     ":" : {
 
     },
-    "·" : {
-
-    },
     "(" : {
 
     },
@@ -107,7 +104,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld commuter routes"
+            "value" : "%lld Commute routes"
           }
         },
         "zh-Hant" : {
@@ -3035,6 +3032,9 @@
         }
       }
     },
+    "cycle_picker_title" : {
+
+    },
     "cycleManagement" : {
       "localizations" : {
         "en" : {
@@ -4392,6 +4392,22 @@
         }
       }
     },
+    "flexible_deselect_all" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deselect All"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消全選"
+          }
+        }
+      }
+    },
     "flexible_feature_all_modes" : {
       "comment" : "Feature: all transport modes",
       "localizations" : {
@@ -4456,6 +4472,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無需購買月票"
+          }
+        }
+      }
+    },
+    "flexible_mode_required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select at least one mode"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "至少選擇一種運具"
+          }
+        }
+      }
+    },
+    "flexible_select_all" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全選"
+          }
+        }
+      }
+    },
+    "flexible_select_modes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Modes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇運具"
           }
         }
       }
@@ -5461,6 +5525,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無轉乘折扣"
+          }
+        }
+      }
+    },
+    "non_reserved_seat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non-Reserved"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自由座"
           }
         }
       }
@@ -7174,22 +7254,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台鐵"
-          }
-        }
-      }
-    },
-    "non_reserved_seat" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non-Reserved"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自由座"
           }
         }
       }
