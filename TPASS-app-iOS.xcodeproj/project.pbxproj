@@ -69,6 +69,7 @@
 		FB0A216D2F8F955800405172 /* privacy.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21682F8F955800405172 /* privacy.html */; };
 		FB0A216E2F8F955800405172 /* firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21652F8F955800405172 /* firebase.json */; };
 		FB0A216F2F8F955800405172 /* 404.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21662F8F955800405172 /* 404.html */; };
+		FB0A21712F8F98EC00405172 /* PROJECT_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -136,6 +137,7 @@
 		FB0A21672F8F955800405172 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		FB0A21682F8F955800405172 /* privacy.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = privacy.html; sourceTree = "<group>"; };
 		FB0A21692F8F955800405172 /* support.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = support.html; sourceTree = "<group>"; };
+		FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROJECT_GUIDE.md; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -285,10 +287,11 @@
 		FB0D943D2F20BC1600B687D3 = {
 			isa = PBXGroup;
 			children = (
+				FB6BC0BB2F7042950011877D /* README.md */,
+				FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */,
 				FB0A21652F8F955800405172 /* firebase.json */,
 				FB0A216A2F8F955800405172 /* webpage */,
 				FB0A21582F8F906700405172 /* Py_Data_Convert */,
-				FB6BC0BB2F7042950011877D /* README.md */,
 				FB0A21192F8F8EF100405172 /* TPASS-app-iOS */,
 				FB0D94472F20BC1600B687D3 /* Products */,
 			);
@@ -368,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB0A21502F8F8EF100405172 /* Localizable.xcstrings in Resources */,
+				FB0A21712F8F98EC00405172 /* PROJECT_GUIDE.md in Resources */,
 				FB0A21592F8F906700405172 /* TRAConvertFare_v9.py in Resources */,
 				FB0A21512F8F8EF100405172 /* TRA_Fares_Fixed.sqlite in Resources */,
 				FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */,
