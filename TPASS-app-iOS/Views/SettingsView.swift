@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - 主設定頁面
 struct SettingsView: View {
@@ -389,6 +390,14 @@ struct SettingsView: View {
 // MARK: - 關於 App 子頁面
 struct AboutAppView: View {
     @StateObject private var themeManager = ThemeManager.shared
+    @State private var authorTapCount = 0
+    @State private var isCheckingDeveloperAccess = false
+    @State private var isCopyingDeveloperHash = false
+    @State private var showDeveloperPage = false
+    @State private var showAccessAlert = false
+    @State private var accessMessage = ""
+    @State private var showCopyAlert = false
+    @State private var copyMessage = ""
     
     var body: some View {
         Form {
@@ -399,29 +408,111 @@ struct AboutAppView: View {
                     Text(appVersion)
                         .foregroundColor(.secondary)
                 }
-                HStack {
-                    Text("author")
-                    Spacer()
-                    Text("Raaay")
-                        .foregroundColor(.secondary)
+                Button {
+                    handleAuthorTap()
+                } label: {
+                    HStack {
+                        Text("author")
+                        Spacer()
+                        if isCheckingDeveloperAccess {
+                            ProgressView()
+                                .scaleEffect(0.85)
+                        } else {
+                            Text("Raaay")
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
+                .buttonStyle(.plain)
             } footer: {
                 Text("copyright")
                     .font(.caption)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top)
             }
+
         }
         .navigationTitle("aboutAppTitle")
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)
+        .background(
+            NavigationLink(destination: DeveloperToolsPlaceholderView(), isActive: $showDeveloperPage) {
+                EmptyView()
+            }
+            .hidden()
+        )
+        .alert("開發者權限驗證", isPresented: $showAccessAlert) {
+            Button("複製 hash") {
+                copyCurrentUserHash()
+            }
+            Button("關閉", role: .cancel) {}
+        } message: {
+            Text(accessMessage)
+        }
+        .alert("複製完成", isPresented: $showCopyAlert) {
+            Button("確定", role: .cancel) {}
+        } message: {
+            Text(copyMessage)
+        }
     }
     
     var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+
+    private func handleAuthorTap() {
+        guard !isCheckingDeveloperAccess else { return }
+        authorTapCount += 1
+
+        if authorTapCount >= 10 {
+            authorTapCount = 0
+            validateDeveloperAccess()
+        }
+    }
+
+    private func validateDeveloperAccess() {
+        isCheckingDeveloperAccess = true
+
+        Task {
+            let result = await DeveloperAccessService.shared.verifyCurrentUserAccess()
+
+            await MainActor.run {
+                isCheckingDeveloperAccess = false
+                switch result {
+                case .allowed:
+                    showDeveloperPage = true
+                case .denied(let message):
+                    accessMessage = message
+                    showAccessAlert = true
+                }
+            }
+        }
+    }
+
+    private func copyCurrentUserHash() {
+        guard !isCopyingDeveloperHash else { return }
+        isCopyingDeveloperHash = true
+
+        Task {
+            let hash = await DeveloperAccessService.shared.currentUserHashForAdmin()
+
+            await MainActor.run {
+                isCopyingDeveloperHash = false
+
+                guard let hash, !hash.isEmpty else {
+                    copyMessage = "目前無法取得 iCloud 使用者識別碼，請確認已登入 iCloud。"
+                    showCopyAlert = true
+                    return
+                }
+
+                UIPasteboard.general.string = hash
+                copyMessage = "已複製目前使用者 hash，請提供給管理員處理 CloudKit 的 allowedUserHashes。"
+                showCopyAlert = true
+            }
+        }
     }
 }
 
