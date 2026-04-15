@@ -16,6 +16,10 @@ struct QuickAddOutboundView: View {
         resolvedCycleForDate?.region ?? auth.currentRegion
     }
 
+    private var currentSupportedModes: [TransportType] {
+        resolvedCycleForDate?.effectiveSupportedModes ?? currentRegion.supportedModes
+    }
+
     private var currentCycleId: String? {
         resolvedCycleForDate?.id
     }
@@ -25,7 +29,7 @@ struct QuickAddOutboundView: View {
     }
 
     private var availableOutboundStations: [OutboundStation] {
-        let supportedTypes = currentRegion.supportedModes
+        let supportedTypes = currentSupportedModes
         return outboundStations.filter { station in
             guard supportedTypes.contains(station.transportType) else {
                 return false

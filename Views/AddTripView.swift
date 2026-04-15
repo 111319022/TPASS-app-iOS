@@ -18,6 +18,10 @@ struct AddTripView: View {
         resolvedCycleForDate?.region ?? auth.currentRegion
     }
     
+    private var currentSupportedModes: [TransportType] {
+        resolvedCycleForDate?.effectiveSupportedModes ?? currentRegion.supportedModes
+    }
+    
     private var currentCycleId: String? {
         resolvedCycleForDate?.id
     }
@@ -120,7 +124,7 @@ struct AddTripView: View {
 
     private var transportSelectionSection: some View {
         LazyVGrid(columns: transportGridColumns, spacing: 8) {
-            ForEach(currentRegion.supportedModes) { type in
+            ForEach(currentSupportedModes) { type in
                 transportTypeButton(type)
             }
         }
@@ -420,7 +424,7 @@ struct AddTripView: View {
         
         .onAppear {
             // 初始化 selectedType 為當前地區支持的第一種運具
-            if let firstMode = currentRegion.supportedModes.first {
+            if let firstMode = currentSupportedModes.first {
                 selectedType = firstMode
                 handleTypeChange(firstMode)
             }

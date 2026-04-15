@@ -20,6 +20,10 @@ struct EditTripView: View {
         resolvedCycleForTrip?.region ?? auth.currentRegion
     }
     
+    private var currentSupportedModes: [TransportType] {
+        resolvedCycleForTrip?.effectiveSupportedModes ?? currentRegion.supportedModes
+    }
+    
     // 取得該方案可用的區域列表
     private var availableTRARegions: [TRARegion] {
         TRAStationData.shared.getRegions(for: currentRegion)
@@ -175,7 +179,7 @@ struct EditTripView: View {
                         // 2. Transport Type (Grid)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                             // 修改：只顯示該地區支援的運具
-                            ForEach(currentRegion.supportedModes) { type in
+                            ForEach(currentSupportedModes) { type in
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         selectedType = type

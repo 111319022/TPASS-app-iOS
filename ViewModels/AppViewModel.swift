@@ -101,6 +101,17 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    /// 從 AuthService 重新讀取目前選中週期的最新資料（例如 selectedModes 被修改後）
+    @MainActor
+    func refreshSelectedCycle() {
+        guard let currentId = selectedCycle?.id,
+              let freshCycle = AuthService.shared.currentUser?.cycles.first(where: { $0.id == currentId }) else { return }
+        // 直接覆寫，繞過 willSet 的 id 檢查（因為 id 相同但內容不同）
+        _filteredTripsCache = nil
+        _groupedTripsCache = nil
+        selectedCycle = freshCycle
+    }
+    
     // 🔧 快取過濾後的行程，避免重複計算
     private var _filteredTripsCache: [Trip]? = nil
     private var _groupedTripsCache: [DailyTripGroup]? = nil

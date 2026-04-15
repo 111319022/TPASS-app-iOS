@@ -466,6 +466,7 @@ struct AddCycleView: View {
 struct EditCycleView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var themeManager: ThemeManager
     
     let cycle: Cycle
@@ -473,6 +474,7 @@ struct EditCycleView: View {
     @State private var startDate: Date
     @State private var endDate: Date
     @State private var selectedRegion: TPASSRegion
+    @State private var selectedModes: Set<TransportType>
     @State private var showDeleteConfirmation = false
     
     init(cycle: Cycle) {
@@ -484,6 +486,9 @@ struct EditCycleView: View {
         _startDate = State(initialValue: startOfDayStart)
         _endDate = State(initialValue: startOfDayEnd)
         _selectedRegion = State(initialValue: cycle.region)
+        // 彈性週期：讀取已儲存的運具選擇，nil 表示全選
+        let modes = cycle.selectedModes ?? Array(TPASSRegion.flexible.supportedModes)
+        _selectedModes = State(initialValue: Set(modes))
     }
     
     var body: some View {
@@ -508,6 +513,63 @@ struct EditCycleView: View {
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()
+                }
+                
+                if selectedRegion == .flexible {
+                    Section(header: Text("flexible_select_modes")) {
+                        let allModes = TPASSRegion.flexible.supportedModes
+                        let isAllSelected = selectedModes.count == allModes.count
+                        
+                        HStack {
+                            Spacer()
+                            Button(isAllSelected ? "flexible_deselect_all" : "flexible_select_all") {
+                                HapticManager.shared.impact(style: .light)
+                                if isAllSelected {
+                                    selectedModes = Set([allModes.first!])
+                                } else {
+                                    selectedModes = Set(allModes)
+                                }
+                            }
+                            .font(.caption)
+                        }
+                        
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                            ForEach(allModes) { mode in
+                                let isSelected = selectedModes.contains(mode)
+                                Button {
+                                    HapticManager.shared.impact(style: .light)
+                                    if isSelected {
+                                        if selectedModes.count > 1 {
+                                            selectedModes.remove(mode)
+                                        }
+                                    } else {
+                                        selectedModes.insert(mode)
+                                    }
+                                } label: {
+                                    VStack(spacing: 4) {
+                                        Image(systemName: mode.systemIconName)
+                                            .font(.system(size: 18))
+                                        Text(mode.displayName)
+                                            .font(.caption2)
+                                            .lineLimit(1)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(isSelected ? mode.color.opacity(0.15) : Color.gray.opacity(0.08))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(isSelected ? mode.color : Color.clear, lineWidth: 1.5)
+                                    )
+                                    .foregroundColor(isSelected ? mode.color : .secondary.opacity(0.5))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
                 
                 Section {
@@ -535,7 +597,10 @@ struct EditCycleView: View {
                     Button("save") {
                         // 儲存前給予震動回饋
                         HapticManager.shared.impact(style: .medium)
-                        auth.updateCycle(cycle, start: startDate, end: endDate, region: selectedRegion)
+                        let allModes = TPASSRegion.flexible.supportedModes
+                        let modesToSave: [TransportType]? = (selectedRegion == .flexible && selectedModes.count < allModes.count) ? Array(selectedModes) : nil
+                        auth.updateCycle(cycle, start: startDate, end: endDate, region: selectedRegion, selectedModes: modesToSave)
+                        viewModel.refreshSelectedCycle()
                         presentationMode.wrappedValue.dismiss()
                     }
                     .fontWeight(.semibold)
@@ -565,6 +630,8 @@ struct AddFlexibleCycleView: View {
     @State private var endDate = Date()
     @State private var showOverlapAlert = false
     @State private var showInfoSheet = false  // 顯示說明頁面
+    @State private var selectedModes: Set<TransportType> = Set(TPASSRegion.flexible.supportedModes)
+    @State private var showModeRequiredAlert = false
     
     init() {
         // 初始化：自動設定為當月月初到月底
@@ -607,6 +674,9 @@ struct AddFlexibleCycleView: View {
                         // 📅 日期選擇
                         dateSection
                         
+                        // 🚌 運具選擇
+                        transportModeSection
+                        
                         // ℹ️ 功能說明
                         infoSection
                         
@@ -629,7 +699,9 @@ struct AddFlexibleCycleView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("save") {
-                        if hasDateOverlap {
+                        if selectedModes.isEmpty {
+                            showModeRequiredAlert = true
+                        } else if hasDateOverlap {
                             showOverlapAlert = true
                         } else {
                             saveFlexibleCycle()
@@ -646,6 +718,9 @@ struct AddFlexibleCycleView: View {
                 }
             } message: {
                 Text("date_overlap_message")
+            }
+            .alert("flexible_mode_required", isPresented: $showModeRequiredAlert) {
+                Button("confirm", role: .cancel) { }
             }
         }
     }
@@ -720,6 +795,84 @@ struct AddFlexibleCycleView: View {
                     .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
             )
         }
+    }
+    
+    // MARK: - 運具選擇
+    private var transportModeSection: some View {
+        let allModes = TPASSRegion.flexible.supportedModes
+        let isAllSelected = selectedModes.count == allModes.count
+        
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "tram.fill")
+                    .foregroundColor(flexibleCycleColor)
+                Text("flexible_select_modes")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                Spacer()
+                
+                Button {
+                    HapticManager.shared.impact(style: .light)
+                    if isAllSelected {
+                        // 取消全選：保留第一個
+                        selectedModes = Set([allModes.first!])
+                    } else {
+                        selectedModes = Set(allModes)
+                    }
+                } label: {
+                    Text(isAllSelected ? "flexible_deselect_all" : "flexible_select_all")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(flexibleCycleColor)
+                }
+            }
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                ForEach(allModes) { mode in
+                    let isSelected = selectedModes.contains(mode)
+                    Button {
+                        HapticManager.shared.impact(style: .light)
+                        if isSelected {
+                            if selectedModes.count > 1 {
+                                selectedModes.remove(mode)
+                            }
+                        } else {
+                            selectedModes.insert(mode)
+                        }
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: mode.systemIconName)
+                                .font(.system(size: 20))
+                            Text(mode.displayName)
+                                .font(.caption2)
+                                .lineLimit(1)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(isSelected ? mode.color.opacity(0.15) : Color.gray.opacity(0.08))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isSelected ? mode.color : Color.clear, lineWidth: 1.5)
+                        )
+                        .foregroundColor(isSelected ? mode.color : themeManager.secondaryTextColor.opacity(0.5))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(themeManager.cardBackgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
+        )
     }
     
     // MARK: - 功能說明
@@ -833,7 +986,9 @@ struct AddFlexibleCycleView: View {
     // MARK: - 儲存方法
     private func saveFlexibleCycle() {
         HapticManager.shared.impact(style: .medium)
-        auth.addCycle(start: startDate, end: endDate, region: .flexible)
+        let allModes = TPASSRegion.flexible.supportedModes
+        let modesToSave: [TransportType]? = selectedModes.count == allModes.count ? nil : Array(selectedModes)
+        auth.addCycle(start: startDate, end: endDate, region: .flexible, selectedModes: modesToSave)
         
         let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
         if isCycleNotifOn {

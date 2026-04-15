@@ -16,6 +16,10 @@ struct QuickAddHomeView: View {
         resolvedCycleForDate?.region ?? auth.currentRegion
     }
     
+    private var currentSupportedModes: [TransportType] {
+        resolvedCycleForDate?.effectiveSupportedModes ?? currentRegion.supportedModes
+    }
+    
     private var currentCycleId: String? {
         resolvedCycleForDate?.id
     }
@@ -27,7 +31,7 @@ struct QuickAddHomeView: View {
     
     // 篩選：只顯示當前方案支援的運具，台鐵站點需額外檢查是否在方案範圍內
     private var availableHomeStations: [HomeStation] {
-        let supportedTypes = currentRegion.supportedModes
+        let supportedTypes = currentSupportedModes
         return homeStations.filter { station in
             // 首先檢查運具是否支援
             guard supportedTypes.contains(station.transportType) else {
