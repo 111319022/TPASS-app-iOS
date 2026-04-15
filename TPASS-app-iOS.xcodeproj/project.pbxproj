@@ -64,6 +64,11 @@
 		FB0A21552F8F8EF100405172 /* TPASS-app-iOS-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21182F8F8EF100405172 /* TPASS-app-iOS-Info.plist */; };
 		FB0A21562F8F8EF100405172 /* TRAStations.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A20E02F8F8EF100405172 /* TRAStations.json */; };
 		FB0A21592F8F906700405172 /* TRAConvertFare_v9.py in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21572F8F906700405172 /* TRAConvertFare_v9.py */; };
+		FB0A216B2F8F955800405172 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21672F8F955800405172 /* index.html */; };
+		FB0A216C2F8F955800405172 /* support.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21692F8F955800405172 /* support.html */; };
+		FB0A216D2F8F955800405172 /* privacy.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21682F8F955800405172 /* privacy.html */; };
+		FB0A216E2F8F955800405172 /* firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21652F8F955800405172 /* firebase.json */; };
+		FB0A216F2F8F955800405172 /* 404.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21662F8F955800405172 /* 404.html */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -126,6 +131,11 @@
 		FB0A21172F8F8EF100405172 /* TPASS-app-iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TPASS-app-iOS.swift"; sourceTree = "<group>"; };
 		FB0A21182F8F8EF100405172 /* TPASS-app-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TPASS-app-iOS-Info.plist"; sourceTree = "<group>"; };
 		FB0A21572F8F906700405172 /* TRAConvertFare_v9.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = TRAConvertFare_v9.py; sourceTree = "<group>"; };
+		FB0A21652F8F955800405172 /* firebase.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = firebase.json; sourceTree = "<group>"; };
+		FB0A21662F8F955800405172 /* 404.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = 404.html; sourceTree = "<group>"; };
+		FB0A21672F8F955800405172 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		FB0A21682F8F955800405172 /* privacy.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = privacy.html; sourceTree = "<group>"; };
+		FB0A21692F8F955800405172 /* support.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = support.html; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -261,9 +271,22 @@
 			path = Py_Data_Convert;
 			sourceTree = "<group>";
 		};
+		FB0A216A2F8F955800405172 /* webpage */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A21662F8F955800405172 /* 404.html */,
+				FB0A21672F8F955800405172 /* index.html */,
+				FB0A21682F8F955800405172 /* privacy.html */,
+				FB0A21692F8F955800405172 /* support.html */,
+			);
+			path = webpage;
+			sourceTree = "<group>";
+		};
 		FB0D943D2F20BC1600B687D3 = {
 			isa = PBXGroup;
 			children = (
+				FB0A21652F8F955800405172 /* firebase.json */,
+				FB0A216A2F8F955800405172 /* webpage */,
 				FB0A21582F8F906700405172 /* Py_Data_Convert */,
 				FB6BC0BB2F7042950011877D /* README.md */,
 				FB0A21192F8F8EF100405172 /* TPASS-app-iOS */,
@@ -349,6 +372,11 @@
 				FB0A21512F8F8EF100405172 /* TRA_Fares_Fixed.sqlite in Resources */,
 				FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */,
 				FB0A21532F8F8EF100405172 /* Assets.xcassets in Resources */,
+				FB0A216B2F8F955800405172 /* index.html in Resources */,
+				FB0A216C2F8F955800405172 /* support.html in Resources */,
+				FB0A216D2F8F955800405172 /* privacy.html in Resources */,
+				FB0A216E2F8F955800405172 /* firebase.json in Resources */,
+				FB0A216F2F8F955800405172 /* 404.html in Resources */,
 				FB0A21552F8F8EF100405172 /* TPASS-app-iOS-Info.plist in Resources */,
 				FB0A21562F8F8EF100405172 /* TRAStations.json in Resources */,
 				FB6BC0BC2F7042950011877D /* README.md in Resources */,
