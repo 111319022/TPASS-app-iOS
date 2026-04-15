@@ -43,48 +43,47 @@ final class AuthService: NSObject, ObservableObject {
         }
     }
     
-    func createAnonymousUser(identity: Identity) {
+    func createAnonymousUser(
+        identity: Identity,
+        region: TPASSRegion = .flexible,
+        citizenCity: TaiwanCity? = nil,
+        cycleStart: Date? = nil,
+        cycleEnd: Date? = nil
+    ) {
         let calendar = Calendar.current
         let now = Date()
         
-        // 自動創建當月的彈性週期（從1號到月底）
-        guard let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now)),
-              let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth) else {
-            // 如果日期計算失敗，創建不含週期的用戶
-            let user = User(
-                id: UUID().uuidString,
-                email: "",
-                cycles: [],
-                identity: identity
-            )
-            currentUser = user
-            saveLocalUser()
-            isRestoringSession = false
-            return
-        }
+        // 使用傳入的日期或預設為當月 1 號到月底
+        let defaultStart = calendar.date(from: calendar.dateComponents([.year, .month], from: now))
+        let defaultEnd = defaultStart.flatMap { calendar.date(byAdding: DateComponents(month: 1, day: -1), to: $0) }
+        
+        let startDate = cycleStart ?? defaultStart ?? now
+        let endDate = cycleEnd ?? defaultEnd ?? now
         
         let idVal = Int64(Date().timeIntervalSince1970 * 1000)
-        let startAtMidnight = calendar.startOfDay(for: startOfMonth)
-        let endAtMidnight = calendar.startOfDay(for: endOfMonth)
+        let startAtMidnight = calendar.startOfDay(for: startDate)
+        let endAtMidnight = calendar.startOfDay(for: endDate)
         
         let initialCycle = Cycle(
             id: String(idVal),
             start: startAtMidnight,
             end: endAtMidnight,
-            region: .flexible
+            region: region
         )
         
         let user = User(
             id: UUID().uuidString,
             email: "",
             cycles: [initialCycle],
-            identity: identity
+            identity: identity,
+            citizenCity: citizenCity
         )
         currentUser = user
+        updateRegion(region)
         saveLocalUser()
         isRestoringSession = false
         
-        print("🎉 [Auth] Created first-time user with flexible cycle: \(startOfMonth.formatted(date: .abbreviated, time: .omitted)) - \(endOfMonth.formatted(date: .abbreviated, time: .omitted))")
+        print("🎉 [Auth] Created first-time user: region=\(region.displayName), cycle=\(startAtMidnight.formatted(date: .abbreviated, time: .omitted)) - \(endAtMidnight.formatted(date: .abbreviated, time: .omitted))")
     }
     
     // MARK: - 用戶設定更新（本地保存）

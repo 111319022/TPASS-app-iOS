@@ -81,12 +81,7 @@ struct TPASS_app_iOSApp: App {
                         appViewModel.start(modelContext: container.mainContext, userId: userId)
                     }
                     
-                    // 處理通知權限
-                    let key = "didPromptNotificationPermission"
-                    if !UserDefaults.standard.bool(forKey: key) {
-                        NotificationManager.shared.requestAuthorization()
-                        UserDefaults.standard.set(true, forKey: key)
-                    }
+                    // 通知權限改由 onboarding NotificationCard 處理
                 }
             }
             

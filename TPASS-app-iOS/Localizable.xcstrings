@@ -86,6 +86,16 @@
         }
       }
     },
+    "%@ ~ %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ ~ %2$@"
+          }
+        }
+      }
+    },
     "%@ $%lld (%lld%%)" : {
       "localizations" : {
         "zh-Hant" : {
@@ -4805,6 +4815,38 @@
         }
       }
     },
+    "intro_citizen_desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select your registered city for citizen discounts, or skip"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇您的戶籍縣市以享受市民優惠，或跳過此步驟"
+          }
+        }
+      }
+    },
+    "intro_citizen_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Citizen Setting"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "市民設定"
+          }
+        }
+      }
+    },
     "intro_data_stored_local" : {
       "localizations" : {
         "en" : {
@@ -4822,6 +4864,7 @@
       }
     },
     "intro_feature_1_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4838,6 +4881,7 @@
       }
     },
     "intro_feature_1_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4854,6 +4898,7 @@
       }
     },
     "intro_feature_2_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4870,6 +4915,7 @@
       }
     },
     "intro_feature_2_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4886,6 +4932,7 @@
       }
     },
     "intro_feature_3_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4902,6 +4949,7 @@
       }
     },
     "intro_feature_3_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4918,6 +4966,7 @@
       }
     },
     "intro_feature_4_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4934,6 +4983,7 @@
       }
     },
     "intro_feature_4_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4981,6 +5031,22 @@
         }
       }
     },
+    "intro_identity_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Your Identity"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇身分"
+          }
+        }
+      }
+    },
     "intro_identity_transfer_discount %lld" : {
       "localizations" : {
         "en" : {
@@ -4993,6 +5059,246 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "轉乘折 $%lld"
+          }
+        }
+      }
+    },
+    "intro_notification_desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable notifications for daily reminders and cycle expiration alerts"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟通知以接收每日記帳提醒及月票到期通知"
+          }
+        }
+      }
+    },
+    "intro_notification_enable_button" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Notifications"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟通知"
+          }
+        }
+      }
+    },
+    "intro_notification_enabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications Enabled"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知已開啟"
+          }
+        }
+      }
+    },
+    "intro_notification_footer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can adjust notification preferences anytime in Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你可以隨時在設定中調整通知偏好"
+          }
+        }
+      }
+    },
+    "intro_notification_skip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maybe Later"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "稍後再說"
+          }
+        }
+      }
+    },
+    "intro_notification_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知提醒"
+          }
+        }
+      }
+    },
+    "intro_plan_group_central" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Central"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中部"
+          }
+        }
+      }
+    },
+    "intro_plan_group_flexible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexible Tracking"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彈性記帳"
+          }
+        }
+      }
+    },
+    "intro_plan_group_north" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "North"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "北部"
+          }
+        }
+      }
+    },
+    "intro_plan_group_south" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "South"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "南部"
+          }
+        }
+      }
+    },
+    "intro_plan_group_tainan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tainan / Chiayi"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台南/嘉南"
+          }
+        }
+      }
+    },
+    "intro_plan_group_taoyuan_hsinchu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taoyuan / Hsinchu"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "桃竹苗"
+          }
+        }
+      }
+    },
+    "intro_plan_group_yilan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yilan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宜蘭"
+          }
+        }
+      }
+    },
+    "intro_plan_price_free" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免費"
+          }
+        }
+      }
+    },
+    "intro_plan_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Your Plan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇方案"
           }
         }
       }
@@ -5014,6 +5320,7 @@
       }
     },
     "intro_start_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5025,6 +5332,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開始使用"
+          }
+        }
+      }
+    },
+    "intro_summary_citizen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Citizen City"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "市民縣市"
+          }
+        }
+      }
+    },
+    "intro_summary_dates" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "週期"
+          }
+        }
+      }
+    },
+    "intro_summary_identity" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identity"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "身分"
+          }
+        }
+      }
+    },
+    "intro_summary_plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方案"
+          }
+        }
+      }
+    },
+    "intro_summary_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready to Go"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "準備開始"
           }
         }
       }
@@ -8778,6 +9165,15 @@
     "使用已保存" : {
 
     },
+    "全部刪除" : {
+
+    },
+    "刪除所有行程" : {
+
+    },
+    "取消" : {
+
+    },
     "可導入" : {
 
     },
@@ -8807,6 +9203,18 @@
     "步驟：\n1. 填入卡號（16位）和生日（MMDD 格式）\n2. 點擊「載入驗證碼」\n3. 填入驗證碼後點「開始查詢」" : {
 
     },
+    "沒有行程" : {
+
+    },
+    "清理行程" : {
+
+    },
+    "目前沒有可清理的行程" : {
+
+    },
+    "確定要刪除所有行程嗎？此操作無法復原。" : {
+
+    },
     "確認匯入" : {
 
     },
@@ -8829,6 +9237,9 @@
 
     },
     "輸入卡片資訊查詢交易記錄" : {
+
+    },
+    "轉乘" : {
 
     },
     "選擇站點" : {

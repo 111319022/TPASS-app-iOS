@@ -7,116 +7,127 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FB009D702F27103900E30499 /* CloudKitSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */; };
-		FB009D732F27108200E30499 /* FavoritesManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB009D712F27108200E30499 /* FavoritesManagementView.swift */; };
-		FB009D762F27111B00E30499 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB009D752F27111B00E30499 /* SwiftDataModels.swift */; };
-		FB009D782F27400600E30499 /* BackupManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB009D772F27400600E30499 /* BackupManagementView.swift */; };
-		FB05D2FD2F2203180084F64D /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D2FC2F2203140084F64D /* IntroView.swift */; };
-		FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB05D3002F2203F90084F64D /* Assets.xcassets */; };
-		FB05D3062F2211430084F64D /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3052F2211410084F64D /* ThemeManager.swift */; };
-		FB05D3082F2240110084F64D /* EditTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3072F22400D0084F64D /* EditTripView.swift */; };
-		FB05D3112F2314EE0084F64D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3102F2314EC0084F64D /* User.swift */; };
-		FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3162F25B9A90084F64D /* NotificationManager.swift */; };
-		FB05D3192F25B9CC0084F64D /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */; };
-		FB0D94742F20BEFB00B687D3 /* TPASS-app-iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */; };
-		FB0D94782F20BFEA00B687D3 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94602F20BD3800B687D3 /* AuthService.swift */; };
-		FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94772F20BF4500B687D3 /* MainTabView.swift */; };
-		FB0D947A2F20BFFD00B687D3 /* TripListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94762F20BF3200B687D3 /* TripListView.swift */; };
-		FB0D947C2F20C00600B687D3 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94722F20BE7500B687D3 /* AppViewModel.swift */; };
-		FB0D94812F20C01C00B687D3 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D945B2F20BC9200B687D3 /* Enums.swift */; };
-		FB0D94882F20C2DB00B687D3 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94872F20C2DA00B687D3 /* DashboardView.swift */; };
-		FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D94892F20C34B00B687D3 /* AddTripView.swift */; };
-		FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948B2F20C4C200B687D3 /* SettingsView.swift */; };
-		FB0D94922F20E43800B687D3 /* StationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D948E2F20E2D700B687D3 /* StationData.swift */; };
-		FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */; };
-		FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFA92F2DA8B500E09054 /* CSVManager.swift */; };
-		FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */; };
-		FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */; };
-		FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */; };
-		FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */; };
-		FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */; };
-		FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */; };
-		FB4CF4012F30C514002DA5E0 /* KMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF3FF2F30C514002DA5E0 /* KMRTFareService.swift */; };
-		FB4CF4022F30C514002DA5E0 /* TCMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF4002F30C514002DA5E0 /* TCMRTFareService.swift */; };
-		FB4CF4042F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4CF4032F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift */; };
-		FB6197412F2F67D6000D80B6 /* TRAFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6197402F2F67D6000D80B6 /* TRAFareService.swift */; };
-		FB6197472F2F73AC000D80B6 /* TRAStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6197462F2F73AC000D80B6 /* TRAStationData.swift */; };
-		FB67606B2F2F91960011F98E /* TRA_Fares_Fixed.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */; };
+		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
+		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
+		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
+		FB0A21212F8F8EF100405172 /* TRAStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */; };
+		FB0A21222F8F8EF100405172 /* TRAFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F72F8F8EF100405172 /* TRAFareService.swift */; };
+		FB0A21232F8F8EF100405172 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20FA2F8F8EF100405172 /* AppViewModel.swift */; };
+		FB0A21242F8F8EF100405172 /* TPASS-app-iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21172F8F8EF100405172 /* TPASS-app-iOS.swift */; };
+		FB0A21252F8F8EF100405172 /* TYMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F82F8F8EF100405172 /* TYMRTFareService.swift */; };
+		FB0A21262F8F8EF100405172 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21082F8F8EF100405172 /* NotificationSettingsView.swift */; };
+		FB0A21272F8F8EF100405172 /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20FE2F8F8EF100405172 /* CardScannerView.swift */; };
+		FB0A21282F8F8EF100405172 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21072F8F8EF100405172 /* MainTabView.swift */; };
+		FB0A21292F8F8EF100405172 /* HSRStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */; };
+		FB0A212A2F8F8EF100405172 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20EF2F8F8EF100405172 /* HapticManager.swift */; };
+		FB0A212B2F8F8EF100405172 /* KMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */; };
+		FB0A212C2F8F8EF100405172 /* QuickAddHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */; };
+		FB0A212D2F8F8EF100405172 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E32F8F8EF100405172 /* MigrationManager.swift */; };
+		FB0A212E2F8F8EF100405172 /* TCMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */; };
+		FB0A212F2F8F8EF100405172 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20FC2F8F8EF100405172 /* AddTripView.swift */; };
+		FB0A21302F8F8EF100405172 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E62F8F8EF100405172 /* Enums.swift */; };
+		FB0A21312F8F8EF100405172 /* EditTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21032F8F8EF100405172 /* EditTripView.swift */; };
+		FB0A21322F8F8EF100405172 /* StationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20DC2F8F8EF100405172 /* StationData.swift */; };
+		FB0A21332F8F8EF100405172 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20EC2F8F8EF100405172 /* AuthService.swift */; };
+		FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F02F8F8EF100405172 /* KMRTFareService.swift */; };
+		FB0A21352F8F8EF100405172 /* TransferIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210F2F8F8EF100405172 /* TransferIntroductionView.swift */; };
+		FB0A21362F8F8EF100405172 /* HomeStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21052F8F8EF100405172 /* HomeStationSettingsView.swift */; };
+		FB0A21372F8F8EF100405172 /* CloudKitSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20ED2F8F8EF100405172 /* CloudKitSyncService.swift */; };
+		FB0A21382F8F8EF100405172 /* FavoritesManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21042F8F8EF100405172 /* FavoritesManagementView.swift */; };
+		FB0A21392F8F8EF100405172 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210C2F8F8EF100405172 /* SettingsView.swift */; };
+		FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21012F8F8EF100405172 /* CyclesView.swift */; };
+		FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F42F8F8EF100405172 /* THSRFareService.swift */; };
+		FB0A213C2F8F8EF100405172 /* CSVManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20EE2F8F8EF100405172 /* CSVManager.swift */; };
+		FB0A213D2F8F8EF100405172 /* TripListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21112F8F8EF100405172 /* TripListView.swift */; };
+		FB0A213E2F8F8EF100405172 /* TCMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F22F8F8EF100405172 /* TCMRTFareService.swift */; };
+		FB0A213F2F8F8EF100405172 /* CSVManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21002F8F8EF100405172 /* CSVManagementView.swift */; };
+		FB0A21402F8F8EF100405172 /* AllTripsCleanupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E52F8F8EF100405172 /* AllTripsCleanupView.swift */; };
+		FB0A21412F8F8EF100405172 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F32F8F8EF100405172 /* ThemeManager.swift */; };
+		FB0A21422F8F8EF100405172 /* TPASSRegionSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210E2F8F8EF100405172 /* TPASSRegionSelectionView.swift */; };
+		FB0A21432F8F8EF100405172 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E72F8F8EF100405172 /* SwiftDataModels.swift */; };
+		FB0A21442F8F8EF100405172 /* TPEMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F52F8F8EF100405172 /* TPEMRTFareService.swift */; };
+		FB0A21452F8F8EF100405172 /* BackupManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20FD2F8F8EF100405172 /* BackupManagementView.swift */; };
+		FB0A21462F8F8EF100405172 /* OutboundStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */; };
+		FB0A21472F8F8EF100405172 /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */; };
+		FB0A21482F8F8EF100405172 /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21062F8F8EF100405172 /* IntroView.swift */; };
+		FB0A21492F8F8EF100405172 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20F12F8F8EF100405172 /* NotificationManager.swift */; };
+		FB0A214A2F8F8EF100405172 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20EA2F8F8EF100405172 /* User.swift */; };
+		FB0A214B2F8F8EF100405172 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21022F8F8EF100405172 /* DashboardView.swift */; };
+		FB0A214C2F8F8EF100405172 /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21102F8F8EF100405172 /* TransferTypeSelectionView.swift */; };
+		FB0A214D2F8F8EF100405172 /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */; };
+		FB0A214E2F8F8EF100405172 /* TPASSRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E92F8F8EF100405172 /* TPASSRegion.swift */; };
+		FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20FF2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift */; };
+		FB0A21502F8F8EF100405172 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21152F8F8EF100405172 /* Localizable.xcstrings */; };
+		FB0A21512F8F8EF100405172 /* TRA_Fares_Fixed.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = FB0A20F62F8F8EF100405172 /* TRA_Fares_Fixed.sqlite */; };
+		FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */ = {isa = PBXBuildFile; fileRef = FB0A20DE2F8F8EF100405172 /* TRAConvertStations.py */; };
+		FB0A21532F8F8EF100405172 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21142F8F8EF100405172 /* Assets.xcassets */; };
+		FB0A21552F8F8EF100405172 /* TPASS-app-iOS-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21182F8F8EF100405172 /* TPASS-app-iOS-Info.plist */; };
+		FB0A21562F8F8EF100405172 /* TRAStations.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A20E02F8F8EF100405172 /* TRAStations.json */; };
+		FB0A21592F8F906700405172 /* TRAConvertFare_v9.py in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21572F8F906700405172 /* TRAConvertFare_v9.py */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
-		FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */; };
-		FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */; };
-		FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */; };
-		FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */; };
-		FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA13DD32F4589380059D64F /* CardScannerView.swift */; };
-		FBB3AE112F67F76700D7ADE3 /* TPEMRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */; };
-		FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948322F31FDAF0038F0FA /* CyclesView.swift */; };
-		FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948342F3358680038F0FA /* HapticManager.swift */; };
-		FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */; };
-		FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */; };
-		FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC660092F4214A900188CEB /* ViewFrameKey.swift */; };
-		FBC67F162F42C604002C03C6 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC67F152F42C604002C03C6 /* TPASSModelSchema.swift */; };
-		FBD100012FABCDE100AAA111 /* OutboundStationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */; };
-		FBD100022FABCDE100AAA111 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */; };
-		FBE7C00230BBB00100C3D4E5 /* THSRFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */; };
-		FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF6161D2F2B6750001D4479 /* MigrationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncService.swift; sourceTree = "<group>"; };
-		FB009D712F27108200E30499 /* FavoritesManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesManagementView.swift; sourceTree = "<group>"; };
-		FB009D752F27111B00E30499 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
-		FB009D772F27400600E30499 /* BackupManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManagementView.swift; sourceTree = "<group>"; };
-		FB05D2FC2F2203140084F64D /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
-		FB05D3002F2203F90084F64D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		FB05D3042F220E790084F64D /* TPASS-app-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TPASS-app-iOS.entitlements"; sourceTree = "<group>"; };
-		FB05D3052F2211410084F64D /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
-		FB05D3072F22400D0084F64D /* EditTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTripView.swift; sourceTree = "<group>"; };
-		FB05D3102F2314EC0084F64D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		FB05D3162F25B9A90084F64D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
+		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
+		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
+		FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTStationData.swift; sourceTree = "<group>"; };
+		FB0A20DE2F8F8EF100405172 /* TRAConvertStations.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = TRAConvertStations.py; sourceTree = "<group>"; };
+		FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAStationData.swift; sourceTree = "<group>"; };
+		FB0A20E02F8F8EF100405172 /* TRAStations.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TRAStations.json; sourceTree = "<group>"; };
+		FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
+		FB0A20E32F8F8EF100405172 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
+		FB0A20E52F8F8EF100405172 /* AllTripsCleanupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllTripsCleanupView.swift; sourceTree = "<group>"; };
+		FB0A20E62F8F8EF100405172 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		FB0A20E72F8F8EF100405172 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
+		FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSModelSchema.swift; sourceTree = "<group>"; };
+		FB0A20E92F8F8EF100405172 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
+		FB0A20EA2F8F8EF100405172 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		FB0A20EC2F8F8EF100405172 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		FB0A20ED2F8F8EF100405172 /* CloudKitSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncService.swift; sourceTree = "<group>"; };
+		FB0A20EE2F8F8EF100405172 /* CSVManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManager.swift; sourceTree = "<group>"; };
+		FB0A20EF2F8F8EF100405172 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
+		FB0A20F02F8F8EF100405172 /* KMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTFareService.swift; sourceTree = "<group>"; };
+		FB0A20F12F8F8EF100405172 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		FB0A20F22F8F8EF100405172 /* TCMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTFareService.swift; sourceTree = "<group>"; };
+		FB0A20F32F8F8EF100405172 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		FB0A20F42F8F8EF100405172 /* THSRFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = THSRFareService.swift; sourceTree = "<group>"; };
+		FB0A20F52F8F8EF100405172 /* TPEMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPEMRTFareService.swift; sourceTree = "<group>"; };
+		FB0A20F62F8F8EF100405172 /* TRA_Fares_Fixed.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = TRA_Fares_Fixed.sqlite; sourceTree = "<group>"; };
+		FB0A20F72F8F8EF100405172 /* TRAFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAFareService.swift; sourceTree = "<group>"; };
+		FB0A20F82F8F8EF100405172 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
+		FB0A20FA2F8F8EF100405172 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		FB0A20FC2F8F8EF100405172 /* AddTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTripView.swift; sourceTree = "<group>"; };
+		FB0A20FD2F8F8EF100405172 /* BackupManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManagementView.swift; sourceTree = "<group>"; };
+		FB0A20FE2F8F8EF100405172 /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
+		FB0A20FF2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommuterRoutePickerOverlay.swift; sourceTree = "<group>"; };
+		FB0A21002F8F8EF100405172 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
+		FB0A21012F8F8EF100405172 /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
+		FB0A21022F8F8EF100405172 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		FB0A21032F8F8EF100405172 /* EditTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTripView.swift; sourceTree = "<group>"; };
+		FB0A21042F8F8EF100405172 /* FavoritesManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesManagementView.swift; sourceTree = "<group>"; };
+		FB0A21052F8F8EF100405172 /* HomeStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStationSettingsView.swift; sourceTree = "<group>"; };
+		FB0A21062F8F8EF100405172 /* IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
+		FB0A21072F8F8EF100405172 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		FB0A21082F8F8EF100405172 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboundStationSettingsView.swift; sourceTree = "<group>"; };
+		FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddHomeView.swift; sourceTree = "<group>"; };
+		FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddOutboundView.swift; sourceTree = "<group>"; };
+		FB0A210C2F8F8EF100405172 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
+		FB0A210E2F8F8EF100405172 /* TPASSRegionSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegionSelectionView.swift; sourceTree = "<group>"; };
+		FB0A210F2F8F8EF100405172 /* TransferIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferIntroductionView.swift; sourceTree = "<group>"; };
+		FB0A21102F8F8EF100405172 /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
+		FB0A21112F8F8EF100405172 /* TripListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripListView.swift; sourceTree = "<group>"; };
+		FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
+		FB0A21142F8F8EF100405172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FB0A21152F8F8EF100405172 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		FB0A21162F8F8EF100405172 /* TPASS-app-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TPASS-app-iOS.entitlements"; sourceTree = "<group>"; };
+		FB0A21172F8F8EF100405172 /* TPASS-app-iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TPASS-app-iOS.swift"; sourceTree = "<group>"; };
+		FB0A21182F8F8EF100405172 /* TPASS-app-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TPASS-app-iOS-Info.plist"; sourceTree = "<group>"; };
+		FB0A21572F8F906700405172 /* TRAConvertFare_v9.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = TRAConvertFare_v9.py; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB0D945B2F20BC9200B687D3 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
-		FB0D94602F20BD3800B687D3 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		FB0D94612F20BD5800B687D3 /* TPASS-app-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "TPASS-app-iOS-Info.plist"; sourceTree = "<group>"; };
-		FB0D94722F20BE7500B687D3 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TPASS-app-iOS.swift"; sourceTree = "<group>"; };
-		FB0D94762F20BF3200B687D3 /* TripListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripListView.swift; sourceTree = "<group>"; };
-		FB0D94772F20BF4500B687D3 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		FB0D94872F20C2DA00B687D3 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-		FB0D94892F20C34B00B687D3 /* AddTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTripView.swift; sourceTree = "<group>"; };
-		FB0D948B2F20C4C200B687D3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		FB0D948E2F20E2D700B687D3 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
-		FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		FB31BFA92F2DA8B500E09054 /* CSVManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManager.swift; sourceTree = "<group>"; };
-		FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVManagementView.swift; sourceTree = "<group>"; };
-		FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTFareService.swift; sourceTree = "<group>"; };
-		FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TYMRTStationData.swift; sourceTree = "<group>"; };
-		FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegion.swift; sourceTree = "<group>"; };
-		FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
-		FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTStationData.swift; sourceTree = "<group>"; };
-		FB4CF3FF2F30C514002DA5E0 /* KMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTFareService.swift; sourceTree = "<group>"; };
-		FB4CF4002F30C514002DA5E0 /* TCMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCMRTFareService.swift; sourceTree = "<group>"; };
-		FB4CF4032F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSRegionSelectionView.swift; sourceTree = "<group>"; };
-		FB6197402F2F67D6000D80B6 /* TRAFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAFareService.swift; sourceTree = "<group>"; };
-		FB6197462F2F73AC000D80B6 /* TRAStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TRAStationData.swift; sourceTree = "<group>"; };
-		FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = TRA_Fares_Fixed.sqlite; sourceTree = "<group>"; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightTutorialView.swift; sourceTree = "<group>"; };
-		FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStationSettingsView.swift; sourceTree = "<group>"; };
-		FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddHomeView.swift; sourceTree = "<group>"; };
-		FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
-		FBA13DD32F4589380059D64F /* CardScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScannerView.swift; sourceTree = "<group>"; };
-		FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPEMRTFareService.swift; sourceTree = "<group>"; };
-		FBB948322F31FDAF0038F0FA /* CyclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyclesView.swift; sourceTree = "<group>"; };
-		FBB948342F3358680038F0FA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
-		FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTypeSelectionView.swift; sourceTree = "<group>"; };
-		FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferIntroductionView.swift; sourceTree = "<group>"; };
-		FBC660092F4214A900188CEB /* ViewFrameKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFrameKey.swift; sourceTree = "<group>"; };
-		FBC67F152F42C604002C03C6 /* TPASSModelSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TPASSModelSchema.swift; sourceTree = "<group>"; };
-		FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboundStationSettingsView.swift; sourceTree = "<group>"; };
-		FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddOutboundView.swift; sourceTree = "<group>"; };
-		FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = THSRFareService.swift; sourceTree = "<group>"; };
-		FBF6161D2F2B6750001D4479 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,21 +141,132 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FB0A20E22F8F8EF100405172 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */,
+				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
+				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
+				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
+				FB0A20DE2F8F8EF100405172 /* TRAConvertStations.py */,
+				FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */,
+				FB0A20E02F8F8EF100405172 /* TRAStations.json */,
+				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		FB0A20E42F8F8EF100405172 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20E32F8F8EF100405172 /* MigrationManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		FB0A20EB2F8F8EF100405172 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20E52F8F8EF100405172 /* AllTripsCleanupView.swift */,
+				FB0A20E62F8F8EF100405172 /* Enums.swift */,
+				FB0A20E72F8F8EF100405172 /* SwiftDataModels.swift */,
+				FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */,
+				FB0A20E92F8F8EF100405172 /* TPASSRegion.swift */,
+				FB0A20EA2F8F8EF100405172 /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FB0A20F92F8F8EF100405172 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20EC2F8F8EF100405172 /* AuthService.swift */,
+				FB0A20ED2F8F8EF100405172 /* CloudKitSyncService.swift */,
+				FB0A20EE2F8F8EF100405172 /* CSVManager.swift */,
+				FB0A20EF2F8F8EF100405172 /* HapticManager.swift */,
+				FB0A20F02F8F8EF100405172 /* KMRTFareService.swift */,
+				FB0A20F12F8F8EF100405172 /* NotificationManager.swift */,
+				FB0A20F22F8F8EF100405172 /* TCMRTFareService.swift */,
+				FB0A20F32F8F8EF100405172 /* ThemeManager.swift */,
+				FB0A20F42F8F8EF100405172 /* THSRFareService.swift */,
+				FB0A20F52F8F8EF100405172 /* TPEMRTFareService.swift */,
+				FB0A20F62F8F8EF100405172 /* TRA_Fares_Fixed.sqlite */,
+				FB0A20F72F8F8EF100405172 /* TRAFareService.swift */,
+				FB0A20F82F8F8EF100405172 /* TYMRTFareService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		FB0A20FB2F8F8EF100405172 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20FA2F8F8EF100405172 /* AppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		FB0A21132F8F8EF100405172 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20FC2F8F8EF100405172 /* AddTripView.swift */,
+				FB0A20FD2F8F8EF100405172 /* BackupManagementView.swift */,
+				FB0A20FE2F8F8EF100405172 /* CardScannerView.swift */,
+				FB0A20FF2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift */,
+				FB0A21002F8F8EF100405172 /* CSVManagementView.swift */,
+				FB0A21012F8F8EF100405172 /* CyclesView.swift */,
+				FB0A21022F8F8EF100405172 /* DashboardView.swift */,
+				FB0A21032F8F8EF100405172 /* EditTripView.swift */,
+				FB0A21042F8F8EF100405172 /* FavoritesManagementView.swift */,
+				FB0A21052F8F8EF100405172 /* HomeStationSettingsView.swift */,
+				FB0A21062F8F8EF100405172 /* IntroView.swift */,
+				FB0A21072F8F8EF100405172 /* MainTabView.swift */,
+				FB0A21082F8F8EF100405172 /* NotificationSettingsView.swift */,
+				FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */,
+				FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */,
+				FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */,
+				FB0A210C2F8F8EF100405172 /* SettingsView.swift */,
+				FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */,
+				FB0A210E2F8F8EF100405172 /* TPASSRegionSelectionView.swift */,
+				FB0A210F2F8F8EF100405172 /* TransferIntroductionView.swift */,
+				FB0A21102F8F8EF100405172 /* TransferTypeSelectionView.swift */,
+				FB0A21112F8F8EF100405172 /* TripListView.swift */,
+				FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		FB0A21192F8F8EF100405172 /* TPASS-app-iOS */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20E22F8F8EF100405172 /* Data */,
+				FB0A20E42F8F8EF100405172 /* Helpers */,
+				FB0A20EB2F8F8EF100405172 /* Models */,
+				FB0A20F92F8F8EF100405172 /* Services */,
+				FB0A20FB2F8F8EF100405172 /* ViewModels */,
+				FB0A21132F8F8EF100405172 /* Views */,
+				FB0A21142F8F8EF100405172 /* Assets.xcassets */,
+				FB0A21152F8F8EF100405172 /* Localizable.xcstrings */,
+				FB0A21162F8F8EF100405172 /* TPASS-app-iOS.entitlements */,
+				FB0A21172F8F8EF100405172 /* TPASS-app-iOS.swift */,
+				FB0A21182F8F8EF100405172 /* TPASS-app-iOS-Info.plist */,
+			);
+			path = "TPASS-app-iOS";
+			sourceTree = "<group>";
+		};
+		FB0A21582F8F906700405172 /* Py_Data_Convert */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A21572F8F906700405172 /* TRAConvertFare_v9.py */,
+			);
+			path = Py_Data_Convert;
+			sourceTree = "<group>";
+		};
 		FB0D943D2F20BC1600B687D3 = {
 			isa = PBXGroup;
 			children = (
-				FB05D3042F220E790084F64D /* TPASS-app-iOS.entitlements */,
-				FB05D3002F2203F90084F64D /* Assets.xcassets */,
-				FB0D94732F20BEF500B687D3 /* TPASS-app-iOS.swift */,
-				FB0D94612F20BD5800B687D3 /* TPASS-app-iOS-Info.plist */,
-				FB31BFA52F2C4BC500E09054 /* Localizable.xcstrings */,
+				FB0A21582F8F906700405172 /* Py_Data_Convert */,
 				FB6BC0BB2F7042950011877D /* README.md */,
-				FB0D94592F20BC7000B687D3 /* Views */,
-				FB0D94582F20BC6600B687D3 /* ViewModels */,
-				FB0D94572F20BC5800B687D3 /* Services */,
-				FB0D94562F20BC4F00B687D3 /* Models */,
-				FB0D948D2F20E2C400B687D3 /* Data */,
-				FB0D945A2F20BC7E00B687D3 /* Helpers */,
+				FB0A21192F8F8EF100405172 /* TPASS-app-iOS */,
 				FB0D94472F20BC1600B687D3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -155,96 +277,6 @@
 				FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		FB0D94562F20BC4F00B687D3 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				FB0D945B2F20BC9200B687D3 /* Enums.swift */,
-				FB05D3102F2314EC0084F64D /* User.swift */,
-				FB009D752F27111B00E30499 /* SwiftDataModels.swift */,
-				FB4CF3F92F30C19E002DA5E0 /* TPASSRegion.swift */,
-				FBC67F152F42C604002C03C6 /* TPASSModelSchema.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		FB0D94572F20BC5800B687D3 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				FBB948342F3358680038F0FA /* HapticManager.swift */,
-				FB05D3162F25B9A90084F64D /* NotificationManager.swift */,
-				FB05D3052F2211410084F64D /* ThemeManager.swift */,
-				FB31BFA92F2DA8B500E09054 /* CSVManager.swift */,
-				FB009D6F2F27103900E30499 /* CloudKitSyncService.swift */,
-				FB0D94602F20BD3800B687D3 /* AuthService.swift */,
-				FBB3AE102F67F76700D7ADE3 /* TPEMRTFareService.swift */,
-				FB6197402F2F67D6000D80B6 /* TRAFareService.swift */,
-				FB4CF3FF2F30C514002DA5E0 /* KMRTFareService.swift */,
-				FB4CF4002F30C514002DA5E0 /* TCMRTFareService.swift */,
-				FB31BFAD2F2E1E1F00E09054 /* TYMRTFareService.swift */,
-				FBE7C00130BBB00100C3D4E5 /* THSRFareService.swift */,
-				FB67606A2F2F91960011F98E /* TRA_Fares_Fixed.sqlite */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		FB0D94582F20BC6600B687D3 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				FB0D94722F20BE7500B687D3 /* AppViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		FB0D94592F20BC7000B687D3 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				FB05D3182F25B9CA0084F64D /* NotificationSettingsView.swift */,
-				FB05D2FC2F2203140084F64D /* IntroView.swift */,
-				FB0D948B2F20C4C200B687D3 /* SettingsView.swift */,
-				FB0D94892F20C34B00B687D3 /* AddTripView.swift */,
-				FB0D94872F20C2DA00B687D3 /* DashboardView.swift */,
-				FB0D94772F20BF4500B687D3 /* MainTabView.swift */,
-				FB009D772F27400600E30499 /* BackupManagementView.swift */,
-				FB0D94762F20BF3200B687D3 /* TripListView.swift */,
-				FB05D3072F22400D0084F64D /* EditTripView.swift */,
-				FB009D712F27108200E30499 /* FavoritesManagementView.swift */,
-				FB7D4B522F30492700DF469F /* SpotlightTutorialView.swift */,
-				FB31BFAB2F2DA8E000E09054 /* CSVManagementView.swift */,
-				FB4CF4032F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift */,
-				FBC1D1012F9A123400A1B2C3 /* TransferIntroductionView.swift */,
-				FBB948322F31FDAF0038F0FA /* CyclesView.swift */,
-				FBB948362F335E000038F0FA /* TransferTypeSelectionView.swift */,
-				FBC660092F4214A900188CEB /* ViewFrameKey.swift */,
-				FBA13DD32F4589380059D64F /* CardScannerView.swift */,
-				FB8AECEE2F53265C00D1D9B4 /* HomeStationSettingsView.swift */,
-				FB8AECF02F5326BD00D1D9B4 /* QuickAddHomeView.swift */,
-				FBD100032FABCDE100AAA111 /* OutboundStationSettingsView.swift */,
-				FBD100042FABCDE100AAA111 /* QuickAddOutboundView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		FB0D945A2F20BC7E00B687D3 /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				FBF6161D2F2B6750001D4479 /* MigrationManager.swift */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
-		FB0D948D2F20E2C400B687D3 /* Data */ = {
-			isa = PBXGroup;
-			children = (
-				FB91A10030AAA00100A1B2C3 /* HSRStationData.swift */,
-				FB4CF3FB2F30C508002DA5E0 /* KMRTStationData.swift */,
-				FB4CF3FC2F30C508002DA5E0 /* TCMRTStationData.swift */,
-				FB0D948E2F20E2D700B687D3 /* StationData.swift */,
-				FB31BFAE2F2E1E1F00E09054 /* TYMRTStationData.swift */,
-				FB6197462F2F73AC000D80B6 /* TRAStationData.swift */,
-			);
-			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -312,10 +344,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB31BFA62F2C4BC500E09054 /* Localizable.xcstrings in Resources */,
-				FB67606B2F2F91960011F98E /* TRA_Fares_Fixed.sqlite in Resources */,
+				FB0A21502F8F8EF100405172 /* Localizable.xcstrings in Resources */,
+				FB0A21592F8F906700405172 /* TRAConvertFare_v9.py in Resources */,
+				FB0A21512F8F8EF100405172 /* TRA_Fares_Fixed.sqlite in Resources */,
+				FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */,
+				FB0A21532F8F8EF100405172 /* Assets.xcassets in Resources */,
+				FB0A21552F8F8EF100405172 /* TPASS-app-iOS-Info.plist in Resources */,
+				FB0A21562F8F8EF100405172 /* TRAStations.json in Resources */,
 				FB6BC0BC2F7042950011877D /* README.md in Resources */,
-				FB05D3012F2203F90084F64D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,54 +362,56 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB4CF4042F30CC3D002DA5E0 /* TPASSRegionSelectionView.swift in Sources */,
-				FBC1D1022F9A123400A1B2C3 /* TransferIntroductionView.swift in Sources */,
-				FB4CF3FD2F30C508002DA5E0 /* TCMRTStationData.swift in Sources */,
-				FB4CF3FE2F30C508002DA5E0 /* KMRTStationData.swift in Sources */,
-				FB0D948A2F20C34F00B687D3 /* AddTripView.swift in Sources */,
-				FB009D732F27108200E30499 /* FavoritesManagementView.swift in Sources */,
-				FBB948352F33586A0038F0FA /* HapticManager.swift in Sources */,
-				FBA13DD42F45893C0059D64F /* CardScannerView.swift in Sources */,
-				FB0D94882F20C2DB00B687D3 /* DashboardView.swift in Sources */,
-				FB0D94742F20BEFB00B687D3 /* TPASS-app-iOS.swift in Sources */,
-				FB0D94782F20BFEA00B687D3 /* AuthService.swift in Sources */,
-				FB05D2FD2F2203180084F64D /* IntroView.swift in Sources */,
-				FB009D782F27400600E30499 /* BackupManagementView.swift in Sources */,
-				FB05D3082F2240110084F64D /* EditTripView.swift in Sources */,
-				FB05D3062F2211430084F64D /* ThemeManager.swift in Sources */,
-				FB0D947C2F20C00600B687D3 /* AppViewModel.swift in Sources */,
-				FB6197412F2F67D6000D80B6 /* TRAFareService.swift in Sources */,
-				FB05D3112F2314EE0084F64D /* User.swift in Sources */,
-				FB8AECEF2F53265C00D1D9B4 /* HomeStationSettingsView.swift in Sources */,
-				FB8AECF12F5326BD00D1D9B4 /* QuickAddHomeView.swift in Sources */,
-				FBD100012FABCDE100AAA111 /* OutboundStationSettingsView.swift in Sources */,
-				FBD100022FABCDE100AAA111 /* QuickAddOutboundView.swift in Sources */,
-				FBB3AE112F67F76700D7ADE3 /* TPEMRTFareService.swift in Sources */,
-				FBB948332F31FDAF0038F0FA /* CyclesView.swift in Sources */,
-				FB4CF3FA2F30C19E002DA5E0 /* TPASSRegion.swift in Sources */,
-				FB31BFAC2F2DA8E000E09054 /* CSVManagementView.swift in Sources */,
-				FBC6600A2F4214A900188CEB /* ViewFrameKey.swift in Sources */,
-				FB31BFAA2F2DA8B500E09054 /* CSVManager.swift in Sources */,
-				FB31BFAF2F2E1E1F00E09054 /* TYMRTFareService.swift in Sources */,
-				FBE7C00230BBB00100C3D4E5 /* THSRFareService.swift in Sources */,
-				FB31BFB02F2E1E1F00E09054 /* TYMRTStationData.swift in Sources */,
-				FB91A10130AAA00100A1B2C3 /* HSRStationData.swift in Sources */,
-				FB0D948C2F20C4C300B687D3 /* SettingsView.swift in Sources */,
-				FBB948372F335E000038F0FA /* TransferTypeSelectionView.swift in Sources */,
-				FB0D94922F20E43800B687D3 /* StationData.swift in Sources */,
-				FB0D94792F20BFF900B687D3 /* MainTabView.swift in Sources */,
-				FB6197472F2F73AC000D80B6 /* TRAStationData.swift in Sources */,
-				FBF6161E2F2B6750001D4479 /* MigrationManager.swift in Sources */,
-				FB009D762F27111B00E30499 /* SwiftDataModels.swift in Sources */,
-				FB05D3172F25B9AC0084F64D /* NotificationManager.swift in Sources */,
-				FB009D702F27103900E30499 /* CloudKitSyncService.swift in Sources */,
-				FB0D947A2F20BFFD00B687D3 /* TripListView.swift in Sources */,
-				FB05D3192F25B9CC0084F64D /* NotificationSettingsView.swift in Sources */,
-				FB4CF4012F30C514002DA5E0 /* KMRTFareService.swift in Sources */,
-				FB4CF4022F30C514002DA5E0 /* TCMRTFareService.swift in Sources */,
-				FBC67F162F42C604002C03C6 /* TPASSModelSchema.swift in Sources */,
-				FB0D94812F20C01C00B687D3 /* Enums.swift in Sources */,
-				FB7D4B532F30492700DF469F /* SpotlightTutorialView.swift in Sources */,
+				FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */,
+				FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */,
+				FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */,
+				FB0A21212F8F8EF100405172 /* TRAStationData.swift in Sources */,
+				FB0A21222F8F8EF100405172 /* TRAFareService.swift in Sources */,
+				FB0A21232F8F8EF100405172 /* AppViewModel.swift in Sources */,
+				FB0A21242F8F8EF100405172 /* TPASS-app-iOS.swift in Sources */,
+				FB0A21252F8F8EF100405172 /* TYMRTFareService.swift in Sources */,
+				FB0A21262F8F8EF100405172 /* NotificationSettingsView.swift in Sources */,
+				FB0A21272F8F8EF100405172 /* CardScannerView.swift in Sources */,
+				FB0A21282F8F8EF100405172 /* MainTabView.swift in Sources */,
+				FB0A21292F8F8EF100405172 /* HSRStationData.swift in Sources */,
+				FB0A212A2F8F8EF100405172 /* HapticManager.swift in Sources */,
+				FB0A212B2F8F8EF100405172 /* KMRTStationData.swift in Sources */,
+				FB0A212C2F8F8EF100405172 /* QuickAddHomeView.swift in Sources */,
+				FB0A212D2F8F8EF100405172 /* MigrationManager.swift in Sources */,
+				FB0A212E2F8F8EF100405172 /* TCMRTStationData.swift in Sources */,
+				FB0A212F2F8F8EF100405172 /* AddTripView.swift in Sources */,
+				FB0A21302F8F8EF100405172 /* Enums.swift in Sources */,
+				FB0A21312F8F8EF100405172 /* EditTripView.swift in Sources */,
+				FB0A21322F8F8EF100405172 /* StationData.swift in Sources */,
+				FB0A21332F8F8EF100405172 /* AuthService.swift in Sources */,
+				FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */,
+				FB0A21352F8F8EF100405172 /* TransferIntroductionView.swift in Sources */,
+				FB0A21362F8F8EF100405172 /* HomeStationSettingsView.swift in Sources */,
+				FB0A21372F8F8EF100405172 /* CloudKitSyncService.swift in Sources */,
+				FB0A21382F8F8EF100405172 /* FavoritesManagementView.swift in Sources */,
+				FB0A21392F8F8EF100405172 /* SettingsView.swift in Sources */,
+				FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */,
+				FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */,
+				FB0A213C2F8F8EF100405172 /* CSVManager.swift in Sources */,
+				FB0A213D2F8F8EF100405172 /* TripListView.swift in Sources */,
+				FB0A213E2F8F8EF100405172 /* TCMRTFareService.swift in Sources */,
+				FB0A213F2F8F8EF100405172 /* CSVManagementView.swift in Sources */,
+				FB0A21402F8F8EF100405172 /* AllTripsCleanupView.swift in Sources */,
+				FB0A21412F8F8EF100405172 /* ThemeManager.swift in Sources */,
+				FB0A21422F8F8EF100405172 /* TPASSRegionSelectionView.swift in Sources */,
+				FB0A21432F8F8EF100405172 /* SwiftDataModels.swift in Sources */,
+				FB0A21442F8F8EF100405172 /* TPEMRTFareService.swift in Sources */,
+				FB0A21452F8F8EF100405172 /* BackupManagementView.swift in Sources */,
+				FB0A21462F8F8EF100405172 /* OutboundStationSettingsView.swift in Sources */,
+				FB0A21472F8F8EF100405172 /* SpotlightTutorialView.swift in Sources */,
+				FB0A21482F8F8EF100405172 /* IntroView.swift in Sources */,
+				FB0A21492F8F8EF100405172 /* NotificationManager.swift in Sources */,
+				FB0A214A2F8F8EF100405172 /* User.swift in Sources */,
+				FB0A214B2F8F8EF100405172 /* DashboardView.swift in Sources */,
+				FB0A214C2F8F8EF100405172 /* TransferTypeSelectionView.swift in Sources */,
+				FB0A214D2F8F8EF100405172 /* ViewFrameKey.swift in Sources */,
+				FB0A214E2F8F8EF100405172 /* TPASSRegion.swift in Sources */,
+				FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,14 +551,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 65;
+				CURRENT_PROJECT_VERSION = 67;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "TPASS-app-iOS-Info.plist";
+				INFOPLIST_FILE = "TPASS-app-iOS/TPASS-app-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = TPASS.calc;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -533,7 +571,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -556,14 +594,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 65;
+				CURRENT_PROJECT_VERSION = 67;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "TPASS-app-iOS-Info.plist";
+				INFOPLIST_FILE = "TPASS-app-iOS/TPASS-app-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = TPASS.calc;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -576,7 +614,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
