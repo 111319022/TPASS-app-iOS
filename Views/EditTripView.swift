@@ -61,6 +61,7 @@ struct EditTripView: View {
     @State private var isFree: Bool
     @State private var transferDiscountType: TransferDiscountType?  // 新增：轉乘優惠類型
     @State private var showTransferTypePicker = false  // 新增：顯示轉乘類型選擇器
+    @State private var isHSRNonReserved: Bool = false
     @State private var showDateOutOfRangeAlert = false
     
     // Identity (for calculating discount)
@@ -183,6 +184,14 @@ struct EditTripView: View {
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         selectedType = type
+                                        if type == .hsr {
+                                            isTransfer = false
+                                            transferDiscountType = nil
+                                            isHSRNonReserved = false
+                                        } else {
+                                            isHSRNonReserved = false
+                                        }
+
                                         // 切換運具時清空起讫站
                                         if type == .bus {
                                             startStation = ""; endStation = ""
@@ -237,65 +246,69 @@ struct EditTripView: View {
                             .cornerRadius(10)
                             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
                             
-                            // 修改：轉乘按鈕可選擇優惠類型
-                            Button(action: {
-                                if filteredTransferTypes.count == 1 {
-                                    // 只有一種轉乘類型，直接切換
-                                    if isTransfer {
-                                        isTransfer = false
-                                        transferDiscountType = nil
+                            if selectedType == .hsr {
+                                hsrNonReservedButton
+                            } else {
+                                // 修改：轉乘按鈕可選擇優惠類型
+                                Button(action: {
+                                    if filteredTransferTypes.count == 1 {
+                                        // 只有一種轉乘類型，直接切換
+                                        if isTransfer {
+                                            isTransfer = false
+                                            transferDiscountType = nil
+                                        } else {
+                                            isTransfer = true
+                                            transferDiscountType = filteredTransferTypes.first ?? currentRegion.defaultTransferType
+                                        }
                                     } else {
-                                        isTransfer = true
-                                        transferDiscountType = filteredTransferTypes.first ?? currentRegion.defaultTransferType
+                                        // 多種轉乘類型，總是顯示選擇器
+                                        showTransferTypePicker = true
                                     }
-                                } else {
-                                    // 多種轉乘類型，總是顯示選擇器
-                                    showTransferTypePicker = true
-                                }
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: isTransfer ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
-                                    if let type = transferDiscountType, isTransfer {
-                                        Text(type.displayNameKey(for: currentIdentity))
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.6)
-                                    } else {
-                                        Text("transfer")
-                                            .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
-                                    }
-                                    if filteredTransferTypes.count > 1 && isTransfer {
-                                        Image(systemName: "chevron.down")
-                                            .font(.caption2)
-                                    }
-                                }
-                                .frame(maxHeight: .infinity).padding(.horizontal, 12)
-                                .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
-                                .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
-                                .cornerRadius(10)
-                            }
-                            .frame(height: 50)
-                            .accessibilityLabel(Text("a11y_transfer_discount"))
-                            .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
-                            .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
-                            .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
-                                ForEach(filteredTransferTypes) { type in
-                                    Button(action: {
-                                        isTransfer = true
-                                        transferDiscountType = type
-                                    }) {
-                                        HStack {
+                                }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: isTransfer ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
+                                        if let type = transferDiscountType, isTransfer {
                                             Text(type.displayNameKey(for: currentIdentity))
-                                            if transferDiscountType == type {
-                                                Image(systemName: "checkmark")
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.6)
+                                        } else {
+                                            Text("transfer")
+                                                .font(.subheadline).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.8)
+                                        }
+                                        if filteredTransferTypes.count > 1 && isTransfer {
+                                            Image(systemName: "chevron.down")
+                                                .font(.caption2)
+                                        }
+                                    }
+                                    .frame(maxHeight: .infinity).padding(.horizontal, 12)
+                                    .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
+                                    .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
+                                    .cornerRadius(10)
+                                }
+                                .frame(height: 50)
+                                .accessibilityLabel(Text("a11y_transfer_discount"))
+                                .accessibilityValue(isTransfer ? (transferDiscountType == nil ? Text("a11y_on") : Text(transferDiscountType!.displayNameKey(for: currentIdentity))) : Text("a11y_off"))
+                                .accessibilityHint(Text(filteredTransferTypes.count > 1 ? "a11y_transfer_options_hint" : "a11y_transfer_toggle_hint"))
+                                .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
+                                    ForEach(filteredTransferTypes) { type in
+                                        Button(action: {
+                                            isTransfer = true
+                                            transferDiscountType = type
+                                        }) {
+                                            HStack {
+                                                Text(type.displayNameKey(for: currentIdentity))
+                                                if transferDiscountType == type {
+                                                    Image(systemName: "checkmark")
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                Button("cancel_transfer", role: .destructive) {
-                                    isTransfer = false
-                                    transferDiscountType = nil
+                                    Button("cancel_transfer", role: .destructive) {
+                                        isTransfer = false
+                                        transferDiscountType = nil
+                                    }
                                 }
                             }
                         }
@@ -373,6 +386,9 @@ struct EditTripView: View {
         // Auto-fill logic triggers
         .onChange(of: startStation) { _, _ in recalculateMRTPrice() }
         .onChange(of: endStation) { _, _ in recalculateMRTPrice() }
+        .onChange(of: isHSRNonReserved) { _, _ in
+            if selectedType == .hsr { recalculateMRTPrice() }
+        }
         .onChange(of: isFree) { _, val in
             if val {
                 isTransfer = false
@@ -389,6 +405,9 @@ struct EditTripView: View {
             } else {
                 transferDiscountType = nil
             }
+        }
+        .onAppear {
+            syncHSRSeatStateFromPrice()
         }
     }
     
@@ -435,11 +454,27 @@ struct EditTripView: View {
         }
         // 6. 高鐵
         else if selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty {
-            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
+            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation, isNonReserved: isHSRNonReserved) {
                 price = String(fare)
                 isTransfer = false
             }
         }
+    }
+
+    private func syncHSRSeatStateFromPrice() {
+        guard selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty else {
+            isHSRNonReserved = false
+            return
+        }
+
+        if let nonReservedFare = THSRFareService.shared.getFare(from: startStation, to: endStation, isNonReserved: true) {
+            isHSRNonReserved = (Int(price) ?? -1) == nonReservedFare
+        } else {
+            isHSRNonReserved = false
+        }
+
+        isTransfer = false
+        transferDiscountType = nil
     }
     
     func calculatePaidPrice() -> Int {
@@ -720,6 +755,33 @@ struct EditTripView: View {
         .frame(maxWidth: .infinity)
         .background(inputBackgroundColor)
         .cornerRadius(8)
+    }
+
+    private var hsrNonReservedButton: some View {
+        Button(action: {
+            isHSRNonReserved.toggle()
+            isFree = false
+            isTransfer = false
+            transferDiscountType = nil
+            recalculateMRTPrice()
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: isHSRNonReserved ? "checkmark.circle.fill" : "circle")
+                Text("non_reserved_seat")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxHeight: .infinity)
+            .padding(.horizontal, 12)
+            .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackgroundColor)
+            .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
+            .cornerRadius(10)
+        }
+        .frame(height: 50)
+        .accessibilityLabel(Text("non_reserved_seat"))
+        .accessibilityValue(isHSRNonReserved ? Text("a11y_on") : Text("a11y_off"))
     }
     
 }

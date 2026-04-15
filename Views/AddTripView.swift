@@ -60,6 +60,7 @@ struct AddTripView: View {
     @State private var isFree: Bool = false
     @State private var transferDiscountType: TransferDiscountType? = nil  // 新增：轉乘優惠類型
     @State private var showTransferTypePicker = false  // 新增：顯示轉乘類型選擇器
+    @State private var isHSRNonReserved: Bool = false
     
     var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
@@ -280,7 +281,11 @@ struct AddTripView: View {
                 .cornerRadius(10)
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
 
-                transferButtonWithDialog
+                if selectedType == .hsr {
+                    hsrNonReservedButton
+                } else {
+                    transferButtonWithDialog
+                }
             }
 
             if isTaoyuanCitizenUsingTYMRT {
@@ -297,6 +302,37 @@ struct AddTripView: View {
             .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
                 transferTypeDialogActions
             }
+    }
+
+    private var hsrNonReservedButton: some View {
+        Button(action: {
+            isHSRNonReserved.toggle()
+            isFree = false
+            isTransfer = false
+            transferDiscountType = nil
+
+            if !startStation.isEmpty, !endStation.isEmpty,
+               let fare = THSRFareService.shared.getFare(from: startStation, to: endStation, isNonReserved: isHSRNonReserved) {
+                price = String(fare)
+            }
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: isHSRNonReserved ? "checkmark.circle.fill" : "circle")
+                Text("non_reserved_seat")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxHeight: .infinity)
+            .padding(.horizontal, 12)
+            .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackgroundColor)
+            .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
+            .cornerRadius(10)
+        }
+        .frame(height: 50)
+        .accessibilityLabel(Text("non_reserved_seat"))
+        .accessibilityValue(isHSRNonReserved ? Text("a11y_on") : Text("a11y_off"))
     }
 
     @ViewBuilder
@@ -452,10 +488,24 @@ struct AddTripView: View {
                 transferDiscountType = nil
             }
         }
+        .onChange(of: isHSRNonReserved) { _, _ in
+            guard selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty else { return }
+            if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation, isNonReserved: isHSRNonReserved) {
+                price = String(fare)
+            }
+        }
     }
     
     // MARK: - 邏輯處理
     func handleTypeChange(_ newType: TransportType) {
+        if newType == .hsr {
+            isTransfer = false
+            transferDiscountType = nil
+            isHSRNonReserved = false
+        } else {
+            isHSRNonReserved = false
+        }
+
         if newType == .bus {
             startStation = ""; endStation = ""
             // 根據地區與身分取得預設票價
@@ -524,7 +574,7 @@ struct AddTripView: View {
         }
         // 6. 高鐵查價邏輯
         if selectedType == .hsr, !startStation.isEmpty, !endStation.isEmpty {
-            if let thsrPrice = THSRFareService.shared.getFare(from: startStation, to: endStation) {
+            if let thsrPrice = THSRFareService.shared.getFare(from: startStation, to: endStation, isNonReserved: isHSRNonReserved) {
                 price = String(thsrPrice)
                 return
             }
