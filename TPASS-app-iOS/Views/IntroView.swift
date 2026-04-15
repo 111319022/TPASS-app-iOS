@@ -3,6 +3,8 @@ import SwiftUI
 struct IntroView: View {
     @EnvironmentObject var auth: AuthService
     @State private var currentTab = 0
+    @State private var isCheckingDeveloperSkip = false
+    @State private var showDeveloperSkipAlert = false
     
     // Onboarding 收集的資料
     @State private var selectedIdentity: Identity = .adult
@@ -92,6 +94,52 @@ struct IntroView: View {
                 .padding(.horizontal, 30).padding(.bottom, 40)
             }
         }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 3)
+                .onEnded { _ in
+                    guard currentTab == 0 else { return }
+                    validateDeveloperSkipAccess()
+                }
+        )
+        .alert("開發者快速跳過", isPresented: $showDeveloperSkipAlert) {
+            Button("取消", role: .cancel) { }
+            Button("跳過 Intro") {
+                skipIntroForDeveloper()
+            }
+        } message: {
+            Text("已通過開發者驗證，是否直接跳過 Intro？")
+        }
+    }
+
+    private func validateDeveloperSkipAccess() {
+        guard !isCheckingDeveloperSkip else { return }
+        isCheckingDeveloperSkip = true
+
+        Task {
+            let result = await DeveloperAccessService.shared.verifyCurrentUserAccess()
+
+            await MainActor.run {
+                isCheckingDeveloperSkip = false
+                if case .allowed = result {
+                    showDeveloperSkipAlert = true
+                }
+            }
+        }
+    }
+
+    private func skipIntroForDeveloper() {
+        if UserDefaults.standard.data(forKey: "local_user") != nil {
+            auth.loadLocalUser()
+            return
+        }
+
+        auth.createAnonymousUser(
+            identity: selectedIdentity,
+            region: selectedRegion,
+            citizenCity: selectedCitizenCity,
+            cycleStart: cycleStartDate,
+            cycleEnd: cycleEndDate
+        )
     }
 }
 

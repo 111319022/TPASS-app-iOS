@@ -63,27 +63,46 @@ final class AuthService: NSObject, ObservableObject {
         let idVal = Int64(Date().timeIntervalSince1970 * 1000)
         let startAtMidnight = calendar.startOfDay(for: startDate)
         let endAtMidnight = calendar.startOfDay(for: endDate)
-        
-        let initialCycle = Cycle(
+
+        let introCycle = Cycle(
             id: String(idVal),
             start: startAtMidnight,
             end: endAtMidnight,
             region: region
         )
-        
-        let user = User(
-            id: UUID().uuidString,
-            email: "",
-            cycles: [initialCycle],
-            identity: identity,
-            citizenCity: citizenCity
-        )
-        currentUser = user
+
+        // 若本機已有使用者，重跑 Intro 時沿用同一個 user id，並無條件新增新週期。
+        if var existingUser = currentUser ?? loadPersistedUserSnapshot() {
+            existingUser.identity = identity
+            existingUser.citizenCity = citizenCity
+
+            // 依需求：無論是否重複，都以新增方式寫入新週期。
+            existingUser.cycles.insert(introCycle, at: 0)
+
+            currentUser = existingUser
+        } else {
+            let user = User(
+                id: UUID().uuidString,
+                email: "",
+                cycles: [introCycle],
+                identity: identity,
+                citizenCity: citizenCity
+            )
+            currentUser = user
+        }
+
         updateRegion(region)
         saveLocalUser()
         isRestoringSession = false
         
         print("🎉 [Auth] Created first-time user: region=\(region.displayName), cycle=\(startAtMidnight.formatted(date: .abbreviated, time: .omitted)) - \(endAtMidnight.formatted(date: .abbreviated, time: .omitted))")
+    }
+
+    private func loadPersistedUserSnapshot() -> User? {
+        guard let data = UserDefaults.standard.data(forKey: "local_user") else {
+            return nil
+        }
+        return try? JSONDecoder().decode(User.self, from: data)
     }
     
     // MARK: - 用戶設定更新（本地保存）
