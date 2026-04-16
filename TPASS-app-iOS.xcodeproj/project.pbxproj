@@ -72,6 +72,8 @@
 		FB0A21712F8F98EC00405172 /* PROJECT_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */; };
 		FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */; };
 		FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */; };
+		FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21762F8FB100405172 /* IssueReportService.swift */; };
+		FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21782F8FB100405172 /* ReportIssueView.swift */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -142,6 +144,8 @@
 		FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROJECT_GUIDE.md; sourceTree = "<group>"; };
 		FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperAccessService.swift; sourceTree = "<group>"; };
 		FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperToolsPlaceholderView.swift; sourceTree = "<group>"; };
+		FB0A21762F8FB100405172 /* IssueReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportService.swift; sourceTree = "<group>"; };
+		FB0A21782F8FB100405172 /* ReportIssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportIssueView.swift; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -196,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */,
+				FB0A21762F8FB100405172 /* IssueReportService.swift */,
 				FB0A20EC2F8F8EF100405172 /* AuthService.swift */,
 				FB0A20ED2F8F8EF100405172 /* CloudKitSyncService.swift */,
 				FB0A20EE2F8F8EF100405172 /* CSVManager.swift */,
@@ -240,6 +245,7 @@
 				FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */,
 				FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */,
 				FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */,
+				FB0A21782F8FB100405172 /* ReportIssueView.swift */,
 				FB0A210C2F8F8EF100405172 /* SettingsView.swift */,
 				FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */,
 				FB0A210E2F8F8EF100405172 /* TPASSRegionSelectionView.swift */,
@@ -423,6 +429,7 @@
 				FB0A21322F8F8EF100405172 /* StationData.swift in Sources */,
 				FB0A21332F8F8EF100405172 /* AuthService.swift in Sources */,
 				FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */,
+				FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */,
 				FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */,
 				FB0A21352F8F8EF100405172 /* TransferIntroductionView.swift in Sources */,
 				FB0A21362F8F8EF100405172 /* HomeStationSettingsView.swift in Sources */,
@@ -432,6 +439,7 @@
 				FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */,
 				FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */,
 				FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */,
+				FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */,
 				FB0A213C2F8F8EF100405172 /* CSVManager.swift in Sources */,
 				FB0A213D2F8F8EF100405172 /* TripListView.swift in Sources */,
 				FB0A213E2F8F8EF100405172 /* TCMRTFareService.swift in Sources */,
@@ -594,7 +602,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 67;
+				CURRENT_PROJECT_VERSION = 68;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -611,7 +619,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 1.8.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -637,7 +645,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 67;
+				CURRENT_PROJECT_VERSION = 68;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -654,7 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 1.8.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

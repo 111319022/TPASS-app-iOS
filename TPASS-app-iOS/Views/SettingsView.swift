@@ -249,6 +249,17 @@ struct SettingsView: View {
                     }
                     .foregroundColor(themeManager.primaryTextColor)
                 }
+
+                Section {
+                    NavigationLink(destination: ReportIssueView()) {
+                        HStack {
+                            Spacer()
+                            Text("issueReport")
+                            Spacer()
+                        }
+                    }
+                    .foregroundColor(themeManager.primaryTextColor)
+                }
                 
                 // MARK: - 7. 清除資料
                 Section {

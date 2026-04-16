@@ -5461,6 +5461,294 @@
         }
       }
     },
+    "issueReport" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issue Report"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "問題回報"
+          }
+        }
+      }
+    },
+    "issueReportAlertConfirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確定"
+          }
+        }
+      }
+    },
+    "issueReportDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issue description"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "問題描述"
+          }
+        }
+      }
+    },
+    "issueReportDescriptionPlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe what happened, how to reproduce it, and what you expected."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請描述你遇到的狀況、重現步驟與期待結果"
+          }
+        }
+      }
+    },
+    "issueReportEmail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        }
+      }
+    },
+    "issueReportEmailPlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter your contact email"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入聯絡信箱"
+          }
+        }
+      }
+    },
+    "issueReportEmptyContent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter the issue details first."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請先輸入問題描述。"
+          }
+        }
+      }
+    },
+    "issueReportFailureTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send Failed"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送出失敗"
+          }
+        }
+      }
+    },
+    "issueReportHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip: long-press the title on this page to create the developer CloudKit push subscription."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示：你可以在此頁面長按標題，建立開發者專屬的 CloudKit 推播訂閱。"
+          }
+        }
+      }
+    },
+    "issueReportNotificationPermissionDenied" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification permission is not enabled, so the developer subscription cannot be created."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推播權限尚未開啟，無法建立開發者訂閱。"
+          }
+        }
+      }
+    },
+    "issueReportSetupFailureTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup Failed"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建立失敗"
+          }
+        }
+      }
+    },
+    "issueReportSetupSuccessMessage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CloudKit push notifications for Issue Report are now enabled."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已成功啟用 Issue Report 的 CloudKit 推播訂閱。"
+          }
+        }
+      }
+    },
+    "issueReportSetupSuccessTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer Subscription Created"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開發者訂閱已建立"
+          }
+        }
+      }
+    },
+    "issueReportSubmit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit Report"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送出回報"
+          }
+        }
+      }
+    },
+    "issueReportSubmitting" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting..."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送出中..."
+          }
+        }
+      }
+    },
+    "issueReportSubtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please tell us what happened and how we can reach you."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請提供問題描述與聯絡方式，我們會盡快確認。"
+          }
+        }
+      }
+    },
+    "issueReportSuccessMessage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We received your report. Thanks for helping improve TPASS."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已收到你的問題回報，謝謝你協助改善 TPASS。"
+          }
+        }
+      }
+    },
+    "issueReportSuccessTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report Sent"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送出成功"
+          }
+        }
+      }
+    },
     "kaohsiung_only" : {
       "localizations" : {
         "en" : {
