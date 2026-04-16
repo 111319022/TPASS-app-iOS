@@ -257,7 +257,26 @@ CloudKit container：
 | 檔案 | 說明 |
 |------|------|
 | `HapticManager.swift` | 觸覺回饋封裝 |
+| `IssueReportService.swift` | 使用者問題回報寫入 Public DB、開發者訂閱建立、回報列表查詢 |
 | 各 `FareService` | 運具票價查表與運算 |
+
+### IssueReportService
+
+**檔案**：`Services/IssueReportService.swift`
+
+職責：
+- `submitReport(content:email:)`：將回報內容、聯絡信箱、App 版本、iOS 版本寫入 `IssueReport` record（Public DB）。
+- `setupDeveloperPushNotification()`：建立 `CKQuerySubscription`（`firesOnRecordCreation`），接收新回報推播。
+- `fetchReports(limit:)`：供開發者頁讀取回報清單。
+
+CloudKit container：
+- `iCloud.com.tpass-app.tpasscalc`
+
+資料欄位：
+- `content`
+- `contactEmail`
+- `appVersion`
+- `iOSVersion`
 
 ---
 
@@ -292,6 +311,45 @@ CloudKit container：
 | `TransferIntroductionView` | 轉乘規則導覽 |
 | `HomeStationSettingsView` / `OutboundStationSettingsView` | 快捷站點管理 |
 | `QuickAddHomeView` / `QuickAddOutboundView` | 站點快速新增 |
+| `ReportIssueView` | 使用者提交問題回報 |
+| `DeveloperToolsPlaceholderView` | 開發者入口（啟用回報推播、工具整合） |
+| `DeveloperIssueReportsView` | 開發者查看回報清單 |
+
+### 回報流程與開發者流程
+
+#### 使用者回報流程
+
+```
+設定頁 -> 問題回報
+  ↓
+輸入 Email + 問題描述
+  ↓
+IssueReportService.submitReport
+  ↓
+CloudKit Public DB: IssueReport
+```
+
+#### 開發者推播啟用流程
+
+```
+關於 App -> 開發者頁
+  ↓
+啟用問題回報推播
+  ↓
+IssueReportService.setupDeveloperPushNotification
+  ↓
+建立 CKQuerySubscription（IssueReport 新增事件）
+```
+
+#### 開發者查看回報流程
+
+```
+開發者頁 -> 查看問題回報
+  ↓
+IssueReportService.fetchReports
+  ↓
+顯示回報清單（內容/Email/版本/時間）
+```
 
 ---
 
@@ -308,6 +366,8 @@ CloudKit container：
 - 使用 `UNUserNotificationCenter`
 - 通知文字透過 `String(localized:)` 對接 `Localizable.xcstrings`
 - 週期提醒計算依據 `Cycle.start` 與 `Cycle.end`
+- App 啟動時由 `AppDelegate` 指派 `UNUserNotificationCenter.current().delegate`
+- 前景收到遠端推播時使用 `.banner + .sound + .badge`
 
 ---
 
@@ -393,6 +453,7 @@ decode snapshots
 2. 啟動時仍依賴本地 session + migration，未來可進一步模組化初始化流程。
 3. CloudKit 目前偏手動備份，不是全量自動同步模型。
 4. 票價規則分散在多個 service，可評估加入統一 registry 層降低重複邏輯。
+5. 問題回報目前僅有列表檢視，尚未提供搜尋、標記狀態與指派流程。
 
 ---
 
@@ -429,6 +490,7 @@ decode snapshots
 1. 確認 `Localizable.xcstrings` 新增字串都有翻譯
 2. 手動驗證週期切換、回本統計與通知排程
 3. 以實機驗證備份/還原與 CSV 匯入匯出
+4. 以實機驗證 IssueReport 提交、開發者訂閱建立與推播到達
 
 ---
 

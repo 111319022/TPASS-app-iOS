@@ -8,7 +8,6 @@ struct ReportIssueView: View {
     @State private var email = ""
     @State private var content = ""
     @State private var isSubmitting = false
-    @State private var isSettingUpDeveloperPush = false
     @State private var showAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -123,10 +122,6 @@ struct ReportIssueView: View {
                 .disabled(isSubmitting || content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .opacity(isSubmitting || content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.65 : 1)
 
-                Text("issueReportHint")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(20)
         }
@@ -141,16 +136,7 @@ struct ReportIssueView: View {
             focusedField = nil
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("issueReport")
-                    .font(.headline)
-                    .foregroundStyle(themeManager.primaryTextColor)
-                    .onLongPressGesture(minimumDuration: 0.8) {
-                        triggerDeveloperPushSetup()
-                    }
-            }
-        }
+        .navigationTitle("issueReport")
         .alert(alertTitle, isPresented: $showAlert) {
             Button("issueReportAlertConfirm", role: .cancel) {}
         } message: {
@@ -183,27 +169,4 @@ struct ReportIssueView: View {
         }
     }
 
-    private func triggerDeveloperPushSetup() {
-        guard !isSettingUpDeveloperPush else { return }
-        isSettingUpDeveloperPush = true
-
-        Task {
-            do {
-                try await IssueReportService.shared.setupDeveloperPushNotification()
-                await MainActor.run {
-                    isSettingUpDeveloperPush = false
-                    alertTitle = String(localized: "issueReportSetupSuccessTitle")
-                    alertMessage = String(localized: "issueReportSetupSuccessMessage")
-                    showAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isSettingUpDeveloperPush = false
-                    alertTitle = String(localized: "issueReportSetupFailureTitle")
-                    alertMessage = error.localizedDescription
-                    showAlert = true
-                }
-            }
-        }
-    }
 }

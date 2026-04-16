@@ -74,6 +74,7 @@
 		FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */; };
 		FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21762F8FB100405172 /* IssueReportService.swift */; };
 		FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21782F8FB100405172 /* ReportIssueView.swift */; };
+		FB0A217B2F8FB100405172 /* DeveloperIssueReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -146,6 +147,7 @@
 		FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperToolsPlaceholderView.swift; sourceTree = "<group>"; };
 		FB0A21762F8FB100405172 /* IssueReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportService.swift; sourceTree = "<group>"; };
 		FB0A21782F8FB100405172 /* ReportIssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportIssueView.swift; sourceTree = "<group>"; };
+		FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperIssueReportsView.swift; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -245,6 +247,7 @@
 				FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */,
 				FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */,
 				FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */,
+				FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */,
 				FB0A21782F8FB100405172 /* ReportIssueView.swift */,
 				FB0A210C2F8F8EF100405172 /* SettingsView.swift */,
 				FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */,
@@ -439,6 +442,7 @@
 				FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */,
 				FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */,
 				FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */,
+				FB0A217B2F8FB100405172 /* DeveloperIssueReportsView.swift in Sources */,
 				FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */,
 				FB0A213C2F8F8EF100405172 /* CSVManager.swift in Sources */,
 				FB0A213D2F8F8EF100405172 /* TripListView.swift in Sources */,

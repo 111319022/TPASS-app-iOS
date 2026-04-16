@@ -1302,6 +1302,19 @@
         }
       }
     },
+    "App %@ · iOS %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "App %1$@ · iOS %2$@"
+          }
+        }
+      }
+    },
+    "App 版本" : {
+
+    },
     "appearance" : {
       "localizations" : {
         "en" : {
@@ -5461,6 +5474,9 @@
         }
       }
     },
+    "iOS 版本" : {
+
+    },
     "issueReport" : {
       "localizations" : {
         "en" : {
@@ -5590,6 +5606,7 @@
       }
     },
     "issueReportHint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5622,6 +5639,7 @@
       }
     },
     "issueReportSetupFailureTitle" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5638,6 +5656,7 @@
       }
     },
     "issueReportSetupSuccessMessage" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5654,6 +5673,7 @@
       }
     },
     "issueReportSetupSuccessTitle" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7158,6 +7178,9 @@
           }
         }
       }
+    },
+    "Record ID" : {
+
     },
     "region_intro" : {
       "extractionState" : "manual",
@@ -9478,7 +9501,25 @@
     "可導入" : {
 
     },
+    "問題回報紀錄" : {
+
+    },
+    "回報內容" : {
+
+    },
+    "回報詳細資料" : {
+
+    },
+    "尚無問題回報" : {
+
+    },
+    "已複製" : {
+
+    },
     "已通過開發者驗證，是否直接跳過 Intro？" : {
+
+    },
+    "建立時間" : {
 
     },
     "悠遊卡交易查詢" : {
@@ -9487,7 +9528,13 @@
     "截取結果" : {
 
     },
+    "啟用問題回報推播" : {
+
+    },
     "會清除目前登入狀態並立即顯示 Intro，不會刪除 local_user。" : {
+
+    },
+    "查看問題回報" : {
 
     },
     "機場捷運" : {
@@ -9519,6 +9566,9 @@
     "目前沒有可清理的行程" : {
 
     },
+    "目前還沒有使用者送出回報。" : {
+
+    },
     "確定" : {
 
     },
@@ -9528,16 +9578,31 @@
     "確認匯入" : {
 
     },
+    "系統資訊" : {
+
+    },
     "繁體中文" : {
 
     },
+    "聯絡資訊" : {
+
+    },
+    "複製 Email" : {
+
+    },
     "複製 hash" : {
+
+    },
+    "複製回報內容" : {
 
     },
     "複製完成" : {
 
     },
     "請重新啟動 App，或稍後再試。" : {
+
+    },
+    "讀取失敗" : {
 
     },
     "資料庫初始化失敗" : {

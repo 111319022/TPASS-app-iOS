@@ -3,6 +3,15 @@ import CloudKit
 import UIKit
 import UserNotifications
 
+struct IssueReportItem: Identifiable {
+    let id: String
+    let content: String
+    let email: String
+    let appVersion: String
+    let iOSVersion: String
+    let createdAt: Date
+}
+
 final class IssueReportService {
     static let shared = IssueReportService()
 
@@ -51,11 +60,31 @@ final class IssueReportService {
 
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.alertBody = "收到新的 TPASS 問題回報！"
+        notificationInfo.shouldSendContentAvailable = true
         notificationInfo.shouldBadge = true
+        notificationInfo.soundName = "default"
         subscription.notificationInfo = notificationInfo
 
         _ = try await publicDB.save(subscription)
         UIApplication.shared.registerForRemoteNotifications()
+    }
+
+    func fetchReports(limit: Int = 100) async throws -> [IssueReportItem] {
+        let publicDB = CKContainer(identifier: containerIdentifier).publicCloudDatabase
+        let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
+        let (results, _) = try await publicDB.records(matching: query, resultsLimit: limit)
+
+        var items: [IssueReportItem] = []
+        for (_, result) in results {
+            switch result {
+            case .success(let record):
+                items.append(Self.mapRecordToItem(record))
+            case .failure:
+                continue
+            }
+        }
+
+        return items.sorted { $0.createdAt > $1.createdAt }
     }
 
     @MainActor
@@ -70,6 +99,27 @@ final class IssueReportService {
                 continuation.resume(returning: granted)
             }
         }
+    }
+
+    private static func mapRecordToItem(_ record: CKRecord) -> IssueReportItem {
+        let content = (record["content"] as? String) ?? ""
+        let email = (record["contactEmail"] as? String) ?? (record["email"] as? String) ?? ""
+        let appVersion = (record["appVersion"] as? String) ?? "-"
+        let iOSVersion = (record["iOSVersion"] as? String) ?? "-"
+        let createdAt =
+            (record["createdAt"] as? Date) ??
+            record.creationDate ??
+            record.modificationDate ??
+            Date.distantPast
+
+        return IssueReportItem(
+            id: record.recordID.recordName,
+            content: content,
+            email: email,
+            appVersion: appVersion,
+            iOSVersion: iOSVersion,
+            createdAt: createdAt
+        )
     }
 }
 
