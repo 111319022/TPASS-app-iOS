@@ -81,6 +81,9 @@
 		FB0A21862F8FB300405172 /* LRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217D2F8FB300405172 /* LRTStationData.swift */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
 		FB826C412F92244E00D6D1D7 /* LRTModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB826C402F92244E00D6D1D7 /* LRTModels.swift */; };
+		FB826C492F92547700D6D1D7 /* NTALRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */; };
+		FB826C4A2F92547700D6D1D7 /* NTDLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */; };
+		FB826C4B2F92547700D6D1D7 /* KLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C462F92547700D6D1D7 /* KLRT_Fare.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -160,6 +163,9 @@
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FB826C402F92244E00D6D1D7 /* LRTModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTModels.swift; sourceTree = "<group>"; };
+		FB826C462F92547700D6D1D7 /* KLRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = KLRT_Fare.json; sourceTree = "<group>"; };
+		FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTALRT_Fare.json; sourceTree = "<group>"; };
+		FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_Fare.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,17 +182,9 @@
 		FB0A20E22F8F8EF100405172 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */,
-				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
-				FB0A217D2F8FB300405172 /* LRTStationData.swift */,
-				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
-				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
-				FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */,
-				FB0A20E02F8F8EF100405172 /* TRAStations.json */,
-				FB0A217F2F8FB300405172 /* KLRT_StationData.json */,
-				FB0A21802F8FB300405172 /* NTDLRT_StationData.json */,
-				FB0A21812F8FB300405172 /* NTALRT_StationData.json */,
-				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
+				FB826C442F92538E00D6D1D7 /* StationData */,
+				FB826C422F924F3800D6D1D7 /* New_StationData */,
+				FB826C452F9253A000D6D1D7 /* New_FareData */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -216,21 +214,15 @@
 		FB0A20F92F8F8EF100405172 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FB826C432F924F7300D6D1D7 /* FareServices */,
 				FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */,
 				FB0A21762F8FB100405172 /* IssueReportService.swift */,
 				FB0A20EC2F8F8EF100405172 /* AuthService.swift */,
 				FB0A20ED2F8F8EF100405172 /* CloudKitSyncService.swift */,
 				FB0A20EE2F8F8EF100405172 /* CSVManager.swift */,
 				FB0A20EF2F8F8EF100405172 /* HapticManager.swift */,
-				FB0A20F02F8F8EF100405172 /* KMRTFareService.swift */,
 				FB0A20F12F8F8EF100405172 /* NotificationManager.swift */,
-				FB0A20F22F8F8EF100405172 /* TCMRTFareService.swift */,
 				FB0A20F32F8F8EF100405172 /* ThemeManager.swift */,
-				FB0A20F42F8F8EF100405172 /* THSRFareService.swift */,
-				FB0A20F52F8F8EF100405172 /* TPEMRTFareService.swift */,
-				FB0A20F62F8F8EF100405172 /* TRA_Fares_Fixed.sqlite */,
-				FB0A20F72F8F8EF100405172 /* TRAFareService.swift */,
-				FB0A20F82F8F8EF100405172 /* TYMRTFareService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -335,6 +327,55 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		FB826C422F924F3800D6D1D7 /* New_StationData */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A217F2F8FB300405172 /* KLRT_StationData.json */,
+				FB0A21802F8FB300405172 /* NTDLRT_StationData.json */,
+				FB0A21812F8FB300405172 /* NTALRT_StationData.json */,
+				FB0A217D2F8FB300405172 /* LRTStationData.swift */,
+			);
+			path = New_StationData;
+			sourceTree = "<group>";
+		};
+		FB826C432F924F7300D6D1D7 /* FareServices */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20F02F8F8EF100405172 /* KMRTFareService.swift */,
+				FB0A20F22F8F8EF100405172 /* TCMRTFareService.swift */,
+				FB0A20F42F8F8EF100405172 /* THSRFareService.swift */,
+				FB0A20F52F8F8EF100405172 /* TPEMRTFareService.swift */,
+				FB0A20F62F8F8EF100405172 /* TRA_Fares_Fixed.sqlite */,
+				FB0A20F72F8F8EF100405172 /* TRAFareService.swift */,
+				FB0A20F82F8F8EF100405172 /* TYMRTFareService.swift */,
+			);
+			path = FareServices;
+			sourceTree = "<group>";
+		};
+		FB826C442F92538E00D6D1D7 /* StationData */ = {
+			isa = PBXGroup;
+			children = (
+				FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */,
+				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
+				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
+				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
+				FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */,
+				FB0A20E02F8F8EF100405172 /* TRAStations.json */,
+				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
+			);
+			path = StationData;
+			sourceTree = "<group>";
+		};
+		FB826C452F9253A000D6D1D7 /* New_FareData */ = {
+			isa = PBXGroup;
+			children = (
+				FB826C462F92547700D6D1D7 /* KLRT_Fare.json */,
+				FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */,
+				FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */,
+			);
+			path = New_FareData;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -407,6 +448,9 @@
 				FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */,
 				FB0A21532F8F8EF100405172 /* Assets.xcassets in Resources */,
 				FB0A216B2F8F955800405172 /* index.html in Resources */,
+				FB826C492F92547700D6D1D7 /* NTALRT_Fare.json in Resources */,
+				FB826C4A2F92547700D6D1D7 /* NTDLRT_Fare.json in Resources */,
+				FB826C4B2F92547700D6D1D7 /* KLRT_Fare.json in Resources */,
 				FB0A216C2F8F955800405172 /* support.html in Resources */,
 				FB0A216D2F8F955800405172 /* privacy.html in Resources */,
 				FB0A216E2F8F955800405172 /* firebase.json in Resources */,

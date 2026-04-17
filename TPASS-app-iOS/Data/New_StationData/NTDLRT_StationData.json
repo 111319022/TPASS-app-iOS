@@ -131,7 +131,7 @@
     "StationID": "V07",
     "StationName": {
       "Zh_tw": "淡水行政中心",
-      "En": "Tamsui District Office"
+      "En": "Tamsui Dist. Office"
     },
     "BikeAllowOnHoliday": false,
     "SrcUpdateTime": "2023-10-12T00:00:00+08:00",
@@ -236,7 +236,7 @@
     "StationID": "V28",
     "StationName": {
       "Zh_tw": "台北海洋大學",
-      "En": "Taipei University of Marine Technology"
+      "En": "Taipei U. of Marine Tech."
     },
     "BikeAllowOnHoliday": false,
     "SrcUpdateTime": "2023-10-12T00:00:00+08:00",
