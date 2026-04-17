@@ -36,6 +36,7 @@ struct TripListView: View {
     @State private var commuterRouteName: String = ""
     @State private var showCommuterNamePrompt = false
     @State private var showCommuterRoutePicker = false
+    @State private var suppressedTapTripID: String? = nil
     
     //     新增：轉乘類型選擇
     @State private var transferSelectionData: TransferSelectionData?
@@ -724,11 +725,11 @@ struct TripListView: View {
     
     @ViewBuilder
     private func tripRowWithActions(_ trip: Trip) -> some View {
-        Button {
-            selectedTripToEdit = trip
-        } label: {
-            TripRowView(trip: trip)
-        }
+        TripRowView(trip: trip)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                selectedTripToEdit = trip
+            }
         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
         .listRowSeparator(.hidden)
         .background(
@@ -744,7 +745,6 @@ struct TripListView: View {
         )
         .listRowBackground(Color.clear)
         .padding(.vertical, 4)
-        .buttonStyle(StaticButtonStyle())
         .contextMenu {
             tripContextMenuContent(trip: trip)
         }
