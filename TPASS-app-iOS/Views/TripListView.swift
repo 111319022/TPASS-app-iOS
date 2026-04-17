@@ -934,7 +934,7 @@ struct CycleSelectorView: View {
         switch themeManager.currentTheme {
         case .muji:
             return Color.white
-        case .light:
+        case .light, .purple:
             return Color.white
         case .dark:
             return Color(uiColor: .secondarySystemGroupedBackground)
@@ -1020,7 +1020,7 @@ struct CyclePickerSheet: View {
 
     private var cardBackground: Color {
         switch themeManager.currentTheme {
-        case .muji, .light:
+        case .muji, .light, .purple:
             return Color.white
         case .dark:
             return Color(uiColor: .secondarySystemGroupedBackground)
@@ -1180,7 +1180,7 @@ struct DailyHeaderView: View {
         switch themeManager.currentTheme {
         case .muji:
             return Color.white
-        case .light:
+        case .light, .purple:
             return Color.white
         case .dark:
             return Color(uiColor: .secondarySystemGroupedBackground)

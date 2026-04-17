@@ -16,7 +16,7 @@ struct DashboardView: View {
         switch themeManager.currentTheme {
         case .muji:
             return Color.white
-        case .light:
+        case .light, .purple:
             return Color.white
         case .dark:
             return Color(uiColor: .secondarySystemGroupedBackground)
@@ -483,7 +483,7 @@ struct DashboardView: View {
         let isDark: Bool = {
             switch theme {
             case .dark: return true
-            case .light, .muji: return false
+            case .light, .muji, .purple: return false
             case .system: return colorScheme == .dark
             }
         }()
@@ -525,7 +525,7 @@ struct DashboardView: View {
             switch themeManager.currentTheme {
             case .muji:
                 return Color.white
-            case .light:
+            case .light, .purple:
                 return Color.white
             case .dark:
                 return Color(uiColor: .secondarySystemGroupedBackground)
@@ -812,7 +812,7 @@ struct DashboardView: View {
             switch themeManager.currentTheme {
             case .muji:
                 return Color.white
-            case .light:
+            case .light, .purple:
                 return Color.white
             case .dark:
                 return Color(uiColor: .secondarySystemGroupedBackground)
@@ -856,7 +856,7 @@ struct DashboardView: View {
             switch themeManager.currentTheme {
             case .muji:
                 return Color.white
-            case .light:
+            case .light, .purple:
                 return Color.white
             case .dark:
                 return Color(uiColor: .secondarySystemGroupedBackground)
@@ -891,7 +891,7 @@ struct DashboardView: View {
             switch themeManager.currentTheme {
             case .muji:
                 return Color.white
-            case .light:
+            case .light, .purple:
                 return Color.white
             case .dark:
                 return Color(uiColor: .secondarySystemGroupedBackground)

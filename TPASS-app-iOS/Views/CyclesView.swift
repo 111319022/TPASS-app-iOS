@@ -128,7 +128,7 @@ struct CyclesView: View {
             return Color(hex: "#B07D62") // Muji 暖棕色
         case .dark:
             return Color(hex: "#5AC8FA") // 深色模式青色
-        case .light:
+        case .light, .purple:
             return Color(hex: "#34C759") // 淺色模式綠色
         case .system:
             let isDark = UITraitCollection.current.userInterfaceStyle == .dark
@@ -975,7 +975,7 @@ struct AddFlexibleCycleView: View {
             return Color(hex: "#B07D62") // Muji 暖棕色
         case .dark:
             return Color(hex: "#5AC8FA") // 深色模式青色
-        case .light:
+        case .light, .purple:
             return Color(hex: "#34C759") // 淺色模式綠色
         case .system:
             let isDark = UITraitCollection.current.userInterfaceStyle == .dark

@@ -8,6 +8,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case light = "light"
     case dark = "dark"
     case muji = "muji"
+    case purple = "purple"
 
     // 相容舊版（曾以中文 rawValue 持久化）
     init?(rawValue: String) {
@@ -20,6 +21,8 @@ enum AppTheme: String, CaseIterable, Identifiable {
             self = .dark
         case "muji", "暖色風格":
             self = .muji
+        case "purple", "紫色風格":
+            self = .purple
         default:
             return nil
         }
@@ -33,6 +36,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .light: return "theme_light"
         case .dark: return "theme_dark"
         case .muji: return "theme_muji"
+        case .purple: return "theme_purple"
         }
     }
 
@@ -56,6 +60,8 @@ class ThemeManager: ObservableObject {
         switch currentTheme {
         case .muji:
             return AnyShapeStyle(Color(hex: "#f5f0eb"))
+        case .purple:
+            return AnyShapeStyle(Color(hex: "#F6F4FB"))
         case .light: 
             return AnyShapeStyle(Color(uiColor: .systemGroupedBackground))
         case .dark: 
@@ -71,6 +77,8 @@ class ThemeManager: ObservableObject {
         switch currentTheme {
         case .muji: 
             return Color.white
+        case .purple:
+            return Color.white
         case .light: 
             return Color.white
         case .dark: 
@@ -85,6 +93,7 @@ class ThemeManager: ObservableObject {
     var primaryTextColor: Color {
         switch currentTheme {
         case .muji: return Color(hex: "#434343")
+        case .purple: return Color(hex: "#2F2A3D")
         default: return Color.primary
         }
     }
@@ -92,6 +101,7 @@ class ThemeManager: ObservableObject {
     var secondaryTextColor: Color {
         switch currentTheme {
         case .muji: return Color(hex: "#8c8c8c")
+        case .purple: return Color(hex: "#7A738E")
         default: return Color.secondary
         }
     }
@@ -101,6 +111,8 @@ class ThemeManager: ObservableObject {
         switch currentTheme {
         case .muji: 
             return Color(hex: "#B07D62")
+        case .purple:
+            return Color(hex: "#7A5AF8")
         case .dark: 
             return Color(hex: "#5AC8FA")
         case .light:
@@ -114,7 +126,7 @@ class ThemeManager: ObservableObject {
     
     var colorScheme: ColorScheme? {
         switch currentTheme {
-        case .light, .muji: return .light
+        case .light, .muji, .purple: return .light
         case .dark: return .dark
         case .system: return nil
         }
@@ -127,7 +139,7 @@ class ThemeManager: ObservableObject {
             switch currentTheme {
             case .dark:
                 return true
-            case .light, .muji:
+            case .light, .muji, .purple:
                 return false
             case .system:
                 return UITraitCollection.current.userInterfaceStyle == .dark
@@ -148,6 +160,20 @@ class ThemeManager: ObservableObject {
             case .lrt: return Color(hex: "#FFD93D")
             case .ferry: return Color(hex: "#1E88E5")
             case .hsr: return Color(hex: "#FF6600")
+            }
+        case .purple:
+            switch type {
+            case .mrt: return Color(hex: "#5B6CFF")
+            case .bus: return Color(hex: "#3BAE9F")
+            case .tra: return Color(hex: "#7B8599")
+            case .tymrt: return Color(hex: "#8C63FF")
+            case .tcmrt: return Color(hex: "#D75A7F")
+            case .kmrt: return Color(hex: "#C77DFF")
+            case .coach: return Color(hex: "#4EA078")
+            case .bike: return Color(hex: "#FF9F5A")
+            case .lrt: return Color(hex: "#E6B31E")
+            case .ferry: return Color(hex: "#4A8DFF")
+            case .hsr: return Color(hex: "#F07A4A")
             }
         case .system where isDark, .dark:
             // 深色模式（包括跟隨系統且當前為深色）
@@ -182,6 +208,17 @@ class ThemeManager: ObservableObject {
             case "#ffeaa7": return Color(hex: "#F2C94C")
             default: return Color(hex: hex).opacity(0.9)
             }
+        } else if currentTheme == .purple {
+            switch hex.lowercased() {
+            case "#00d2ff": return Color(hex: "#5B6CFF")
+            case "#2ecc71": return Color(hex: "#3BAE9F")
+            case "#bdc3c7": return Color(hex: "#7B8599")
+            case "#9b59b6": return Color(hex: "#8C63FF")
+            case "#ff7675": return Color(hex: "#D75A7F")
+            case "#55efc4": return Color(hex: "#4EA078")
+            case "#ffeaa7": return Color(hex: "#E6B31E")
+            default: return Color(hex: hex).opacity(0.95)
+            }
         }
         return Color(hex: hex)
     }
@@ -197,6 +234,12 @@ class ThemeManager: ObservableObject {
             case .cost:   return Color(hex: "#D1605E")
             case .count:  return Color(hex: "#E09F3E")
             case .single: return Color(hex: "#8D7B9F")
+            }
+        case .purple:
+            switch type {
+            case .cost:   return Color(hex: "#D75A7F")
+            case .count:  return Color(hex: "#E6B31E")
+            case .single: return Color(hex: "#8C63FF")
             }
         default:
             switch type {

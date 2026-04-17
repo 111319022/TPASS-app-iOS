@@ -92,7 +92,7 @@ struct EditTripView: View {
             switch themeManager.currentTheme {
             case .dark:
                 return true
-            case .light, .muji:
+            case .light, .muji, .purple:
                 return false
             case .system:
                 return UITraitCollection.current.userInterfaceStyle == .dark

@@ -20,7 +20,7 @@ struct FavoritesManagementView: View {
         switch themeManager.currentTheme {
         case .muji:
             return Color(hex: "#f5f0eb")
-        case .light:
+        case .light, .purple:
             return Color(uiColor: .systemGroupedBackground)
         case .dark:
             return Color(uiColor: .secondarySystemBackground)
@@ -35,7 +35,7 @@ struct FavoritesManagementView: View {
             return Color(uiColor: .secondarySystemGroupedBackground)
         case .system:
             return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : themeManager.cardBackgroundColor
-        case .muji, .light:
+        case .muji, .light, .purple:
             return themeManager.cardBackgroundColor
         }
     }
@@ -470,7 +470,7 @@ struct CommuterRouteDetailView: View {
             switch themeManager.currentTheme {
             case .muji:
                 return Color(hex: "#f5f0eb")
-            case .light:
+            case .light, .purple:
                 return Color(uiColor: .systemGroupedBackground)
             case .dark:
                 return Color(uiColor: .secondarySystemBackground)
