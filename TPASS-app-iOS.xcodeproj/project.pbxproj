@@ -343,15 +343,19 @@
 		FB826C422F924F3800D6D1D7 /* New_StationData */ = {
 			isa = PBXGroup;
 			children = (
+				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
 				FB826C4D2F9272F200D6D1D7 /* KMRT_StationData.json */,
-				FB826C4E2F9272F200D6D1D7 /* NTPCMRT_StationData.json */,
-				FB826C4F2F9272F200D6D1D7 /* TCMRT_StationData.json */,
+				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
 				FB826C502F9272F200D6D1D7 /* TPEMRT_StationData.json */,
+				FB826C4E2F9272F200D6D1D7 /* NTPCMRT_StationData.json */,
+				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
+				FB826C4F2F9272F200D6D1D7 /* TCMRT_StationData.json */,
+				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
 				FB826C512F9272F200D6D1D7 /* TYMRT_StationData.json */,
+				FB0A217D2F8FB300405172 /* LRTStationData.swift */,
 				FB0A217F2F8FB300405172 /* KLRT_StationData.json */,
 				FB0A21802F8FB300405172 /* NTDLRT_StationData.json */,
 				FB0A21812F8FB300405172 /* NTALRT_StationData.json */,
-				FB0A217D2F8FB300405172 /* LRTStationData.swift */,
 			);
 			path = New_StationData;
 			sourceTree = "<group>";
@@ -374,12 +378,8 @@
 			isa = PBXGroup;
 			children = (
 				FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */,
-				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
-				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
-				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
 				FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */,
 				FB0A20E02F8F8EF100405172 /* TRAStations.json */,
-				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
 			);
 			path = StationData;
 			sourceTree = "<group>";
