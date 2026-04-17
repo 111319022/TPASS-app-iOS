@@ -84,6 +84,7 @@
 		FB826C492F92547700D6D1D7 /* NTALRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */; };
 		FB826C4A2F92547700D6D1D7 /* NTDLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */; };
 		FB826C4B2F92547700D6D1D7 /* KLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C462F92547700D6D1D7 /* KLRT_Fare.json */; };
+		FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB826C4D2F925E6700D6D1D7 /* LRTFareService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -166,6 +167,7 @@
 		FB826C462F92547700D6D1D7 /* KLRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = KLRT_Fare.json; sourceTree = "<group>"; };
 		FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTALRT_Fare.json; sourceTree = "<group>"; };
 		FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_Fare.json; sourceTree = "<group>"; };
+		FB826C4D2F925E6700D6D1D7 /* LRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTFareService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +216,7 @@
 		FB0A20F92F8F8EF100405172 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FB826C4C2F92569B00D6D1D7 /* New_FareServices */,
 				FB826C432F924F7300D6D1D7 /* FareServices */,
 				FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */,
 				FB0A21762F8FB100405172 /* IssueReportService.swift */,
@@ -376,6 +379,14 @@
 			path = New_FareData;
 			sourceTree = "<group>";
 		};
+		FB826C4C2F92569B00D6D1D7 /* New_FareServices */ = {
+			isa = PBXGroup;
+			children = (
+				FB826C4D2F925E6700D6D1D7 /* LRTFareService.swift */,
+			);
+			path = New_FareServices;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -528,6 +539,7 @@
 				FB0A214D2F8F8EF100405172 /* ViewFrameKey.swift in Sources */,
 				FB0A214E2F8F8EF100405172 /* TPASSRegion.swift in Sources */,
 				FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */,
+				FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -687,7 +699,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.5;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -730,7 +742,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.5;
+				MARKETING_VERSION = 1.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

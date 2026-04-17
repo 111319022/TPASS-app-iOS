@@ -619,6 +619,13 @@ struct AddTripView: View {
         }
         // 4b. 輕軌歷史紀錄查價
         if selectedType == .lrt, !startStation.isEmpty, !endStation.isEmpty {
+            let lineCode = startLineCode.isEmpty ? endLineCode : startLineCode
+            if !lineCode.isEmpty,
+               let lrtPrice = LRTFareService.shared.getFare(lineCode: lineCode, from: startStation, to: endStation) {
+                price = String(lrtPrice)
+                return
+            }
+
             if let historyTrip = viewModel.trips.first(where: {
                 $0.type == .lrt && $0.startStation == startStation && $0.endStation == endStation
             }) {
