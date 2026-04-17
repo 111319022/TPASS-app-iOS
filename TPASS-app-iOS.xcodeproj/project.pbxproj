@@ -85,6 +85,11 @@
 		FB826C4A2F92547700D6D1D7 /* NTDLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */; };
 		FB826C4B2F92547700D6D1D7 /* KLRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C462F92547700D6D1D7 /* KLRT_Fare.json */; };
 		FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB826C4D2F925E6700D6D1D7 /* LRTFareService.swift */; };
+		FB826C522F9272F200D6D1D7 /* KMRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C4D2F9272F200D6D1D7 /* KMRT_StationData.json */; };
+		FB826C532F9272F200D6D1D7 /* TCMRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C4F2F9272F200D6D1D7 /* TCMRT_StationData.json */; };
+		FB826C542F9272F200D6D1D7 /* TYMRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C512F9272F200D6D1D7 /* TYMRT_StationData.json */; };
+		FB826C552F9272F200D6D1D7 /* TPEMRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C502F9272F200D6D1D7 /* TPEMRT_StationData.json */; };
+		FB826C562F9272F200D6D1D7 /* NTPCMRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C4E2F9272F200D6D1D7 /* NTPCMRT_StationData.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -168,6 +173,11 @@
 		FB826C472F92547700D6D1D7 /* NTALRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTALRT_Fare.json; sourceTree = "<group>"; };
 		FB826C482F92547700D6D1D7 /* NTDLRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_Fare.json; sourceTree = "<group>"; };
 		FB826C4D2F925E6700D6D1D7 /* LRTFareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTFareService.swift; sourceTree = "<group>"; };
+		FB826C4D2F9272F200D6D1D7 /* KMRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = KMRT_StationData.json; sourceTree = "<group>"; };
+		FB826C4E2F9272F200D6D1D7 /* NTPCMRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTPCMRT_StationData.json; sourceTree = "<group>"; };
+		FB826C4F2F9272F200D6D1D7 /* TCMRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TCMRT_StationData.json; sourceTree = "<group>"; };
+		FB826C502F9272F200D6D1D7 /* TPEMRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TPEMRT_StationData.json; sourceTree = "<group>"; };
+		FB826C512F9272F200D6D1D7 /* TYMRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TYMRT_StationData.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -333,6 +343,11 @@
 		FB826C422F924F3800D6D1D7 /* New_StationData */ = {
 			isa = PBXGroup;
 			children = (
+				FB826C4D2F9272F200D6D1D7 /* KMRT_StationData.json */,
+				FB826C4E2F9272F200D6D1D7 /* NTPCMRT_StationData.json */,
+				FB826C4F2F9272F200D6D1D7 /* TCMRT_StationData.json */,
+				FB826C502F9272F200D6D1D7 /* TPEMRT_StationData.json */,
+				FB826C512F9272F200D6D1D7 /* TYMRT_StationData.json */,
 				FB0A217F2F8FB300405172 /* KLRT_StationData.json */,
 				FB0A21802F8FB300405172 /* NTDLRT_StationData.json */,
 				FB0A21812F8FB300405172 /* NTALRT_StationData.json */,
@@ -458,6 +473,11 @@
 				FB0A21512F8F8EF100405172 /* TRA_Fares_Fixed.sqlite in Resources */,
 				FB0A21522F8F8EF100405172 /* TRAConvertStations.py in Resources */,
 				FB0A21532F8F8EF100405172 /* Assets.xcassets in Resources */,
+				FB826C522F9272F200D6D1D7 /* KMRT_StationData.json in Resources */,
+				FB826C532F9272F200D6D1D7 /* TCMRT_StationData.json in Resources */,
+				FB826C542F9272F200D6D1D7 /* TYMRT_StationData.json in Resources */,
+				FB826C552F9272F200D6D1D7 /* TPEMRT_StationData.json in Resources */,
+				FB826C562F9272F200D6D1D7 /* NTPCMRT_StationData.json in Resources */,
 				FB0A216B2F8F955800405172 /* index.html in Resources */,
 				FB826C492F92547700D6D1D7 /* NTALRT_Fare.json in Resources */,
 				FB826C4A2F92547700D6D1D7 /* NTDLRT_Fare.json in Resources */,
