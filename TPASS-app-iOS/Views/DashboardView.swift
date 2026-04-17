@@ -363,10 +363,6 @@ struct DashboardView: View {
     // MARK: - Helper Functions
     
     private func getTransportDisplayName(_ type: TransportType) -> LocalizedStringKey {
-        // 北捷、台中捷運、高雄捷運統一使用 metros key
-        if type == .mrt || type == .tcmrt || type == .kmrt {
-            return "metros"
-        }
         return type.displayName
     }
     
@@ -949,10 +945,6 @@ struct DashboardView: View {
         let stat: (type: TransportType, total: Int, count: Int, percent: Double, avg: Int, max: Int)
         
         private func getTransportDisplayName(_ type: TransportType) -> LocalizedStringKey {
-            // 北捷、台中捷運、高雄捷運統一使用 metros key
-            if type == .mrt || type == .tcmrt || type == .kmrt {
-                return "metros"
-            }
             return type.displayName
         }
         

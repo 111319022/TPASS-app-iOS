@@ -5962,6 +5962,7 @@
     },
     "metros" : {
       "comment" : "Metro/MRT display name unified for all metro systems",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
