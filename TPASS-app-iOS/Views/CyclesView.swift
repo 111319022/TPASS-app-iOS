@@ -128,8 +128,10 @@ struct CyclesView: View {
             return Color(hex: "#B07D62") // Muji 暖棕色
         case .dark:
             return Color(hex: "#5AC8FA") // 深色模式青色
-        case .light, .purple:
+        case .light:
             return Color(hex: "#34C759") // 淺色模式綠色
+        case .purple:
+            return Color(hex: "#8071ad") // 紫色模式紫色
         case .system:
             let isDark = UITraitCollection.current.userInterfaceStyle == .dark
             return isDark ? Color(hex: "#5AC8FA") : Color(hex: "#34C759")
