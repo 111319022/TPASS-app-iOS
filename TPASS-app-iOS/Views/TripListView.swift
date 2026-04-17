@@ -662,6 +662,8 @@ struct TripListView: View {
             return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else if type == .kmrt {
             return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .lrt {
+            return LRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: lang)
         }
@@ -1265,6 +1267,8 @@ struct TripRowView: View {
             return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else if type == .kmrt {
             return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
+        } else if type == .lrt {
+            return LRTStationData.shared.displayStationName(stationName, languageCode: lang)
         } else {
             return StationData.shared.displayStationName(stationName, languageCode: lang)
         }

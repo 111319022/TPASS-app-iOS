@@ -157,6 +157,14 @@ struct EditTripView: View {
                 _endLineCode = State(initialValue: line.code)
             }
         }
+        else if trip.type == .lrt {
+            if let line = LRTStationData.shared.lines.first(where: { $0.stations.contains(where: { $0.nameZH == trip.startStation }) }) {
+                _startLineCode = State(initialValue: line.code)
+            }
+            if let line = LRTStationData.shared.lines.first(where: { $0.stations.contains(where: { $0.nameZH == trip.endStation }) }) {
+                _endLineCode = State(initialValue: line.code)
+            }
+        }
     }
     
     var body: some View {
@@ -569,8 +577,10 @@ struct EditTripView: View {
                 tymrtSelectionView
             } else if selectedType == .tcmrt {
                 tcmrtSelectionView
-            } else if selectedType == .kmrt || selectedType == .lrt {
+            } else if selectedType == .kmrt {
                 kmrtSelectionView
+            } else if selectedType == .lrt {
+                lrtSelectionView
             } else {
                 manualInputView
             }
@@ -719,6 +729,56 @@ struct EditTripView: View {
         .background(inputBackgroundColor)
         .cornerRadius(10)
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private var lrtSelectionView: some View {
+        VStack(spacing: 0) {
+            StationInputRow(
+                label: "start_point",
+                type: .lrt,
+                lineCode: $startLineCode,
+                stationName: $startStation,
+                currentRegion: currentRegion,
+                lineSelectionEnabled: true
+            )
+            Divider().opacity(0.5).padding(.leading, 12)
+            StationInputRow(
+                label: "end_point",
+                type: .lrt,
+                lineCode: Binding(get: { startLineCode }, set: { _ in }),
+                stationName: $endStation,
+                currentRegion: currentRegion,
+                lineSelectionEnabled: false
+            )
+        }
+        .background(inputBackgroundColor)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
+        .onAppear {
+            if startLineCode.isEmpty {
+                let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+                if currentRegion == .south || currentRegion == .kaohsiung {
+                    startLineCode = "KLRT"
+                } else if let startLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == startStation }) }) {
+                    startLineCode = startLine.code
+                } else if let endLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == endStation }) }) {
+                    startLineCode = endLine.code
+                }
+            }
+            endLineCode = startLineCode
+        }
+        .onChange(of: startLineCode) { _, newLineCode in
+            endLineCode = newLineCode
+            let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+            guard let selectedLine = availableLines.first(where: { $0.code == newLineCode }) else {
+                endStation = ""
+                return
+            }
+            if !endStation.isEmpty, !selectedLine.stations.contains(where: { $0.nameZH == endStation }) {
+                endStation = ""
+            }
+        }
     }
     
     @ViewBuilder

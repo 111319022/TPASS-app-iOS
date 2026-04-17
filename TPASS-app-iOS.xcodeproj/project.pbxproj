@@ -75,7 +75,12 @@
 		FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21762F8FB100405172 /* IssueReportService.swift */; };
 		FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21782F8FB100405172 /* ReportIssueView.swift */; };
 		FB0A217B2F8FB100405172 /* DeveloperIssueReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */; };
+		FB0A21822F8FB300405172 /* KLRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A217F2F8FB300405172 /* KLRT_StationData.json */; };
+		FB0A21832F8FB300405172 /* NTDLRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21802F8FB300405172 /* NTDLRT_StationData.json */; };
+		FB0A21842F8FB300405172 /* NTALRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21812F8FB300405172 /* NTALRT_StationData.json */; };
+		FB0A21862F8FB300405172 /* LRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217D2F8FB300405172 /* LRTStationData.swift */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
+		FB826C412F92244E00D6D1D7 /* LRTModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB826C402F92244E00D6D1D7 /* LRTModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -148,8 +153,13 @@
 		FB0A21762F8FB100405172 /* IssueReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportService.swift; sourceTree = "<group>"; };
 		FB0A21782F8FB100405172 /* ReportIssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportIssueView.swift; sourceTree = "<group>"; };
 		FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperIssueReportsView.swift; sourceTree = "<group>"; };
+		FB0A217D2F8FB300405172 /* LRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTStationData.swift; sourceTree = "<group>"; };
+		FB0A217F2F8FB300405172 /* KLRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = KLRT_StationData.json; sourceTree = "<group>"; };
+		FB0A21802F8FB300405172 /* NTDLRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_StationData.json; sourceTree = "<group>"; };
+		FB0A21812F8FB300405172 /* NTALRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTALRT_StationData.json; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		FB826C402F92244E00D6D1D7 /* LRTModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,10 +178,14 @@
 			children = (
 				FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */,
 				FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */,
+				FB0A217D2F8FB300405172 /* LRTStationData.swift */,
 				FB0A20DC2F8F8EF100405172 /* StationData.swift */,
 				FB0A20DD2F8F8EF100405172 /* TCMRTStationData.swift */,
 				FB0A20DF2F8F8EF100405172 /* TRAStationData.swift */,
 				FB0A20E02F8F8EF100405172 /* TRAStations.json */,
+				FB0A217F2F8FB300405172 /* KLRT_StationData.json */,
+				FB0A21802F8FB300405172 /* NTDLRT_StationData.json */,
+				FB0A21812F8FB300405172 /* NTALRT_StationData.json */,
 				FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */,
 			);
 			path = Data;
@@ -193,6 +207,7 @@
 				FB0A20E72F8F8EF100405172 /* SwiftDataModels.swift */,
 				FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */,
 				FB0A20E92F8F8EF100405172 /* TPASSRegion.swift */,
+				FB826C402F92244E00D6D1D7 /* LRTModels.swift */,
 				FB0A20EA2F8F8EF100405172 /* User.swift */,
 			);
 			path = Models;
@@ -398,6 +413,9 @@
 				FB0A216F2F8F955800405172 /* 404.html in Resources */,
 				FB0A21552F8F8EF100405172 /* TPASS-app-iOS-Info.plist in Resources */,
 				FB0A21562F8F8EF100405172 /* TRAStations.json in Resources */,
+				FB0A21822F8FB300405172 /* KLRT_StationData.json in Resources */,
+				FB0A21832F8FB300405172 /* NTDLRT_StationData.json in Resources */,
+				FB0A21842F8FB300405172 /* NTALRT_StationData.json in Resources */,
 				FB6BC0BC2F7042950011877D /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -424,7 +442,9 @@
 				FB0A212A2F8F8EF100405172 /* HapticManager.swift in Sources */,
 				FB0A212B2F8F8EF100405172 /* KMRTStationData.swift in Sources */,
 				FB0A212C2F8F8EF100405172 /* QuickAddHomeView.swift in Sources */,
+				FB826C412F92244E00D6D1D7 /* LRTModels.swift in Sources */,
 				FB0A212D2F8F8EF100405172 /* MigrationManager.swift in Sources */,
+				FB0A21862F8FB300405172 /* LRTStationData.swift in Sources */,
 				FB0A212E2F8F8EF100405172 /* TCMRTStationData.swift in Sources */,
 				FB0A212F2F8F8EF100405172 /* AddTripView.swift in Sources */,
 				FB0A21302F8F8EF100405172 /* Enums.swift in Sources */,
@@ -606,7 +626,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 73;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -649,7 +669,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 73;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

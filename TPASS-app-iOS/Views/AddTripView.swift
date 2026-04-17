@@ -202,8 +202,11 @@ struct AddTripView: View {
         case .tcmrt:
             standardStartEndStationInputs(type: selectedType)
 
-        case .kmrt, .lrt:
+        case .kmrt:
             standardStartEndStationInputs(type: selectedType)
+
+        case .lrt:
+            linkedLRTStartEndStationInputs
 
         default:
             standardStartEndStationInputs(type: selectedType)
@@ -229,6 +232,54 @@ struct AddTripView: View {
                 stationName: $endStation,
                 currentRegion: currentRegion
             )
+        }
+    }
+
+    private var linkedLRTStartEndStationInputs: some View {
+        VStack(spacing: 0) {
+            StationInputRow(
+                label: "start_point",
+                type: .lrt,
+                lineCode: $startLineCode,
+                stationName: $startStation,
+                currentRegion: currentRegion,
+                lineSelectionEnabled: true
+            )
+
+            Divider().opacity(0.5).padding(.leading, 12)
+
+            StationInputRow(
+                label: "end_point",
+                type: .lrt,
+                lineCode: Binding(get: { startLineCode }, set: { _ in }),
+                stationName: $endStation,
+                currentRegion: currentRegion,
+                lineSelectionEnabled: false
+            )
+        }
+        .onAppear {
+            if startLineCode.isEmpty {
+                let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+                if currentRegion == .south || currentRegion == .kaohsiung {
+                    startLineCode = "KLRT"
+                } else if let startLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == startStation }) }) {
+                    startLineCode = startLine.code
+                } else if let endLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == endStation }) }) {
+                    startLineCode = endLine.code
+                }
+            }
+            endLineCode = startLineCode
+        }
+        .onChange(of: startLineCode) { _, newLineCode in
+            endLineCode = newLineCode
+            let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+            guard let selectedLine = availableLines.first(where: { $0.code == newLineCode }) else {
+                endStation = ""
+                return
+            }
+            if !endStation.isEmpty, !selectedLine.stations.contains(where: { $0.nameZH == endStation }) {
+                endStation = ""
+            }
         }
     }
 
@@ -566,6 +617,15 @@ struct AddTripView: View {
                 return
             }
         }
+        // 4b. 輕軌歷史紀錄查價
+        if selectedType == .lrt, !startStation.isEmpty, !endStation.isEmpty {
+            if let historyTrip = viewModel.trips.first(where: {
+                $0.type == .lrt && $0.startStation == startStation && $0.endStation == endStation
+            }) {
+                price = String(historyTrip.originalPrice)
+                return
+            }
+        }
         // 5. 台鐵查價邏輯
         if selectedType == .tra, !startStation.isEmpty, !endStation.isEmpty {
             let traPrice = TRAFareService.shared.getFare(from: startStation, to: endStation)
@@ -778,6 +838,7 @@ struct StationInputRow: View {
     @Binding var lineCode: String
     @Binding var stationName: String
     let currentRegion: TPASSRegion
+    var lineSelectionEnabled: Bool = true
     @EnvironmentObject var themeManager: ThemeManager
 
     var body: some View {
@@ -799,7 +860,7 @@ struct StationInputRow: View {
                     displayStation: { KMRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
                 )
 
-            // === 3. 台中捷運 (TCMRT) [    新增這裡] ===
+            // === 3. 台中捷運 (TCMRT) ===
             } else if type == .tcmrt {
                 mrtSelector(
                     dataSource: TCMRTStationData.shared.lines,
@@ -807,15 +868,19 @@ struct StationInputRow: View {
                     displayStation: { TCMRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
                 )
 
-            // === 4. 桃園機捷 (TYMRT) ===
+            // === 4. 輕軌 (LRT) ===
+            } else if type == .lrt {
+                lrtSelector
+
+            // === 5. 桃園機捷 (TYMRT) ===
             } else if type == .tymrt {
                 tymrtSelector
 
-            // === 5. 台灣高鐵 (HSR) ===
+            // === 6. 台灣高鐵 (HSR) ===
             } else if type == .hsr {
                 hsrSelector
                 
-            // === 6. 其他運具 (手動輸入) ===
+            // === 7. 其他運具 (手動輸入) ===
             } else {
                 manualInput
             }
@@ -831,16 +896,35 @@ struct StationInputRow: View {
         displayStation: @escaping (String) -> String
     ) -> some View {
         // 左邊：路線選單
-        Menu {
-            ForEach(dataSource) { line in
-                Button(action: {
-                    lineCode = line.code
-                    stationName = "" // 切換路線時清空站點
-                }) {
-                    Text(displayLine(line.name))
+        if lineSelectionEnabled {
+            Menu {
+                ForEach(dataSource) { line in
+                    Button(action: {
+                        lineCode = line.code
+                        stationName = "" // 切換路線時清空站點
+                    }) {
+                        Text(displayLine(line.name))
+                    }
                 }
+            } label: {
+                HStack {
+                    Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
+                    Spacer()
+                    if let line = dataSource.first(where: { $0.code == lineCode }) {
+                        Text(displayLine(line.name))
+                            .font(.subheadline).fontWeight(.bold).foregroundColor(line.color)
+                            .lineLimit(1).minimumScaleFactor(0.8)
+                    } else {
+                        Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
+                    }
+                    Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+                }
+                .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(label) + Text(" line"))
+                .accessibilityValue(lineCode.isEmpty ? Text("select_route") : Text(displayLine(dataSource.first(where: { $0.code == lineCode })?.name ?? "")))
             }
-        } label: {
+        } else {
             HStack {
                 Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
                 Spacer()
@@ -851,7 +935,7 @@ struct StationInputRow: View {
                 } else {
                     Text("select_route").font(.subheadline).foregroundColor(themeManager.primaryTextColor)
                 }
-                Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
+                Image(systemName: "lock.fill").font(.caption2).foregroundColor(themeManager.secondaryTextColor).padding(.trailing, 8)
             }
             .frame(maxHeight: .infinity).frame(maxWidth: .infinity).background(Color.gray.opacity(0.05))
             .accessibilityElement(children: .combine)
@@ -888,6 +972,24 @@ struct StationInputRow: View {
             .accessibilityLabel(Text(label) + Text(" station"))
             .accessibilityValue(stationName.isEmpty ? Text("select_station") : Text(displayStation(stationName)))
         }
+    }
+
+    @ViewBuilder
+    private var lrtSelector: some View {
+        let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+        mrtSelector(
+            dataSource: availableLines.map {
+                MRTLine(
+                    id: $0.id,
+                    code: $0.code,
+                    name: $0.name,
+                    color: Color(hex: $0.colorHex),
+                    stations: $0.stations.map { $0.nameZH }
+                )
+            },
+            displayLine: { LRTStationData.shared.displayLineName($0, languageCode: Locale.current.identifier) },
+            displayStation: { LRTStationData.shared.displayStationName($0, languageCode: Locale.current.identifier) }
+        )
     }
     
     // TYMRT 專用選擇器
