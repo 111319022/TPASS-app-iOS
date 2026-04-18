@@ -2619,6 +2619,38 @@
         }
       }
     },
+    "confirm_delete_day_cycle_prefix %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm deleting all trips from %@ in "
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確定要刪除 %@ 的 "
+          }
+        }
+      }
+    },
+    "confirm_delete_day_cycle_suffix" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整日行程？"
+          }
+        }
+      }
+    },
     "confirm_duplicate_day" : {
       "localizations" : {
         "en" : {

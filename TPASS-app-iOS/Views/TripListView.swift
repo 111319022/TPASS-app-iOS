@@ -29,9 +29,11 @@ struct TripListView: View {
     @State private var pendingDuplicateTrip: Trip? = nil
     @State private var pendingDuplicateTripUseHaptic = false
     @State private var pendingDuplicateDaySourceDate: String? = nil
+    @State private var pendingDuplicateDaySourceCycleId: String? = nil
     @State private var pendingDuplicateDayTargetDate = Date()
     @State private var showDuplicateDayPicker = false
     @State private var pendingDeleteDate: String? = nil
+    @State private var pendingDeleteCycleId: String? = nil
     @State private var pendingCommuterTrip: Trip? = nil
     @State private var commuterRouteName: String = ""
     @State private var showCommuterNamePrompt = false
@@ -403,8 +405,7 @@ struct TripListView: View {
                                                 requestDuplicateDayToDate(group)
                                             },
                                             onDelete: {
-                                                viewModel.deleteDayTrips(on: group.date)
-                                                showToast(message: "deleted_day \(group.date)")
+                                                requestDeleteDay(group)
                                             }
                                         )
                                             .frame(maxWidth: .infinity)
@@ -518,6 +519,7 @@ struct TripListView: View {
             ))
             .modifier(TripListAlertsModifier(
                 pendingDeleteDate: $pendingDeleteDate,
+                pendingDeleteCycleId: $pendingDeleteCycleId,
                 showCommuterNamePrompt: $showCommuterNamePrompt,
                 commuterRouteName: $commuterRouteName,
                 pendingCommuterTrip: $pendingCommuterTrip,
@@ -562,6 +564,7 @@ struct TripListView: View {
                     HStack(spacing: 12) {
                         Button("cancel", role: .cancel) {
                             pendingDuplicateDaySourceDate = nil
+                            pendingDuplicateDaySourceCycleId = nil
                             showDuplicateDayPicker = false
                         }
 
@@ -571,7 +574,12 @@ struct TripListView: View {
                             if let source = pendingDuplicateDaySourceDate {
                                 let calendar = Calendar.current
                                 let targetDay = calendar.startOfDay(for: pendingDuplicateDayTargetDate)
-                                viewModel.duplicateDayTrips(from: source, targetDay: targetDay)
+                                viewModel.duplicateDayTrips(
+                                    from: source,
+                                    cycleId: pendingDuplicateDaySourceCycleId,
+                                    targetDay: targetDay,
+                                    targetCycleId: pendingDuplicateDaySourceCycleId
+                                )
                                 let formatted = DateFormatter.localizedString(
                                     from: targetDay,
                                     dateStyle: .medium,
@@ -580,6 +588,7 @@ struct TripListView: View {
                                 showToast(message: "copied_day_to \(formatted)")
                             }
                             pendingDuplicateDaySourceDate = nil
+                            pendingDuplicateDaySourceCycleId = nil
                             showDuplicateDayPicker = false
                         }
                     }
@@ -686,8 +695,14 @@ struct TripListView: View {
     }
 
     private func duplicateDayToToday(_ group: DailyTripGroup) {
-        viewModel.duplicateDayTrips(from: group.date)
+        let cycleId = group.trips.first?.cycleId ?? viewModel.activeCycle?.id
+        viewModel.duplicateDayTrips(from: group.date, cycleId: cycleId)
         showToast(message: "copied_day \(group.date)")
+    }
+
+    private func requestDeleteDay(_ group: DailyTripGroup) {
+        pendingDeleteDate = group.date
+        pendingDeleteCycleId = group.trips.first?.cycleId ?? viewModel.activeCycle?.id
     }
 
     private func requestDuplicateTrip(_ trip: Trip, useDelay: Bool) {
@@ -718,6 +733,7 @@ struct TripListView: View {
     private func requestDuplicateDayToDate(_ group: DailyTripGroup) {
         guard let range = selectedCycleDateRange else { return }
         pendingDuplicateDaySourceDate = group.date
+        pendingDuplicateDaySourceCycleId = group.trips.first?.cycleId ?? viewModel.activeCycle?.id
         let calendar = Calendar.current
         let preferredDate = group.trips.first?.createdAt ?? range.lowerBound
         let normalized = calendar.startOfDay(for: preferredDate)
@@ -1493,6 +1509,7 @@ struct TripListAlertsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @Binding var pendingDeleteDate: String?
+    @Binding var pendingDeleteCycleId: String?
     @Binding var showCommuterNamePrompt: Bool
     @Binding var commuterRouteName: String
     @Binding var pendingCommuterTrip: Trip?
@@ -1506,14 +1523,22 @@ struct TripListAlertsModifier: ViewModifier {
                 Button("cancel", role: .cancel) { pendingDeleteDate = nil }
                 Button("delete_day", role: .destructive) {
                     if let date = pendingDeleteDate {
-                        viewModel.deleteDayTrips(on: date)
+                        let cycleId = pendingDeleteCycleId ?? viewModel.activeCycle?.id
+                        viewModel.deleteDayTrips(on: date, cycleId: cycleId)
                         showToast("deleted_day \(date)")
                     }
                     pendingDeleteDate = nil
+                    pendingDeleteCycleId = nil
                 }
             } message: {
                 if let date = pendingDeleteDate {
-                    Text("confirm_delete_day \(date)")
+                    if let cycle = viewModel.cycleById(pendingDeleteCycleId ?? viewModel.activeCycle?.id) {
+                        Text("confirm_delete_day_cycle_prefix \(date)")
+                        + Text(cycle.region.displayNameKey)
+                        + Text("confirm_delete_day_cycle_suffix")
+                    } else {
+                        Text("confirm_delete_day \(date)")
+                    }
                 }
             }
             .alert("choose_commuter", isPresented: $showCommuterNamePrompt) {

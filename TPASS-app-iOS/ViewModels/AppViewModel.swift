@@ -1139,20 +1139,35 @@ class AppViewModel: ObservableObject {
     }
 
     @MainActor
-    func duplicateDayTrips(from dateStr: String) {
+    func duplicateDayTrips(from dateStr: String, cycleId: String? = nil) {
         guard let userId = currentUserId else { return }
+        let sourceCycleId = cycleId ?? activeCycle?.id
         let calendar = Calendar.current
-        let dayTrips = trips.filter { $0.dateStr == dateStr }
+        let dayTrips = trips.filter { trip in
+            guard trip.dateStr == dateStr else { return false }
+            if let sourceCycleId {
+                return trip.cycleId == sourceCycleId
+            }
+            return trip.cycleId == nil
+        }
         guard !dayTrips.isEmpty else { return }
         let targetDay = preferredDuplicateDay(for: dayTrips)
-        duplicateDayTrips(from: dateStr, targetDay: targetDay)
+        duplicateDayTrips(from: dateStr, cycleId: sourceCycleId, targetDay: targetDay, targetCycleId: sourceCycleId)
     }
 
     @MainActor
-    func duplicateDayTrips(from dateStr: String, targetDay: Date) {
+    func duplicateDayTrips(from dateStr: String, cycleId: String? = nil, targetDay: Date, targetCycleId: String? = nil) {
         guard let userId = currentUserId else { return }
+        let sourceCycleId = cycleId ?? activeCycle?.id
+        let resolvedTargetCycleId = targetCycleId ?? sourceCycleId
         let calendar = Calendar.current
-        let dayTrips = trips.filter { $0.dateStr == dateStr }
+        let dayTrips = trips.filter { trip in
+            guard trip.dateStr == dateStr else { return false }
+            if let sourceCycleId {
+                return trip.cycleId == sourceCycleId
+            }
+            return trip.cycleId == nil
+        }
         guard !dayTrips.isEmpty else { return }
         let normalizedTarget = calendar.startOfDay(for: targetDay)
 
@@ -1164,7 +1179,7 @@ class AppViewModel: ObservableObject {
                 second: comps.second ?? 0,
                 of: normalizedTarget
             ) ?? normalizedTarget
-            let cycleId = trip.cycleId ?? cycleForTrip(date: newDate)?.id
+            let cycleId = resolvedTargetCycleId ?? trip.cycleId ?? cycleForTrip(date: newDate)?.id
             let newTrip = Trip(
                 id: UUID().uuidString,
                 userId: userId,
@@ -1188,12 +1203,25 @@ class AppViewModel: ObservableObject {
     }
     
     @MainActor
-    func deleteDayTrips(on dateStr: String) {
-        let dayTrips = trips.filter { $0.dateStr == dateStr }
+    func deleteDayTrips(on dateStr: String, cycleId: String? = nil) {
+        let resolvedCycleId = cycleId ?? activeCycle?.id
+        let dayTrips = trips.filter { trip in
+            guard trip.dateStr == dateStr else { return false }
+            if let resolvedCycleId {
+                return trip.cycleId == resolvedCycleId
+            }
+            return trip.cycleId == nil
+        }
         for trip in dayTrips {
             modelContext?.delete(trip)
         }
-        trips.removeAll { $0.dateStr == dateStr }
+        trips.removeAll { trip in
+            guard trip.dateStr == dateStr else { return false }
+            if let resolvedCycleId {
+                return trip.cycleId == resolvedCycleId
+            }
+            return trip.cycleId == nil
+        }
         saveContext()
         _filteredTripsCache = nil
         _groupedTripsCache = nil
