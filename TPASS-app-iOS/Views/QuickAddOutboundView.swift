@@ -174,6 +174,10 @@ struct QuickAddOutboundView: View {
                                         price = ""
                                         isTransfer = false
                                         transferDiscountType = nil
+
+                                        if station.transportType == .bus {
+                                            price = currentRegion.defaultBusPrice(identity: currentIdentity)
+                                        }
                                     }) {
                                         HStack(spacing: 12) {
                                             Image(systemName: station.transportType.systemIconName)
@@ -314,6 +318,9 @@ struct QuickAddOutboundView: View {
             if let outboundStation = selectedOutboundStation {
                 recalculatePriceForOutboundStation(outboundStation)
             }
+        }
+        .onChange(of: date) { _, _ in
+            refreshBusDefaultPriceIfNeeded()
         }
         .onChange(of: isFree) { _, val in
             if val {
@@ -469,7 +476,19 @@ struct QuickAddOutboundView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
     }
 
+    private func refreshBusDefaultPriceIfNeeded() {
+        guard let outboundStation = selectedOutboundStation, outboundStation.transportType == .bus else { return }
+        price = currentRegion.defaultBusPrice(identity: currentIdentity)
+        isTransfer = false
+    }
+
     func recalculatePriceForOutboundStation(_ outboundStation: OutboundStation) {
+        if outboundStation.transportType == .bus {
+            price = currentRegion.defaultBusPrice(identity: currentIdentity)
+            isTransfer = false
+            return
+        }
+
         guard !endStation.isEmpty else { return }
 
         let startStation = outboundStation.name
@@ -505,10 +524,6 @@ struct QuickAddOutboundView: View {
             if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
-            }
-        case .bus:
-            if price.isEmpty {
-                price = currentRegion.defaultBusPrice(identity: currentIdentity)
             }
         default:
             break

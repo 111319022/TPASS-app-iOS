@@ -329,6 +329,9 @@ struct QuickAddHomeView: View {
                 recalculatePriceForHomeStation(homeStation)
             }
         }
+        .onChange(of: date) { _, _ in
+            refreshBusDefaultPriceIfNeeded()
+        }
         .onChange(of: isFree) { _, val in
             if val {
                 isTransfer = false
@@ -486,8 +489,20 @@ struct QuickAddHomeView: View {
     }
     
     // MARK: - Logic
+
+    private func refreshBusDefaultPriceIfNeeded() {
+        guard let homeStation = selectedHomeStation, homeStation.transportType == .bus else { return }
+        price = currentRegion.defaultBusPrice(identity: currentIdentity)
+        isTransfer = false
+    }
     
     func recalculatePriceForHomeStation(_ homeStation: HomeStation) {
+        if homeStation.transportType == .bus {
+            price = currentRegion.defaultBusPrice(identity: currentIdentity)
+            isTransfer = false
+            return
+        }
+
         guard !startStation.isEmpty else { return }
         
         let endStation = homeStation.name
@@ -523,10 +538,6 @@ struct QuickAddHomeView: View {
             if let fare = THSRFareService.shared.getFare(from: startStation, to: endStation) {
                 price = String(fare)
                 isTransfer = false
-            }
-        case .bus:
-            if price.isEmpty {
-                price = currentRegion.defaultBusPrice(identity: currentIdentity)
             }
         default:
             break
