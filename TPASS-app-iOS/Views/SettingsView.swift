@@ -20,6 +20,10 @@ struct SettingsView: View {
     @State private var showThemeTransition = false
     @State private var selectedTheme: AppTheme?
     
+    // 開發者相關
+    @State private var isDeveloperVerified: Bool = false
+    @State private var isCheckingDeveloperStatus: Bool = false
+    
     // 教學相關
     @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
     @AppStorage("tutorialStep_v1") private var savedTutorialStep: Int = 0
@@ -261,6 +265,26 @@ struct SettingsView: View {
                     .foregroundColor(themeManager.primaryTextColor)
                 }
                 
+                // MARK: - 6. 開發者工具
+                if isDeveloperVerified {
+                    Section {
+                        NavigationLink(destination: DeveloperToolsPlaceholderView()) {
+                            HStack {
+                                Spacer()
+                                
+                                Image(systemName: "hammer.fill")
+                                    .foregroundColor(themeManager.accentColor)
+                                
+                                Text("開發者工具")
+                                    .font(.headline)
+                                    .foregroundColor(themeManager.accentColor)
+                                
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                
                 // MARK: - 7. 清除資料
                 Section {
                     Button(role: .destructive) { showClearDataAlert = true } label: {
@@ -280,6 +304,9 @@ struct SettingsView: View {
             .scrollIndicators(.hidden)
             .background(themeManager.backgroundColor)
             .scrollContentBackground(.hidden)
+            .onAppear {
+                checkDeveloperStatus()
+            }
         }
         .overlay {
             if showThemeTransition {
@@ -334,6 +361,22 @@ struct SettingsView: View {
     }
     
     // MARK: - 輔助函數
+    
+    private func checkDeveloperStatus() {
+        guard !isCheckingDeveloperStatus else { return }
+        isCheckingDeveloperStatus = true
+        
+        Task {
+            let result = await DeveloperAccessService.shared.verifyCurrentUserAccess()
+            
+            await MainActor.run {
+                isCheckingDeveloperStatus = false
+                if case .allowed = result {
+                    isDeveloperVerified = true
+                }
+            }
+        }
+    }
     
     private func triggerThemeTransition() {
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -401,6 +444,7 @@ struct SettingsView: View {
 // MARK: - 關於 App 子頁面
 struct AboutAppView: View {
     @StateObject private var themeManager = ThemeManager.shared
+    @State private var versionTapCount = 0
     @State private var authorTapCount = 0
     @State private var isCheckingDeveloperAccess = false
     @State private var isCopyingDeveloperHash = false
@@ -416,8 +460,11 @@ struct AboutAppView: View {
                 HStack {
                     Text("version")
                     Spacer()
-                    Text(appVersion)
-                        .foregroundColor(.secondary)
+                    Button(action: handleVersionTap) {
+                        Text(appVersion)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
                 Button {
                     handleAuthorTap()
@@ -472,6 +519,15 @@ struct AboutAppView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+
+    private func handleVersionTap() {
+        versionTapCount += 1
+        
+        if versionTapCount >= 10 {
+            versionTapCount = 0
+            validateDeveloperAccess()
+        }
     }
 
     private func handleAuthorTap() {
