@@ -884,7 +884,9 @@ class AppViewModel: ObservableObject {
             comps.second = second
 
             let createdAt = calendar.date(from: comps) ?? today
-            let paidPrice = paidPriceForTemplate(template)
+            let region = cycleForTrip(date: createdAt)?.region ?? AuthService.shared.currentRegion
+            let resolvedTransferDiscountType = resolvedTransferDiscountType(for: template, region: region)
+            let paidPrice = paidPriceForTemplate(template, transferDiscountType: resolvedTransferDiscountType)
 
             let cycleId = cycleForTrip(date: createdAt)?.id
             let newTrip = Trip(
@@ -900,7 +902,7 @@ class AppViewModel: ObservableObject {
                 endStation: template.endStation,
                 routeId: template.routeId,
                 note: template.note,
-                transferDiscountType: template.transferDiscountType,
+                transferDiscountType: resolvedTransferDiscountType,
                 cycleId: cycleId
             )
 
@@ -914,14 +916,54 @@ class AppViewModel: ObservableObject {
 
     // MARK: - Commuter Route Helper
     @MainActor
-    private func paidPriceForTemplate(_ template: CommuterTripTemplate) -> Int {
+    private func paidPriceForTemplate(_ template: CommuterTripTemplate, transferDiscountType: TransferDiscountType?) -> Int {
         let identity = AuthService.shared.currentUser?.identity ?? .adult
         if template.isFree { return 0 }
-        if template.isTransfer, let type = template.transferDiscountType {
+        if template.isTransfer, let type = transferDiscountType {
             let discount = type.discount(for: identity)
             return max(0, template.price - discount)
         }
         return template.price
+    }
+
+    @MainActor
+    private func resolvedTransferDiscountType(for trip: Trip, region: TPASSRegion?) -> TransferDiscountType? {
+        if let transferDiscountType = trip.transferDiscountType {
+            return transferDiscountType
+        }
+        guard trip.isTransfer, let region else { return nil }
+
+        switch region {
+        case .south:
+            if trip.type == .bike { return .kaohsiungBike }
+            if trip.type == .tra { return .tainanTraBus }
+            return .kaohsiungMrtBus
+        case .kaohsiung:
+            if trip.type == .bike { return .kaohsiungBike }
+            return .kaohsiungMrtBus
+        default:
+            return region.defaultTransferType
+        }
+    }
+
+    @MainActor
+    private func resolvedTransferDiscountType(for template: CommuterTripTemplate, region: TPASSRegion?) -> TransferDiscountType? {
+        if let transferDiscountType = template.transferDiscountType {
+            return transferDiscountType
+        }
+        guard template.isTransfer, let region else { return nil }
+
+        switch region {
+        case .south:
+            if template.type == .bike { return .kaohsiungBike }
+            if template.type == .tra { return .tainanTraBus }
+            return .kaohsiungMrtBus
+        case .kaohsiung:
+            if template.type == .bike { return .kaohsiungBike }
+            return .kaohsiungMrtBus
+        default:
+            return region.defaultTransferType
+        }
     }
     
     // MARK: - CRUD 操作 (改寫為 SwiftData)
@@ -1033,16 +1075,19 @@ class AppViewModel: ObservableObject {
     func addToCommuterRoute(from trip: Trip, name: String) {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanName.isEmpty else { return }
+
+        let region = cycleById(trip.cycleId)?.region ?? cycleForTrip(date: trip.createdAt)?.region ?? AuthService.shared.currentRegion
         
         let calendar = Calendar.current
         let comps = calendar.dateComponents([.hour, .minute, .second], from: trip.createdAt)
         let timeSeconds = (comps.hour ?? 0) * 3600 + (comps.minute ?? 0) * 60 + (comps.second ?? 0)
+        let transferDiscountType = resolvedTransferDiscountType(for: trip, region: region)
         
         let template = CommuterTripTemplate(
             type: trip.type, startStation: trip.startStation, endStation: trip.endStation,
             routeId: trip.routeId, price: trip.originalPrice, isTransfer: trip.isTransfer,
             isFree: trip.isFree, note: trip.note, timeSeconds: timeSeconds,
-            transferDiscountType: trip.transferDiscountType
+            transferDiscountType: transferDiscountType
         )
         
         if let existingRoute = commuterRoutes.first(where: { $0.name.lowercased() == cleanName.lowercased() }) {

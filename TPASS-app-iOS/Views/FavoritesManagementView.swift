@@ -456,6 +456,7 @@ struct FavoritesManagementView: View {
 // MARK: - CommuterRouteDetailView
 struct CommuterRouteDetailView: View {
         @EnvironmentObject var viewModel: AppViewModel
+        @EnvironmentObject var auth: AuthService
         @EnvironmentObject var themeManager: ThemeManager
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
@@ -481,6 +482,10 @@ struct CommuterRouteDetailView: View {
         
         private var rowBackground: Color {
             themeManager.cardBackgroundColor.opacity(themeManager.currentTheme == .dark ? 0.88 : 1)
+        }
+
+        private var currentIdentity: Identity {
+            auth.currentUser?.identity ?? .adult
         }
 
         private func tripTitleText(_ trip: CommuterTripTemplate) -> Text {
@@ -545,6 +550,16 @@ struct CommuterRouteDetailView: View {
                                         Text(trip.timeString)
                                             .font(.caption)
                                             .foregroundColor(themeManager.secondaryTextColor)
+                                        if trip.isTransfer {
+                                            Text(trip.transferDiscountType?.displayNameKey(for: currentIdentity) ?? "transfer")
+                                                .font(.caption2)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(themeManager.accentColor)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 3)
+                                                .background(themeManager.accentColor.opacity(0.15))
+                                                .cornerRadius(6)
+                                        }
                                     }
                                     
                                     Spacer()
