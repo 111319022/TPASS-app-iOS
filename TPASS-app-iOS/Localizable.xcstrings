@@ -6787,6 +6787,23 @@
         }
       }
     },
+    "plan_keelung" : {
+      "comment" : "Keelung",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keelung PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基隆"
+          }
+        }
+      }
+    },
     "plan_flexible" : {
       "localizations" : {
         "en" : {
@@ -7670,6 +7687,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台南"
+          }
+        }
+      }
+    },
+    "keelung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基隆"
           }
         }
       }

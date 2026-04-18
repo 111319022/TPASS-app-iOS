@@ -5,6 +5,8 @@ struct TPASSRegionSelectionView: View {
     
     private func descriptionKey(for region: TPASSRegion) -> LocalizedStringKey {
         switch region {
+        case .keelungOnly:
+            return "keelung"
         case .north:
             return "taipei_new_taipei_taoyuan_keelung"
         case .taoZhuZhu:

@@ -233,7 +233,7 @@ struct PlanCycleCard: View {
     
     private let regionGroups: [(title: LocalizedStringKey, regions: [TPASSRegion])] = [
         ("intro_plan_group_flexible", [.flexible]),
-        ("intro_plan_group_north", [.north, .beiYiMegaPASS, .beiYi]),
+        ("intro_plan_group_north", [.north, .keelungOnly, .beiYiMegaPASS, .beiYi]),
         ("intro_plan_group_taoyuan_hsinchu", [.taoZhuZhu, .taoZhuZhuMiao, .zhuZhuMiao]),
         ("intro_plan_group_yilan", [.yilan, .yilan3Days]),
         ("intro_plan_group_central", [.central, .centralCitizen]),

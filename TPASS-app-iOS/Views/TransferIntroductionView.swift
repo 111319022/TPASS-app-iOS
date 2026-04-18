@@ -18,6 +18,22 @@ struct TransferIntroductionView: View {
     //轉乘介紹
     private let sections: [TransferIntroSection] = [
         
+        //基隆
+        TransferIntroSection(
+            title: "plan_keelung",
+            subtitle: "keelung",
+            rules: [
+                TransferRule(
+                    leftIcon: "xmark.circle.fill",
+                    rightIcon: "",
+                    showArrow: false,
+                    title: "no_transfer_discount",
+                    detail: "keep_original_price",
+                    arrowType: .double
+                ),
+            ]
+        ),
+        
         //基北北桃
         TransferIntroSection(
             title: "plan_north",
