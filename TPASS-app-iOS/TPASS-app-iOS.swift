@@ -1,6 +1,7 @@
 import SwiftUI
 import UserNotifications
 import SwiftData
+import CloudKit
 
 @main
 struct TPASS_app_iOSApp: App {
@@ -104,6 +105,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        application.registerForRemoteNotifications()
         return true
     }
 
@@ -116,12 +118,50 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         print("APNs 註冊失敗: \(error.localizedDescription)")
     }
 
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        print("收到遠端推播 payload: \(userInfo)")
+
+        if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo) {
+            let subscriptionID = ckNotification.subscriptionID ?? "<nil>"
+            switch ckNotification.notificationType {
+            case .query:
+                print("CloudKit Query 推播，subscriptionID: \(subscriptionID)")
+            case .recordZone:
+                print("CloudKit RecordZone 推播，subscriptionID: \(subscriptionID)")
+            case .readNotification:
+                print("CloudKit ReadNotification 推播，subscriptionID: \(subscriptionID)")
+            case .database:
+                print("CloudKit Database 推播，subscriptionID: \(subscriptionID)")
+            @unknown default:
+                print("CloudKit 未知類型推播，subscriptionID: \(subscriptionID)")
+            }
+        } else {
+            print("非 CloudKit 推播 payload")
+        }
+
+        completionHandler(.newData)
+    }
+
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        print("前景收到通知: \(notification.request.content.userInfo)")
         completionHandler([.banner, .sound, .badge])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        print("使用者點擊通知: \(response.notification.request.content.userInfo)")
+        completionHandler()
     }
 }
 
