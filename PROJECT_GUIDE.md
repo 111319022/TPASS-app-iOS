@@ -19,6 +19,7 @@
 13. [測試現況與建議](#測試現況與建議)
 14. [已知限制與後續方向](#已知限制與後續方向)
 15. [日常維護清單](#日常維護清單)
+16. [CloudKit Admin 管理筆記](#cloudkit-admin-管理筆記)
 
 ---
 
@@ -302,6 +303,13 @@ CloudKit container：
 - `submitReport(content:email:)`：將回報內容、聯絡信箱、App 版本、iOS 版本寫入 `IssueReport` record（Public DB）。
 - `setupDeveloperPushNotification()`：建立 `CKQuerySubscription`（`firesOnRecordCreation`），接收新回報推播。
 - `fetchReports(limit:)`：供開發者頁讀取回報清單。
+- `updateIssueStatus(recordID:newStatus:)`：更新回報狀態（例如 `pending` -> `fixed`）。
+- `deleteIssueReport(recordID:)`：刪除指定回報。
+- `clearIssueReportNotificationMarks()`：清除回報相關通知與 App 角標。
+
+權限注意：
+- CloudKit Public Database 的管理寫入（至少包含標記回報完成狀態）需要 Admin 身分。
+- 若帳號沒有對應角色，Production 會出現 `WRITE operation not permitted`。
 
 CloudKit container：
 - `iCloud.com.tpass-app.tpasscalc`
@@ -401,7 +409,8 @@ IssueReportService.fetchReports
 - 通知文字透過 `String(localized:)` 對接 `Localizable.xcstrings`
 - 週期提醒計算依據 `Cycle.start` 與 `Cycle.end`
 - App 啟動時由 `AppDelegate` 指派 `UNUserNotificationCenter.current().delegate`
-- 前景收到遠端推播時使用 `.banner + .sound + .badge`
+- 一般通知在前景可使用 `.banner + .sound + .badge`
+- 問題回報通知已調整為不顯示 badge，並可在開發者工具清除通知標記
 
 ---
 
@@ -488,6 +497,7 @@ decode snapshots
 3. CloudKit 目前偏手動備份，不是全量自動同步模型。
 4. 票價規則分散在多個 service，可評估加入統一 registry 層降低重複邏輯。
 5. 問題回報目前僅有列表檢視，尚未提供搜尋、標記狀態與指派流程。
+5. 問題回報已支援狀態更新與刪除，但尚未提供搜尋、指派與審核流程。
 
 ---
 
@@ -525,6 +535,43 @@ decode snapshots
 2. 手動驗證週期切換、回本統計與通知排程
 3. 以實機驗證備份/還原與 CSV 匯入匯出
 4. 以實機驗證 IssueReport 提交、開發者訂閱建立與推播到達
+
+---
+
+## CloudKit Admin 管理筆記
+
+📝 [筆記] 如何在 CloudKit 新增其他管理員 (Admin)
+
+事前準備：
+請新加入的成員先下載並打開 App，然後請他發送一則「測試用的問題回報」（例如內容寫 `Test from [他的名字]`）。
+
+💡 目的：
+確保他的 Apple ID 已經在 CloudKit 建立紀錄，並且能最快反查出他那串隱藏的 User ID。
+
+步驟一：抓出該成員的 User ID
+
+1. 登入 CloudKit Console，確認左上角環境是 Production。
+2. 左側選單點選 Data -> Records。
+3. 選擇 Public Database，Record Type 選擇 IssueReport，點擊 Query Records。
+4. 找到該成員剛發送的「測試回報」，點進去。
+5. 往下滑找到系統欄位，複製 Creator 的值（一串以 `_` 開頭的代碼），這就是該成員的專屬 User ID。
+
+步驟二：賦予 Admin 權限
+
+1. 留在同一個 Data -> Records 畫面，將上方 Record Type 改選為 Users，點擊 Query Records。
+2. 使用剛剛複製的 User ID 在清單中找到該成員使用者紀錄，點擊進入編輯模式。
+3. 在畫面最下方 Roles 區塊，輸入 Admin 並新增。
+4. 點擊右上角 Save 儲存。
+
+🎉 設定完成
+
+這位新成員現在就能在 App 內執行需要 Public Database 管理寫入權限的操作。
+
+目前至少包含：
+- 標記問題回報完成狀態（`pending` -> `fixed`）
+
+補充：
+- 若尚未給 Admin 身分，操作會出現 `WRITE operation not permitted`。
 
 ---
 
