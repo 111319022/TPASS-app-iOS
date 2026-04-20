@@ -540,12 +540,12 @@ decode snapshots
 
 ## CloudKit Admin 管理筆記
 
-📝 [筆記] 如何在 CloudKit 新增其他管理員 (Admin)
+[筆記] 如何在 CloudKit 新增其他管理員 (Admin)
 
 事前準備：
 請新加入的成員先下載並打開 App，然後請他發送一則「測試用的問題回報」（例如內容寫 `Test from [他的名字]`）。
 
-💡 目的：
+目的：
 確保他的 Apple ID 已經在 CloudKit 建立紀錄，並且能最快反查出他那串隱藏的 User ID。
 
 步驟一：抓出該成員的 User ID
@@ -563,7 +563,7 @@ decode snapshots
 3. 在畫面最下方 Roles 區塊，輸入 Admin 並新增。
 4. 點擊右上角 Save 儲存。
 
-🎉 設定完成
+設定完成
 
 這位新成員現在就能在 App 內執行需要 Public Database 管理寫入權限的操作。
 
