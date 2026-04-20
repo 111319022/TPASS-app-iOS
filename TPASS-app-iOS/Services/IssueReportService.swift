@@ -87,10 +87,8 @@ final class IssueReportService {
         )
 
         let notificationInfo = CKSubscription.NotificationInfo()
-        notificationInfo.alertBody = "收到新的 TPASS 問題回報！"
-        notificationInfo.shouldSendContentAvailable = false
-        notificationInfo.shouldBadge = true
-        notificationInfo.soundName = "default"
+        notificationInfo.shouldSendContentAvailable = true
+        notificationInfo.shouldBadge = false
         subscription.notificationInfo = notificationInfo
 
         _ = try await publicDB.save(subscription)
@@ -152,7 +150,7 @@ final class IssueReportService {
         let preview = String(content.prefix(60))
 
         let notificationContent = UNMutableNotificationContent()
-        notificationContent.title = "收到新的APP問題回報！"
+        notificationContent.title = "收到新的APP問題回報（本機）！"
         notificationContent.body = preview.isEmpty ? "已送出一則新的問題回報。" : preview
         notificationContent.sound = .default
 
@@ -171,6 +169,43 @@ final class IssueReportService {
                 }
             }
         }
+    }
+
+    @MainActor
+    func clearIssueReportNotificationMarks() async throws {
+        let center = UNUserNotificationCenter.current()
+
+        let delivered = await withCheckedContinuation { (continuation: CheckedContinuation<[UNNotification], Never>) in
+            center.getDeliveredNotifications { notifications in
+                continuation.resume(returning: notifications)
+            }
+        }
+
+        let issueNotificationIDs = delivered
+            .map(\ .request.identifier)
+            .filter {
+                $0.hasPrefix("issue-report-received-") ||
+                $0.hasPrefix("issue-report-loopback-") ||
+                $0.hasPrefix("developer-local-test-")
+            }
+
+        if !issueNotificationIDs.isEmpty {
+            center.removeDeliveredNotifications(withIdentifiers: issueNotificationIDs)
+        }
+
+        if #available(iOS 16.0, *) {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                center.setBadgeCount(0) { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
+                }
+            }
+        }
+
+        UIApplication.shared.applicationIconBadgeNumber = 0
     }
 
     func runCloudKitPushSelfCheck() async -> PushSelfCheckResult {
@@ -230,6 +265,12 @@ final class IssueReportService {
         let record = try await publicDB.record(for: ckRecordID)
         record["status"] = newStatus as CKRecordValue
         _ = try await publicDB.save(record)
+    }
+
+    func deleteIssueReport(recordID: String) async throws {
+        let publicDB = CKContainer(identifier: containerIdentifier).publicCloudDatabase
+        let ckRecordID = CKRecord.ID(recordName: recordID)
+        _ = try await publicDB.deleteRecord(withID: ckRecordID)
     }
 
     func fetchReports(limit: Int = 100) async throws -> [IssueReportItem] {

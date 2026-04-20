@@ -8,10 +8,14 @@ struct DeveloperIssueReportsView: View {
     @State private var filterStatus: String = "pending"
     @State private var isLoading = false
     @State private var isUpdatingStatus = false
+    @State private var isDeleting = false
     @State private var errorMessage: String?
     @State private var selectedReport: IssueReportItem?
+    @State private var pendingDeleteReport: IssueReportItem?
     @State private var showCopiedAlert = false
     @State private var copiedMessage = ""
+    @AppStorage("issueReportNavigateToDetail") private var shouldNavigateFromNotification = false
+    @AppStorage("issueReportNavigateRecordID") private var notificationRecordID = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,6 +92,13 @@ struct DeveloperIssueReportsView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                pendingDeleteReport = report
+                            } label: {
+                                Label("刪除", systemImage: "trash")
+                            }
+                        }
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                     }
@@ -121,6 +132,24 @@ struct DeveloperIssueReportsView: View {
         } message: {
             Text(copiedMessage)
         }
+        .alert("刪除回報", isPresented: Binding(
+            get: { pendingDeleteReport != nil },
+            set: { if !$0 { pendingDeleteReport = nil } }
+        )) {
+            Button("取消", role: .cancel) {}
+            Button("刪除", role: .destructive) {
+                guard let report = pendingDeleteReport else { return }
+                Task {
+                    await deleteReport(report)
+                }
+            }
+        } message: {
+            if let report = pendingDeleteReport {
+                Text("確定要刪除這則回報嗎？此動作無法復原。\n\n\(report.content)")
+            } else {
+                Text("確定要刪除這則回報嗎？")
+            }
+        }
     }
 
     private var filteredReports: [IssueReportItem] {
@@ -135,9 +164,27 @@ struct DeveloperIssueReportsView: View {
 
         do {
             reports = try await IssueReportService.shared.fetchReports(limit: 150)
+            openNotificationTargetIfNeeded()
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func openNotificationTargetIfNeeded() {
+        guard shouldNavigateFromNotification else { return }
+
+        let targetID = notificationRecordID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !targetID.isEmpty else {
+            shouldNavigateFromNotification = false
+            return
+        }
+
+        guard let targetReport = reports.first(where: { $0.id == targetID }) else { return }
+
+        filterStatus = normalizedStatus(targetReport.status)
+        selectedReport = targetReport
+        shouldNavigateFromNotification = false
+        notificationRecordID = ""
     }
 
     private func formatDate(_ date: Date) -> String {
@@ -197,6 +244,24 @@ struct DeveloperIssueReportsView: View {
         isUpdatingStatus = false
     }
 
+    private func deleteReport(_ report: IssueReportItem) async {
+        guard !isDeleting else { return }
+        isDeleting = true
+
+        do {
+            try await IssueReportService.shared.deleteIssueReport(recordID: report.id)
+            reports.removeAll { $0.id == report.id }
+            if selectedReport?.id == report.id {
+                selectedReport = nil
+            }
+            pendingDeleteReport = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isDeleting = false
+    }
+
     @ViewBuilder
     private func reportDetailView(_ report: IssueReportItem) -> some View {
         NavigationView {
@@ -254,6 +319,24 @@ struct DeveloperIssueReportsView: View {
                         .disabled(isUpdatingStatus)
                         .tint(.green)
                     }
+                }
+
+                Section {
+                    Button(role: .destructive) {
+                        pendingDeleteReport = report
+                    } label: {
+                        HStack {
+                            Spacer()
+                            if isDeleting {
+                                ProgressView()
+                                    .scaleEffect(0.85)
+                            }
+                            Text("刪除此回報")
+                                .font(.headline)
+                            Spacer()
+                        }
+                    }
+                    .disabled(isDeleting)
                 }
             }
             .navigationTitle("回報詳細資料")

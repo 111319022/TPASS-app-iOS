@@ -100,6 +100,32 @@ struct TPASS_app_iOSApp: App {
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    private let issueReportRouteFlagKey = "issueReportNavigateToDetail"
+    private let issueReportRouteRecordIDKey = "issueReportNavigateRecordID"
+    private let issueReportOpenDeveloperToolsKey = "issueReportOpenDeveloperToolsFromNotification"
+
+    @MainActor
+    private func clearAppBadge() async {
+        if #available(iOS 16.0, *) {
+            try? await UNUserNotificationCenter.current().setBadgeCount(0)
+        }
+        UIApplication.shared.applicationIconBadgeNumber = 0
+    }
+
+    private func isIssueReportNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
+        if let recordID = userInfo["issueReportRecordID"] as? String,
+           !recordID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return true
+        }
+
+        if let subscriptionID = userInfo["issueReportSubscriptionID"] as? String,
+           subscriptionID == "developer-issue-report-subscription" {
+            return true
+        }
+
+        return false
+    }
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -127,6 +153,57 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
         if let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo) {
             let subscriptionID = ckNotification.subscriptionID ?? "<nil>"
+
+            if subscriptionID == "developer-issue-report-subscription",
+               let queryNotification = ckNotification as? CKQueryNotification {
+                Task { @MainActor in
+                    do {
+                        await clearAppBadge()
+
+                        let publicDB = CKContainer(identifier: "iCloud.com.tpass-app.tpasscalc").publicCloudDatabase
+                        guard let recordID = queryNotification.recordID else {
+                            throw NSError(domain: "IssueReportNotification", code: -1, userInfo: [NSLocalizedDescriptionKey: "缺少 recordID"])
+                        }
+
+                        let record = try await publicDB.record(for: recordID)
+                        let content = (record["content"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        let email = (record["contactEmail"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        let preview = content.isEmpty ? "使用者回報訊息為空。" : String(content.prefix(120))
+
+                        let notificationContent = UNMutableNotificationContent()
+                        notificationContent.title = "🔧收到新的 TPASS 問題回報！"
+                        notificationContent.body = preview
+                        notificationContent.sound = .default
+                        notificationContent.badge = nil
+                        notificationContent.userInfo = [
+                            "issueReportSubscriptionID": subscriptionID,
+                            "issueReportEmail": email,
+                            "issueReportContent": content,
+                            "issueReportRecordID": record.recordID.recordName
+                        ]
+
+                        let request = UNNotificationRequest(
+                            identifier: "issue-report-received-\(UUID().uuidString)",
+                            content: notificationContent,
+                            trigger: nil
+                        )
+
+                        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                            UNUserNotificationCenter.current().add(request) { error in
+                                if let error {
+                                    continuation.resume(throwing: error)
+                                } else {
+                                    continuation.resume(returning: ())
+                                }
+                            }
+                        }
+                        print("已創建本地通知，內容: \(preview)")
+                    } catch {
+                        print("建立本地通知失敗: \(error.localizedDescription)")
+                    }
+                }
+            }
+            
             switch ckNotification.notificationType {
             case .query:
                 print("CloudKit Query 推播，subscriptionID: \(subscriptionID)")
@@ -151,7 +228,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        print("前景收到通知: \(notification.request.content.userInfo)")
+        let userInfo = notification.request.content.userInfo
+        print("前景收到通知: \(userInfo)")
+
+        if isIssueReportNotification(userInfo) {
+            Task { @MainActor in
+                await clearAppBadge()
+            }
+            completionHandler([.banner, .sound])
+            return
+        }
+
         completionHandler([.banner, .sound, .badge])
     }
 
@@ -160,7 +247,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        print("使用者點擊通知: \(response.notification.request.content.userInfo)")
+        let userInfo = response.notification.request.content.userInfo
+        print("使用者點擊通知: \(userInfo)")
+
+        if let recordID = userInfo["issueReportRecordID"] as? String,
+           !recordID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            UserDefaults.standard.set(true, forKey: issueReportRouteFlagKey)
+            UserDefaults.standard.set(recordID, forKey: issueReportRouteRecordIDKey)
+            UserDefaults.standard.set(true, forKey: issueReportOpenDeveloperToolsKey)
+            print("已設定通知導頁目標: \(recordID)")
+        }
+
         completionHandler()
     }
 }

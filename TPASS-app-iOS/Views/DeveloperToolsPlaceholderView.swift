@@ -7,11 +7,13 @@ struct DeveloperToolsPlaceholderView: View {
     @State private var isSettingUpIssuePush = false
     @State private var isSendingLocalTest = false
     @State private var isRunningCloudKitCheck = false
+    @State private var isClearingNotificationMarks = false
     @State private var isPushEnabled = false
     @AppStorage("issueReportLoopbackEnabled") private var isLoopbackEnabled = false
     @State private var showSetupResultAlert = false
     @State private var setupResultTitle = ""
     @State private var setupResultMessage = ""
+    @State private var openIssueReportsFromNotification = false
 
     var body: some View {
         Form {
@@ -21,11 +23,11 @@ struct DeveloperToolsPlaceholderView: View {
                         HStack(spacing: 12) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(Color.purple.opacity(0.16))
+                                    .fill(themeManager.accentColor.opacity(0.16))
                                     .frame(width: 46, height: 46)
                                 Image(systemName: "exclamationmark.bubble.fill")
                                     .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(themeManager.accentColor)
                             }
 
                             VStack(alignment: .leading, spacing: 3) {
@@ -51,6 +53,7 @@ struct DeveloperToolsPlaceholderView: View {
                             NavigationLink(destination: DeveloperIssueReportsView()) {
                                 issueActionRow(
                                     icon: "doc.text.magnifyingglass",
+                                    iconColor: .orange,
                                     title: "查看問題回報",
                                     subtitle: "進入回報列表與狀態管理"
                                 )
@@ -67,6 +70,7 @@ struct DeveloperToolsPlaceholderView: View {
                             )) {
                                 issueToggleLabel(
                                     icon: "bell.badge",
+                                    iconColor: .blue,
                                     title: "問題回報推播",
                                     subtitle: "建立或移除 CloudKit 訂閱"
                                 )
@@ -84,6 +88,7 @@ struct DeveloperToolsPlaceholderView: View {
                                 Toggle(isOn: $isLoopbackEnabled) {
                                     issueToggleLabel(
                                         icon: "arrow.triangle.2.circlepath",
+                                        iconColor: .green,
                                         title: "同機回報通知",
                                         subtitle: "同一台裝置送出回報時立即顯示通知"
                                     )
@@ -94,6 +99,7 @@ struct DeveloperToolsPlaceholderView: View {
                                 } label: {
                                     issueActionRow(
                                         icon: "app.badge",
+                                        iconColor: .purple,
                                         title: "測試通知（2 秒後）",
                                         subtitle: "確認本機通知與權限"
                                     )
@@ -106,12 +112,26 @@ struct DeveloperToolsPlaceholderView: View {
                                 } label: {
                                     issueActionRow(
                                         icon: "icloud.and.arrow.up",
+                                        iconColor: .cyan,
                                         title: "CloudKit 推播自我檢查",
                                         subtitle: "檢查帳號、通知與訂閱狀態"
                                     )
                                 }
                                 .buttonStyle(.plain)
                                 .disabled(isRunningCloudKitCheck)
+
+                                Button {
+                                    clearIssueNotificationMarks()
+                                } label: {
+                                    issueActionRow(
+                                        icon: "checkmark.circle",
+                                        iconColor: .teal,
+                                        title: "清除所有標記",
+                                        subtitle: "清除回報通知與 App 角標"
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(isClearingNotificationMarks)
                             }
                         }
                     }
@@ -152,7 +172,14 @@ struct DeveloperToolsPlaceholderView: View {
         .background(themeManager.backgroundColor)
         .task {
             await initializePushStatus()
+            openIssueReportsIfNeeded()
         }
+        .background(
+            NavigationLink(destination: DeveloperIssueReportsView(), isActive: $openIssueReportsFromNotification) {
+                EmptyView()
+            }
+            .hidden()
+        )
         .alert("重新觸發 Intro", isPresented: $showResetIntroAlert) {
             Button("取消", role: .cancel) {}
             Button("重置並回到 Intro", role: .destructive) {
@@ -170,6 +197,14 @@ struct DeveloperToolsPlaceholderView: View {
 
     private func resetIntro() {
         auth.currentUser = nil
+    }
+
+    private func openIssueReportsIfNeeded() {
+        let pendingRecordID = UserDefaults.standard.string(forKey: "issueReportNavigateRecordID") ?? ""
+        let hasRouteFlag = UserDefaults.standard.bool(forKey: "issueReportNavigateToDetail")
+
+        guard hasRouteFlag && !pendingRecordID.isEmpty else { return }
+        openIssueReportsFromNotification = true
     }
 
     private func initializePushStatus() async {
@@ -263,13 +298,37 @@ struct DeveloperToolsPlaceholderView: View {
         }
     }
 
+    private func clearIssueNotificationMarks() {
+        guard !isClearingNotificationMarks else { return }
+        isClearingNotificationMarks = true
+
+        Task {
+            do {
+                try await IssueReportService.shared.clearIssueReportNotificationMarks()
+                isClearingNotificationMarks = false
+                setupResultTitle = "清除完成"
+                setupResultMessage = "已清除回報通知標記與 App 角標。"
+                showSetupResultAlert = true
+            } catch {
+                isClearingNotificationMarks = false
+                setupResultTitle = "清除失敗"
+                setupResultMessage = error.localizedDescription
+                showSetupResultAlert = true
+            }
+        }
+    }
+
     private func issueActionRow(
         icon: String,
+        iconColor: Color,
         title: String,
         subtitle: String
     ) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            issueIconBadge(icon: icon)
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(iconColor)
+                .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -284,21 +343,21 @@ struct DeveloperToolsPlaceholderView: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(themeManager.cardBackgroundColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(themeManager.accentColor.opacity(0.12), lineWidth: 1)
-                )
+                .fill(Color.white.opacity(0.45))
         )
     }
 
     private func issueToggleLabel(
         icon: String,
+        iconColor: Color,
         title: String,
         subtitle: String
     ) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            issueIconBadge(icon: icon)
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(iconColor)
+                .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -309,19 +368,6 @@ struct DeveloperToolsPlaceholderView: View {
                     .foregroundColor(.secondary)
             }
         }
-    }
-
-    private func issueIconBadge(icon: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(themeManager.accentColor.opacity(0.12))
-                .frame(width: 30, height: 30)
-
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(themeManager.accentColor)
-        }
-        .frame(width: 34, height: 34)
     }
 }
 

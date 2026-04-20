@@ -12,6 +12,7 @@ struct MainTabView: View {
     
     // 控制預設選中的頁籤
     @SceneStorage("mainTab.selectedTab") private var selectedTab: Int = 0
+    @AppStorage("issueReportOpenDeveloperToolsFromNotification") private var openDeveloperToolsFromNotification = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -56,5 +57,15 @@ struct MainTabView: View {
         }
         // 2. 修改：改用 ThemeManager 的顏色
         .accentColor(themeManager.accentColor)
+        .onAppear {
+            if openDeveloperToolsFromNotification {
+                selectedTab = 4
+            }
+        }
+        .onChange(of: openDeveloperToolsFromNotification) { _, shouldOpen in
+            if shouldOpen {
+                selectedTab = 4
+            }
+        }
     }
 }

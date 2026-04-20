@@ -23,6 +23,8 @@ struct SettingsView: View {
     // 開發者相關
     @State private var isDeveloperVerified: Bool = false
     @State private var isCheckingDeveloperStatus: Bool = false
+    @AppStorage("issueReportOpenDeveloperToolsFromNotification") private var openDeveloperToolsFromNotification = false
+    @State private var openDeveloperToolsRoute = false
     
     // 教學相關
     @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
@@ -306,7 +308,17 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .onAppear {
                 checkDeveloperStatus()
+                if openDeveloperToolsFromNotification {
+                    openDeveloperToolsRoute = true
+                    openDeveloperToolsFromNotification = false
+                }
             }
+            .background(
+                NavigationLink(destination: DeveloperToolsPlaceholderView(), isActive: $openDeveloperToolsRoute) {
+                    EmptyView()
+                }
+                .hidden()
+            )
         }
         .overlay {
             if showThemeTransition {
