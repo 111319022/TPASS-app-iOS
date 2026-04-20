@@ -217,6 +217,12 @@
     "|" : {
 
     },
+    "⏳ 已等待 %lld 天" : {
+
+    },
+    "✅ 標記為已修復" : {
+
+    },
     "$" : {
 
     },
@@ -5833,6 +5839,22 @@
         }
       }
     },
+    "keelung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keelung"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基隆"
+          }
+        }
+      }
+    },
     "keep_original_price" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6787,23 +6809,6 @@
         }
       }
     },
-    "plan_keelung" : {
-      "comment" : "Keelung",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keelung PASS"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "基隆"
-          }
-        }
-      }
-    },
     "plan_flexible" : {
       "localizations" : {
         "en" : {
@@ -6832,6 +6837,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "高雄"
+          }
+        }
+      }
+    },
+    "plan_keelung" : {
+      "comment" : "Keelung",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keelung PASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基隆"
           }
         }
       }
@@ -7687,22 +7709,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台南"
-          }
-        }
-      }
-    },
-    "keelung" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keelung"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "基隆"
           }
         }
       }
@@ -9584,6 +9590,9 @@
     "可導入" : {
 
     },
+    "問題回報推播" : {
+
+    },
     "問題回報紀錄" : {
 
     },
@@ -9596,6 +9605,9 @@
     "尚無問題回報" : {
 
     },
+    "已修復" : {
+
+    },
     "已複製" : {
 
     },
@@ -9605,13 +9617,13 @@
     "建立時間" : {
 
     },
+    "待處理" : {
+
+    },
     "悠遊卡交易查詢" : {
 
     },
     "截取結果" : {
-
-    },
-    "啟用問題回報推播" : {
 
     },
     "會清除目前登入狀態並立即顯示 Intro，不會刪除 local_user。" : {
@@ -9646,7 +9658,13 @@
     "清理行程" : {
 
     },
+    "狀態" : {
+
+    },
     "目前沒有可清理的行程" : {
+
+    },
+    "目前沒有符合狀態的回報" : {
 
     },
     "目前還沒有使用者送出回報。" : {
@@ -9659,6 +9677,9 @@
 
     },
     "確認匯入" : {
+
+    },
+    "等待天數" : {
 
     },
     "系統資訊" : {
@@ -9680,6 +9701,9 @@
 
     },
     "複製完成" : {
+
+    },
+    "請切換上方狀態查看其他紀錄。" : {
 
     },
     "請重新啟動 App，或稍後再試。" : {

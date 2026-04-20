@@ -10,6 +10,14 @@ struct IssueReportItem: Identifiable {
     let appVersion: String
     let iOSVersion: String
     let createdAt: Date
+    let status: String
+
+    var daysElapsed: Int {
+        let calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: createdAt)
+        let endDate = calendar.startOfDay(for: Date())
+        return max(calendar.dateComponents([.day], from: startDate, to: endDate).day ?? 0, 0)
+    }
 }
 
 final class IssueReportService {
@@ -38,6 +46,7 @@ final class IssueReportService {
         record["contactEmail"] = trimmedEmail as CKRecordValue
         record["appVersion"] = appVersion as CKRecordValue
         record["iOSVersion"] = iOSVersion as CKRecordValue
+        record["status"] = "pending" as CKRecordValue
 
         _ = try await publicDB.save(record)
     }
@@ -67,6 +76,30 @@ final class IssueReportService {
 
         _ = try await publicDB.save(subscription)
         UIApplication.shared.registerForRemoteNotifications()
+    }
+
+    func checkSubscriptionStatus() async throws -> Bool {
+        let publicDB = CKContainer(identifier: containerIdentifier).publicCloudDatabase
+
+        do {
+            _ = try await publicDB.subscription(for: subscriptionID)
+            return true
+        } catch let error as CKError where error.code == .unknownItem {
+            return false
+        }
+    }
+
+    func removeDeveloperPushNotification() async throws {
+        let publicDB = CKContainer(identifier: containerIdentifier).publicCloudDatabase
+        _ = try await publicDB.deleteSubscription(withID: subscriptionID)
+    }
+
+    func updateIssueStatus(recordID: String, newStatus: String) async throws {
+        let publicDB = CKContainer(identifier: containerIdentifier).publicCloudDatabase
+        let ckRecordID = CKRecord.ID(recordName: recordID)
+        let record = try await publicDB.record(for: ckRecordID)
+        record["status"] = newStatus as CKRecordValue
+        _ = try await publicDB.save(record)
     }
 
     func fetchReports(limit: Int = 100) async throws -> [IssueReportItem] {
@@ -106,6 +139,7 @@ final class IssueReportService {
         let email = (record["contactEmail"] as? String) ?? (record["email"] as? String) ?? ""
         let appVersion = (record["appVersion"] as? String) ?? "-"
         let iOSVersion = (record["iOSVersion"] as? String) ?? "-"
+        let status = (record["status"] as? String) ?? "pending"
         let createdAt =
             (record["createdAt"] as? Date) ??
             record.creationDate ??
@@ -118,7 +152,8 @@ final class IssueReportService {
             email: email,
             appVersion: appVersion,
             iOSVersion: iOSVersion,
-            createdAt: createdAt
+            createdAt: createdAt,
+            status: status
         )
     }
 }

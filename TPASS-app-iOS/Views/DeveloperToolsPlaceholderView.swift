@@ -5,6 +5,8 @@ struct DeveloperToolsPlaceholderView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @State private var showResetIntroAlert = false
     @State private var isSettingUpIssuePush = false
+    @State private var isPushEnabled = false
+    @State private var isUpdatingPushToggleProgrammatically = false
     @State private var showSetupResultAlert = false
     @State private var setupResultTitle = ""
     @State private var setupResultMessage = ""
@@ -21,26 +23,14 @@ struct DeveloperToolsPlaceholderView: View {
                     }
                 }
 
-                Button {
-                    setupIssueReportPush()
-                } label: {
+                Toggle(isOn: $isPushEnabled) {
                     HStack {
                         Image(systemName: "bell.badge")
                             .foregroundColor(.blue)
-                        Text("啟用問題回報推播")
+                        Text("問題回報推播")
                             .foregroundColor(themeManager.primaryTextColor)
-                        Spacer()
-                        if isSettingUpIssuePush {
-                            ProgressView()
-                                .scaleEffect(0.85)
-                        } else {
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
                     }
                 }
-                .buttonStyle(.plain)
                 .disabled(isSettingUpIssuePush)
 
                 Button {
@@ -64,6 +54,14 @@ struct DeveloperToolsPlaceholderView: View {
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .background(themeManager.backgroundColor)
+        .task {
+            await initializePushStatus()
+        }
+        .onChange(of: isPushEnabled) { _, newValue in
+            Task {
+                await handlePushToggleChange(newValue)
+            }
+        }
         .alert("重新觸發 Intro", isPresented: $showResetIntroAlert) {
             Button("取消", role: .cancel) {}
             Button("重置並回到 Intro", role: .destructive) {
@@ -83,27 +81,50 @@ struct DeveloperToolsPlaceholderView: View {
         auth.currentUser = nil
     }
 
-    private func setupIssueReportPush() {
+    private func initializePushStatus() async {
         guard !isSettingUpIssuePush else { return }
         isSettingUpIssuePush = true
 
-        Task {
-            do {
+        do {
+            let enabled = try await IssueReportService.shared.checkSubscriptionStatus()
+            isUpdatingPushToggleProgrammatically = true
+            isPushEnabled = enabled
+            isUpdatingPushToggleProgrammatically = false
+            isSettingUpIssuePush = false
+        } catch {
+            isSettingUpIssuePush = false
+            setupResultTitle = "初始化失敗"
+            setupResultMessage = error.localizedDescription
+            showSetupResultAlert = true
+        }
+    }
+
+    private func handlePushToggleChange(_ isEnabled: Bool) async {
+        guard !isUpdatingPushToggleProgrammatically else { return }
+        guard !isSettingUpIssuePush else { return }
+        isSettingUpIssuePush = true
+
+        do {
+            if isEnabled {
                 try await IssueReportService.shared.setupDeveloperPushNotification()
-                await MainActor.run {
-                    isSettingUpIssuePush = false
-                    setupResultTitle = "設定完成"
-                    setupResultMessage = "已建立 IssueReport 的開發者推播訂閱。"
-                    showSetupResultAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isSettingUpIssuePush = false
-                    setupResultTitle = "設定失敗"
-                    setupResultMessage = error.localizedDescription
-                    showSetupResultAlert = true
-                }
+                setupResultTitle = "設定成功"
+                setupResultMessage = "已建立 IssueReport 的開發者推播訂閱。"
+            } else {
+                try await IssueReportService.shared.removeDeveloperPushNotification()
+                setupResultTitle = "移除成功"
+                setupResultMessage = "已移除 IssueReport 的開發者推播訂閱。"
             }
+
+            isSettingUpIssuePush = false
+            showSetupResultAlert = true
+        } catch {
+            isUpdatingPushToggleProgrammatically = true
+            isPushEnabled.toggle()
+            isUpdatingPushToggleProgrammatically = false
+            isSettingUpIssuePush = false
+            setupResultTitle = "設定失敗"
+            setupResultMessage = error.localizedDescription
+            showSetupResultAlert = true
         }
     }
 }
