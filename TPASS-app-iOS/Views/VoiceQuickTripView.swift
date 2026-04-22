@@ -513,8 +513,8 @@ struct VoiceQuickTripView: View {
                     .foregroundColor(themeManager.primaryTextColor)
             }
         }
-        .onChange(of: editedStartStation) { _, _ in autoFillFare() }
-        .onChange(of: editedEndStation) { _, _ in autoFillFare() }
+        .onChange(of: editedStartStation) { _, _ in handleStationFieldsChanged() }
+        .onChange(of: editedEndStation) { _, _ in handleStationFieldsChanged() }
         .onChange(of: editedRouteId) { _, _ in autoFillFare() }
     }
     
@@ -975,6 +975,7 @@ struct VoiceQuickTripView: View {
         // 設定站名
         editedStartStation = newDraft.startStation ?? ""
         editedEndStation = newDraft.endStation ?? ""
+        applyParsedSelectionMetadata()
         
         // 設定台中捷運預設線路
         if newDraft.transportType == .tcmrt {
@@ -1011,6 +1012,84 @@ struct VoiceQuickTripView: View {
             if parsed.isHighConfidence {
                 HapticManager.shared.notification(type: .success)
             }
+        }
+    }
+
+    /// 站點變更後，先推回線路再做查價
+    private func handleStationFieldsChanged() {
+        guard !isPopulatingFromParse else { return }
+        applyParsedSelectionMetadata()
+        autoFillFare()
+    }
+
+    /// 根據目前運具與站點回填線路/區域等輔助欄位
+    private func applyParsedSelectionMetadata() {
+        guard let type = editedTransportType else { return }
+
+        switch type {
+        case .mrt:
+            if let startLine = StationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
+                editedStartLineCode = startLine.code
+            }
+            if let endLine = StationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
+                editedEndLineCode = endLine.code
+            }
+
+        case .kmrt:
+            if let startLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
+                editedStartLineCode = startLine.code
+            }
+            if let endLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
+                editedEndLineCode = endLine.code
+            }
+
+        case .tcmrt:
+            if let startLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
+                editedStartLineCode = startLine.code
+            } else if editedStartLineCode.isEmpty {
+                editedStartLineCode = "GREEN"
+            }
+
+            if let endLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
+                editedEndLineCode = endLine.code
+            } else if editedEndLineCode.isEmpty {
+                editedEndLineCode = editedStartLineCode.isEmpty ? "GREEN" : editedStartLineCode
+            }
+
+        case .lrt:
+            let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
+            if let startLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == editedStartStation }) }) {
+                editedStartLineCode = startLine.code
+            } else if let endLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == editedEndStation }) }) {
+                editedStartLineCode = endLine.code
+            }
+
+            if !editedStartLineCode.isEmpty {
+                editedEndLineCode = editedStartLineCode
+            }
+
+        case .tra:
+            if let startId = TRAStationData.shared.resolveStationID(editedStartStation) {
+                editedStartStation = startId
+            }
+            if let endId = TRAStationData.shared.resolveStationID(editedEndStation) {
+                editedEndStation = endId
+            }
+
+            let regions = availableTRARegions
+            if let startRegion = regions.first(where: { region in
+                region.stations.contains(where: { $0.id == editedStartStation })
+            }) {
+                startTRARegion = startRegion
+            }
+            if let endRegion = regions.first(where: { region in
+                region.stations.contains(where: { $0.id == editedEndStation })
+            }) {
+                endTRARegion = endRegion
+            }
+
+        default:
+            break
         }
     }
     

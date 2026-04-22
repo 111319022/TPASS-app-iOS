@@ -64,8 +64,20 @@ struct TripVoiceParser {
     // MARK: - 站名別名映射
     private static let stationAliases: [String: String] = [
         "北車": "台北車站",
+        "台北車": "台北車站",
+        "臺北車": "台北車站",
+        "台北車站": "台北車站",
+        "台北": "臺北",
+        "台北站": "臺北",
         "臺北車站": "台北車站",
+        "臺北站": "臺北",
         "台北火車站": "台北車站",
+        "台中": "臺中",
+        "台中站": "臺中",
+        "台南": "臺南",
+        "台南站": "臺南",
+        "台東": "臺東",
+        "台東站": "臺東",
         "板橋車站": "板橋",
         "桃園高鐵站": "高鐵桃園站",
         "桃園高鐵": "高鐵桃園站",
@@ -363,9 +375,19 @@ struct TripVoiceParser {
                 startName = removeTransportKeywords(startName)
                 endName = removeTransportKeywords(endName)
                 
+                // 清理前後噪音詞與路線號碼（常見於「公車207 XXX 到 YYY」）
+                startName = sanitizeStationCandidate(startName, transport: transport)
+                endName = sanitizeStationCandidate(endName, transport: transport)
+                
                 // 套用站名別名
                 startName = resolveStationAlias(startName)
                 endName = resolveStationAlias(endName)
+                
+                // 台鐵站名統一成資料庫可識別格式（例如 台北 -> 臺北）
+                if transport == .tra {
+                    startName = normalizeTRAStationName(startName)
+                    endName = normalizeTRAStationName(endName)
+                }
                 
                 // 驗證站名（嘗試在站名資料庫中找到）
                 guard !startName.isEmpty, !endName.isEmpty else { continue }
@@ -391,14 +413,45 @@ struct TripVoiceParser {
     
     private static func removeTransportKeywords(_ text: String) -> String {
         var result = text
-        let keywords = ["搭", "坐", "搭乘", "坐了", "搭了", "捷運", "公車", "火車", "高鐵", "台鐵", "客運", "輕軌"]
+        let keywords = ["搭", "坐", "搭乘", "坐了", "搭了", "捷運", "公車", "火車", "高鐵", "台鐵", "臺鐵", "客運", "輕軌"]
         for keyword in keywords {
             result = result.replacingOccurrences(of: keyword, with: "")
         }
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    private static func sanitizeStationCandidate(_ text: String, transport: TransportType?) -> String {
+        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !result.isEmpty else { return result }
+
+        // 常見前綴詞去除
+        let leadingWords = ["從", "由", "在", "自", "搭", "坐"]
+        for word in leadingWords where result.hasPrefix(word) {
+            result.removeFirst(word.count)
+            result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // 公車/客運常見「路線號 + 站名」格式
+        if transport == .bus || transport == .coach {
+            let routePrefix = try? NSRegularExpression(pattern: "^[A-Za-z0-9]{1,6}(路|號)?", options: [])
+            if let routePrefix {
+                let nsRange = NSRange(result.startIndex..., in: result)
+                if let match = routePrefix.firstMatch(in: result, options: [], range: nsRange),
+                   let range = Range(match.range, in: result) {
+                    result.removeSubrange(range)
+                    result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+            }
+        }
+
+        return result
+    }
     
     private static func resolveStationAlias(_ name: String) -> String {
+        if let exactAlias = stationAliases[name] {
+            return exactAlias
+        }
+
         // 移除尾部的「站」字（很多人會說「台北車站站」）
         var cleaned = name
         if cleaned.hasSuffix("站") && cleaned.count > 2 {
@@ -414,6 +467,16 @@ struct TripVoiceParser {
         
         return stationAliases[cleaned] ?? cleaned
     }
+
+    private static func normalizeTRAStationName(_ name: String) -> String {
+        var normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if normalized.hasSuffix("站") && normalized.count > 1 {
+            normalized = String(normalized.dropLast())
+        }
+        // 台鐵資料多使用「臺」
+        normalized = normalized.replacingOccurrences(of: "台", with: "臺")
+        return normalized
+    }
     
     /// 驗證站名是否存在於已知站名資料庫
     @MainActor
@@ -428,6 +491,11 @@ struct TripVoiceParser {
             return TCMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) })
         case .kmrt:
             return KMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) })
+        case .bus, .coach:
+            // 公車/客運站名通常是自由文字，避免誤判為低信心
+            return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        case .tra:
+            return TRAStationData.shared.resolveStationID(normalizeTRAStationName(name)) != nil
         case .hsr:
             return HSRStationData.shared.line.stations.contains(name)
         default:
@@ -436,6 +504,7 @@ struct TripVoiceParser {
             if TYMRTStationData.shared.line.stations.contains(name) { return true }
             if TCMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
             if KMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
+            if TRAStationData.shared.resolveStationID(normalizeTRAStationName(name)) != nil { return true }
             if HSRStationData.shared.line.stations.contains(name) { return true }
             return false
         }
