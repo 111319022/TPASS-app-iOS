@@ -10,25 +10,33 @@ struct CyclesView: View {
     @State private var showFlexibleCycleSheet = false  // 彈性記帳週期的新增頁面
     
     private var currentCycles: [Cycle] {
-        let now = Date()
+        let today = Calendar.current.startOfDay(for: Date())
         return (auth.currentUser?.cycles ?? [])
             .filter { cycle in
-                cycle.start <= now && cycle.end >= now
+                let startDay = Calendar.current.startOfDay(for: cycle.start)
+                let endDay = Calendar.current.startOfDay(for: cycle.end)
+                return startDay <= today && endDay >= today
             }
             .sorted { $0.start < $1.start }
     }
     
     private var futureCycles: [Cycle] {
-        let now = Date()
+        let today = Calendar.current.startOfDay(for: Date())
         return (auth.currentUser?.cycles ?? [])
-            .filter { $0.start > now }
+            .filter { cycle in
+                let startDay = Calendar.current.startOfDay(for: cycle.start)
+                return startDay > today
+            }
             .sorted { $0.start < $1.start }
     }
     
     private var pastCycles: [Cycle] {
-        let now = Date()
+        let today = Calendar.current.startOfDay(for: Date())
         return (auth.currentUser?.cycles ?? [])
-            .filter { $0.end < now }
+            .filter { cycle in
+                let endDay = Calendar.current.startOfDay(for: cycle.end)
+                return endDay < today
+            }
             .sorted { $0.start > $1.start }
     }
     
