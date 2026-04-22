@@ -50,6 +50,9 @@ struct VoiceQuickTripView: View {
     // 解析中旗標，避免 onChange 清空站名
     @State private var isPopulatingFromParse: Bool = false
     
+    // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
+    @State private var didSaveTrip: Bool = false
+    
     var onSuccess: (() -> Void)? = nil
     
     private var currentRegion: TPASSRegion {
@@ -161,6 +164,18 @@ struct VoiceQuickTripView: View {
         }
         .onAppear {
             checkPermissions()
+        }
+        .onDisappear {
+            // 有成功解析出 draft 但使用者未儲存就離開 → 上傳 abandoned 紀錄
+            if let abandonedDraft = draft, !didSaveTrip {
+                let transcript = abandonedDraft.originalTranscript
+                Task {
+                    await VoiceParseLogService.shared.logAbandonedParse(
+                        originalTranscript: transcript,
+                        draft: abandonedDraft
+                    )
+                }
+            }
         }
     }
     
@@ -1193,6 +1208,7 @@ struct VoiceQuickTripView: View {
         
         viewModel.addTrip(newTrip)
         HapticManager.shared.notification(type: .success)
+        didSaveTrip = true
         
         // 背景上傳語音解析修正紀錄（不阻塞主流程）
         if let currentDraft = draft {

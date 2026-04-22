@@ -13,7 +13,7 @@ import CloudKit
 ///
 /// **Record Type**: `VoiceParseLog`
 /// **欄位**:
-/// - `status` (String): "success" | "failed" — 區分成功儲存與辨識失敗
+/// - `status` (String): "success" | "failed" | "abandoned" — 區分成功儲存、辨識失敗、辨識成功但放棄儲存
 /// - `failureReason` (String): 失敗原因（僅 status=failed 時有值）
 ///   可能值: "empty_transcript", "multi_segment", "low_confidence", "missing_fields"
 /// - `originalTranscript` (String): 原始語音轉寫文字
@@ -118,6 +118,37 @@ final class VoiceParseLogService {
         } catch {
             #if DEBUG
             print("[VoiceParseLog] 失敗紀錄上傳失敗: \(error.localizedDescription)")
+            #endif
+        }
+    }
+    
+    /// 上傳「已辨識但使用者放棄儲存」的紀錄
+    ///
+    /// 當使用者成功進入預覽階段（draft 不為 nil）但最終關閉選單未儲存時呼叫。
+    /// status = "abandoned"，finalResult 留空。
+    ///
+    /// - Parameters:
+    ///   - originalTranscript: 原始語音轉寫文字
+    ///   - draft: 解析產生的 VoiceDraft
+    func logAbandonedParse(
+        originalTranscript: String,
+        draft: VoiceDraft
+    ) async {
+        do {
+            let record = buildBaseRecord(
+                transcript: originalTranscript,
+                draft: draft
+            )
+            
+            record["status"] = "abandoned" as CKRecordValue
+            record["failureReason"] = "" as CKRecordValue
+            record["finalResult"] = "" as CKRecordValue
+            record["isCorrected"] = 0 as CKRecordValue
+            
+            _ = try await publicDatabase.save(record)
+        } catch {
+            #if DEBUG
+            print("[VoiceParseLog] 放棄紀錄上傳失敗: \(error.localizedDescription)")
             #endif
         }
     }
