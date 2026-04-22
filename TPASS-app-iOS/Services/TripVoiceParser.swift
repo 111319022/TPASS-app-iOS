@@ -525,14 +525,17 @@ struct TripVoiceParser {
     // MARK: - 起迄站抽取
     
     private static func extractStations(_ text: String, transport: TransportType?) -> (String?, String?, Double) {
+        // 先從文字中移除時間詞彙，避免時間被誤認為站名
+        let textWithoutTime = removeTimeExpressions(text)
+        
         for rule in rules.stationPatterns {
             guard let regex = try? NSRegularExpression(pattern: rule.regex, options: []) else { continue }
-            let nsRange = NSRange(text.startIndex..., in: text)
-            if let match = regex.firstMatch(in: text, options: [], range: nsRange),
-               let startRange = Range(match.range(at: 1), in: text),
-               let endRange = Range(match.range(at: 2), in: text) {
-                var startName = String(text[startRange]).trimmingCharacters(in: .whitespacesAndNewlines)
-                var endName = String(text[endRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let nsRange = NSRange(textWithoutTime.startIndex..., in: textWithoutTime)
+            if let match = regex.firstMatch(in: textWithoutTime, options: [], range: nsRange),
+               let startRange = Range(match.range(at: 1), in: textWithoutTime),
+               let endRange = Range(match.range(at: 2), in: textWithoutTime) {
+                var startName = String(textWithoutTime[startRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+                var endName = String(textWithoutTime[endRange]).trimmingCharacters(in: .whitespacesAndNewlines)
                 
                 // 移除運具關鍵字
                 startName = removeTransportKeywords(startName)
@@ -758,6 +761,53 @@ struct TripVoiceParser {
             if HSRStationData.shared.line.stations.contains(name) { return true }
             return false
         }
+    }
+    
+    // MARK: - 時間表達式移除
+    
+    /// 從文字中移除所有時間相關表達式（日期+時間）
+    /// 避免「到科技大樓今天下午3:30」中的時間被誤認為站名
+    private static func removeTimeExpressions(_ text: String) -> String {
+        var result = text
+        
+        // 移除「日期+時段+時間」組合
+        // 例如：「今天下午 3:30」「明天中午 12:30」「2026年4月22日 03:30」
+        let timeExpressionPatterns = [
+            // 相對日期 + 時段 + 時間
+            "(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            // 相對日期 + 時段（無時間數字）
+            "(?:昨天|今天|明天|後天|前天|大前天)\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
+            // 時段 + 時間（無日期）
+            "(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            // ISO 格式日期 + 時間
+            "\\d{4}年\\d{1,2}月\\d{1,2}日\\s*\\d{1,2}\\s*(?::|點)\\s*\\d{1,2}",
+            // 純時間格式（HH:MM 或 HH點MM分）
+            "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            // 相對日期單獨出現
+            "(?:昨天|今天|明天|後天|前天|大前天)",
+            // 月日格式
+            "\\d{1,2}月\\d{1,2}日"
+        ]
+        
+        for pattern in timeExpressionPatterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { continue }
+            let nsRange = NSRange(result.startIndex..., in: result)
+            
+            // 迭代移除所有匹配（從後往前，避免位置偏移）
+            let matches = regex.matches(in: result, options: [], range: nsRange).reversed()
+            for match in matches {
+                if let range = Range(match.range, in: result) {
+                    result.removeSubrange(range)
+                }
+            }
+        }
+        
+        // 連續空格合併
+        while result.contains("  ") {
+            result = result.replacingOccurrences(of: "  ", with: " ")
+        }
+        
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     // MARK: - 時間抽取
