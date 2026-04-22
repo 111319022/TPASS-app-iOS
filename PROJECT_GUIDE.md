@@ -4,25 +4,212 @@
 
 ## 目錄
 
-1. [架構總覽](#架構總覽)
-2. [App 啟動流程](#app-啟動流程)
-3. [資料模型 (SwiftData + UserDefaults)](#資料模型-swiftdata--userdefaults)
-4. [資料來源與 JSON 結構](#資料來源與-json-結構)
-5. [TPASS 方案與運具規則](#tpass-方案與運具規則)
-6. [計價與折抵流程](#計價與折抵流程)
-7. [ViewModel 層](#viewmodel-層)
-8. [Service 層](#service-層)
-9. [View 層](#view-層)
-10. [語音快速新增功能](#語音快速新增功能)
-11. [主題與通知系統](#主題與通知系統)
-12. [備份、還原與匯入匯出](#備份還原與匯入匯出)
-13. [遷移與相容策略](#遷移與相容策略)
-14. [測試現況與建議](#測試現況與建議)
-15. [已知限制與後續方向](#已知限制與後續方向)
-16. [日常維護清單](#日常維護清單)
-17. [CloudKit Admin 管理筆記](#cloudkit-admin-管理筆記)
+1. [專案全域檔案架構圖（檔案級）](#專案全域檔案架構圖檔案級)
+2. [架構總覽](#架構總覽)
+3. [App 啟動流程](#app-啟動流程)
+4. [資料模型 (SwiftData + UserDefaults)](#資料模型-swiftdata--userdefaults)
+5. [資料來源與 JSON 結構](#資料來源與-json-結構)
+6. [TPASS 方案與運具規則](#tpass-方案與運具規則)
+7. [計價與折抵流程](#計價與折抵流程)
+8. [ViewModel 層](#viewmodel-層)
+9. [Service 層](#service-層)
+10. [View 層](#view-層)
+11. [語音快速新增功能](#語音快速新增功能)
+12. [主題與通知系統](#主題與通知系統)
+13. [備份、還原與匯入匯出](#備份還原與匯入匯出)
+14. [遷移與相容策略](#遷移與相容策略)
+15. [測試現況與建議](#測試現況與建議)
+16. [已知限制與後續方向](#已知限制與後續方向)
+17. [日常維護清單](#日常維護清單)
+18. [CloudKit Admin 管理筆記](#cloudkit-admin-管理筆記)
 
 ---
+
+## 專案全域檔案架構圖（檔案級）
+
+依你需求，本節改為「每個區塊獨立架構圖」，並在每張架構圖後直接附上功能說明。
+
+### Py_Data_Convert/
+
+```text
+Py_Data_Convert/
+├── TRAConvertFare_v9.py
+├── TRAConvertStations.py
+└── csv_to_json.py
+```
+
+功能：
+- `TRAConvertFare_v9.py`：台鐵票價原始資料轉換與清理。
+- `TRAConvertStations.py`：台鐵站點資料正規化與匯整。
+- `csv_to_json.py`：通用 CSV -> JSON 轉檔工具。
+
+### TPASS-app-iOS/
+
+```text
+TPASS-app-iOS/
+├── Assets.xcassets/
+│   ├── Contents.json
+│   ├── AppIcon.appiconset/Contents.json
+│   ├── AppIcon.appiconset/工作區域 1.png
+│   ├── icon.imageset/Contents.json
+│   └── icon.imageset/工作區域 1_rounded.png
+├── Data/
+│   ├── New_FareData/
+│   │   ├── KLRT_Fare.json
+│   │   ├── KMRT_Fare.json
+│   │   ├── NTALRT_Fare.json
+│   │   ├── NTDLRT_Fare.json
+│   │   ├── TCMRT_Fare.json
+│   │   ├── TPEMRT_Fare.json
+│   │   └── TYMRT_Fare.json
+│   ├── New_StationData/
+│   │   ├── KLRT_StationData.json
+│   │   ├── KMRTStationData.swift
+│   │   ├── KMRT_StationData.json
+│   │   ├── LRTStationData.swift
+│   │   ├── NTALRT_StationData.json
+│   │   ├── NTDLRT_StationData.json
+│   │   ├── NTPCMRT_StationData.json
+│   │   ├── StationData.swift
+│   │   ├── TCMRTStationData.swift
+│   │   ├── TCMRT_StationData.json
+│   │   ├── TPEMRT_StationData.json
+│   │   ├── TYMRTStationData.swift
+│   │   └── TYMRT_StationData.json
+│   ├── StationData/
+│   │   ├── HSRStationData.swift
+│   │   ├── TRAStationData.swift
+│   │   └── TRAStations.json
+│   └── VoiceNLP/
+│       └── VoiceNLP_Rules.json
+├── Helpers/
+│   └── MigrationManager.swift
+├── Models/
+│   ├── AllTripsCleanupView.swift
+│   ├── Enums.swift
+│   ├── LRTModels.swift
+│   ├── SwiftDataModels.swift
+│   ├── TPASSModelSchema.swift
+│   ├── TPASSRegion.swift
+│   ├── User.swift
+│   └── VoiceDraft.swift
+├── Services/
+│   ├── AuthService.swift
+│   ├── CSVManager.swift
+│   ├── CloudKitSyncService.swift
+│   ├── DeveloperAccessService.swift
+│   ├── HapticManager.swift
+│   ├── IssueReportService.swift
+│   ├── NotificationManager.swift
+│   ├── ThemeManager.swift
+│   ├── TripVoiceParser.swift
+│   ├── VoiceInputService.swift
+│   ├── VoiceParseLogService.swift
+│   ├── FareServices/
+│   │   ├── THSRFareService.swift
+│   │   ├── TRAFareService.swift
+│   │   └── TRA_Fares_Fixed.sqlite
+│   └── New_FareServices/
+│       ├── KMRTFareService.swift
+│       ├── LRTFareService.swift
+│       ├── TCMRTFareService.swift
+│       ├── TPEMRTFareService.swift
+│       └── TYMRTFareService.swift
+├── ViewModels/
+│   └── AppViewModel.swift
+├── Views/
+│   ├── AddTripView.swift
+│   ├── BackupManagementView.swift
+│   ├── CSVManagementView.swift
+│   ├── CardScannerView.swift
+│   ├── CommuterRoutePickerOverlay.swift
+│   ├── CyclesView.swift
+│   ├── DashboardView.swift
+│   ├── DeveloperIssueReportsView.swift
+│   ├── DeveloperToolsPlaceholderView.swift
+│   ├── EditTripView.swift
+│   ├── FavoritesManagementView.swift
+│   ├── HomeStationSettingsView.swift
+│   ├── IntroView.swift
+│   ├── MainTabView.swift
+│   ├── NotificationSettingsView.swift
+│   ├── OutboundStationSettingsView.swift
+│   ├── QuickAddHomeView.swift
+│   ├── QuickAddOutboundView.swift
+│   ├── ReportIssueView.swift
+│   ├── SettingsView.swift
+│   ├── SpotlightTutorialView.swift
+│   ├── TPASSRegionSelectionView.swift
+│   ├── TransferIntroductionView.swift
+│   ├── TransferTypeSelectionView.swift
+│   ├── TripListView.swift
+│   ├── ViewFrameKey.swift
+│   └── VoiceQuickTripView.swift
+├── Localizable.xcstrings
+├── TPASS-app-iOS-Info.plist
+├── TPASS-app-iOS.entitlements
+└── TPASS-app-iOS.swift
+```
+
+功能：
+- `TPASS-app-iOS.swift`：App 啟動入口、登入狀態切換、ModelContainer 初始化。
+- `Data/`：站點/票價/NLP 規則資料與讀取服務。
+- `Models/`：商業模型、SwiftData schema、TPASS 規則與語音草稿模型。
+- `Services/`：認證、備份、查價、通知、語音解析、問題回報與記錄上傳。
+- `ViewModels/AppViewModel.swift`：主流程狀態與核心商業邏輯。
+- `Views/`：所有 UI 頁面與互動流程。
+- `Helpers/MigrationManager.swift`：舊資料遷移。
+- `Localizable.xcstrings`：多語系文案。
+- `TPASS-app-iOS-Info.plist` / `TPASS-app-iOS.entitlements`：App 設定與權限。
+- `Assets.xcassets/`：圖像資產、App Icon、Logo。
+
+### TPASS-app-iOS.xcodeproj/
+
+```text
+TPASS-app-iOS.xcodeproj/
+├── project.pbxproj
+├── project.xcworkspace/contents.xcworkspacedata
+├── project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+├── project.xcworkspace/xcuserdata/rayhsu.xcuserdatad/UserInterfaceState.xcuserstate
+├── project.xcworkspace/xcuserdata/rayhsu.xcuserdatad/WorkspaceSettings.xcsettings
+├── xcuserdata/rayhsu.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+└── xcuserdata/rayhsu.xcuserdatad/xcschemes/xcschememanagement.plist
+```
+
+功能：
+- `project.pbxproj`：Target、Build Phase、檔案引用與編譯設定主檔。
+- `project.xcworkspace/*`：Workspace 結構與共享設定。
+- `xcuserdata/*`：個人本機設定（UI 狀態、斷點、scheme 管理）。
+
+### webpage/
+
+```text
+webpage/
+├── 404.html
+├── index.html
+├── privacy.html
+└── support.html
+```
+
+功能：
+- `index.html`：官網首頁。
+- `privacy.html`：隱私權政策頁。
+- `support.html`：客服支援頁。
+- `404.html`：錯誤導向頁。
+
+### Firebase 設定
+
+```text
+firebase.json
+.firebaserc
+```
+
+功能：
+- `firebase.json`：Hosting 行為、路由、部署規則設定。
+- `.firebaserc`：Firebase 專案 alias 與環境對應。
+
+備註：
+- `.DS_Store` 與 `xcuserdata` 屬系統/個人環境檔，通常不作為商業邏輯維護重點。
 
 ## 架構總覽
 
@@ -85,6 +272,19 @@ TPASS.calc 目前的資料層已改為 JSON 驅動，站點資料與票價資料
 - TYMRT 站名需要處理尾綴 `站` 與別名相容，例如 `桃園高鐵站`、`高鐵桃園站`。
 - 北捷票價服務會合併查詢 `TPEMRT_Fare.json` 與 `NTPCMRT_Fare.json`。
 - 查價時會先把起訖站名正規化，再建立對稱 key，避免方向相反時查不到票價。
+
+### 語音 NLP 規則資料來源
+
+- 語音解析規則集中在 `Data/VoiceNLP/VoiceNLP_Rules.json`。
+- `TripVoiceParser` 會在 App 生命週期中 Lazy Loading 規則（只載一次）。
+- 規則庫包含：
+  - `noise_filters`：語助詞/雜訊過濾
+  - `transports`：11 種運具關鍵字、priority、asr_errors
+  - `station_aliases`：站名別名映射
+  - `price_patterns` / `station_patterns` / `route_patterns`：抽取正則
+  - `time_semantics` / `chinese_numbers`：時間與中文數字語意
+  - `confidence`：信心分數權重與門檻
+- 目標：調整解析規則時優先改 JSON，盡量不動 Swift 程式碼。
 
 ---
 
@@ -294,6 +494,7 @@ CloudKit container：
 |------|------|
 | `HapticManager.swift` | 觸覺回饋封裝 |
 | `IssueReportService.swift` | 使用者問題回報寫入 Public DB、開發者訂閱建立、回報列表查詢 |
+| `VoiceParseLogService.swift` | 匿名上傳語音解析紀錄（解析結果 vs 最終修正）至 Public DB |
 | 各 `FareService` | 運具票價查表與運算 |
 
 ### IssueReportService
@@ -320,6 +521,30 @@ CloudKit container：
 - `contactEmail`
 - `appVersion`
 - `iOSVersion`
+
+### VoiceParseLogService
+
+**檔案**：`Services/VoiceParseLogService.swift`
+
+職責：
+- 在語音快速新增儲存成功後，背景上傳語音解析紀錄到 CloudKit Public Database。
+- 記錄解析階段與最終確認結果，用於離線分析與規則優化。
+- 靜默失敗策略：上傳失敗不阻擋主流程，只在 debug 印出訊息。
+
+CloudKit 設計：
+- Record Type：`VoiceParseLog`
+- 欄位（核心）：
+  - `originalTranscript`
+  - `parsedResult`（JSON 字串）
+  - `finalResult`（JSON 字串）
+  - `isCorrected`（0/1）
+  - `overallScore`
+  - `appVersion`
+  - `rulesVersion`
+
+隱私策略：
+- 上傳前會清洗敏感欄位，至少包含：`userId`、`appleId`、`deviceId`、`email`、`name`。
+- 不依賴個人識別資訊建立關聯，僅保留語音解析優化所需欄位。
 
 ---
 
@@ -409,11 +634,15 @@ VoiceInputService 取得 transcript
   ↓
 TripVoiceParser.parse 解析文字
   ↓
+TripVoiceParser 讀取 VoiceNLP_Rules.json 規則庫
+  ↓
 VoiceDraft.from 產生中介資料
   ↓
 VoiceQuickTripView 回填欄位 + 自動查價
   ↓
 使用者確認/修正後儲存 Trip
+  ↓
+背景上傳 VoiceParseLog（匿名）
 ```
 
 ### 核心檔案與責任
@@ -422,25 +651,30 @@ VoiceQuickTripView 回填欄位 + 自動查價
 |------|------|------------------|
 | `Views/VoiceQuickTripView.swift` | 語音 UI 狀態流（ready/recording/parsing/preview）、欄位回填、儲存與告警 | 你要改語音頁行為、欄位同步、儲存前驗證時 |
 | `Services/VoiceInputService.swift` | 錄音與語音辨識（權限/開始/停止/轉錄） | 你要改語音權限、辨識生命週期、錯誤處理時 |
-| `Services/TripVoiceParser.swift` | NLP 規則解析（運具、起訖站、路線、時間、價格）與信心分數 | 你要改關鍵字、正規化、站名抽取、路線抽取時 |
+| `Services/TripVoiceParser.swift` | NLP 規則解析（運具、起訖站、路線、時間、價格）與信心分數 | 你要改規則載入、解析流程、消歧策略時 |
+| `Data/VoiceNLP/VoiceNLP_Rules.json` | 語音規則資料庫（關鍵字、ASR 誤聽、別名、正則、信心門檻） | 你要改語音規則但不想改 Swift 程式碼時 |
 | `Models/VoiceDraft.swift` | ParsedTrip 到 UI 草稿的中介模型 | 你要新增語音欄位、調整草稿狀態判定時 |
+| `Services/VoiceParseLogService.swift` | 解析結果與最終修正結果的匿名上傳 | 你要改資料蒐集欄位、隱私過濾、上傳策略時 |
 | `Services/FareServices/*`、`Services/New_FareServices/*` | 各運具查價服務，供語音回填票價 | 你要改票價來源、查價邏輯、運具新規則時 |
 
 ### 目前解析能力與保護機制
 
 - 支援從語音抽取：日期、時間、運具、起點、終點、路線、票價。
+- 規則由 JSON 結構化管理，支援 priority 消歧與 ASR 誤聽容錯。
 - 站名會經過別名/正規化處理，再套用各運具站點驗證。
 - 公車路線抽取已調整為語意模式優先（例如「295號公車」「公車 207」），並排除時間格式（例如 12:30）誤判。
 - 語音回填後會嘗試補齊線別與自動查價。
 - 公車在未口述票價時，會先帶入地區方案預設公車票價。
 - 台鐵儲存前會檢查是否超出該月票方案可用站點範圍，超出時會顯示警告並阻擋儲存。
+- 儲存後會背景上傳匿名修正紀錄（parsedResult vs finalResult），供規則調校。
 
 ### 維護建議（語音功能）
 
-1. 先改 `TripVoiceParser` 規則，再改 `VoiceQuickTripView` 的回填與驗證，避免 UI 行為與解析結果脫節。
-2. 任何新增運具關鍵字時，請檢查是否會與既有關鍵字衝突（建議長詞優先）。
-3. 修改站名清理規則時，請至少手動回歸測試「公車 + 時間 + 路線 + 站名」一句話輸入。
-4. 若新增新運具到語音流程，需同步更新：`TransportType`、對應 FareService、`VoiceQuickTripView` 的回填/查價分支。
+1. 新增或調整語音關鍵字時，優先修改 `VoiceNLP_Rules.json`，再看是否需要改 `TripVoiceParser`。
+2. 任何新增運具關鍵字時，請檢查是否會與既有關鍵字衝突（以 priority 與長詞優先策略消歧）。
+3. 修改站名清理規則時，請至少手動回歸測試「日期 + 時段 + 時間 + 運具 + 站名」一句話輸入。
+4. 若調整 VoiceParseLog 欄位，請同步更新 CloudKit Console schema 與資料清洗邏輯。
+5. 若新增新運具到語音流程，需同步更新：`TransportType`、`VoiceNLP_Rules.json`、對應 FareService、`VoiceQuickTripView` 的回填/查價分支。
 
 ---
 
