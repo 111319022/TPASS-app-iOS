@@ -969,6 +969,14 @@ struct VoiceQuickTripView: View {
                 phase = .fallbackManual
             }
             HapticManager.shared.notification(type: .warning)
+            // 上傳空轉寫失敗紀錄
+            Task {
+                await VoiceParseLogService.shared.logFailedParse(
+                    originalTranscript: "",
+                    draft: nil,
+                    reason: .emptyTranscript
+                )
+            }
             return
         }
         
@@ -1039,6 +1047,14 @@ struct VoiceQuickTripView: View {
         if parsed.stationScore == 0.0 && (text.contains("轉") || text.contains("再搭")) {
             showMultiSegmentAlert = true
             HapticManager.shared.notification(type: .warning)
+            // 上傳多段行程失敗紀錄
+            Task {
+                await VoiceParseLogService.shared.logFailedParse(
+                    originalTranscript: text,
+                    draft: newDraft,
+                    reason: .multiSegment
+                )
+            }
             return
         }
         
@@ -1048,6 +1064,15 @@ struct VoiceQuickTripView: View {
                 phase = .fallbackManual
             }
             HapticManager.shared.notification(type: .warning)
+            // 上傳低信心/欄位不完整的失敗紀錄
+            let reason: VoiceParseLogService.FailureReason = parsed.hasRequiredFields ? .lowConfidence : .missingFields
+            Task {
+                await VoiceParseLogService.shared.logFailedParse(
+                    originalTranscript: text,
+                    draft: newDraft,
+                    reason: reason
+                )
+            }
         } else {
             withAnimation {
                 phase = .preview

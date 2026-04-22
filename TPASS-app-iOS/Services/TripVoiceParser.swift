@@ -4,6 +4,7 @@ import Foundation
 
 /// VoiceNLP_Rules.json 的頂層結構
 struct VoiceNLPRules: Codable {
+    let _meta: Meta?
     let noiseFilters: [String]
     let transports: [TransportRule]
     let stationAliases: [String: String]
@@ -16,7 +17,20 @@ struct VoiceNLPRules: Codable {
     let routePatterns: [PatternRule]
     let confidence: ConfidenceConfig
     
+    /// JSON 元資料
+    struct Meta: Codable {
+        let version: String
+        let description: String?
+        let lastUpdated: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case version, description
+            case lastUpdated = "last_updated"
+        }
+    }
+    
     enum CodingKeys: String, CodingKey {
+        case _meta
         case noiseFilters = "noise_filters"
         case transports
         case stationAliases = "station_aliases"
@@ -33,6 +47,7 @@ struct VoiceNLPRules: Codable {
     /// 自訂 decoder：跳過 _comment 開頭的 key
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        _meta = try container.decodeIfPresent(Meta.self, forKey: ._meta)
         noiseFilters = try container.decode([String].self, forKey: .noiseFilters)
         transports = try container.decode([TransportRule].self, forKey: .transports)
         pricePatterns = try container.decode([PatternRule].self, forKey: .pricePatterns)
