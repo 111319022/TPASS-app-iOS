@@ -24,6 +24,7 @@ struct VoiceQuickTripView: View {
     @State private var draft: VoiceDraft?
     @State private var showMultiSegmentAlert = false
     @State private var showSaveSuccess = false
+    @State private var showTRAOutOfRangeAlert = false
     
     // 使用者手動修正欄位
     @State private var editedTransportType: TransportType?
@@ -69,6 +70,20 @@ struct VoiceQuickTripView: View {
     
     private var availableTRARegions: [TRARegion] {
         TRAStationData.shared.getRegions(for: currentRegion)
+    }
+
+    private var availableTRAStationIDs: Set<String> {
+        Set(availableTRARegions.flatMap { region in
+            region.stations.map { $0.id }
+        })
+    }
+
+    private var isTRAOutOfRange: Bool {
+        guard editedTransportType == .tra,
+              !editedStartStation.isEmpty,
+              !editedEndStation.isEmpty else { return false }
+        return !availableTRAStationIDs.contains(editedStartStation) ||
+               !availableTRAStationIDs.contains(editedEndStation)
     }
     
     private var filteredTransferTypes: [TransferDiscountType] {
@@ -138,6 +153,11 @@ struct VoiceQuickTripView: View {
             }
         } message: {
             Text("voice_multi_segment_message")
+        }
+        .alert("台鐵站點超出月票範圍", isPresented: $showTRAOutOfRangeAlert) {
+            Button("知道了", role: .cancel) { }
+        } message: {
+            Text("目前選擇的台鐵起訖站不在你當前月票方案可使用範圍，請改選可用站點。")
         }
         .onAppear {
             checkPermissions()
@@ -967,7 +987,25 @@ struct VoiceQuickTripView: View {
         
         editedRouteId = newDraft.routeId ?? ""
         editedNote = newDraft.note ?? ""
-        editedDate = newDraft.tripDate ?? Date()
+        
+        // 合併日期與時間：若有獲取到時間，則合併到日期中
+        var dateTime = newDraft.tripDate ?? Date()
+        if let parsedTime = newDraft.tripTime {
+            let calendar = Calendar.current
+            let timeComponents = calendar.dateComponents([.hour, .minute], from: parsedTime)
+            var dateComponents = calendar.dateComponents([.year, .month, .day], from: dateTime)
+            dateComponents.hour = timeComponents.hour
+            dateComponents.minute = timeComponents.minute
+            if let mergedDate = calendar.date(from: dateComponents) {
+                dateTime = mergedDate
+            }
+        }
+        editedDate = dateTime
+        
+        // 若語音有提供時間，改用提供的時間而不是當前時間
+        if newDraft.tripTime != nil {
+            useCurrentTime = false
+        }
         
         // 設定運具
         editedTransportType = newDraft.transportType
@@ -991,6 +1029,11 @@ struct VoiceQuickTripView: View {
         }
         
         isPopulatingFromParse = false
+
+        if editedTransportType == .tra && isTRAOutOfRange {
+            showTRAOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+        }
         
         // 判斷多段行程
         if parsed.stationScore == 0.0 && (text.contains("轉") || text.contains("再搭")) {
@@ -1096,6 +1139,12 @@ struct VoiceQuickTripView: View {
     private func saveDraftAsTrip() {
         guard let userId = auth.currentUser?.id,
               let transportType = editedTransportType else { return }
+
+        if transportType == .tra && isTRAOutOfRange {
+            showTRAOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+            return
+        }
         
         let originalPrice = Int(editedPrice) ?? 0
         let paidPrice = calculatePaidPrice(originalPrice: originalPrice)
@@ -1221,10 +1270,17 @@ struct VoiceQuickTripView: View {
                 editedPrice = String(fare)
             }
         case .bus:
+            // 公車先使用地區預設票價，再視需要用歷史紀錄覆蓋
+            if editedPrice.isEmpty {
+                editedPrice = currentRegion.defaultBusPrice(identity: currentIdentity)
+            }
+
             // 公車以路線查歷史
             if !editedRouteId.isEmpty {
                 if let match = viewModel.trips.first(where: { $0.type == .bus && $0.routeId == editedRouteId }) {
-                    editedPrice = String(match.originalPrice)
+                    if editedPrice.isEmpty {
+                        editedPrice = String(match.originalPrice)
+                    }
                 }
             }
         case .coach:

@@ -48,8 +48,8 @@ struct TripVoiceParser {
     
     // MARK: - 運具同義詞映射
     private static let transportSynonyms: [(keywords: [String], type: TransportType)] = [
+        (["機捷", "桃捷", "桃園機場捷運", "桃園捷運", "機場捷運", "機場線"], .tymrt),
         (["捷運", "地鐵", "mrt", "北捷", "台北捷運"], .mrt),
-        (["機捷", "桃捷", "桃園捷運", "機場捷運"], .tymrt),
         (["高鐵", "hsr", "高速鐵路"], .hsr),
         (["台鐵", "火車", "臺鐵", "區間車", "自強號", "莒光號", "普悠瑪", "太魯閣"], .tra),
         (["公車", "巴士", "市公車", "市區公車"], .bus),
@@ -140,7 +140,7 @@ struct TripVoiceParser {
         result.transportScore = transportConfidence
         
         // 4. 路線抽取（公車/客運）
-        result.routeId = extractRouteId(normalized)
+        result.routeId = extractRouteId(normalized, transport: transport)
         
         // 5. 價格抽取
         let (price, priceConfidence) = extractPrice(normalized)
@@ -293,41 +293,68 @@ struct TripVoiceParser {
     
     private static func extractTransport(_ text: String) -> (TransportType?, Double) {
         let lowered = text.lowercased()
-        
+        var bestMatch: (type: TransportType, keywordLength: Int)?
+
         for entry in transportSynonyms {
             for keyword in entry.keywords {
                 if lowered.contains(keyword.lowercased()) {
-                    return (entry.type, 1.0) // 精準匹配
+                    let length = keyword.count
+                    if let current = bestMatch {
+                        if length > current.keywordLength {
+                            bestMatch = (entry.type, length)
+                        }
+                    } else {
+                        bestMatch = (entry.type, length)
+                    }
                 }
             }
         }
-        
+
+        if let bestMatch {
+            return (bestMatch.type, 1.0)
+        }
+
         return (nil, 0.0)
     }
     
     // MARK: - 路線抽取
     
-    private static func extractRouteId(_ text: String) -> String? {
-        // 匹配數字路線（3位數常見公車號碼）
-        let routeRegex = try? NSRegularExpression(pattern: "(\\d{1,4})(路|號)?", options: [])
-        guard let routeRegex else { return nil }
-        
-        let nsRange = NSRange(text.startIndex..., in: text)
-        if let match = routeRegex.firstMatch(in: text, options: [], range: nsRange),
-           let numRange = Range(match.range(at: 1), in: text) {
-            let routeNum = String(text[numRange])
-            // 排除可能是價格的數字（通常 <= 200 元的金額容易混淆）
-            // 如果文字中同時出現「元」「塊」等字，這個數字可能不是路線
-            if let numVal = Int(routeNum), numVal > 0, numVal < 10000 {
-                // 檢查這個數字後面是否接「元」「塊」
-                let afterMatch = text.suffix(from: text.index(text.startIndex, offsetBy: match.range.location + match.range.length))
-                if afterMatch.hasPrefix("元") || afterMatch.hasPrefix("塊") {
-                    return nil // 這是價格，不是路線
+    private static func extractRouteId(_ text: String, transport: TransportType?) -> String? {
+        guard transport == .bus || transport == .coach else { return nil }
+
+        // 先移除時間（例如 12:30、8點15分），避免誤抓成路線號
+        let timeRegex = try? NSRegularExpression(pattern: "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?", options: [])
+        let textWithoutTime: String
+        if let timeRegex {
+            textWithoutTime = timeRegex.stringByReplacingMatches(
+                in: text,
+                options: [],
+                range: NSRange(text.startIndex..., in: text),
+                withTemplate: " "
+            )
+        } else {
+            textWithoutTime = text
+        }
+
+        // 優先匹配「295號公車」「M157公車」「公車 207」等語意明確格式
+        let routePatterns = [
+            "([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\s*(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)",
+            "(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)\\s*([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)?",
+            "\\b([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\b"
+        ]
+
+        for pattern in routePatterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            let nsRange = NSRange(textWithoutTime.startIndex..., in: textWithoutTime)
+            if let match = regex.firstMatch(in: textWithoutTime, options: [], range: nsRange),
+               let routeRange = Range(match.range(at: 1), in: textWithoutTime) {
+                let route = String(textWithoutTime[routeRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !route.isEmpty {
+                    return route.uppercased()
                 }
-                return routeNum
             }
         }
-        
+
         return nil
     }
     
@@ -413,7 +440,11 @@ struct TripVoiceParser {
     
     private static func removeTransportKeywords(_ text: String) -> String {
         var result = text
-        let keywords = ["搭", "坐", "搭乘", "坐了", "搭了", "捷運", "公車", "火車", "高鐵", "台鐵", "臺鐵", "客運", "輕軌"]
+        let keywords = [
+            "搭", "坐", "搭乘", "坐了", "搭了",
+            "桃園機場捷運", "桃園捷運", "機場捷運", "機捷", "桃捷", "機場線",
+            "捷運", "公車", "火車", "高鐵", "台鐵", "臺鐵", "客運", "輕軌"
+        ]
         for keyword in keywords {
             result = result.replacingOccurrences(of: keyword, with: "")
         }
@@ -424,6 +455,37 @@ struct TripVoiceParser {
         var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !result.isEmpty else { return result }
 
+        // 移除日期前綴（昨天、今天、明天、今年、去年等）
+        let datePatterns = [
+            "昨天", "今天", "明天", "後天",
+            "今年", "去年", "明年",
+            "本週", "下週", "上週",
+            "\\d{1,2}月\\d{1,2}日",
+        ]
+        for pattern in datePatterns {
+            if result.hasPrefix(pattern) || result.starts(with: NSRegularExpression.escapedPattern(for: pattern)) {
+                if let regex = try? NSRegularExpression(pattern: "^\(pattern)", options: []) {
+                    let nsRange = NSRange(result.startIndex..., in: result)
+                    if let match = regex.firstMatch(in: result, options: [], range: nsRange),
+                       let range = Range(match.range, in: result) {
+                        result.removeSubrange(range)
+                        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                }
+            }
+        }
+
+        // 移除時間前綴（HH:MM 或 H點M分格式）
+        let timePattern = try? NSRegularExpression(pattern: "^(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?\\s*", options: [])
+        if let timePattern {
+            let nsRange = NSRange(result.startIndex..., in: result)
+            if let match = timePattern.firstMatch(in: result, options: [], range: nsRange),
+               let range = Range(match.range, in: result) {
+                result.removeSubrange(range)
+                result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+
         // 常見前綴詞去除
         let leadingWords = ["從", "由", "在", "自", "搭", "坐"]
         for word in leadingWords where result.hasPrefix(word) {
@@ -432,11 +494,24 @@ struct TripVoiceParser {
         }
 
         // 公車/客運常見「路線號 + 站名」格式
+        // 支援英文/數字路線號（如 207、M101）和汉字路線號（如 295號、9甲）
         if transport == .bus || transport == .coach {
-            let routePrefix = try? NSRegularExpression(pattern: "^[A-Za-z0-9]{1,6}(路|號)?", options: [])
-            if let routePrefix {
+            // 先嘗試英文/數字路線
+            let englishRoutePattern = try? NSRegularExpression(pattern: "^[A-Za-z0-9]{1,6}(路|號)?", options: [])
+            if let englishRoutePattern {
                 let nsRange = NSRange(result.startIndex..., in: result)
-                if let match = routePrefix.firstMatch(in: result, options: [], range: nsRange),
+                if let match = englishRoutePattern.firstMatch(in: result, options: [], range: nsRange),
+                   let range = Range(match.range, in: result) {
+                    result.removeSubrange(range)
+                    result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+            }
+            
+            // 再嘗試汉字路線號（如 295號、9甲路）
+            let chineseRoutePattern = try? NSRegularExpression(pattern: "^[零〇一二兩三四五六七八九十百千0-9]{1,6}\\s*(?:號|路)?", options: [])
+            if let chineseRoutePattern {
+                let nsRange = NSRange(result.startIndex..., in: result)
+                if let match = chineseRoutePattern.firstMatch(in: result, options: [], range: nsRange),
                    let range = Range(match.range, in: result) {
                     result.removeSubrange(range)
                     result = result.trimmingCharacters(in: .whitespacesAndNewlines)
