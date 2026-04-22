@@ -43,6 +43,7 @@ Py_Data_Convert/
 - `TRAConvertStations.py`：台鐵站點資料正規化與匯整。
 - `csv_to_json.py`：通用 CSV -> JSON 轉檔工具。
 
+### TPASS-app-iOS.xcodeproj/
 ### TPASS-app-iOS/
 
 ```text
@@ -163,23 +164,6 @@ TPASS-app-iOS/
 - `TPASS-app-iOS-Info.plist` / `TPASS-app-iOS.entitlements`：App 設定與權限。
 - `Assets.xcassets/`：圖像資產、App Icon、Logo。
 
-### TPASS-app-iOS.xcodeproj/
-
-```text
-TPASS-app-iOS.xcodeproj/
-├── project.pbxproj
-├── project.xcworkspace/contents.xcworkspacedata
-├── project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
-├── project.xcworkspace/xcuserdata/rayhsu.xcuserdatad/UserInterfaceState.xcuserstate
-├── project.xcworkspace/xcuserdata/rayhsu.xcuserdatad/WorkspaceSettings.xcsettings
-├── xcuserdata/rayhsu.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
-└── xcuserdata/rayhsu.xcuserdatad/xcschemes/xcschememanagement.plist
-```
-
-功能：
-- `project.pbxproj`：Target、Build Phase、檔案引用與編譯設定主檔。
-- `project.xcworkspace/*`：Workspace 結構與共享設定。
-- `xcuserdata/*`：個人本機設定（UI 狀態、斷點、scheme 管理）。
 
 ### webpage/
 
