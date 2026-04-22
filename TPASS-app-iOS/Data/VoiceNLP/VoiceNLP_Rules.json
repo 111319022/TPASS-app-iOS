@@ -1,0 +1,290 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "description": "語音行程解析規則資料庫 — 供 TripVoiceParser 使用",
+    "last_updated": "2025-01-01",
+    "notes": [
+      "所有陣列皆按「最常用 → 最少用」排序",
+      "keywords 與 asr_errors 中的詞條需 lowercased 後比較",
+      "stations 區塊的 key 須與 transports[].id 一致",
+      "新增詞條只需編輯此 JSON，無需改動 Swift 程式碼"
+    ]
+  },
+
+  "_comment_noise_filters": "語音辨識常見的口語填充詞，在解析站名前會被移除",
+  "noise_filters": [
+    "然後", "我要搭", "我搭", "我坐", "我要坐",
+    "坐到", "搭到", "花了", "大約", "大概",
+    "那個", "就是", "嗯", "啊", "喔", "欸",
+    "從", "由", "在", "自", "去"
+  ],
+
+  "_comment_transports": "運具辨識規則。priority 值越小越優先（用於同詞命中多運具時消歧）",
+  "transports": [
+    {
+      "id": "tymrt",
+      "canonical_name": "桃園捷運",
+      "priority": 1,
+      "_comment": "機捷優先於北捷，因為「捷運」是北捷的關鍵字，若用戶說「機捷」應命中此處",
+      "keywords": ["機捷", "桃捷", "桃園機場捷運", "桃園捷運", "機場捷運", "機場線"],
+      "asr_errors": ["機截", "積截", "即捷", "基捷"]
+    },
+    {
+      "id": "mrt",
+      "canonical_name": "台北捷運",
+      "priority": 2,
+      "_comment": "最常見的預設捷運系統",
+      "keywords": ["捷運", "地鐵", "mrt", "北捷", "台北捷運"],
+      "asr_errors": ["結運", "接運", "截運", "捷韻"]
+    },
+    {
+      "id": "hsr",
+      "canonical_name": "高鐵",
+      "priority": 3,
+      "keywords": ["高鐵", "hsr", "高速鐵路", "THSR"],
+      "asr_errors": ["高貼", "高跌", "搞鐵"]
+    },
+    {
+      "id": "tra",
+      "canonical_name": "台鐵",
+      "priority": 4,
+      "keywords": ["台鐵", "火車", "臺鐵", "區間車", "自強號", "莒光號", "普悠瑪", "太魯閣", "區間快"],
+      "asr_errors": ["台貼", "臺貼", "火策"]
+    },
+    {
+      "id": "bus",
+      "canonical_name": "公車",
+      "priority": 5,
+      "keywords": ["公車", "巴士", "市公車", "市區公車"],
+      "asr_errors": ["公策", "工車", "公出"]
+    },
+    {
+      "id": "coach",
+      "canonical_name": "客運",
+      "priority": 6,
+      "keywords": ["客運", "國道客運", "長途客運"],
+      "asr_errors": ["克運", "課運"]
+    },
+    {
+      "id": "tcmrt",
+      "canonical_name": "台中捷運",
+      "priority": 7,
+      "keywords": ["中捷", "台中捷運", "臺中捷運"],
+      "asr_errors": ["中截", "鐘捷"]
+    },
+    {
+      "id": "kmrt",
+      "canonical_name": "高雄捷運",
+      "priority": 8,
+      "keywords": ["高捷", "高雄捷運"],
+      "asr_errors": ["高截"]
+    },
+    {
+      "id": "lrt",
+      "canonical_name": "輕軌",
+      "priority": 9,
+      "keywords": ["輕軌", "淡海輕軌", "安坑輕軌", "高雄輕軌"],
+      "asr_errors": ["清軌", "輕鬼"]
+    },
+    {
+      "id": "bike",
+      "canonical_name": "自行車",
+      "priority": 10,
+      "keywords": ["腳踏車", "ubike", "youbike", "優拜", "自行車", "單車", "微笑單車"],
+      "asr_errors": []
+    },
+    {
+      "id": "ferry",
+      "canonical_name": "渡輪",
+      "priority": 11,
+      "keywords": ["渡輪", "渡船", "ferry"],
+      "asr_errors": ["度輪"]
+    }
+  ],
+
+  "_comment_station_aliases": "站名別名對照表：key = 口語/簡稱，value = 資料庫中的正式站名",
+  "station_aliases": {
+    "_comment_taipei_mrt": "台北捷運常見口語",
+    "北車": "台北車站",
+    "台北車": "台北車站",
+    "臺北車": "台北車站",
+    "台北車站": "台北車站",
+    "臺北車站": "台北車站",
+    "台北火車站": "台北車站",
+    "台北站": "臺北",
+    "臺北站": "臺北",
+    "動物園站": "動物園",
+    "市政府站": "市政府",
+    "西門町": "西門",
+    "西門站": "西門",
+    "忠孝復興站": "忠孝復興",
+    "忠孝敦化站": "忠孝敦化",
+    "台北101": "台北101/世貿",
+    "世貿站": "台北101/世貿",
+    "松山機場": "松山機場",
+    "南港站": "南港",
+
+    "_comment_hsr": "高鐵站名口語",
+    "桃園高鐵站": "高鐵桃園站",
+    "桃園高鐵": "高鐵桃園站",
+    "台中高鐵站": "高鐵台中站",
+    "台中高鐵": "高鐵台中站",
+    "左營高鐵站": "高鐵左營站",
+    "左營高鐵": "高鐵左營站",
+    "南港高鐵站": "高鐵南港站",
+    "南港高鐵": "高鐵南港站",
+    "新竹高鐵站": "高鐵新竹站",
+    "新竹高鐵": "高鐵新竹站",
+    "嘉義高鐵站": "高鐵嘉義站",
+    "嘉義高鐵": "高鐵嘉義站",
+    "台南高鐵站": "高鐵台南站",
+    "台南高鐵": "高鐵台南站",
+    "苗栗高鐵站": "高鐵苗栗站",
+    "苗栗高鐵": "高鐵苗栗站",
+    "彰化高鐵站": "高鐵彰化站",
+    "彰化高鐵": "高鐵彰化站",
+    "雲林高鐵站": "高鐵雲林站",
+    "雲林高鐵": "高鐵雲林站",
+
+    "_comment_tra": "台鐵站名口語（注意：台鐵資料庫多用「臺」）",
+    "台北": "臺北",
+    "台中": "臺中",
+    "台中站": "臺中",
+    "台南": "臺南",
+    "台南站": "臺南",
+    "台東": "臺東",
+    "台東站": "臺東",
+    "板橋車站": "板橋",
+
+    "_comment_tymrt": "桃園捷運（機捷）口語",
+    "桃園機場": "桃園國際機場",
+    "第一航廈": "機場第一航廈",
+    "第二航廈": "機場第二航廈",
+    "第三航廈": "機場第三航廈",
+
+    "_comment_asr_errors": "ASR（語音辨識）常見聽錯的站名",
+    "世貿": "台北101/世貿",
+    "詩歌": "市政府",
+    "視覺府": "市政府"
+  },
+
+  "_comment_price_patterns": "票價抽取正則表達式，按優先序排列。group(1) 必須是數字",
+  "price_patterns": [
+    {
+      "regex": "(\\d+)\\s*(元|塊錢|塊)",
+      "description": "「25元」「30塊」「15塊錢」"
+    },
+    {
+      "regex": "\\$\\s*(\\d+)",
+      "description": "「$25」"
+    },
+    {
+      "regex": "票價\\s*(\\d+)",
+      "description": "「票價25」"
+    },
+    {
+      "regex": "花了?\\s*(\\d+)",
+      "description": "「花了25」「花25」"
+    },
+    {
+      "regex": "付了?\\s*(\\d+)",
+      "description": "「付了30」「付30」"
+    }
+  ],
+
+  "_comment_time_semantics": "相對日期與時間段口語映射",
+  "time_semantics": {
+    "relative_days": [
+      { "keyword": "今天",   "day_offset": 0 },
+      { "keyword": "今日",   "day_offset": 0 },
+      { "keyword": "昨天",   "day_offset": -1 },
+      { "keyword": "昨日",   "day_offset": -1 },
+      { "keyword": "前天",   "day_offset": -2 },
+      { "keyword": "前日",   "day_offset": -2 },
+      { "keyword": "大前天", "day_offset": -3 }
+    ],
+    "time_of_day": [
+      { "keyword": "凌晨", "hour": 3,  "minute": 0 },
+      { "keyword": "清晨", "hour": 6,  "minute": 0 },
+      { "keyword": "早上", "hour": 8,  "minute": 0 },
+      { "keyword": "上午", "hour": 10, "minute": 0 },
+      { "keyword": "中午", "hour": 12, "minute": 0 },
+      { "keyword": "下午", "hour": 14, "minute": 0 },
+      { "keyword": "傍晚", "hour": 17, "minute": 0 },
+      { "keyword": "晚上", "hour": 20, "minute": 0 },
+      { "keyword": "深夜", "hour": 23, "minute": 0 }
+    ]
+  },
+
+  "_comment_chinese_numbers": "中文數字轉阿拉伯數字的映射表",
+  "chinese_numbers": {
+    "digits": {
+      "零": 0, "〇": 0,
+      "一": 1, "二": 2, "兩": 2, "三": 3, "四": 4,
+      "五": 5, "六": 6, "七": 7, "八": 8, "九": 9
+    },
+    "multipliers": {
+      "十": 10, "百": 100, "千": 1000
+    }
+  },
+
+  "_comment_multi_segment": "多段行程偵測關鍵字",
+  "multi_segment_keywords": {
+    "direction_words": ["到", "至", "往", "去", "→", "->"],
+    "transfer_keywords": ["轉", "換乘", "再搭", "然後搭", "接著搭", "再坐", "然後坐"],
+    "direction_threshold": 2,
+    "_comment": "direction_threshold: 方向詞出現次數 >= 此值視為多段行程"
+  },
+
+  "_comment_station_patterns": "起迄站抽取正則（按優先序）。group(1)=起點，group(2)=終點",
+  "station_patterns": [
+    {
+      "regex": "從\\s*(.+?)\\s*(?:到|至|往|去)\\s*(.+?)(?:\\s|$|,|。|搭|坐|花|票價|\\d+元)",
+      "description": "「從台北車站到市政府」"
+    },
+    {
+      "regex": "(.+?)\\s*(?:到|至|→|->)\\s*(.+?)(?:\\s|$|,|。|搭|坐|花|票價|\\d+元)",
+      "description": "「台北車站到市政府」"
+    }
+  ],
+
+  "_comment_transport_remove_keywords": "從站名候選中移除的運具關鍵字（避免「搭捷運台北」中的「捷運」殘留）",
+  "transport_remove_keywords": [
+    "搭", "坐", "搭乘", "坐了", "搭了",
+    "桃園機場捷運", "桃園捷運", "機場捷運", "機捷", "桃捷", "機場線",
+    "捷運", "公車", "火車", "高鐵", "台鐵", "臺鐵", "客運", "輕軌"
+  ],
+
+  "_comment_route_patterns": "公車/客運路線號抽取正則（按優先序）。group(1)=路線號",
+  "route_patterns": [
+    {
+      "regex": "([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\s*(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)",
+      "description": "「295號公車」「M157客運」"
+    },
+    {
+      "regex": "(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)\\s*([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)?",
+      "description": "「公車207」「客運1815」"
+    },
+    {
+      "regex": "\\b([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\b",
+      "description": "「207路」「1815號」"
+    }
+  ],
+
+  "_comment_confidence": "信心分數權重與門檻設定",
+  "confidence": {
+    "weights": {
+      "station": 0.40,
+      "transport": 0.25,
+      "time": 0.20,
+      "consistency": 0.15
+    },
+    "thresholds": {
+      "high": 0.85,
+      "medium": 0.65,
+      "station_cap_trigger": 0.60,
+      "station_cap_value": 0.79
+    },
+    "_comment": "若 stationScore < station_cap_trigger，overallScore 上限封頂為 station_cap_value"
+  }
+}

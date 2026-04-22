@@ -9897,14 +9897,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice Quick Trip"
+            "state" : "needs_review",
+            "value" : "Voice Quick Trip (Beta)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "語音快速記錄"
+            "value" : "語音快速記錄（Beta）"
           }
         }
       }
@@ -9929,14 +9929,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice Quick Record"
+            "state" : "needs_review",
+            "value" : "Voice Quick Record (Beta)"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "語音快速記錄"
+            "value" : "語音快速記錄（Beta）"
           }
         }
       }

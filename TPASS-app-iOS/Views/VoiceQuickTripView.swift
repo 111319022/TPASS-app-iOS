@@ -1169,6 +1169,27 @@ struct VoiceQuickTripView: View {
         viewModel.addTrip(newTrip)
         HapticManager.shared.notification(type: .success)
         
+        // 背景上傳語音解析修正紀錄（不阻塞主流程）
+        if let currentDraft = draft {
+            let finalData: [String: Any] = [
+                "transportType": transportType.rawValue,
+                "startStation": editedStartStation,
+                "endStation": editedEndStation,
+                "price": originalPrice,
+                "routeId": editedRouteId,
+                "isTransfer": isTransfer,
+                "isFree": isFree
+            ]
+            let transcript = currentDraft.originalTranscript
+            Task {
+                await VoiceParseLogService.shared.logParseResult(
+                    originalTranscript: transcript,
+                    draft: currentDraft,
+                    finalTripData: finalData
+                )
+            }
+        }
+        
         dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             onSuccess?()

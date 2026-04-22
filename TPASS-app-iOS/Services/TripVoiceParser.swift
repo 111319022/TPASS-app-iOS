@@ -1,7 +1,174 @@
 import Foundation
 
+// MARK: - JSON 規則資料模型
+
+/// VoiceNLP_Rules.json 的頂層結構
+struct VoiceNLPRules: Codable {
+    let noiseFilters: [String]
+    let transports: [TransportRule]
+    let stationAliases: [String: String]
+    let pricePatterns: [PatternRule]
+    let timeSemantics: TimeSemantics
+    let chineseNumbers: ChineseNumbers
+    let multiSegmentKeywords: MultiSegmentKeywords
+    let stationPatterns: [PatternRule]
+    let transportRemoveKeywords: [String]
+    let routePatterns: [PatternRule]
+    let confidence: ConfidenceConfig
+    
+    enum CodingKeys: String, CodingKey {
+        case noiseFilters = "noise_filters"
+        case transports
+        case stationAliases = "station_aliases"
+        case pricePatterns = "price_patterns"
+        case timeSemantics = "time_semantics"
+        case chineseNumbers = "chinese_numbers"
+        case multiSegmentKeywords = "multi_segment_keywords"
+        case stationPatterns = "station_patterns"
+        case transportRemoveKeywords = "transport_remove_keywords"
+        case routePatterns = "route_patterns"
+        case confidence
+    }
+    
+    /// 自訂 decoder：跳過 _comment 開頭的 key
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        noiseFilters = try container.decode([String].self, forKey: .noiseFilters)
+        transports = try container.decode([TransportRule].self, forKey: .transports)
+        pricePatterns = try container.decode([PatternRule].self, forKey: .pricePatterns)
+        timeSemantics = try container.decode(TimeSemantics.self, forKey: .timeSemantics)
+        chineseNumbers = try container.decode(ChineseNumbers.self, forKey: .chineseNumbers)
+        multiSegmentKeywords = try container.decode(MultiSegmentKeywords.self, forKey: .multiSegmentKeywords)
+        stationPatterns = try container.decode([PatternRule].self, forKey: .stationPatterns)
+        transportRemoveKeywords = try container.decode([String].self, forKey: .transportRemoveKeywords)
+        routePatterns = try container.decode([PatternRule].self, forKey: .routePatterns)
+        confidence = try container.decode(ConfidenceConfig.self, forKey: .confidence)
+        
+        // station_aliases：過濾掉 _comment 開頭的 key
+        let rawAliases = try container.decode([String: String].self, forKey: .stationAliases)
+        stationAliases = rawAliases.filter { !$0.key.hasPrefix("_comment") }
+    }
+}
+
+/// 運具辨識規則
+struct TransportRule: Codable {
+    let id: String
+    let canonicalName: String
+    let priority: Int
+    let keywords: [String]
+    let asrErrors: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case canonicalName = "canonical_name"
+        case priority
+        case keywords
+        case asrErrors = "asr_errors"
+    }
+    
+    /// 將 JSON id 轉為 App 內的 TransportType enum
+    var transportType: TransportType? {
+        switch id {
+        case "mrt":   return .mrt
+        case "bus":   return .bus
+        case "coach": return .coach
+        case "tra":   return .tra
+        case "tymrt": return .tymrt
+        case "lrt":   return .lrt
+        case "bike":  return .bike
+        case "ferry": return .ferry
+        case "tcmrt": return .tcmrt
+        case "kmrt":  return .kmrt
+        case "hsr":   return .hsr
+        default:      return nil
+        }
+    }
+    
+    /// 所有可能命中的關鍵字（正式 + ASR 誤聽）
+    var allKeywords: [String] { keywords + asrErrors }
+}
+
+/// 正則規則（票價 / 站點 / 路線共用）
+struct PatternRule: Codable {
+    let regex: String
+    let description: String
+}
+
+/// 時間語意
+struct TimeSemantics: Codable {
+    let relativeDays: [RelativeDay]
+    let timeOfDay: [TimeOfDay]
+    
+    enum CodingKeys: String, CodingKey {
+        case relativeDays = "relative_days"
+        case timeOfDay = "time_of_day"
+    }
+    
+    struct RelativeDay: Codable {
+        let keyword: String
+        let dayOffset: Int
+        enum CodingKeys: String, CodingKey {
+            case keyword
+            case dayOffset = "day_offset"
+        }
+    }
+    
+    struct TimeOfDay: Codable {
+        let keyword: String
+        let hour: Int
+        let minute: Int
+    }
+}
+
+/// 中文數字對照
+struct ChineseNumbers: Codable {
+    let digits: [String: Int]
+    let multipliers: [String: Int]
+}
+
+/// 多段行程偵測
+struct MultiSegmentKeywords: Codable {
+    let directionWords: [String]
+    let transferKeywords: [String]
+    let directionThreshold: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case directionWords = "direction_words"
+        case transferKeywords = "transfer_keywords"
+        case directionThreshold = "direction_threshold"
+    }
+}
+
+/// 信心分數設定
+struct ConfidenceConfig: Codable {
+    let weights: Weights
+    let thresholds: Thresholds
+    
+    struct Weights: Codable {
+        let station: Double
+        let transport: Double
+        let time: Double
+        let consistency: Double
+    }
+    
+    struct Thresholds: Codable {
+        let high: Double
+        let medium: Double
+        let stationCapTrigger: Double
+        let stationCapValue: Double
+        
+        enum CodingKeys: String, CodingKey {
+            case high, medium
+            case stationCapTrigger = "station_cap_trigger"
+            case stationCapValue = "station_cap_value"
+        }
+    }
+}
+
+// MARK: - 語音行程解析器
+
 /// 語音行程解析器：文字正規化 + 欄位抽取 + 信心分數計算
-/// V1 版本：單趟行程解析，不做自動票價反查
+/// 所有靜態規則皆從 VoiceNLP_Rules.json 載入，方便後續無程式碼更新
 struct TripVoiceParser {
     
     // MARK: - 解析結果
@@ -16,29 +183,38 @@ struct TripVoiceParser {
         var note: String?
         var isTransfer: Bool = false
         
-        // 信心分數
+        // 信心分數（0.0 ~ 1.0）
         var stationScore: Double = 0.0
         var transportScore: Double = 0.0
         var priceScore: Double = 0.0
         var timeScore: Double = 0.0
         var consistencyScore: Double = 0.0
         
-        /// V1 overallScore = 0.40 * stationScore + 0.25 * transportScore + 0.20 * timeScore + 0.15 * consistencyScore
+        /// 加權信心總分（由 JSON confidence.weights 定義權重）
         var overallScore: Double {
-            var score = 0.40 * stationScore + 0.25 * transportScore + 0.20 * timeScore + 0.15 * consistencyScore
-            // 若起點或終點任一欄位低於 0.60，整體上限封頂為 0.79
-            if stationScore < 0.60 {
-                score = min(score, 0.79)
+            let w = TripVoiceParser.rules.confidence.weights
+            let t = TripVoiceParser.rules.confidence.thresholds
+            var score = w.station * stationScore
+                      + w.transport * transportScore
+                      + w.time * timeScore
+                      + w.consistency * consistencyScore
+            // 若站名信心低於門檻，整體封頂
+            if stationScore < t.stationCapTrigger {
+                score = min(score, t.stationCapValue)
             }
             return score
         }
         
-        /// 是否可直接建立（高信心）
-        var isHighConfidence: Bool { overallScore >= 0.85 }
-        /// 是否需要確認（中信心）
-        var isMediumConfidence: Bool { overallScore >= 0.65 && overallScore < 0.85 }
-        /// 是否需要手動輸入（低信心）
-        var isLowConfidence: Bool { overallScore < 0.65 }
+        var isHighConfidence: Bool {
+            overallScore >= TripVoiceParser.rules.confidence.thresholds.high
+        }
+        var isMediumConfidence: Bool {
+            let t = TripVoiceParser.rules.confidence.thresholds
+            return overallScore >= t.medium && overallScore < t.high
+        }
+        var isLowConfidence: Bool {
+            overallScore < TripVoiceParser.rules.confidence.thresholds.medium
+        }
         
         /// 必要欄位是否完整
         var hasRequiredFields: Bool {
@@ -46,78 +222,45 @@ struct TripVoiceParser {
         }
     }
     
-    // MARK: - 運具同義詞映射
-    private static let transportSynonyms: [(keywords: [String], type: TransportType)] = [
-        (["機捷", "桃捷", "桃園機場捷運", "桃園捷運", "機場捷運", "機場線"], .tymrt),
-        (["捷運", "地鐵", "mrt", "北捷", "台北捷運"], .mrt),
-        (["高鐵", "hsr", "高速鐵路"], .hsr),
-        (["台鐵", "火車", "臺鐵", "區間車", "自強號", "莒光號", "普悠瑪", "太魯閣"], .tra),
-        (["公車", "巴士", "市公車", "市區公車"], .bus),
-        (["客運", "國道客運", "長途客運"], .coach),
-        (["中捷", "台中捷運", "臺中捷運"], .tcmrt),
-        (["高捷", "高雄捷運"], .kmrt),
-        (["腳踏車", "ubike", "youbike", "優拜", "自行車", "單車", "微笑單車"], .bike),
-        (["輕軌", "淡海輕軌", "安坑輕軌", "高雄輕軌"], .lrt),
-        (["渡輪", "渡船", "ferry"], .ferry),
-    ]
+    // MARK: - 規則載入（懶載入，整個 App 生命週期只讀一次）
     
-    // MARK: - 站名別名映射
-    private static let stationAliases: [String: String] = [
-        "北車": "台北車站",
-        "台北車": "台北車站",
-        "臺北車": "台北車站",
-        "台北車站": "台北車站",
-        "台北": "臺北",
-        "台北站": "臺北",
-        "臺北車站": "台北車站",
-        "臺北站": "臺北",
-        "台北火車站": "台北車站",
-        "台中": "臺中",
-        "台中站": "臺中",
-        "台南": "臺南",
-        "台南站": "臺南",
-        "台東": "臺東",
-        "台東站": "臺東",
-        "板橋車站": "板橋",
-        "桃園高鐵站": "高鐵桃園站",
-        "桃園高鐵": "高鐵桃園站",
-        "台中高鐵站": "高鐵台中站",
-        "台中高鐵": "高鐵台中站",
-        "左營高鐵站": "高鐵左營站",
-        "左營高鐵": "高鐵左營站",
-        "南港高鐵站": "高鐵南港站",
-        "南港高鐵": "高鐵南港站",
-        "動物園站": "動物園",
-        "市政府站": "市政府",
-        "西門町": "西門",
-        "西門站": "西門",
-        "忠孝復興站": "忠孝復興",
-        "忠孝敦化站": "忠孝敦化",
-        "台北101": "台北101/世貿",
-        "世貿站": "台北101/世貿",
-        "松山機場": "松山機場",
-        "桃園機場": "桃園國際機場",
-    ]
+    /// 從 Bundle 載入 VoiceNLP_Rules.json
+    static let rules: VoiceNLPRules = {
+        guard let url = Bundle.main.url(forResource: "VoiceNLP_Rules", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else {
+            fatalError("[VoiceNLPRules] 找不到 VoiceNLP_Rules.json，請確認已加入 App Target")
+        }
+        let decoder = JSONDecoder()
+        do {
+            return try decoder.decode(VoiceNLPRules.self, from: data)
+        } catch {
+            fatalError("[VoiceNLPRules] JSON 解碼失敗: \(error)")
+        }
+    }()
     
-    // MARK: - 時間口語映射
-    private static let relativeTimePatterns: [(pattern: String, dayOffset: Int)] = [
-        ("今天", 0),
-        ("今日", 0),
-        ("昨天", -1),
-        ("昨日", -1),
-        ("前天", -2),
-        ("前日", -2),
-        ("大前天", -3),
-    ]
+    // MARK: - 衍生快取（從 JSON 產生，避免重複建構）
     
-    private static let timeOfDayPatterns: [(pattern: String, hour: Int, minute: Int)] = [
-        ("早上", 8, 0),
-        ("上午", 10, 0),
-        ("中午", 12, 0),
-        ("下午", 14, 0),
-        ("傍晚", 17, 0),
-        ("晚上", 20, 0),
-    ]
+    /// 運具同義詞映射：按 priority 排序（priority 小 = 優先）
+    private static let sortedTransportRules: [TransportRule] = {
+        rules.transports.sorted { $0.priority < $1.priority }
+    }()
+    
+    /// 中文數字 → Int 快查（Character key）
+    private static let chineseDigitMap: [Character: Int] = {
+        var map: [Character: Int] = [:]
+        for (key, value) in rules.chineseNumbers.digits {
+            if let char = key.first { map[char] = value }
+        }
+        return map
+    }()
+    
+    private static let chineseMultiplierMap: [Character: Int] = {
+        var map: [Character: Int] = [:]
+        for (key, value) in rules.chineseNumbers.multipliers {
+            if let char = key.first { map[char] = value }
+        }
+        return map
+    }()
     
     // MARK: - 主解析方法
     
@@ -162,7 +305,7 @@ struct TripVoiceParser {
         // 8. 一致性分數
         result.consistencyScore = calculateConsistency(result)
         
-        // 9. 剩餘文字放入備註
+        // 9. 原始文字放入備註
         result.note = rawText
         
         return result
@@ -173,10 +316,9 @@ struct TripVoiceParser {
     static func normalizeText(_ text: String) -> String {
         var result = text
         
-        // 移除頭尾空白
         result = result.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // 統一全半形
+        // 統一全半形標點
         result = result.replacingOccurrences(of: "：", with: ":")
         result = result.replacingOccurrences(of: "，", with: ",")
         result = result.replacingOccurrences(of: "。", with: ".")
@@ -188,7 +330,7 @@ struct TripVoiceParser {
             result = result.replacingOccurrences(of: "  ", with: " ")
         }
         
-        // 中文數字轉阿拉伯數字（常見場景）
+        // 中文數字轉阿拉伯數字
         result = convertChineseNumbers(result)
         
         return result
@@ -196,29 +338,22 @@ struct TripVoiceParser {
     
     // MARK: - 中文數字轉換
     
-    private static let chineseDigits: [Character: Int] = [
-        "零": 0, "〇": 0, "一": 1, "二": 2, "兩": 2, "三": 3, "四": 4,
-        "五": 5, "六": 6, "七": 7, "八": 8, "九": 9,
-    ]
-    
-    private static let chineseMultipliers: [Character: Int] = [
-        "十": 10, "百": 100, "千": 1000,
-    ]
-    
     static func convertChineseNumbers(_ text: String) -> String {
         var result = text
         
-        // 處理「X塊」「X元」格式
-        let pricePatterns = [
-            // 匹配中文數字 + 塊/元
-            try? NSRegularExpression(pattern: "([零〇一二兩三四五六七八九十百千]+)(塊|元|塊錢)", options: []),
-        ].compactMap { $0 }
+        // 產生中文數字字元集合（從 JSON 載入）
+        let digitChars = chineseDigitMap.keys.map { String($0) }.joined()
         
-        for regex in pricePatterns {
+        // 處理「X塊」「X元」格式
+        let pricePattern = try? NSRegularExpression(
+            pattern: "([\(digitChars)]+)(塊|元|塊錢)",
+            options: []
+        )
+        
+        if let pricePattern {
             let nsRange = NSRange(result.startIndex..., in: result)
-            let matches = regex.matches(in: result, options: [], range: nsRange)
+            let matches = pricePattern.matches(in: result, options: [], range: nsRange)
             
-            // 從後往前替換，避免 range 錯位
             for match in matches.reversed() {
                 guard let numRange = Range(match.range(at: 1), in: result) else { continue }
                 let chineseNum = String(result[numRange])
@@ -229,16 +364,18 @@ struct TripVoiceParser {
             }
         }
         
-        // 處理路線號碼：「三零七」->「307」、「三零七路」->「307路」
-        let routePattern = try? NSRegularExpression(pattern: "([零〇一二兩三四五六七八九]{2,})(路|號)?", options: [])
+        // 路線號碼逐字轉換：「三零七」→「307」
+        let routePattern = try? NSRegularExpression(
+            pattern: "([\(digitChars)]{2,})(路|號)?",
+            options: []
+        )
         if let routePattern {
             let nsRange = NSRange(result.startIndex..., in: result)
             let matches = routePattern.matches(in: result, options: [], range: nsRange)
             for match in matches.reversed() {
                 guard let numRange = Range(match.range(at: 1), in: result) else { continue }
                 let chineseNum = String(result[numRange])
-                // 逐字轉換（適用於路線號碼）
-                let digits = chineseNum.compactMap { chineseDigits[$0] }
+                let digits = chineseNum.compactMap { chineseDigitMap[$0] }
                 if digits.count == chineseNum.count {
                     let arabicStr = digits.map { String($0) }.joined()
                     let fullRange = Range(match.range, in: result)!
@@ -252,14 +389,13 @@ struct TripVoiceParser {
     }
     
     private static func chineseToArabic(_ text: String) -> Int? {
-        // 簡單處理：十位以下和百位數字
         var total = 0
         var current = 0
         
         for char in text {
-            if let digit = chineseDigits[char] {
+            if let digit = chineseDigitMap[char] {
                 current = digit
-            } else if let mult = chineseMultipliers[char] {
+            } else if let mult = chineseMultiplierMap[char] {
                 if current == 0 && mult == 10 {
                     current = 1 // 「十」= 10
                 }
@@ -275,45 +411,47 @@ struct TripVoiceParser {
     // MARK: - 多段行程偵測
     
     private static func detectMultiSegment(_ text: String) -> Bool {
-        // 計算「到」「至」「往」的出現次數
-        let toPatterns = ["到", "至", "往", "去", "→", "->"]
-        var count = 0
-        for pattern in toPatterns {
-            count += text.components(separatedBy: pattern).count - 1
-        }
-        // 如果出現兩次以上方向詞，可能是多段行程
-        // 同時檢查「轉」「換」「再搭」等轉乘詞彙
-        let transferKeywords = ["轉", "換乘", "再搭", "然後搭", "接著搭", "再坐", "然後坐"]
-        let hasTransferKeyword = transferKeywords.contains(where: { text.contains($0) })
+        let msRules = rules.multiSegmentKeywords
         
-        return count >= 2 || hasTransferKeyword
+        // 計算方向詞出現次數
+        var directionCount = 0
+        for word in msRules.directionWords {
+            directionCount += text.components(separatedBy: word).count - 1
+        }
+        
+        // 檢查轉乘詞彙
+        let hasTransferKeyword = msRules.transferKeywords.contains(where: { text.contains($0) })
+        
+        return directionCount >= msRules.directionThreshold || hasTransferKeyword
     }
     
     // MARK: - 運具抽取
     
     private static func extractTransport(_ text: String) -> (TransportType?, Double) {
         let lowered = text.lowercased()
-        var bestMatch: (type: TransportType, keywordLength: Int)?
-
-        for entry in transportSynonyms {
-            for keyword in entry.keywords {
+        var bestMatch: (type: TransportType, keywordLength: Int, priority: Int)?
+        
+        for rule in sortedTransportRules {
+            guard let type = rule.transportType else { continue }
+            for keyword in rule.allKeywords {
                 if lowered.contains(keyword.lowercased()) {
                     let length = keyword.count
                     if let current = bestMatch {
-                        if length > current.keywordLength {
-                            bestMatch = (entry.type, length)
+                        // 更長的關鍵字優先；同長度則 priority 小的優先
+                        if length > current.keywordLength ||
+                           (length == current.keywordLength && rule.priority < current.priority) {
+                            bestMatch = (type, length, rule.priority)
                         }
                     } else {
-                        bestMatch = (entry.type, length)
+                        bestMatch = (type, length, rule.priority)
                     }
                 }
             }
         }
-
+        
         if let bestMatch {
             return (bestMatch.type, 1.0)
         }
-
         return (nil, 0.0)
     }
     
@@ -321,30 +459,26 @@ struct TripVoiceParser {
     
     private static func extractRouteId(_ text: String, transport: TransportType?) -> String? {
         guard transport == .bus || transport == .coach else { return nil }
-
-        // 先移除時間（例如 12:30、8點15分），避免誤抓成路線號
-        let timeRegex = try? NSRegularExpression(pattern: "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?", options: [])
+        
+        // 先移除時間格式，避免誤抓
+        let timeRegex = try? NSRegularExpression(
+            pattern: "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            options: []
+        )
         let textWithoutTime: String
         if let timeRegex {
             textWithoutTime = timeRegex.stringByReplacingMatches(
-                in: text,
-                options: [],
+                in: text, options: [],
                 range: NSRange(text.startIndex..., in: text),
                 withTemplate: " "
             )
         } else {
             textWithoutTime = text
         }
-
-        // 優先匹配「295號公車」「M157公車」「公車 207」等語意明確格式
-        let routePatterns = [
-            "([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\s*(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)",
-            "(?:公車|巴士|市公車|市區公車|客運|國道客運|長途客運)\\s*([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)?",
-            "\\b([A-Za-z]?\\d{1,4}[A-Za-z]?)\\s*(?:路|號)\\b"
-        ]
-
-        for pattern in routePatterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+        
+        // 使用 JSON 定義的路線正則
+        for rule in rules.routePatterns {
+            guard let regex = try? NSRegularExpression(pattern: rule.regex, options: [.caseInsensitive]) else { continue }
             let nsRange = NSRange(textWithoutTime.startIndex..., in: textWithoutTime)
             if let match = regex.firstMatch(in: textWithoutTime, options: [], range: nsRange),
                let routeRange = Range(match.range(at: 1), in: textWithoutTime) {
@@ -354,22 +488,15 @@ struct TripVoiceParser {
                 }
             }
         }
-
+        
         return nil
     }
     
     // MARK: - 價格抽取
     
     private static func extractPrice(_ text: String) -> (Int?, Double) {
-        // 匹配「XX元」「XX塊」「XX塊錢」「$XX」
-        let pricePatterns = [
-            try? NSRegularExpression(pattern: "(\\d+)\\s*(元|塊錢|塊)", options: []),
-            try? NSRegularExpression(pattern: "\\$\\s*(\\d+)", options: []),
-            try? NSRegularExpression(pattern: "票價\\s*(\\d+)", options: []),
-            try? NSRegularExpression(pattern: "花了?\\s*(\\d+)", options: []),
-        ].compactMap { $0 }
-        
-        for regex in pricePatterns {
+        for rule in rules.pricePatterns {
+            guard let regex = try? NSRegularExpression(pattern: rule.regex, options: []) else { continue }
             let nsRange = NSRange(text.startIndex..., in: text)
             if let match = regex.firstMatch(in: text, options: [], range: nsRange),
                let numRange = Range(match.range(at: 1), in: text),
@@ -377,20 +504,14 @@ struct TripVoiceParser {
                 return (price, 0.9)
             }
         }
-        
         return (nil, 0.0)
     }
     
     // MARK: - 起迄站抽取
     
     private static func extractStations(_ text: String, transport: TransportType?) -> (String?, String?, Double) {
-        // 嘗試匹配「從 X 到 Y」「X 到 Y」「X 至 Y」等模式
-        let stationPatterns = [
-            try? NSRegularExpression(pattern: "從\\s*(.+?)\\s*(?:到|至|往|去)\\s*(.+?)(?:\\s|$|,|。|搭|坐|花|票價|\\d+元)", options: []),
-            try? NSRegularExpression(pattern: "(.+?)\\s*(?:到|至|→|->)\\s*(.+?)(?:\\s|$|,|。|搭|坐|花|票價|\\d+元)", options: []),
-        ].compactMap { $0 }
-        
-        for regex in stationPatterns {
+        for rule in rules.stationPatterns {
+            guard let regex = try? NSRegularExpression(pattern: rule.regex, options: []) else { continue }
             let nsRange = NSRange(text.startIndex..., in: text)
             if let match = regex.firstMatch(in: text, options: [], range: nsRange),
                let startRange = Range(match.range(at: 1), in: text),
@@ -398,37 +519,41 @@ struct TripVoiceParser {
                 var startName = String(text[startRange]).trimmingCharacters(in: .whitespacesAndNewlines)
                 var endName = String(text[endRange]).trimmingCharacters(in: .whitespacesAndNewlines)
                 
-                // 移除運具關鍵字（如果站名包含運具名稱）
+                // 移除運具關鍵字
                 startName = removeTransportKeywords(startName)
                 endName = removeTransportKeywords(endName)
                 
-                // 清理前後噪音詞與路線號碼（常見於「公車207 XXX 到 YYY」）
+                // 清理噪音詞與路線號碼
                 startName = sanitizeStationCandidate(startName, transport: transport)
                 endName = sanitizeStationCandidate(endName, transport: transport)
                 
-                // 套用站名別名
+                // 套用別名
                 startName = resolveStationAlias(startName)
                 endName = resolveStationAlias(endName)
                 
-                // 台鐵站名統一成資料庫可識別格式（例如 台北 -> 臺北）
+                // 依運具做站名補全
+                startName = normalizeStationByTransport(startName, transport: transport)
+                endName = normalizeStationByTransport(endName, transport: transport)
+                
+                // 台鐵站名統一格式
                 if transport == .tra {
                     startName = normalizeTRAStationName(startName)
                     endName = normalizeTRAStationName(endName)
                 }
                 
-                // 驗證站名（嘗試在站名資料庫中找到）
                 guard !startName.isEmpty, !endName.isEmpty else { continue }
                 
+                // 驗證站名
                 let startValid = validateStation(startName, transport: transport)
                 let endValid = validateStation(endName, transport: transport)
                 
                 let score: Double
                 if startValid && endValid {
-                    score = 1.0 // 雙站精準匹配
+                    score = 1.0
                 } else if startValid || endValid {
-                    score = 0.7 // 單站匹配
+                    score = 0.7
                 } else {
-                    score = 0.4 // 都沒匹配到但有抽取到名稱
+                    score = 0.4
                 }
                 
                 return (startName, endName, score)
@@ -438,24 +563,21 @@ struct TripVoiceParser {
         return (nil, nil, 0.0)
     }
     
+    /// 從站名候選中移除運具關鍵字（使用 JSON transport_remove_keywords）
     private static func removeTransportKeywords(_ text: String) -> String {
         var result = text
-        let keywords = [
-            "搭", "坐", "搭乘", "坐了", "搭了",
-            "桃園機場捷運", "桃園捷運", "機場捷運", "機捷", "桃捷", "機場線",
-            "捷運", "公車", "火車", "高鐵", "台鐵", "臺鐵", "客運", "輕軌"
-        ]
-        for keyword in keywords {
+        for keyword in rules.transportRemoveKeywords {
             result = result.replacingOccurrences(of: keyword, with: "")
         }
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
-
+    
+    /// 清理站名候選中的噪音（日期、時間前綴、路線號碼等）
     private static func sanitizeStationCandidate(_ text: String, transport: TransportType?) -> String {
         var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !result.isEmpty else { return result }
-
-        // 移除日期前綴（昨天、今天、明天、今年、去年等）
+        
+        // 移除日期前綴
         let datePatterns = [
             "昨天", "今天", "明天", "後天",
             "今年", "去年", "明年",
@@ -474,29 +596,32 @@ struct TripVoiceParser {
                 }
             }
         }
-
-        // 移除時間前綴（HH:MM 或 H點M分格式）
-        let timePattern = try? NSRegularExpression(pattern: "^(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?\\s*", options: [])
-        if let timePattern {
+        
+        // 移除時間前綴
+        let timePrefixPatterns = [
+            "^(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*",
+            "^(?:今天|昨日|昨天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?\\s*",
+            "^(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?\\s*"
+        ]
+        for pattern in timePrefixPatterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { continue }
             let nsRange = NSRange(result.startIndex..., in: result)
-            if let match = timePattern.firstMatch(in: result, options: [], range: nsRange),
+            if let match = regex.firstMatch(in: result, options: [], range: nsRange),
                let range = Range(match.range, in: result) {
                 result.removeSubrange(range)
                 result = result.trimmingCharacters(in: .whitespacesAndNewlines)
             }
         }
-
-        // 常見前綴詞去除
+        
+        // 常見前綴詞去除（使用 noise_filters 的子集）
         let leadingWords = ["從", "由", "在", "自", "搭", "坐"]
         for word in leadingWords where result.hasPrefix(word) {
             result.removeFirst(word.count)
             result = result.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-
-        // 公車/客運常見「路線號 + 站名」格式
-        // 支援英文/數字路線號（如 207、M101）和汉字路線號（如 295號、9甲）
+        
+        // 公車/客運：移除路線號碼前綴
         if transport == .bus || transport == .coach {
-            // 先嘗試英文/數字路線
             let englishRoutePattern = try? NSRegularExpression(pattern: "^[A-Za-z0-9]{1,6}(路|號)?", options: [])
             if let englishRoutePattern {
                 let nsRange = NSRange(result.startIndex..., in: result)
@@ -507,8 +632,11 @@ struct TripVoiceParser {
                 }
             }
             
-            // 再嘗試汉字路線號（如 295號、9甲路）
-            let chineseRoutePattern = try? NSRegularExpression(pattern: "^[零〇一二兩三四五六七八九十百千0-9]{1,6}\\s*(?:號|路)?", options: [])
+            let digitChars = chineseDigitMap.keys.map { String($0) }.joined()
+            let chineseRoutePattern = try? NSRegularExpression(
+                pattern: "^[\(digitChars)0-9]{1,6}\\s*(?:號|路)?",
+                options: []
+            )
             if let chineseRoutePattern {
                 let nsRange = NSRange(result.startIndex..., in: result)
                 if let match = chineseRoutePattern.firstMatch(in: result, options: [], range: nsRange),
@@ -518,37 +646,72 @@ struct TripVoiceParser {
                 }
             }
         }
-
+        
         return result
     }
     
+    /// 依運具做站名補全（如機捷「第一航廈」→「機場第一航廈」）
+    @MainActor
+    private static func normalizeStationByTransport(_ name: String, transport: TransportType?) -> String {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return trimmed }
+        
+        switch transport {
+        case .tymrt:
+            let normalized = TYMRTStationData.shared.normalizeStationNameToZH(trimmed)
+            if TYMRTStationData.shared.line.stations.contains(normalized) {
+                return normalized
+            }
+            
+            let stationList = TYMRTStationData.shared.line.stations
+            let exactMatches = stationList.filter { $0 == trimmed }
+            if let exact = exactMatches.first {
+                return exact
+            }
+            
+            let fuzzyMatches = stationList.filter { station in
+                station.contains(trimmed) || station.hasSuffix(trimmed)
+            }
+            if fuzzyMatches.count == 1, let only = fuzzyMatches.first {
+                return only
+            }
+            
+            // 常見航廈口語補全（JSON station_aliases 也有，但這裡做 fallback）
+            if trimmed == "第一航廈" { return "機場第一航廈" }
+            if trimmed == "第二航廈" { return "機場第二航廈" }
+            if trimmed == "第三航廈" { return "機場第三航廈" }
+            
+            return normalized
+        default:
+            return trimmed
+        }
+    }
+    
+    /// 站名別名解析（使用 JSON station_aliases）
     private static func resolveStationAlias(_ name: String) -> String {
-        if let exactAlias = stationAliases[name] {
+        if let exactAlias = rules.stationAliases[name] {
             return exactAlias
         }
-
-        // 移除尾部的「站」字（很多人會說「台北車站站」）
+        
+        // 移除尾部的「站」字
         var cleaned = name
         if cleaned.hasSuffix("站") && cleaned.count > 2 {
-            // 保留像「市政府站」這類本身就包含「站」的站名
             let withoutStation = String(cleaned.dropLast())
-            // 先查別名表
-            if let alias = stationAliases[withoutStation] {
+            if let alias = rules.stationAliases[withoutStation] {
                 return alias
             }
-            // 如果去掉「站」後還能在資料庫找到，就去掉
             cleaned = withoutStation
         }
         
-        return stationAliases[cleaned] ?? cleaned
+        return rules.stationAliases[cleaned] ?? cleaned
     }
-
+    
+    /// 台鐵站名正規化（「台」→「臺」，移除尾部「站」）
     private static func normalizeTRAStationName(_ name: String) -> String {
         var normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if normalized.hasSuffix("站") && normalized.count > 1 {
             normalized = String(normalized.dropLast())
         }
-        // 台鐵資料多使用「臺」
         normalized = normalized.replacingOccurrences(of: "台", with: "臺")
         return normalized
     }
@@ -556,7 +719,6 @@ struct TripVoiceParser {
     /// 驗證站名是否存在於已知站名資料庫
     @MainActor
     private static func validateStation(_ name: String, transport: TransportType?) -> Bool {
-        // 根據運具類型選擇對應的站名資料庫
         switch transport {
         case .mrt:
             return StationData.shared.lines.contains(where: { $0.stations.contains(name) })
@@ -567,14 +729,12 @@ struct TripVoiceParser {
         case .kmrt:
             return KMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) })
         case .bus, .coach:
-            // 公車/客運站名通常是自由文字，避免誤判為低信心
             return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         case .tra:
             return TRAStationData.shared.resolveStationID(normalizeTRAStationName(name)) != nil
         case .hsr:
             return HSRStationData.shared.line.stations.contains(name)
         default:
-            // 嘗試所有資料庫
             if StationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
             if TYMRTStationData.shared.line.stations.contains(name) { return true }
             if TCMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
@@ -593,29 +753,32 @@ struct TripVoiceParser {
         var timeResult: Date?
         var confidence: Double = 0.0
         
-        // 相對日期
-        for entry in relativeTimePatterns {
-            if text.contains(entry.pattern) {
+        // 相對日期（從 JSON 載入）
+        for entry in rules.timeSemantics.relativeDays {
+            if text.contains(entry.keyword) {
                 dateResult = calendar.date(byAdding: .day, value: entry.dayOffset, to: Date())
                 confidence = max(confidence, 0.9)
                 break
             }
         }
         
-        // 時間段
-        for entry in timeOfDayPatterns {
-            if text.contains(entry.pattern) {
+        // 時間段（從 JSON 載入）
+        for entry in rules.timeSemantics.timeOfDay {
+            if text.contains(entry.keyword) {
                 var components = DateComponents()
                 components.hour = entry.hour
                 components.minute = entry.minute
                 timeResult = calendar.date(from: components)
-                confidence = max(confidence, 0.6) // 時間段信心較低
+                confidence = max(confidence, 0.6)
                 break
             }
         }
         
         // 精確時間：「X點Y分」「X:Y」
-        let timeRegex = try? NSRegularExpression(pattern: "(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?", options: [])
+        let timeRegex = try? NSRegularExpression(
+            pattern: "(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?",
+            options: []
+        )
         if let timeRegex {
             let nsRange = NSRange(text.startIndex..., in: text)
             if let match = timeRegex.firstMatch(in: text, options: [], range: nsRange),
@@ -635,9 +798,9 @@ struct TripVoiceParser {
             }
         }
         
-        // 如果都沒偵測到，預設使用當前時間（但信心分數為低）
+        // 都沒偵測到 → 使用預設時間，信心低
         if dateResult == nil && timeResult == nil {
-            confidence = 0.3 // 使用預設時間，信心低
+            confidence = 0.3
         }
         
         return (dateResult, timeResult, confidence)
@@ -646,14 +809,12 @@ struct TripVoiceParser {
     // MARK: - 一致性分數
     
     private static func calculateConsistency(_ parsed: ParsedTrip) -> Double {
-        var score = 0.5 // 基準
+        var score = 0.5
         
-        // 如果有運具且有站名，加分
         if parsed.transportType != nil && parsed.startStation != nil && parsed.endStation != nil {
             score += 0.3
         }
         
-        // 如果有價格且合理範圍（0~5000），加分
         if let price = parsed.price, price >= 0, price <= 5000 {
             score += 0.2
         }
