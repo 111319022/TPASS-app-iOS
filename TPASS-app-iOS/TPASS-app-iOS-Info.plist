@@ -10,5 +10,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TPASS.calc 需要麥克風權限來使用語音快速記錄行程功能。</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TPASS.calc 需要語音辨識權限來將您的語音轉換為文字，以快速記錄行程。</string>
 </dict>
 </plist>

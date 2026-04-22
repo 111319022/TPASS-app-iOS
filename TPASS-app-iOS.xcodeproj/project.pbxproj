@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB025DFA2F9868CB00AEFB19 /* VoiceInputService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DF92F9868CB00AEFB19 /* VoiceInputService.swift */; };
+		FB025DFC2F98692900AEFB19 /* TripVoiceParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFB2F98692900AEFB19 /* TripVoiceParser.swift */; };
+		FB025DFE2F98695600AEFB19 /* VoiceDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */; };
+		FB025E002F9869B800AEFB19 /* VoiceQuickTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -98,6 +102,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FB025DF92F9868CB00AEFB19 /* VoiceInputService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputService.swift; sourceTree = "<group>"; };
+		FB025DFB2F98692900AEFB19 /* TripVoiceParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripVoiceParser.swift; sourceTree = "<group>"; };
+		FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraft.swift; sourceTree = "<group>"; };
+		FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceQuickTripView.swift; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -229,6 +237,7 @@
 				FB0A20E92F8F8EF100405172 /* TPASSRegion.swift */,
 				FB826C402F92244E00D6D1D7 /* LRTModels.swift */,
 				FB0A20EA2F8F8EF100405172 /* User.swift */,
+				FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -246,6 +255,8 @@
 				FB0A20EF2F8F8EF100405172 /* HapticManager.swift */,
 				FB0A20F12F8F8EF100405172 /* NotificationManager.swift */,
 				FB0A20F32F8F8EF100405172 /* ThemeManager.swift */,
+				FB025DF92F9868CB00AEFB19 /* VoiceInputService.swift */,
+				FB025DFB2F98692900AEFB19 /* TripVoiceParser.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -287,6 +298,7 @@
 				FB0A21112F8F8EF100405172 /* TripListView.swift */,
 				FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */,
 				FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */,
+				FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -553,6 +565,8 @@
 				FB0A21362F8F8EF100405172 /* HomeStationSettingsView.swift in Sources */,
 				FB0A21372F8F8EF100405172 /* CloudKitSyncService.swift in Sources */,
 				FB0A21382F8F8EF100405172 /* FavoritesManagementView.swift in Sources */,
+				FB025DFE2F98695600AEFB19 /* VoiceDraft.swift in Sources */,
+				FB025E002F9869B800AEFB19 /* VoiceQuickTripView.swift in Sources */,
 				FB0A21392F8F8EF100405172 /* SettingsView.swift in Sources */,
 				FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */,
 				FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */,
@@ -570,6 +584,7 @@
 				FB0A21442F8F8EF100405172 /* TPEMRTFareService.swift in Sources */,
 				FB0A21452F8F8EF100405172 /* BackupManagementView.swift in Sources */,
 				FB0A21462F8F8EF100405172 /* OutboundStationSettingsView.swift in Sources */,
+				FB025DFA2F9868CB00AEFB19 /* VoiceInputService.swift in Sources */,
 				FB0A21472F8F8EF100405172 /* SpotlightTutorialView.swift in Sources */,
 				FB0A21482F8F8EF100405172 /* IntroView.swift in Sources */,
 				FB0A21492F8F8EF100405172 /* NotificationManager.swift in Sources */,
@@ -579,6 +594,7 @@
 				FB0A214D2F8F8EF100405172 /* ViewFrameKey.swift in Sources */,
 				FB0A214E2F8F8EF100405172 /* TPASSRegion.swift in Sources */,
 				FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */,
+				FB025DFC2F98692900AEFB19 /* TripVoiceParser.swift in Sources */,
 				FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -739,7 +755,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.9.1;
+				MARKETING_VERSION = 1.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -782,7 +798,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.9.1;
+				MARKETING_VERSION = 1.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tpass-app.TPASS.clac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

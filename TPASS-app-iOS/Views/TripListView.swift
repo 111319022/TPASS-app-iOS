@@ -46,6 +46,7 @@ struct TripListView: View {
     @State private var showNoCycleAlert = false
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
+    @State private var showVoiceQuickTripSheet = false
     
     // MARK: - 教學狀態
     // 使用 AppStorage 自動記住使用者是否看過教學
@@ -432,34 +433,55 @@ struct TripListView: View {
                 // 浮動新增按鈕
                 VStack {
                     Spacer()
-                    Button(action: { 
-                        if auth.currentUser?.cycles.isEmpty ?? true {
-                            showNoCycleAlert = true
-                        } else {
-                            showAddTripSheet = true
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "plus")
+                    HStack(spacing: 12) {
+                        // 語音快速記錄按鈕
+                        Button(action: {
+                            if auth.currentUser?.cycles.isEmpty ?? true {
+                                showNoCycleAlert = true
+                            } else {
+                                showVoiceQuickTripSheet = true
+                            }
+                        }) {
+                            Image(systemName: "mic.fill")
                                 .font(.system(size: 20, weight: .bold))
-                            Text("addTrip_btn")
-                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 52, height: 52)
+                                .background(Color(hex: "#2c3e50"))
+                                .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .foregroundColor(.white)
-                        .padding(.vertical, 14)
-                        .padding(.horizontal, 24)
-                        .background(Color(hex: "#2c3e50"))
-                        .cornerRadius(30)
-                        .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .accessibilityLabel(Text("voice_quick_trip_a11y"))
+                        
+                        // 手動新增按鈕
+                        Button(action: { 
+                            if auth.currentUser?.cycles.isEmpty ?? true {
+                                showNoCycleAlert = true
+                            } else {
+                                showAddTripSheet = true
+                            }
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .bold))
+                                Text("addTrip_btn")
+                                    .font(.system(size: 18, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 24)
+                            .background(Color(hex: "#2c3e50"))
+                            .cornerRadius(30)
+                            .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                        }
+                        //     關鍵：回報按鈕的準確座標給教學系統
+                        .reportFrame(id: "addButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let btnFrame = frames["addButton"] {
+                                tutorialPositions.addButtonFrame = btnFrame
+                            }
+                        }
                     }
-                    //     關鍵：回報按鈕的準確座標給教學系統
-                    .reportFrame(id: "addButton", in: .global)
                     .padding(.bottom, 20)
-                    .onPreferenceChange(ViewFrameKey.self) { frames in
-                        if let btnFrame = frames["addButton"] {
-                            tutorialPositions.addButtonFrame = btnFrame
-                        }
-                    }
                 }
                 
                 // Toast
@@ -517,6 +539,11 @@ struct TripListView: View {
                 isProcessingSwipeAction: $isProcessingSwipeAction,
                 showToast: showToast
             ))
+            .sheet(isPresented: $showVoiceQuickTripSheet) {
+                VoiceQuickTripView(onSuccess: {
+                    showToast(message: "voice_trip_saved")
+                })
+            }
             .modifier(TripListAlertsModifier(
                 pendingDeleteDate: $pendingDeleteDate,
                 pendingDeleteCycleId: $pendingDeleteCycleId,
