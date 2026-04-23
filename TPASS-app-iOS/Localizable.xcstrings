@@ -3170,38 +3170,6 @@
         }
       }
     },
-    "date_out_of_cycle_message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose the date in the current cycle."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請選擇週期內日期"
-          }
-        }
-      }
-    },
-    "date_out_of_cycle_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Date out of cycle"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日期超出週期範圍"
-          }
-        }
-      }
-    },
     "date_out_of_cycle_cancel_action" : {
       "localizations" : {
         "en" : {
@@ -3246,6 +3214,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。"
+          }
+        }
+      }
+    },
+    "date_out_of_cycle_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose the date in the current cycle."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請選擇週期內日期"
+          }
+        }
+      }
+    },
+    "date_out_of_cycle_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date out of cycle"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期超出週期範圍"
           }
         }
       }
@@ -10368,9 +10368,6 @@
 
     },
     "日期超出月票週期" : {
-
-    },
-    "日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。" : {
 
     },
     "會清除目前登入狀態並立即顯示 Intro，不會刪除 local_user。" : {
