@@ -89,7 +89,8 @@ struct VoiceDraft: Identifiable {
             routeId: parsed.routeId,
             tripDate: parsed.date,
             tripTime: parsed.time,
-            note: parsed.note,
+            // 備註不再自動帶入語音轉寫內容，保留讓使用者手動填寫
+            note: nil,
             isTransfer: parsed.isTransfer,
             stationScore: parsed.stationScore,
             transportScore: parsed.transportScore,
