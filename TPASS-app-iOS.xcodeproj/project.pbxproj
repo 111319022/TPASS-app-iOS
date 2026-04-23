@@ -18,6 +18,8 @@
 		FB025E0E2F9A7E2200AEFB19 /* SwiftDataManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */; };
 		FB025E0F2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */; };
 		FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */; };
+		FB025E122F9AAEA000AEFB19 /* DevLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E112F9AAEA000AEFB19 /* DevLog.swift */; };
+		FB025E142F9AAEC200AEFB19 /* DevConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -119,6 +121,8 @@
 		FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperIssueReportsView.swift; sourceTree = "<group>"; };
 		FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperToolsPlaceholderView.swift; sourceTree = "<group>"; };
 		FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataManagementView.swift; sourceTree = "<group>"; };
+		FB025E112F9AAEA000AEFB19 /* DevLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLog.swift; sourceTree = "<group>"; };
+		FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevConsoleView.swift; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -235,6 +239,7 @@
 				FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */,
 				FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */,
 				FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */,
+				FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */,
 			);
 			path = DevViews;
 			sourceTree = "<group>";
@@ -290,6 +295,7 @@
 				FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */,
 				FB025DFB2F98692900AEFB19 /* TripVoiceParser.swift */,
 				FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */,
+				FB025E112F9AAEA000AEFB19 /* DevLog.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -596,6 +602,7 @@
 				FB0A21332F8F8EF100405172 /* AuthService.swift in Sources */,
 				FB025E0E2F9A7E2200AEFB19 /* SwiftDataManagementView.swift in Sources */,
 				FB025E0F2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift in Sources */,
+				FB025E142F9AAEC200AEFB19 /* DevConsoleView.swift in Sources */,
 				FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */,
 				FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */,
 				FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */,
@@ -633,6 +640,7 @@
 				FB0A214E2F8F8EF100405172 /* TPASSRegion.swift in Sources */,
 				FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */,
 				FB025DFC2F98692900AEFB19 /* TripVoiceParser.swift in Sources */,
+				FB025E122F9AAEA000AEFB19 /* DevLog.swift in Sources */,
 				FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */,
 				FBC1A002302A100100AA0001 /* VoiceLogExportService.swift in Sources */,
 				FB025E052F98B0CB00AEFB19 /* VoiceParseLogService.swift in Sources */,
@@ -778,7 +786,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 89;
+				CURRENT_PROJECT_VERSION = 90;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -821,7 +829,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 89;
+				CURRENT_PROJECT_VERSION = 90;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
