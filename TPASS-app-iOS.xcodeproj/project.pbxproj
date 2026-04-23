@@ -12,10 +12,12 @@
 		FB025DFE2F98695600AEFB19 /* VoiceDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */; };
 		FB025E002F9869B800AEFB19 /* VoiceQuickTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */; };
 		FB025E032F98B02200AEFB19 /* VoiceNLP_Rules.json in Resources */ = {isa = PBXBuildFile; fileRef = FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */; };
-		FBC1A002302A100100AA0001 /* VoiceLogExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */; };
 		FB025E052F98B0CB00AEFB19 /* VoiceParseLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */; };
 		FB025E072F99BF6C00AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */; };
 		FB025E092F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */; };
+		FB025E0E2F9A7E2200AEFB19 /* SwiftDataManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */; };
+		FB025E0F2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */; };
+		FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -80,10 +82,8 @@
 		FB0A216F2F8F955800405172 /* 404.html in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21662F8F955800405172 /* 404.html */; };
 		FB0A21712F8F98EC00405172 /* PROJECT_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */; };
 		FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */; };
-		FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */; };
 		FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21762F8FB100405172 /* IssueReportService.swift */; };
 		FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A21782F8FB100405172 /* ReportIssueView.swift */; };
-		FB0A217B2F8FB100405172 /* DeveloperIssueReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */; };
 		FB0A21822F8FB300405172 /* KLRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A217F2F8FB300405172 /* KLRT_StationData.json */; };
 		FB0A21832F8FB300405172 /* NTDLRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21802F8FB300405172 /* NTDLRT_StationData.json */; };
 		FB0A21842F8FB300405172 /* NTALRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21812F8FB300405172 /* NTALRT_StationData.json */; };
@@ -104,6 +104,7 @@
 		FB826C5D2F929C3600D6D1D7 /* TCMRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C592F929C3600D6D1D7 /* TCMRT_Fare.json */; };
 		FB826C5E2F929C3600D6D1D7 /* TYMRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C5A2F929C3600D6D1D7 /* TYMRT_Fare.json */; };
 		FB826C602F929D4600D6D1D7 /* TPEMRT_Fare.json in Resources */ = {isa = PBXBuildFile; fileRef = FB826C5F2F929D4600D6D1D7 /* TPEMRT_Fare.json */; };
+		FBC1A002302A100100AA0001 /* VoiceLogExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,10 +113,12 @@
 		FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraft.swift; sourceTree = "<group>"; };
 		FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceQuickTripView.swift; sourceTree = "<group>"; };
 		FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = VoiceNLP_Rules.json; sourceTree = "<group>"; };
-		FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceLogExportService.swift; sourceTree = "<group>"; };
 		FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceParseLogService.swift; sourceTree = "<group>"; };
 		FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = VOICE_TRIP_INPUT_PLAN_V2.md; sourceTree = "<group>"; };
 		FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceSegmentEditorCard.swift; sourceTree = "<group>"; };
+		FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperIssueReportsView.swift; sourceTree = "<group>"; };
+		FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperToolsPlaceholderView.swift; sourceTree = "<group>"; };
+		FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataManagementView.swift; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -181,10 +184,8 @@
 		FB0A21692F8F955800405172 /* support.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = support.html; sourceTree = "<group>"; };
 		FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROJECT_GUIDE.md; sourceTree = "<group>"; };
 		FB0A21722F8FAF8900405172 /* DeveloperAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperAccessService.swift; sourceTree = "<group>"; };
-		FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperToolsPlaceholderView.swift; sourceTree = "<group>"; };
 		FB0A21762F8FB100405172 /* IssueReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportService.swift; sourceTree = "<group>"; };
 		FB0A21782F8FB100405172 /* ReportIssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportIssueView.swift; sourceTree = "<group>"; };
-		FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperIssueReportsView.swift; sourceTree = "<group>"; };
 		FB0A217D2F8FB300405172 /* LRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRTStationData.swift; sourceTree = "<group>"; };
 		FB0A217F2F8FB300405172 /* KLRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = KLRT_StationData.json; sourceTree = "<group>"; };
 		FB0A21802F8FB300405172 /* NTDLRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_StationData.json; sourceTree = "<group>"; };
@@ -206,6 +207,7 @@
 		FB826C592F929C3600D6D1D7 /* TCMRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TCMRT_Fare.json; sourceTree = "<group>"; };
 		FB826C5A2F929C3600D6D1D7 /* TYMRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TYMRT_Fare.json; sourceTree = "<group>"; };
 		FB826C5F2F929D4600D6D1D7 /* TPEMRT_Fare.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TPEMRT_Fare.json; sourceTree = "<group>"; };
+		FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceLogExportService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +227,16 @@
 				FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */,
 			);
 			path = VoiceNLP;
+			sourceTree = "<group>";
+		};
+		FB025E0A2F9A79EB00AEFB19 /* DevViews */ = {
+			isa = PBXGroup;
+			children = (
+				FB025E0B2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift */,
+				FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */,
+				FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */,
+			);
+			path = DevViews;
 			sourceTree = "<group>";
 		};
 		FB0A20E22F8F8EF100405172 /* Data */ = {
@@ -293,6 +305,7 @@
 		FB0A21132F8F8EF100405172 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FB025E0A2F9A79EB00AEFB19 /* DevViews */,
 				FB0A20FC2F8F8EF100405172 /* AddTripView.swift */,
 				FB0A20FD2F8F8EF100405172 /* BackupManagementView.swift */,
 				FB0A20FE2F8F8EF100405172 /* CardScannerView.swift */,
@@ -309,7 +322,6 @@
 				FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */,
 				FB0A210A2F8F8EF100405172 /* QuickAddHomeView.swift */,
 				FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */,
-				FB0A217A2F8FB100405172 /* DeveloperIssueReportsView.swift */,
 				FB0A21782F8FB100405172 /* ReportIssueView.swift */,
 				FB0A210C2F8F8EF100405172 /* SettingsView.swift */,
 				FB0A210D2F8F8EF100405172 /* SpotlightTutorialView.swift */,
@@ -318,7 +330,6 @@
 				FB0A21102F8F8EF100405172 /* TransferTypeSelectionView.swift */,
 				FB0A21112F8F8EF100405172 /* TripListView.swift */,
 				FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */,
-				FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */,
 				FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */,
 				FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */,
 			);
@@ -583,6 +594,9 @@
 				FB0A21312F8F8EF100405172 /* EditTripView.swift in Sources */,
 				FB0A21322F8F8EF100405172 /* StationData.swift in Sources */,
 				FB0A21332F8F8EF100405172 /* AuthService.swift in Sources */,
+				FB025E0E2F9A7E2200AEFB19 /* SwiftDataManagementView.swift in Sources */,
+				FB025E0F2F9A7E2200AEFB19 /* DeveloperIssueReportsView.swift in Sources */,
+				FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */,
 				FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */,
 				FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */,
 				FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */,
@@ -595,8 +609,6 @@
 				FB0A21392F8F8EF100405172 /* SettingsView.swift in Sources */,
 				FB0A213A2F8F8EF100405172 /* CyclesView.swift in Sources */,
 				FB0A213B2F8F8EF100405172 /* THSRFareService.swift in Sources */,
-				FB0A21752F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift in Sources */,
-				FB0A217B2F8FB100405172 /* DeveloperIssueReportsView.swift in Sources */,
 				FB0A21792F8FB100405172 /* ReportIssueView.swift in Sources */,
 				FB0A213C2F8F8EF100405172 /* CSVManager.swift in Sources */,
 				FB0A213D2F8F8EF100405172 /* TripListView.swift in Sources */,

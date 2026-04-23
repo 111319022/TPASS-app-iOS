@@ -5,7 +5,7 @@ struct ReportIssueView: View {
     @EnvironmentObject var themeManager: ThemeManager
 
     @FocusState private var focusedField: Field?
-    @State private var email = ""
+    @AppStorage("issueReportContactEmail") private var email = ""
     @State private var content = ""
     @State private var isSubmitting = false
     @State private var showAlert = false
@@ -146,11 +146,13 @@ struct ReportIssueView: View {
 
     private func submitReport() {
         guard !isSubmitting else { return }
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        email = trimmedEmail
         isSubmitting = true
 
         Task {
             do {
-                try await IssueReportService.shared.submitReport(content: content, email: email)
+                try await IssueReportService.shared.submitReport(content: content, email: trimmedEmail)
                 await MainActor.run {
                     isSubmitting = false
                     content = ""

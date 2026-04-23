@@ -16,6 +16,7 @@ struct DeveloperToolsPlaceholderView: View {
     @State private var openIssueReportsFromNotification = false
     @State private var isExporting = false
     @State private var csvFileURL: URL?
+    @State private var showSwiftDataAdmin = false
 
     var body: some View {
         Form {
@@ -204,6 +205,20 @@ struct DeveloperToolsPlaceholderView: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            Section(header: Text("SwiftData 維護")) {
+                Button {
+                    showSwiftDataAdmin = true
+                } label: {
+                    issueActionRow(
+                        icon: "folder.badge.gearshape",
+                        iconColor: .blue,
+                        title: "管理 SwiftData 資料",
+                        subtitle: "查看所有資料並支援逐筆刪除"
+                    )
+                }
+                .buttonStyle(.plain)
+            }
         }
         .navigationTitle("開發者")
         .navigationBarTitleDisplayMode(.inline)
@@ -231,6 +246,11 @@ struct DeveloperToolsPlaceholderView: View {
             Button("確定", role: .cancel) {}
         } message: {
             Text(setupResultMessage)
+        }
+        .sheet(isPresented: $showSwiftDataAdmin) {
+            NavigationStack {
+                SwiftDataManagementView()
+            }
         }
     }
 
@@ -316,12 +336,13 @@ struct DeveloperToolsPlaceholderView: View {
             let result = await IssueReportService.shared.runCloudKitPushSelfCheck()
 
             var lines: [String] = []
+
             lines.append("通知權限：\(result.notificationAuthorized ? "已允許" : "未允許")")
             lines.append("iCloud 帳號：\(result.iCloudAvailable ? "可用" : "不可用")")
             lines.append("iCloud 狀態：\(result.accountStatusDescription)")
             lines.append("CloudKit 使用者識別：\(result.userRecordAccessible ? "可取得" : "不可取得")")
             lines.append("IssueReport 訂閱：\(result.subscriptionExists ? "已建立" : "未建立")")
-
+            
             if let subscriptionDescription = result.subscriptionDescription, !subscriptionDescription.isEmpty {
                 lines.append("訂閱資訊：\(subscriptionDescription)")
             }
