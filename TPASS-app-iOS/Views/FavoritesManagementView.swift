@@ -15,6 +15,16 @@ struct FavoritesManagementView: View {
     @State private var toastMessage: LocalizedStringKey = ""
     @State private var swipedFavIds: Set<UUID> = []
     @State private var swipedCommuterIds: Set<UUID> = []
+    @State private var showDateOutOfRangeAlert = false
+    @State private var pendingQuickAddFavorite: FavoriteRoute? = nil
+
+    private var selectedCycleDateRange: ClosedRange<Date>? {
+        guard let cycle = viewModel.activeCycle else { return nil }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return start...end
+    }
     
     private var screenBackground: Color {
         switch themeManager.currentTheme {
@@ -133,6 +143,22 @@ struct FavoritesManagementView: View {
                 .zIndex(100)
             }
         }
+        .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
+            Button("date_out_of_cycle_cancel_action", role: .cancel) {
+                pendingQuickAddFavorite = nil
+            }
+            Button("date_out_of_cycle_force_add_action") {
+                guard let fav = pendingQuickAddFavorite,
+                      let forceDate = selectedCycleDateRange?.lowerBound else {
+                    pendingQuickAddFavorite = nil
+                    return
+                }
+                performQuickAddFavorite(fav, createdAt: forceDate)
+                pendingQuickAddFavorite = nil
+            }
+        } message: {
+            Text("date_out_of_cycle_force_add_message")
+        }
     }
     
     private func showToast(message: LocalizedStringKey) {
@@ -218,18 +244,7 @@ struct FavoritesManagementView: View {
     @ViewBuilder
     private func favoriteButtonWithActions(_ fav: FavoriteRoute) -> some View {
         Button(action: {
-            //     修正：使用 getLocalizedRouteName 取得正確的站名
-            let routeName = getLocalizedRouteName(fav)
-            
-            viewModel.quickAddTrip(from: fav)
-            
-            //     [新增] 震動：快速新增成功
-            HapticManager.shared.notification(type: .success)
-            
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                onQuickAdd?(routeName)
-            }
+            quickAddFavoriteWithDateValidation(fav)
         }) {
             favoriteRowView(fav, rowBackground: rowBackground)
         }
@@ -256,6 +271,30 @@ struct FavoritesManagementView: View {
             } label: {
                 Label("delete", systemImage: "trash")
             }
+        }
+    }
+
+    private func quickAddFavoriteWithDateValidation(_ fav: FavoriteRoute) {
+        let now = Date()
+        if let range = selectedCycleDateRange, !range.contains(now) {
+            pendingQuickAddFavorite = fav
+            showDateOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+            return
+        }
+        performQuickAddFavorite(fav, createdAt: now)
+    }
+
+    private func performQuickAddFavorite(_ fav: FavoriteRoute, createdAt: Date) {
+        let routeName = getLocalizedRouteName(fav)
+
+        viewModel.quickAddTrip(from: fav, createdAtOverride: createdAt)
+
+        HapticManager.shared.notification(type: .success)
+
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            onQuickAdd?(routeName)
         }
     }
     

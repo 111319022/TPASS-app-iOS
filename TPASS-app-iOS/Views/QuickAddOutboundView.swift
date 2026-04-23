@@ -305,12 +305,12 @@ struct QuickAddOutboundView: View {
             }
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
-            Button("取消", role: .cancel) { }
-            Button("仍要新增") {
+            Button("date_out_of_cycle_cancel_action", role: .cancel) { }
+            Button("date_out_of_cycle_force_add_action") {
                 addTrip(forceAdjustOutOfRangeDate: true)
             }
         } message: {
-            Text("日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。")
+            Text("date_out_of_cycle_force_add_message")
         }
         .onAppear {
             let now = Date()

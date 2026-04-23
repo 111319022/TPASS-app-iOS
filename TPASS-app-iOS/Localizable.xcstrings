@@ -3202,6 +3202,54 @@
         }
       }
     },
+    "date_out_of_cycle_cancel_action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "date_out_of_cycle_force_add_action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Anyway"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍要新增"
+          }
+        }
+      }
+    },
+    "date_out_of_cycle_force_add_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The date is outside the current cycle. If you continue, it will be changed to cycle start at 00:00."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。"
+          }
+        }
+      }
+    },
     "date_overlap_message" : {
       "localizations" : {
         "en" : {
@@ -10238,6 +10286,9 @@
         }
       }
     },
+    "仍要新增" : {
+
+    },
     "使用已保存" : {
 
     },
@@ -10314,6 +10365,12 @@
 
     },
     "截取結果" : {
+
+    },
+    "日期超出月票週期" : {
+
+    },
+    "日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。" : {
 
     },
     "會清除目前登入狀態並立即顯示 Intro，不會刪除 local_user。" : {
@@ -10409,6 +10466,9 @@
 
     },
     "複製完成" : {
+
+    },
+    "語音解析中有行程日期超出目前月票週期，若仍要新增，超出範圍的日期會自動改為月票起始日 00:00。" : {
 
     },
     "語音輸入" : {

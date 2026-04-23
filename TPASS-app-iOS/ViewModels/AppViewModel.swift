@@ -828,7 +828,7 @@ class AppViewModel: ObservableObject {
     // MARK: - Favorites Logic
 
     @MainActor
-    func quickAddTrip(from fav: FavoriteRoute) {
+    func quickAddTrip(from fav: FavoriteRoute, createdAtOverride: Date? = nil) {
         guard let userId = AuthService.shared.currentUser?.id else { return }
         
         let identity = AuthService.shared.currentUser?.identity ?? .adult
@@ -842,7 +842,7 @@ class AppViewModel: ObservableObject {
             paidPrice = fav.price
         }
         
-        let createdAt = Date()
+        let createdAt = createdAtOverride ?? Date()
         let cycleId = cycleForTrip(date: createdAt)?.id
         let newTrip = Trip(
             id: UUID().uuidString,
