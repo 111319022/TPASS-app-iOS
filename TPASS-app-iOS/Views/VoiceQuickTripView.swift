@@ -1,7 +1,27 @@
 import SwiftUI
 
+/// 每段行程的可編輯狀態
+struct SegmentEditState: Identifiable {
+    let id: UUID
+    var transportType: TransportType?
+    var startStation: String = ""
+    var endStation: String = ""
+    var startLineCode: String = ""
+    var endLineCode: String = ""
+    var price: String = ""
+    var routeId: String = ""
+    var note: String = ""
+    var date: Date = Date()
+    var isTransfer: Bool = false
+    var isFree: Bool = false
+    var transferDiscountType: TransferDiscountType? = nil
+    var isHSRNonReserved: Bool = false
+    var startTRARegion: TRARegion? = nil
+    var endTRARegion: TRARegion? = nil
+}
+
 /// 語音快速記錄行程 — 獨立入口頁面
-/// V1：錄音 → 轉寫 → 解析 → 草稿預覽 → 確認建立 Trip
+/// V2：錄音 → 轉寫 → 解析（多段行程） → 時間軸預覽 → 確認批次建立 Trip
 struct VoiceQuickTripView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: AppViewModel
@@ -21,34 +41,13 @@ struct VoiceQuickTripView: View {
     }
     
     @State private var phase: ViewPhase = .ready
-    @State private var draft: VoiceDraft?
-    @State private var showMultiSegmentAlert = false
+    
+    // V2：多段行程陣列
+    @State private var drafts: [VoiceDraft] = []
+    @State private var segments: [SegmentEditState] = []
+    
     @State private var showSaveSuccess = false
     @State private var showTRAOutOfRangeAlert = false
-    
-    // 使用者手動修正欄位
-    @State private var editedTransportType: TransportType?
-    @State private var editedStartStation: String = ""
-    @State private var editedEndStation: String = ""
-    @State private var editedStartLineCode: String = ""
-    @State private var editedEndLineCode: String = ""
-    @State private var editedPrice: String = ""
-    @State private var editedRouteId: String = ""
-    @State private var editedNote: String = ""
-    @State private var editedDate: Date = Date()
-    @State private var useCurrentTime: Bool = true
-    @State private var isTransfer: Bool = false
-    @State private var isFree: Bool = false
-    @State private var transferDiscountType: TransferDiscountType? = nil
-    @State private var showTransferTypePicker: Bool = false
-    @State private var isHSRNonReserved: Bool = false
-    
-    // TRA 選擇狀態
-    @State private var startTRARegion: TRARegion?
-    @State private var endTRARegion: TRARegion?
-    
-    // 解析中旗標，避免 onChange 清空站名
-    @State private var isPopulatingFromParse: Bool = false
     
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
     @State private var didSaveTrip: Bool = false
@@ -79,35 +78,6 @@ struct VoiceQuickTripView: View {
         Set(availableTRARegions.flatMap { region in
             region.stations.map { $0.id }
         })
-    }
-
-    private var isTRAOutOfRange: Bool {
-        guard editedTransportType == .tra,
-              !editedStartStation.isEmpty,
-              !editedEndStation.isEmpty else { return false }
-        return !availableTRAStationIDs.contains(editedStartStation) ||
-               !availableTRAStationIDs.contains(editedEndStation)
-    }
-    
-    private var filteredTransferTypes: [TransferDiscountType] {
-        let allTypes = currentRegion.supportedTransferTypes
-        guard let userCity = auth.currentUser?.citizenCity else { return allTypes }
-        return allTypes.filter { type in
-            if let required = type.citizenRequirement { return required == userCity }
-            return true
-        }
-    }
-    
-    // 輸入框背景色
-    private var inputBackground: Color {
-        let isDark: Bool = {
-            switch themeManager.currentTheme {
-            case .dark: return true
-            case .light, .muji, .purple: return false
-            case .system: return UITraitCollection.current.userInterfaceStyle == .dark
-            }
-        }()
-        return isDark ? Color(uiColor: .secondarySystemBackground) : Color(uiColor: .systemBackground)
     }
     
     var body: some View {
@@ -150,13 +120,6 @@ struct VoiceQuickTripView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .alert("voice_multi_segment_title", isPresented: $showMultiSegmentAlert) {
-            Button("ok", role: .cancel) {
-                phase = .fallbackManual
-            }
-        } message: {
-            Text("voice_multi_segment_message")
-        }
         .alert("台鐵站點超出月票範圍", isPresented: $showTRAOutOfRangeAlert) {
             Button("知道了", role: .cancel) { }
         } message: {
@@ -166,13 +129,14 @@ struct VoiceQuickTripView: View {
             checkPermissions()
         }
         .onDisappear {
-            // 有成功解析出 draft 但使用者未儲存就離開 → 上傳 abandoned 紀錄
-            if let abandonedDraft = draft, !didSaveTrip {
-                let transcript = abandonedDraft.originalTranscript
+            // 有成功解析出 drafts 但使用者未儲存就離開 → 上傳 abandoned 紀錄
+            if !drafts.isEmpty, !didSaveTrip {
+                let transcript = drafts.first?.originalTranscript ?? ""
+                let abandonedDrafts = drafts
                 Task {
                     await VoiceParseLogService.shared.logAbandonedParse(
                         originalTranscript: transcript,
-                        draft: abandonedDraft
+                        drafts: abandonedDrafts
                     )
                 }
             }
@@ -252,6 +216,7 @@ struct VoiceQuickTripView: View {
             "「搭捷運從台北車站到市政府 25 元」",
             "「昨天坐公車 307 花了 15 元」",
             "「高鐵台北到台中」",
+            "「捷運北車到淡水，轉860公車到三芝」",
         ]
     }
     
@@ -371,13 +336,10 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    // MARK: - 草稿預覽
+    // MARK: - 草稿預覽（V2 時間軸）
     
     private var previewPhaseContent: some View {
         VStack(spacing: 16) {
-            // 信心指示
-            confidenceIndicator
-            
             // 原始轉寫
             VStack(alignment: .leading, spacing: 6) {
                 Text("voice_original_transcript")
@@ -385,7 +347,7 @@ struct VoiceQuickTripView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.secondaryTextColor)
                 
-                Text(draft?.originalTranscript ?? "")
+                Text(drafts.first?.originalTranscript ?? "")
                     .font(.body)
                     .foregroundColor(themeManager.primaryTextColor)
                     .padding(12)
@@ -396,27 +358,57 @@ struct VoiceQuickTripView: View {
             
             Divider()
             
-            // 可編輯欄位
-            editableFieldsSection
+            // 多段時間軸
+            ForEach(Array(segments.enumerated()), id: \.element.id) { index, _ in
+                // 轉乘連接線（第二段以後）
+                if index > 0 {
+                    transferConnector
+                }
+                
+                segmentCard(at: index)
+            }
+            
+            // + 手動加入下一段轉乘
+            Button(action: addEmptySegment) {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus.circle.fill")
+                    Text("voice_add_segment")
+                }
+                .font(.subheadline)
+                .foregroundColor(themeManager.accentColor)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(themeManager.cardBackgroundColor)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
+                )
+            }
             
             Spacer().frame(height: 10)
             
             // 操作按鈕
             VStack(spacing: 12) {
                 // 確認儲存
-                Button(action: saveDraftAsTrip) {
+                Button(action: saveDraftsAsTrips) {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                        Text("voice_confirm_save")
-                            .fontWeight(.bold)
+                        if segments.count > 1 {
+                            Text("確認並儲存 \(segments.count) 筆行程")
+                                .fontWeight(.bold)
+                        } else {
+                            Text("voice_confirm_save")
+                                .fontWeight(.bold)
+                        }
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(canSave ? themeManager.accentColor : Color.gray.opacity(0.4))
+                    .background(canSaveAll ? themeManager.accentColor : Color.gray.opacity(0.4))
                     .cornerRadius(12)
                 }
-                .disabled(!canSave)
+                .disabled(!canSaveAll)
                 
                 // 重新錄音
                 Button(action: retryRecording) {
@@ -445,410 +437,70 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    private var canSave: Bool {
-        editedTransportType != nil &&
-        !editedStartStation.isEmpty &&
-        !editedEndStation.isEmpty &&
-        (Int(editedPrice) != nil || editedPrice.isEmpty)
-    }
-    
-    // MARK: - 信心指示器
-    
-    private var confidenceIcon: String {
-        let score = draft?.overallScore ?? 0
-        if score >= 0.85 { return "checkmark.circle.fill" }
-        if score >= 0.65 { return "exclamationmark.circle.fill" }
-        return "xmark.circle.fill"
-    }
-    
-    private var confidenceColor: Color {
-        let score = draft?.overallScore ?? 0
-        if score >= 0.85 { return .green }
-        if score >= 0.65 { return .orange }
-        return .red
-    }
-    
-    private var confidenceText: LocalizedStringKey {
-        let score = draft?.overallScore ?? 0
-        if score >= 0.85 { return "voice_confidence_high" }
-        if score >= 0.65 { return "voice_confidence_medium" }
-        return "voice_confidence_low"
-    }
-    
-    private var confidenceIndicator: some View {
-        HStack(spacing: 8) {
-            Image(systemName: confidenceIcon)
-                .foregroundColor(confidenceColor)
-                .font(.title3)
-            
-            Text(confidenceText)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            Spacer()
-            
-            Text(String(format: "%.0f%%", (draft?.overallScore ?? 0) * 100))
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(confidenceColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(confidenceColor.opacity(0.15))
-                .cornerRadius(6)
-        }
-        .padding(12)
-        .background(themeManager.cardBackgroundColor)
-        .cornerRadius(12)
-    }
-    
-    // MARK: - 可編輯欄位
-    
-    private var editableFieldsSection: some View {
-        VStack(spacing: 12) {
-            // 運具選擇（使用目前方案支援的運具）
-            fieldRow(label: "voice_field_transport", warningLevel: draft?.transportScore) {
-                Picker("", selection: $editedTransportType) {
-                    Text("voice_select_transport").tag(TransportType?.none)
-                    ForEach(currentSupportedModes) { type in
-                        Text(type.displayName).tag(TransportType?.some(type))
-                    }
-                }
-                .pickerStyle(.menu)
-                .tint(themeManager.primaryTextColor)
-            }
-            .onChange(of: editedTransportType) { _, newType in
-                handleTransportTypeChange(newType)
-            }
-            
-            // 路線 (公車/客運)
-            if editedTransportType == .bus || editedTransportType == .coach {
-                fieldRow(label: "voice_field_route") {
-                    TextField("voice_route_placeholder", text: $editedRouteId)
-                        .foregroundColor(themeManager.primaryTextColor)
-                }
-            }
-            
-            // 起迄站選擇（使用既有站點選擇器元件）
-            stationSelectionSection
-            
-            // 票價 + 轉乘/免費/高鐵自由座
-            priceAndOptionsSection
-            
-            // 日期
-            fieldRow(label: "voice_field_date", warningLevel: draft?.timeScore) {
-                DatePicker("", selection: $editedDate, displayedComponents: [.date, .hourAndMinute])
-                    .labelsHidden()
-                    .tint(themeManager.accentColor)
-            }
-            
-            // 備註
-            fieldRow(label: "voice_field_note") {
-                TextField("voice_note_placeholder", text: $editedNote)
-                    .foregroundColor(themeManager.primaryTextColor)
-            }
-        }
-        .onChange(of: editedStartStation) { _, _ in handleStationFieldsChanged() }
-        .onChange(of: editedEndStation) { _, _ in handleStationFieldsChanged() }
-        .onChange(of: editedRouteId) { _, _ in autoFillFare() }
-    }
-    
-    // MARK: - 站點選擇區塊（重用既有 StationInputRow）
-    
-    @ViewBuilder
-    private var stationSelectionSection: some View {
-        if let type = editedTransportType {
-            VStack(spacing: 0) {
-                switch type {
-                case .bus:
-                    // 公車：手動輸入起迄站
-                    VStack(spacing: 0) {
-                        StationInputRow(
-                            label: "start_point",
-                            type: type,
-                            lineCode: $editedStartLineCode,
-                            stationName: $editedStartStation,
-                            currentRegion: currentRegion
-                        )
-                        Divider().opacity(0.5).padding(.leading, 12)
-                        StationInputRow(
-                            label: "end_point",
-                            type: type,
-                            lineCode: $editedEndLineCode,
-                            stationName: $editedEndStation,
-                            currentRegion: currentRegion
-                        )
-                    }
-                    
-                case .coach:
-                    VStack(spacing: 0) {
-                        StationInputRow(
-                            label: "start_point",
-                            type: type,
-                            lineCode: $editedStartLineCode,
-                            stationName: $editedStartStation,
-                            currentRegion: currentRegion
-                        )
-                        Divider().opacity(0.5).padding(.leading, 12)
-                        StationInputRow(
-                            label: "end_point",
-                            type: type,
-                            lineCode: $editedEndLineCode,
-                            stationName: $editedEndStation,
-                            currentRegion: currentRegion
-                        )
-                    }
-                    
-                case .tra:
-                    VStack(spacing: 0) {
-                        TRALineStationInputRow(
-                            label: "start_point",
-                            regions: availableTRARegions,
-                            selectedRegion: $startTRARegion,
-                            stationId: $editedStartStation
-                        )
-                        Divider().opacity(0.5).padding(.leading, 12)
-                        TRALineStationInputRow(
-                            label: "end_point",
-                            regions: availableTRARegions,
-                            selectedRegion: $endTRARegion,
-                            stationId: $editedEndStation
-                        )
-                    }
-                    .onAppear {
-                        if availableTRARegions.count == 1 {
-                            if startTRARegion == nil { startTRARegion = availableTRARegions.first }
-                            if endTRARegion == nil { endTRARegion = availableTRARegions.first }
-                        }
-                    }
-                    
-                case .lrt:
-                    VStack(spacing: 0) {
-                        StationInputRow(
-                            label: "start_point",
-                            type: .lrt,
-                            lineCode: $editedStartLineCode,
-                            stationName: $editedStartStation,
-                            currentRegion: currentRegion,
-                            lineSelectionEnabled: true
-                        )
-                        Divider().opacity(0.5).padding(.leading, 12)
-                        StationInputRow(
-                            label: "end_point",
-                            type: .lrt,
-                            lineCode: Binding(get: { editedStartLineCode }, set: { _ in }),
-                            stationName: $editedEndStation,
-                            currentRegion: currentRegion,
-                            lineSelectionEnabled: false
-                        )
-                    }
-                    .onChange(of: editedStartLineCode) { _, newLineCode in
-                        editedEndLineCode = newLineCode
-                        let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
-                        guard let selectedLine = availableLines.first(where: { $0.code == newLineCode }) else {
-                            editedEndStation = ""
-                            return
-                        }
-                        if !editedEndStation.isEmpty, !selectedLine.stations.contains(where: { $0.nameZH == editedEndStation }) {
-                            editedEndStation = ""
-                        }
-                    }
-                    
-                default:
-                    // MRT, TYMRT, TCMRT, KMRT, HSR 等使用通用站點選擇
-                    VStack(spacing: 0) {
-                        StationInputRow(
-                            label: "start_point",
-                            type: type,
-                            lineCode: $editedStartLineCode,
-                            stationName: $editedStartStation,
-                            currentRegion: currentRegion
-                        )
-                        Divider().opacity(0.5).padding(.leading, 12)
-                        StationInputRow(
-                            label: "end_point",
-                            type: type,
-                            lineCode: $editedEndLineCode,
-                            stationName: $editedEndStation,
-                            currentRegion: currentRegion
-                        )
-                    }
-                }
-            }
-            .background(inputBackground)
-            .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-        }
-    }
-    
-    // MARK: - 票價與選項區塊
-    
-    private var priceAndOptionsSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 12) {
-                // 票價輸入
-                HStack {
-                    Text("$")
-                        .font(.headline)
-                        .foregroundColor(themeManager.secondaryTextColor)
-                    TextField("price_placeholder", text: $editedPrice)
-                        .keyboardType(.numberPad)
-                        .font(.title3.bold())
-                        .foregroundColor(themeManager.primaryTextColor)
-                }
-                .frame(height: 50)
-                .padding(.horizontal, 12)
-                .background(inputBackground)
-                .cornerRadius(10)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.1), lineWidth: 1))
-                
-                // 高鐵：自由座切換 / 其他：轉乘按鈕
-                if editedTransportType == .hsr {
-                    Button(action: {
-                        isHSRNonReserved.toggle()
-                        isFree = false
-                        isTransfer = false
-                        transferDiscountType = nil
-                        autoFillFare()
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: isHSRNonReserved ? "checkmark.circle.fill" : "circle")
-                            Text("non_reserved_seat")
-                                .font(.subheadline).fontWeight(.bold)
-                                .lineLimit(1).minimumScaleFactor(0.8)
-                        }
-                        .frame(maxHeight: .infinity)
-                        .padding(.horizontal, 12)
-                        .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackground)
-                        .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
-                        .cornerRadius(10)
-                    }
-                    .frame(height: 50)
-                } else {
-                    voiceTransferButton
-                        .frame(height: 50)
-                        .confirmationDialog("transfer", isPresented: $showTransferTypePicker) {
-                            ForEach(filteredTransferTypes) { type in
-                                Button(action: {
-                                    isTransfer = true
-                                    transferDiscountType = type
-                                }) {
-                                    HStack {
-                                        Text(type.displayNameKey(for: currentIdentity))
-                                        if transferDiscountType == type {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                            }
-                            Button("cancel_transfer", role: .destructive) {
-                                isTransfer = false
-                                transferDiscountType = nil
-                            }
-                        }
-                }
-            }
-            
-            // 免費 + 備註
-            HStack(spacing: 12) {
-                Button(action: { isFree.toggle() }) {
-                    HStack {
-                        Image(systemName: isFree ? "gift.fill" : "gift")
-                        Text("free_trip")
-                            .font(.subheadline).fontWeight(.medium)
-                    }
-                    .padding(.horizontal, 12).padding(.vertical, 10)
-                    .background(isFree ? themeManager.accentColor : inputBackground)
-                    .foregroundColor(isFree ? .white : themeManager.secondaryTextColor)
-                    .cornerRadius(8)
-                }
-                
-                // 自動查價狀態提示
-                if !editedPrice.isEmpty, let price = Int(editedPrice), price > 0 {
-                    Text("voice_auto_fare_hint")
-                        .font(.caption2)
-                        .foregroundColor(.green)
-                }
-            }
-            .onChange(of: isFree) { _, val in
-                if val {
-                    isTransfer = false
-                    transferDiscountType = nil
-                    editedPrice = "0"
-                }
-            }
-            .onChange(of: isTransfer) { _, val in
-                if val {
-                    isFree = false
-                    if transferDiscountType == nil {
-                        transferDiscountType = currentRegion.defaultTransferType
-                    }
-                } else {
-                    transferDiscountType = nil
-                }
-            }
-        }
-    }
-    
-    // 轉乘按鈕
-    private var voiceTransferButton: some View {
-        Button(action: {
-            if isTransfer {
-                isTransfer = false
-                transferDiscountType = nil
-            } else {
-                if filteredTransferTypes.count == 1, let only = filteredTransferTypes.first {
-                    isTransfer = true
-                    transferDiscountType = only
-                } else {
-                    showTransferTypePicker = true
-                }
-            }
-        }) {
-            HStack(spacing: 4) {
-                Image(systemName: isTransfer ? "arrow.triangle.swap" : "arrow.triangle.swap")
-                Text(isTransfer ? (transferDiscountType?.displayNameKey(for: currentIdentity) ?? "transfer") : "transfer")
-                    .font(.subheadline).fontWeight(.bold)
-                    .lineLimit(1).minimumScaleFactor(0.7)
-            }
-            .frame(maxHeight: .infinity)
-            .padding(.horizontal, 10)
-            .background(isTransfer ? Color(hex: "#27ae60") : inputBackground)
-            .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
-            .cornerRadius(10)
-        }
-    }
-    
-    @ViewBuilder
-    private func fieldRow<Content: View>(
-        label: LocalizedStringKey,
-        warningLevel: Double? = nil,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        HStack(spacing: 8) {
-            // 信心警示點
-            if let level = warningLevel, level < 0.7 {
-                Circle()
-                    .fill(level < 0.4 ? Color.red : Color.orange)
-                    .frame(width: 8, height: 8)
-            }
-            
-            Text(label)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(themeManager.secondaryTextColor)
-                .frame(width: 50, alignment: .leading)
-            
-            content()
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(12)
-        .background(inputBackground)
-        .cornerRadius(10)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+    /// 段落卡片（使用 VoiceSegmentEditorCard）
+    private func segmentCard(at index: Int) -> some View {
+        let draftForIndex = index < drafts.count ? drafts[index] : VoiceDraft.empty()
+        
+        return VoiceSegmentEditorCard(
+            draft: draftForIndex,
+            segmentIndex: index,
+            totalSegments: segments.count,
+            currentRegion: currentRegion,
+            currentIdentity: currentIdentity,
+            currentSupportedModes: currentSupportedModes,
+            availableTRARegions: availableTRARegions,
+            transportType: $segments[index].transportType,
+            startStation: $segments[index].startStation,
+            endStation: $segments[index].endStation,
+            startLineCode: $segments[index].startLineCode,
+            endLineCode: $segments[index].endLineCode,
+            price: $segments[index].price,
+            routeId: $segments[index].routeId,
+            note: $segments[index].note,
+            date: $segments[index].date,
+            isTransfer: $segments[index].isTransfer,
+            isFree: $segments[index].isFree,
+            transferDiscountType: $segments[index].transferDiscountType,
+            isHSRNonReserved: $segments[index].isHSRNonReserved,
+            startTRARegion: $segments[index].startTRARegion,
+            endTRARegion: $segments[index].endTRARegion,
+            onDelete: segments.count > 1 ? { removeSegment(at: index) } : nil,
+            onAutoFillFare: { autoFillFare(for: index) },
+            onTransportTypeChanged: { handleTransportTypeChange(for: index) }
         )
+    }
+    
+    /// 轉乘連接線
+    private var transferConnector: some View {
+        HStack(spacing: 8) {
+            Spacer()
+            VStack(spacing: 2) {
+                Rectangle()
+                    .fill(themeManager.accentColor.opacity(0.4))
+                    .frame(width: 2, height: 12)
+                Image(systemName: "arrow.triangle.swap")
+                    .font(.caption)
+                    .foregroundColor(themeManager.accentColor)
+                Text("voice_transfer_connector")
+                    .font(.caption2)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                Rectangle()
+                    .fill(themeManager.accentColor.opacity(0.4))
+                    .frame(width: 2, height: 12)
+            }
+            Spacer()
+        }
+    }
+    
+    /// 所有段落是否都可儲存
+    private var canSaveAll: Bool {
+        guard !segments.isEmpty else { return false }
+        return segments.allSatisfy { seg in
+            seg.transportType != nil &&
+            !seg.startStation.isEmpty &&
+            !seg.endStation.isEmpty &&
+            (Int(seg.price) != nil || seg.price.isEmpty)
+        }
     }
     
     // MARK: - 權限被拒
@@ -984,11 +636,10 @@ struct VoiceQuickTripView: View {
                 phase = .fallbackManual
             }
             HapticManager.shared.notification(type: .warning)
-            // 上傳空轉寫失敗紀錄
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
                     originalTranscript: "",
-                    draft: nil,
+                    drafts: [],
                     reason: .emptyTranscript
                 )
             }
@@ -999,92 +650,87 @@ struct VoiceQuickTripView: View {
             phase = .parsing
         }
         
-        // 解析（在主執行緒上，因為需要存取 @MainActor 的站名資料）
-        let parsed = TripVoiceParser.parse(text)
-        let newDraft = VoiceDraft.from(parsed: parsed, transcript: text)
+        // V2：解析可能回傳多段 ParsedTrip
+        let parsedArray = TripVoiceParser.parse(text)
         
-        draft = newDraft
-        
-        // 填入可編輯欄位（抑制 onChange 的 handleTransportTypeChange）
-        isPopulatingFromParse = true
-        
-        editedRouteId = newDraft.routeId ?? ""
-        editedNote = newDraft.note ?? ""
-        
-        // 合併日期與時間：若有獲取到時間，則合併到日期中
-        var dateTime = newDraft.tripDate ?? Date()
-        if let parsedTime = newDraft.tripTime {
-            let calendar = Calendar.current
-            let timeComponents = calendar.dateComponents([.hour, .minute], from: parsedTime)
-            var dateComponents = calendar.dateComponents([.year, .month, .day], from: dateTime)
-            dateComponents.hour = timeComponents.hour
-            dateComponents.minute = timeComponents.minute
-            if let mergedDate = calendar.date(from: dateComponents) {
-                dateTime = mergedDate
-            }
-        }
-        editedDate = dateTime
-        
-        // 若語音有提供時間，改用提供的時間而不是當前時間
-        if newDraft.tripTime != nil {
-            useCurrentTime = false
-        }
-        
-        // 設定運具
-        editedTransportType = newDraft.transportType
-        
-        // 設定站名
-        editedStartStation = newDraft.startStation ?? ""
-        editedEndStation = newDraft.endStation ?? ""
-        applyParsedSelectionMetadata()
-        
-        // 設定台中捷運預設線路
-        if newDraft.transportType == .tcmrt {
-            editedStartLineCode = "GREEN"
-            editedEndLineCode = "GREEN"
-        }
-        
-        // 票價：若語音有說出價格就用，否則嘗試自動查價
-        if let voicePrice = newDraft.price {
-            editedPrice = String(voicePrice)
-        } else {
-            autoFillFare()
-        }
-        
-        isPopulatingFromParse = false
-
-        if editedTransportType == .tra && isTRAOutOfRange {
-            showTRAOutOfRangeAlert = true
+        guard !parsedArray.isEmpty else {
+            withAnimation { phase = .fallbackManual }
             HapticManager.shared.notification(type: .warning)
-        }
-        
-        // 判斷多段行程
-        if parsed.stationScore == 0.0 && (text.contains("轉") || text.contains("再搭")) {
-            showMultiSegmentAlert = true
-            HapticManager.shared.notification(type: .warning)
-            // 上傳多段行程失敗紀錄
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
                     originalTranscript: text,
-                    draft: newDraft,
-                    reason: .multiSegment
+                    drafts: [],
+                    reason: .missingFields
                 )
             }
             return
         }
         
-        // 根據信心分數決定流程
-        if parsed.isLowConfidence || !parsed.hasRequiredFields {
+        // 將每段 ParsedTrip 轉為 VoiceDraft
+        let newDrafts = parsedArray.map { VoiceDraft.from(parsed: $0, transcript: text) }
+        drafts = newDrafts
+        
+        // 建立對應的 SegmentEditState
+        segments = newDrafts.enumerated().map { index, d in
+            var seg = SegmentEditState(id: d.id)
+            seg.transportType = d.transportType
+            seg.startStation = d.startStation ?? ""
+            seg.endStation = d.endStation ?? ""
+            seg.routeId = d.routeId ?? ""
+            seg.note = d.note ?? ""
+            seg.isTransfer = d.isTransfer
+            
+            // 合併日期與時間
+            var dateTime = d.tripDate ?? Date()
+            if let parsedTime = d.tripTime {
+                let calendar = Calendar.current
+                let timeComponents = calendar.dateComponents([.hour, .minute], from: parsedTime)
+                var dateComponents = calendar.dateComponents([.year, .month, .day], from: dateTime)
+                dateComponents.hour = timeComponents.hour
+                dateComponents.minute = timeComponents.minute
+                if let mergedDate = calendar.date(from: dateComponents) {
+                    dateTime = mergedDate
+                }
+            }
+            seg.date = dateTime
+            
+            // 台中捷運預設綠線
+            if d.transportType == .tcmrt {
+                seg.startLineCode = "GREEN"
+                seg.endLineCode = "GREEN"
+            }
+            
+            // 回填線路/區域等輔助欄位
+            applyParsedSelectionMetadata(for: &seg)
+            
+            // 票價：語音有說出價格就用，否則嘗試自動查價
+            if let voicePrice = d.price {
+                seg.price = String(voicePrice)
+            } else {
+                autoFillFareForSegment(&seg)
+            }
+            
+            // 轉乘段自動套用區域預設轉乘優惠
+            if seg.isTransfer && index > 0 {
+                seg.transferDiscountType = currentRegion.defaultTransferType
+            }
+            
+            return seg
+        }
+        
+        // 取首段判斷信心度
+        let firstParsed = parsedArray[0]
+        
+        if firstParsed.isLowConfidence || !firstParsed.hasRequiredFields {
             withAnimation {
                 phase = .fallbackManual
             }
             HapticManager.shared.notification(type: .warning)
-            // 上傳低信心/欄位不完整的失敗紀錄
-            let reason: VoiceParseLogService.FailureReason = parsed.hasRequiredFields ? .lowConfidence : .missingFields
+            let reason: VoiceParseLogService.FailureReason = firstParsed.hasRequiredFields ? .lowConfidence : .missingFields
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
                     originalTranscript: text,
-                    draft: newDraft,
+                    drafts: newDrafts,
                     reason: reason
                 )
             }
@@ -1092,83 +738,73 @@ struct VoiceQuickTripView: View {
             withAnimation {
                 phase = .preview
             }
-            if parsed.isHighConfidence {
+            if firstParsed.isHighConfidence {
                 HapticManager.shared.notification(type: .success)
             }
         }
     }
 
-    /// 站點變更後，先推回線路再做查價
-    private func handleStationFieldsChanged() {
-        guard !isPopulatingFromParse else { return }
-        applyParsedSelectionMetadata()
-        autoFillFare()
-    }
-
-    /// 根據目前運具與站點回填線路/區域等輔助欄位
-    private func applyParsedSelectionMetadata() {
-        guard let type = editedTransportType else { return }
+    /// 根據目前運具與站點回填線路/區域等輔助欄位（作用於 SegmentEditState）
+    private func applyParsedSelectionMetadata(for seg: inout SegmentEditState) {
+        guard let type = seg.transportType else { return }
 
         switch type {
         case .mrt:
-            if let startLine = StationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
-                editedStartLineCode = startLine.code
+            if let startLine = StationData.shared.lines.first(where: { $0.stations.contains(seg.startStation) }) {
+                seg.startLineCode = startLine.code
             }
-            if let endLine = StationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
-                editedEndLineCode = endLine.code
+            if let endLine = StationData.shared.lines.first(where: { $0.stations.contains(seg.endStation) }) {
+                seg.endLineCode = endLine.code
             }
 
         case .kmrt:
-            if let startLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
-                editedStartLineCode = startLine.code
+            if let startLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(seg.startStation) }) {
+                seg.startLineCode = startLine.code
             }
-            if let endLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
-                editedEndLineCode = endLine.code
+            if let endLine = KMRTStationData.shared.lines.first(where: { $0.stations.contains(seg.endStation) }) {
+                seg.endLineCode = endLine.code
             }
 
         case .tcmrt:
-            if let startLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(editedStartStation) }) {
-                editedStartLineCode = startLine.code
-            } else if editedStartLineCode.isEmpty {
-                editedStartLineCode = "GREEN"
+            if let startLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(seg.startStation) }) {
+                seg.startLineCode = startLine.code
+            } else if seg.startLineCode.isEmpty {
+                seg.startLineCode = "GREEN"
             }
-
-            if let endLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(editedEndStation) }) {
-                editedEndLineCode = endLine.code
-            } else if editedEndLineCode.isEmpty {
-                editedEndLineCode = editedStartLineCode.isEmpty ? "GREEN" : editedStartLineCode
+            if let endLine = TCMRTStationData.shared.lines.first(where: { $0.stations.contains(seg.endStation) }) {
+                seg.endLineCode = endLine.code
+            } else if seg.endLineCode.isEmpty {
+                seg.endLineCode = seg.startLineCode.isEmpty ? "GREEN" : seg.startLineCode
             }
 
         case .lrt:
             let availableLines = LRTStationData.shared.availableLines(for: currentRegion)
-            if let startLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == editedStartStation }) }) {
-                editedStartLineCode = startLine.code
-            } else if let endLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == editedEndStation }) }) {
-                editedStartLineCode = endLine.code
+            if let startLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == seg.startStation }) }) {
+                seg.startLineCode = startLine.code
+            } else if let endLine = availableLines.first(where: { $0.stations.contains(where: { $0.nameZH == seg.endStation }) }) {
+                seg.startLineCode = endLine.code
             }
-
-            if !editedStartLineCode.isEmpty {
-                editedEndLineCode = editedStartLineCode
+            if !seg.startLineCode.isEmpty {
+                seg.endLineCode = seg.startLineCode
             }
 
         case .tra:
-            if let startId = TRAStationData.shared.resolveStationID(editedStartStation) {
-                editedStartStation = startId
+            if let startId = TRAStationData.shared.resolveStationID(seg.startStation) {
+                seg.startStation = startId
             }
-            if let endId = TRAStationData.shared.resolveStationID(editedEndStation) {
-                editedEndStation = endId
+            if let endId = TRAStationData.shared.resolveStationID(seg.endStation) {
+                seg.endStation = endId
             }
-
             let regions = availableTRARegions
             if let startRegion = regions.first(where: { region in
-                region.stations.contains(where: { $0.id == editedStartStation })
+                region.stations.contains(where: { $0.id == seg.startStation })
             }) {
-                startTRARegion = startRegion
+                seg.startTRARegion = startRegion
             }
             if let endRegion = regions.first(where: { region in
-                region.stations.contains(where: { $0.id == editedEndStation })
+                region.stations.contains(where: { $0.id == seg.endStation })
             }) {
-                endTRARegion = endRegion
+                seg.endTRARegion = endRegion
             }
 
         default:
@@ -1176,59 +812,77 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    private func saveDraftAsTrip() {
-        guard let userId = auth.currentUser?.id,
-              let transportType = editedTransportType else { return }
-
-        if transportType == .tra && isTRAOutOfRange {
-            showTRAOutOfRangeAlert = true
-            HapticManager.shared.notification(type: .warning)
-            return
+    // MARK: - 批次儲存
+    
+    private func saveDraftsAsTrips() {
+        guard let userId = auth.currentUser?.id else { return }
+        
+        var finalTripDataArray: [[String: Any]] = []
+        
+        for seg in segments {
+            guard let transportType = seg.transportType else { continue }
+            
+            // 台鐵站點範圍驗證
+            if transportType == .tra {
+                let outOfRange = !availableTRAStationIDs.contains(seg.startStation) ||
+                                 !availableTRAStationIDs.contains(seg.endStation)
+                if outOfRange && !seg.startStation.isEmpty && !seg.endStation.isEmpty {
+                    showTRAOutOfRangeAlert = true
+                    HapticManager.shared.notification(type: .warning)
+                    return
+                }
+            }
+            
+            let originalPrice = Int(seg.price) ?? 0
+            let paidPrice = calculatePaidPrice(
+                originalPrice: originalPrice,
+                isFree: seg.isFree,
+                isTransfer: seg.isTransfer,
+                transferDiscountType: seg.transferDiscountType
+            )
+            
+            let newTrip = Trip(
+                id: UUID().uuidString,
+                userId: userId,
+                createdAt: seg.date,
+                type: transportType,
+                originalPrice: originalPrice,
+                paidPrice: paidPrice,
+                isTransfer: seg.isTransfer,
+                isFree: seg.isFree,
+                startStation: seg.startStation,
+                endStation: seg.endStation,
+                routeId: seg.routeId,
+                note: seg.note,
+                transferDiscountType: seg.transferDiscountType,
+                cycleId: currentCycleId
+            )
+            
+            viewModel.addTrip(newTrip)
+            
+            finalTripDataArray.append([
+                "transportType": transportType.rawValue,
+                "startStation": seg.startStation,
+                "endStation": seg.endStation,
+                "price": originalPrice,
+                "routeId": seg.routeId,
+                "isTransfer": seg.isTransfer,
+                "isFree": seg.isFree
+            ])
         }
         
-        let originalPrice = Int(editedPrice) ?? 0
-        let paidPrice = calculatePaidPrice(originalPrice: originalPrice)
-        
-        let newTrip = Trip(
-            id: UUID().uuidString,
-            userId: userId,
-            createdAt: editedDate,
-            type: transportType,
-            originalPrice: originalPrice,
-            paidPrice: paidPrice,
-            isTransfer: isTransfer,
-            isFree: isFree,
-            startStation: editedStartStation,
-            endStation: editedEndStation,
-            routeId: editedRouteId,
-            note: editedNote,
-            transferDiscountType: transferDiscountType,
-            cycleId: currentCycleId
-        )
-        
-        viewModel.addTrip(newTrip)
         HapticManager.shared.notification(type: .success)
         didSaveTrip = true
         
-        // 背景上傳語音解析修正紀錄（不阻塞主流程）
-        if let currentDraft = draft {
-            let finalData: [String: Any] = [
-                "transportType": transportType.rawValue,
-                "startStation": editedStartStation,
-                "endStation": editedEndStation,
-                "price": originalPrice,
-                "routeId": editedRouteId,
-                "isTransfer": isTransfer,
-                "isFree": isFree
-            ]
-            let transcript = currentDraft.originalTranscript
-            Task {
-                await VoiceParseLogService.shared.logParseResult(
-                    originalTranscript: transcript,
-                    draft: currentDraft,
-                    finalTripData: finalData
-                )
-            }
+        // 背景上傳語音解析修正紀錄
+        let currentDrafts = drafts
+        let transcript = currentDrafts.first?.originalTranscript ?? ""
+        Task {
+            await VoiceParseLogService.shared.logParseResult(
+                originalTranscript: transcript,
+                drafts: currentDrafts,
+                finalTripDataArray: finalTripDataArray
+            )
         }
         
         dismiss()
@@ -1237,8 +891,13 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    /// 計算實付金額（與 AddTripView 相同邏輯）
-    private func calculatePaidPrice(originalPrice: Int) -> Int {
+    /// 計算實付金額
+    private func calculatePaidPrice(
+        originalPrice: Int,
+        isFree: Bool,
+        isTransfer: Bool,
+        transferDiscountType: TransferDiscountType?
+    ) -> Int {
         if isFree { return 0 }
         let discount: Int
         if isTransfer, let type = transferDiscountType {
@@ -1249,124 +908,150 @@ struct VoiceQuickTripView: View {
         return max(0, originalPrice - discount)
     }
     
-    /// 運具切換時重設相關欄位
-    private func handleTransportTypeChange(_ newType: TransportType?) {
-        guard let newType else { return }
-        // 解析填入中不重設，避免清空語音辨識出的站名
-        guard !isPopulatingFromParse else { return }
+    /// 運具切換時重設相關欄位（V2：作用於特定段落）
+    private func handleTransportTypeChange(for index: Int) {
+        guard index < segments.count,
+              let newType = segments[index].transportType else { return }
         
-        // 重設站點
-        editedStartStation = ""
-        editedEndStation = ""
-        editedStartLineCode = ""
-        editedEndLineCode = ""
-        startTRARegion = nil
-        endTRARegion = nil
-        isHSRNonReserved = false
+        segments[index].startStation = ""
+        segments[index].endStation = ""
+        segments[index].startLineCode = ""
+        segments[index].endLineCode = ""
+        segments[index].startTRARegion = nil
+        segments[index].endTRARegion = nil
+        segments[index].isHSRNonReserved = false
         
-        // 台中捷運預設綠線
         if newType == .tcmrt {
-            editedStartLineCode = "GREEN"
-            editedEndLineCode = "GREEN"
+            segments[index].startLineCode = "GREEN"
+            segments[index].endLineCode = "GREEN"
         }
         
-        // 高鐵不支援轉乘
         if newType == .hsr {
-            isTransfer = false
-            transferDiscountType = nil
+            segments[index].isTransfer = false
+            segments[index].transferDiscountType = nil
         }
         
-        // 公車預設票價
         if newType == .bus {
-            editedPrice = currentRegion.defaultBusPrice(identity: currentIdentity)
+            segments[index].price = currentRegion.defaultBusPrice(identity: currentIdentity)
         } else {
-            editedPrice = ""
+            segments[index].price = ""
         }
         
-        // 客運保留 routeId，其他清空
         if newType != .coach && newType != .bus {
-            editedRouteId = ""
+            segments[index].routeId = ""
         }
     }
     
-    /// 自動查價（重用既有 FareService）
-    private func autoFillFare() {
-        guard let type = editedTransportType,
-              !editedStartStation.isEmpty,
-              !editedEndStation.isEmpty else { return }
+    /// 自動查價（V2：作用於特定段落 index）
+    private func autoFillFare(for index: Int) {
+        guard index < segments.count else { return }
+        autoFillFareForSegment(&segments[index])
+    }
+    
+    /// 自動查價（內部共用，作用於 SegmentEditState）
+    private func autoFillFareForSegment(_ seg: inout SegmentEditState) {
+        guard let type = seg.transportType,
+              !seg.startStation.isEmpty,
+              !seg.endStation.isEmpty else { return }
         
         switch type {
         case .mrt:
-            if let fare = TPEMRTFareService.shared.getFare(from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(fare)
+            if let fare = TPEMRTFareService.shared.getFare(from: seg.startStation, to: seg.endStation) {
+                seg.price = String(fare)
             }
         case .tymrt:
-            // 桃園市民七折優先
             if auth.currentUser?.citizenCity == .taoyuan,
-               let citizenFare = TYMRTFareService.shared.getCitizenFare(from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(citizenFare)
-            } else if let fare = TYMRTFareService.shared.getFare(from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(fare)
+               let citizenFare = TYMRTFareService.shared.getCitizenFare(from: seg.startStation, to: seg.endStation) {
+                seg.price = String(citizenFare)
+            } else if let fare = TYMRTFareService.shared.getFare(from: seg.startStation, to: seg.endStation) {
+                seg.price = String(fare)
             }
         case .tcmrt:
-            if let fare = TCMRTFareService.shared.getFare(from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(fare)
+            if let fare = TCMRTFareService.shared.getFare(from: seg.startStation, to: seg.endStation) {
+                seg.price = String(fare)
             }
         case .kmrt:
-            if let fare = KMRTFareService.shared.getFare(from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(fare)
+            if let fare = KMRTFareService.shared.getFare(from: seg.startStation, to: seg.endStation) {
+                seg.price = String(fare)
             }
         case .lrt:
-            let lineCode = editedStartLineCode.isEmpty ? editedEndLineCode : editedStartLineCode
+            let lineCode = seg.startLineCode.isEmpty ? seg.endLineCode : seg.startLineCode
             if !lineCode.isEmpty,
-               let fare = LRTFareService.shared.getFare(lineCode: lineCode, from: editedStartStation, to: editedEndStation) {
-                editedPrice = String(fare)
+               let fare = LRTFareService.shared.getFare(lineCode: lineCode, from: seg.startStation, to: seg.endStation) {
+                seg.price = String(fare)
             }
         case .tra:
-            let fare = TRAFareService.shared.getFare(from: editedStartStation, to: editedEndStation)
+            let fare = TRAFareService.shared.getFare(from: seg.startStation, to: seg.endStation)
             if fare > 0 {
-                editedPrice = String(fare)
+                seg.price = String(fare)
             }
         case .hsr:
-            if let fare = THSRFareService.shared.getFare(from: editedStartStation, to: editedEndStation, isNonReserved: isHSRNonReserved) {
-                editedPrice = String(fare)
+            if let fare = THSRFareService.shared.getFare(from: seg.startStation, to: seg.endStation, isNonReserved: seg.isHSRNonReserved) {
+                seg.price = String(fare)
             }
         case .bus:
-            // 公車先使用地區預設票價，再視需要用歷史紀錄覆蓋
-            if editedPrice.isEmpty {
-                editedPrice = currentRegion.defaultBusPrice(identity: currentIdentity)
+            if seg.price.isEmpty {
+                seg.price = currentRegion.defaultBusPrice(identity: currentIdentity)
             }
-
-            // 公車以路線查歷史
-            if !editedRouteId.isEmpty {
-                if let match = viewModel.trips.first(where: { $0.type == .bus && $0.routeId == editedRouteId }) {
-                    if editedPrice.isEmpty {
-                        editedPrice = String(match.originalPrice)
+            if !seg.routeId.isEmpty {
+                if let match = viewModel.trips.first(where: { $0.type == .bus && $0.routeId == seg.routeId }) {
+                    if seg.price.isEmpty {
+                        seg.price = String(match.originalPrice)
                     }
                 }
             }
         case .coach:
-            if !editedRouteId.isEmpty {
+            if !seg.routeId.isEmpty {
                 if let match = viewModel.trips.first(where: {
-                    $0.type == .coach && $0.routeId == editedRouteId &&
-                    $0.startStation == editedStartStation && $0.endStation == editedEndStation
+                    $0.type == .coach && $0.routeId == seg.routeId &&
+                    $0.startStation == seg.startStation && $0.endStation == seg.endStation
                 }) {
-                    editedPrice = String(match.originalPrice)
+                    seg.price = String(match.originalPrice)
                 }
             }
         default:
-            // 歷史紀錄查詢
             if let match = viewModel.trips.first(where: {
-                $0.type == type && $0.startStation == editedStartStation && $0.endStation == editedEndStation
+                $0.type == type && $0.startStation == seg.startStation && $0.endStation == seg.endStation
             }) {
-                editedPrice = String(match.originalPrice)
+                seg.price = String(match.originalPrice)
             }
+        }
+    }
+    
+    // MARK: - 段落操作
+    
+    /// 新增空白段落
+    private func addEmptySegment() {
+        let newId = UUID()
+        var newSeg = SegmentEditState(id: newId)
+        newSeg.isTransfer = true
+        newSeg.transferDiscountType = currentRegion.defaultTransferType
+        newSeg.date = segments.last?.date ?? Date()
+        
+        // 帶入上一段終點作為起點
+        if let lastSeg = segments.last {
+            newSeg.startStation = lastSeg.endStation
+        }
+        
+        segments.append(newSeg)
+        
+        // 也在 drafts 中追加空白 draft
+        drafts.append(VoiceDraft.empty())
+    }
+    
+    /// 移除指定段落
+    private func removeSegment(at index: Int) {
+        guard segments.count > 1, index < segments.count else { return }
+        segments.remove(at: index)
+        if index < drafts.count {
+            drafts.remove(at: index)
         }
     }
     
     private func retryRecording() {
         voiceService.reset()
-        draft = nil
+        drafts = []
+        segments = []
         withAnimation {
             phase = .ready
         }

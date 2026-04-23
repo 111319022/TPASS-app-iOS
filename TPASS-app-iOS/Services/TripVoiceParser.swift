@@ -279,49 +279,141 @@ struct TripVoiceParser {
     
     // MARK: - 主解析方法
     
-    static func parse(_ rawText: String) -> ParsedTrip {
-        var result = ParsedTrip()
-        
+    /// V2：解析語音文字，支援多段行程（轉乘）
+    /// 回傳 `[ParsedTrip]`，單段行程時陣列長度為 1
+    static func parse(_ rawText: String) -> [ParsedTrip] {
         // 1. 文字正規化
         let normalized = normalizeText(rawText)
         
-        // 2. 多段行程偵測（V1 不支援轉乘）
-        if detectMultiSegment(normalized) {
-            result.note = rawText
-            result.stationScore = 0.0
-            return result
+        // 2. 切割多段行程
+        let segmentTexts = splitIntoSegments(normalized)
+        
+        // 3. 逐段獨立解析
+        var results = segmentTexts.map { parseSingleSegment($0) }
+        
+        // 4. 原始文字放入第一段備註
+        if !results.isEmpty {
+            results[0].note = rawText
         }
         
-        // 3. 運具抽取
+        // 5. 上下文推論與轉乘標記（從 index 1 開始）
+        for i in 1..<results.count {
+            // 起點推論：若缺乏起點，帶入上一段終點
+            if results[i].startStation == nil, let prevEnd = results[i - 1].endStation {
+                results[i].startStation = prevEnd
+                // 補上站名信心（繼承上一段的部分信心）
+                if results[i].stationScore < 0.3 {
+                    results[i].stationScore = max(results[i].stationScore, results[i - 1].stationScore * 0.7)
+                }
+            }
+            
+            // 運具推論：若缺乏運具但有路線號，預設為公車
+            if results[i].transportType == nil, results[i].routeId != nil {
+                results[i].transportType = .bus
+                results[i].transportScore = 0.6
+            }
+            
+            // 時間推論：若缺乏時間，帶入上一段的時間
+            if results[i].date == nil {
+                results[i].date = results[i - 1].date
+            }
+            if results[i].time == nil {
+                results[i].time = results[i - 1].time
+            }
+            
+            // 轉乘標記
+            results[i].isTransfer = true
+            
+            // 原始文字備註
+            results[i].note = rawText
+            
+            // 重新計算一致性
+            results[i].consistencyScore = calculateConsistency(results[i])
+        }
+        
+        return results
+    }
+    
+    // MARK: - 句子切割
+    
+    /// 利用轉乘關鍵字將長句切割為多段行程文字
+    private static func splitIntoSegments(_ text: String) -> [String] {
+        let transferKeywords = rules.multiSegmentKeywords.transferKeywords
+        
+        // 建構正則：用轉乘關鍵字作為分割點
+        // 按長度降序排列，避免短詞先匹配
+        let sortedKeywords = transferKeywords.sorted { $0.count > $1.count }
+        let escapedKeywords = sortedKeywords.map { NSRegularExpression.escapedPattern(for: $0) }
+        let pattern = "(" + escapedKeywords.joined(separator: "|") + ")"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
+            return [text]
+        }
+        
+        let nsRange = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, options: [], range: nsRange)
+        
+        guard !matches.isEmpty else {
+            return [text]
+        }
+        
+        var segments: [String] = []
+        var lastEnd = text.startIndex
+        
+        for match in matches {
+            guard let range = Range(match.range, in: text) else { continue }
+            let segment = String(text[lastEnd..<range.lowerBound])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !segment.isEmpty {
+                segments.append(segment)
+            }
+            lastEnd = range.upperBound
+        }
+        
+        // 最後一段
+        let lastSegment = String(text[lastEnd...])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if !lastSegment.isEmpty {
+            segments.append(lastSegment)
+        }
+        
+        // 若切割結果為空，回傳原文
+        return segments.isEmpty ? [text] : segments
+    }
+    
+    // MARK: - 單段解析
+    
+    /// 解析單一段落文字，抽取運具、路線、價格、站名、時間
+    private static func parseSingleSegment(_ normalized: String) -> ParsedTrip {
+        var result = ParsedTrip()
+        
+        // 運具抽取
         let (transport, transportConfidence) = extractTransport(normalized)
         result.transportType = transport
         result.transportScore = transportConfidence
         
-        // 4. 路線抽取（公車/客運）
+        // 路線抽取（公車/客運）
         result.routeId = extractRouteId(normalized, transport: transport)
         
-        // 5. 價格抽取
+        // 價格抽取
         let (price, priceConfidence) = extractPrice(normalized)
         result.price = price
         result.priceScore = priceConfidence
         
-        // 6. 起迄站抽取
+        // 起迄站抽取
         let (start, end, stationConfidence) = extractStations(normalized, transport: transport)
         result.startStation = start
         result.endStation = end
         result.stationScore = stationConfidence
         
-        // 7. 時間抽取
+        // 時間抽取
         let (date, time, timeConfidence) = extractDateTime(normalized)
         result.date = date
         result.time = time
         result.timeScore = timeConfidence
         
-        // 8. 一致性分數
+        // 一致性分數
         result.consistencyScore = calculateConsistency(result)
-        
-        // 9. 原始文字放入備註
-        result.note = rawText
         
         return result
     }
@@ -559,22 +651,28 @@ struct TripVoiceParser {
                     endName = normalizeTRAStationName(endName)
                 }
                 
-                guard !startName.isEmpty, !endName.isEmpty else { continue }
+                // 至少要有一個站名
+                guard !startName.isEmpty || !endName.isEmpty else { continue }
+                
+                let finalStart: String? = startName.isEmpty ? nil : startName
+                let finalEnd: String? = endName.isEmpty ? nil : endName
                 
                 // 驗證站名
-                let startValid = validateStation(startName, transport: transport)
-                let endValid = validateStation(endName, transport: transport)
+                let startValid = finalStart.map { validateStation($0, transport: transport) } ?? false
+                let endValid = finalEnd.map { validateStation($0, transport: transport) } ?? false
                 
                 let score: Double
                 if startValid && endValid {
                     score = 1.0
                 } else if startValid || endValid {
                     score = 0.7
-                } else {
+                } else if finalStart != nil && finalEnd != nil {
                     score = 0.4
+                } else {
+                    score = 0.3
                 }
                 
-                return (startName, endName, score)
+                return (finalStart, finalEnd, score)
             }
         }
         

@@ -42,6 +42,31 @@ struct VoiceDraft: Identifiable {
         transportType != nil && startStation != nil && endStation != nil
     }
     
+    /// 建立空白 VoiceDraft（用於手動新增段落）
+    static func empty() -> VoiceDraft {
+        VoiceDraft(
+            id: UUID(),
+            createdAt: Date(),
+            originalTranscript: "",
+            transportType: nil,
+            startStation: nil,
+            endStation: nil,
+            price: nil,
+            routeId: nil,
+            tripDate: nil,
+            tripTime: nil,
+            note: nil,
+            isTransfer: true,
+            stationScore: 0,
+            transportScore: 0,
+            priceScore: 0,
+            timeScore: 0,
+            consistencyScore: 0,
+            overallScore: 0,
+            status: .draft
+        )
+    }
+    
     /// 從 ParsedTrip 建立 VoiceDraft
     static func from(parsed: TripVoiceParser.ParsedTrip, transcript: String) -> VoiceDraft {
         let status: DraftStatus

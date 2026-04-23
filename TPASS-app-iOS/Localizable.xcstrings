@@ -9473,6 +9473,22 @@
         }
       }
     },
+    "voice_add_segment" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+ Add transfer segment"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "＋ 手動加入下一段轉乘"
+          }
+        }
+      }
+    },
     "voice_auto_fare_hint" : {
       "localizations" : {
         "en" : {
@@ -9489,7 +9505,24 @@
         }
       }
     },
+    "voice_auto_transfer_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-marked as transfer"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已自動標記為轉乘"
+          }
+        }
+      }
+    },
     "voice_confidence_high" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9506,6 +9539,7 @@
       }
     },
     "voice_confidence_low" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9522,6 +9556,7 @@
       }
     },
     "voice_confidence_medium" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9733,6 +9768,7 @@
       }
     },
     "voice_multi_segment_message" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9749,6 +9785,7 @@
       }
     },
     "voice_multi_segment_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10054,6 +10091,22 @@
         }
       }
     },
+    "voice_transfer_connector" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉乘"
+          }
+        }
+      }
+    },
     "voice_trip_saved" : {
       "localizations" : {
         "en" : {
@@ -10316,7 +10369,13 @@
     "確定要刪除這則回報嗎？此動作無法復原。\n\n%@" : {
 
     },
+    "確認並儲存 %lld 筆行程" : {
+
+    },
     "確認匯入" : {
+
+    },
+    "第 %lld 段行程" : {
 
     },
     "等待天數" : {

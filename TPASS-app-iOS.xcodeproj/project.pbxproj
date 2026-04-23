@@ -13,6 +13,8 @@
 		FB025E002F9869B800AEFB19 /* VoiceQuickTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */; };
 		FB025E032F98B02200AEFB19 /* VoiceNLP_Rules.json in Resources */ = {isa = PBXBuildFile; fileRef = FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */; };
 		FB025E052F98B0CB00AEFB19 /* VoiceParseLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */; };
+		FB025E072F99BF6C00AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */; };
+		FB025E092F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -110,6 +112,8 @@
 		FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceQuickTripView.swift; sourceTree = "<group>"; };
 		FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = VoiceNLP_Rules.json; sourceTree = "<group>"; };
 		FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceParseLogService.swift; sourceTree = "<group>"; };
+		FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = VOICE_TRIP_INPUT_PLAN_V2.md; sourceTree = "<group>"; };
+		FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceSegmentEditorCard.swift; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -313,6 +317,7 @@
 				FB0A21122F8F8EF100405172 /* ViewFrameKey.swift */,
 				FB0A21742F8FAF9700405172 /* DeveloperToolsPlaceholderView.swift */,
 				FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */,
+				FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -361,6 +366,7 @@
 				FB6BC0BB2F7042950011877D /* README.md */,
 				FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */,
 				FB386D522F97A13B00486F0A /* VOICE_TRIP_INPUT_PLAN.md */,
+				FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */,
 				FB0A21652F8F955800405172 /* firebase.json */,
 				FB0A21192F8F8EF100405172 /* TPASS-app-iOS */,
 				FB0A216A2F8F955800405172 /* webpage */,
@@ -567,6 +573,7 @@
 				FB826C412F92244E00D6D1D7 /* LRTModels.swift in Sources */,
 				FB0A212D2F8F8EF100405172 /* MigrationManager.swift in Sources */,
 				FB0A21862F8FB300405172 /* LRTStationData.swift in Sources */,
+				FB025E092F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift in Sources */,
 				FB0A212E2F8F8EF100405172 /* TCMRTStationData.swift in Sources */,
 				FB0A212F2F8F8EF100405172 /* AddTripView.swift in Sources */,
 				FB0A21302F8F8EF100405172 /* Enums.swift in Sources */,
@@ -599,6 +606,7 @@
 				FB0A21442F8F8EF100405172 /* TPEMRTFareService.swift in Sources */,
 				FB0A21452F8F8EF100405172 /* BackupManagementView.swift in Sources */,
 				FB0A21462F8F8EF100405172 /* OutboundStationSettingsView.swift in Sources */,
+				FB025E072F99BF6C00AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md in Sources */,
 				FB025DFA2F9868CB00AEFB19 /* VoiceInputService.swift in Sources */,
 				FB0A21472F8F8EF100405172 /* SpotlightTutorialView.swift in Sources */,
 				FB0A21482F8F8EF100405172 /* IntroView.swift in Sources */,
@@ -754,7 +762,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -797,7 +805,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 88;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

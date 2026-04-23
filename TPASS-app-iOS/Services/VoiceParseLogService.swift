@@ -13,14 +13,14 @@ import CloudKit
 ///
 /// **Record Type**: `VoiceParseLog`
 /// **欄位**:
-/// - `status` (String): "success" | "failed" | "abandoned" — 區分成功儲存、辨識失敗、辨識成功但放棄儲存
+/// - `status` (String): "success" | "failed" | "abandoned"
 /// - `failureReason` (String): 失敗原因（僅 status=failed 時有值）
-///   可能值: "empty_transcript", "multi_segment", "low_confidence", "missing_fields"
 /// - `originalTranscript` (String): 原始語音轉寫文字
-/// - `parsedResult` (String): 解析結果 JSON（運具、站點、票價、信心分數）
-/// - `finalResult` (String): 使用者最終確認的結果 JSON（僅 status=success 時有值）
-/// - `isCorrected` (Int64): 0 = 無修改, 1 = 有修改（僅 status=success 時有意義）
-/// - `overallScore` (Double): 解析信心總分
+/// - `parsedResult` (String): 解析結果 JSON Array（V2 多段行程）
+/// - `finalResult` (String): 最終確認結果 JSON Array（僅 status=success 時有值）
+/// - `isCorrected` (Int64): 0 = 無修改, 1 = 有修改
+/// - `overallScore` (Double): 首段解析信心總分
+/// - `segmentCount` (Int64): 行程段數
 /// - `appVersion` (String): App 版本號
 /// - `rulesVersion` (String): VoiceNLP_Rules.json 版本號
 final class VoiceParseLogService {
@@ -33,7 +33,6 @@ final class VoiceParseLogService {
     /// 失敗原因列舉
     enum FailureReason: String {
         case emptyTranscript = "empty_transcript"     // 語音辨識無輸出
-        case multiSegment    = "multi_segment"         // 偵測到多段行程
         case lowConfidence   = "low_confidence"        // 信心分數過低
         case missingFields   = "missing_fields"        // 必要欄位不完整
     }
@@ -49,34 +48,31 @@ final class VoiceParseLogService {
     ///
     /// - Parameters:
     ///   - originalTranscript: 原始語音轉寫文字
-    ///   - draft: 語音解析產生的 VoiceDraft（解析階段的結果）
-    ///   - finalTripData: 使用者最終確認的行程資料
-    ///
-    /// - Note: 應在背景 Task 呼叫，錯誤時靜默處理
+    ///   - drafts: 語音解析產生的 VoiceDraft 陣列（V2 支援多段）
+    ///   - finalTripDataArray: 使用者最終確認的行程資料陣列
     func logParseResult(
         originalTranscript: String,
-        draft: VoiceDraft,
-        finalTripData: [String: Any]
+        drafts: [VoiceDraft],
+        finalTripDataArray: [[String: Any]]
     ) async {
         do {
             let record = buildBaseRecord(
                 transcript: originalTranscript,
-                draft: draft
+                drafts: drafts
             )
             
-            // 標記為成功
             record["status"] = "success" as CKRecordValue
             record["failureReason"] = "" as CKRecordValue
             
-            // 最終結果 JSON
-            let sanitizedFinal = sanitizeFinalData(finalTripData)
-            if let finalJSON = try? JSONSerialization.data(withJSONObject: sanitizedFinal),
+            // 最終結果 JSON Array
+            let sanitizedArray = finalTripDataArray.map { sanitizeFinalData($0) }
+            if let finalJSON = try? JSONSerialization.data(withJSONObject: sanitizedArray),
                let finalString = String(data: finalJSON, encoding: .utf8) {
                 record["finalResult"] = finalString as CKRecordValue
             }
             
-            // 是否有修正
-            let corrected = detectCorrection(draft: draft, finalData: finalTripData)
+            // 是否有任何段落被修正
+            let corrected = detectCorrectionArray(drafts: drafts, finalDataArray: finalTripDataArray)
             record["isCorrected"] = (corrected ? 1 : 0) as CKRecordValue
             
             _ = try await publicDatabase.save(record)
@@ -87,30 +83,25 @@ final class VoiceParseLogService {
         }
     }
     
-    /// 上傳失敗的語音解析紀錄（辨識不完整、信心過低、多段行程等）
+    /// 上傳失敗的語音解析紀錄（辨識不完整、信心過低等）
     ///
     /// - Parameters:
     ///   - originalTranscript: 原始語音轉寫文字（可能為空字串）
-    ///   - draft: 語音解析產生的 VoiceDraft（可能為 nil，例如空轉寫時）
+    ///   - drafts: 語音解析產生的 VoiceDraft 陣列（可能為空陣列）
     ///   - reason: 失敗原因
-    ///
-    /// - Note: 應在背景 Task 呼叫，錯誤時靜默處理
     func logFailedParse(
         originalTranscript: String,
-        draft: VoiceDraft?,
+        drafts: [VoiceDraft],
         reason: FailureReason
     ) async {
         do {
             let record = buildBaseRecord(
                 transcript: originalTranscript,
-                draft: draft
+                drafts: drafts
             )
             
-            // 標記為失敗
             record["status"] = "failed" as CKRecordValue
             record["failureReason"] = reason.rawValue as CKRecordValue
-            
-            // 失敗紀錄無最終結果
             record["finalResult"] = "" as CKRecordValue
             record["isCorrected"] = 0 as CKRecordValue
             
@@ -124,20 +115,17 @@ final class VoiceParseLogService {
     
     /// 上傳「已辨識但使用者放棄儲存」的紀錄
     ///
-    /// 當使用者成功進入預覽階段（draft 不為 nil）但最終關閉選單未儲存時呼叫。
-    /// status = "abandoned"，finalResult 留空。
-    ///
     /// - Parameters:
     ///   - originalTranscript: 原始語音轉寫文字
-    ///   - draft: 解析產生的 VoiceDraft
+    ///   - drafts: 解析產生的 VoiceDraft 陣列
     func logAbandonedParse(
         originalTranscript: String,
-        draft: VoiceDraft
+        drafts: [VoiceDraft]
     ) async {
         do {
             let record = buildBaseRecord(
                 transcript: originalTranscript,
-                draft: draft
+                drafts: drafts
             )
             
             record["status"] = "abandoned" as CKRecordValue
@@ -156,20 +144,24 @@ final class VoiceParseLogService {
     // MARK: - 內部方法
     
     /// 建構共用的 CKRecord 基礎欄位
-    private func buildBaseRecord(transcript: String, draft: VoiceDraft?) -> CKRecord {
+    private func buildBaseRecord(transcript: String, drafts: [VoiceDraft]) -> CKRecord {
         let record = CKRecord(recordType: "VoiceParseLog")
         
         // 原始轉寫（截斷避免過長）
         record["originalTranscript"] = String(transcript.prefix(500)) as CKRecordValue
         
-        // 解析結果 JSON
-        if let draft {
-            let parsedDict = buildParsedResultDict(from: draft)
-            if let parsedJSON = try? JSONSerialization.data(withJSONObject: parsedDict),
+        // 段數
+        record["segmentCount"] = Int64(max(drafts.count, 1)) as CKRecordValue
+        
+        // 解析結果 JSON Array
+        if !drafts.isEmpty {
+            let parsedArray = drafts.map { buildParsedResultDict(from: $0) }
+            if let parsedJSON = try? JSONSerialization.data(withJSONObject: parsedArray),
                let parsedString = String(data: parsedJSON, encoding: .utf8) {
                 record["parsedResult"] = parsedString as CKRecordValue
             }
-            record["overallScore"] = draft.overallScore as CKRecordValue
+            // 使用首段的 overallScore 作為代表分數
+            record["overallScore"] = drafts[0].overallScore as CKRecordValue
         } else {
             record["parsedResult"] = "" as CKRecordValue
             record["overallScore"] = 0.0 as CKRecordValue
@@ -204,7 +196,7 @@ final class VoiceParseLogService {
             dict["routeId"] = routeId
         }
         
-        // 信心分數
+        dict["isTransfer"] = draft.isTransfer
         dict["stationScore"] = draft.stationScore
         dict["transportScore"] = draft.transportScore
         dict["priceScore"] = draft.priceScore
@@ -219,6 +211,17 @@ final class VoiceParseLogService {
     private func sanitizeFinalData(_ data: [String: Any]) -> [String: Any] {
         let sensitiveKeys = ["userId", "user_id", "appleId", "deviceId", "email", "name"]
         return data.filter { !sensitiveKeys.contains($0.key) }
+    }
+    
+    /// 偵測多段行程中是否有任何段落被修正
+    private func detectCorrectionArray(drafts: [VoiceDraft], finalDataArray: [[String: Any]]) -> Bool {
+        for (index, draft) in drafts.enumerated() {
+            guard index < finalDataArray.count else { continue }
+            if detectCorrection(draft: draft, finalData: finalDataArray[index]) {
+                return true
+            }
+        }
+        return false
     }
     
     /// 偵測使用者是否修正了解析結果
