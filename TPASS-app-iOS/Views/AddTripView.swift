@@ -504,12 +504,9 @@ struct AddTripView: View {
         .presentationDetents([.height(650)])
         .presentationDragIndicator(.hidden)
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
-            Button("date_out_of_cycle_cancel_action", role: .cancel) { }
-            Button("date_out_of_cycle_force_add_action") {
-                saveTrip(forceAdjustOutOfRangeDate: true)
-            }
+            Button("ok", role: .cancel) { }
         } message: {
-            Text("date_out_of_cycle_force_add_message")
+            Text("date_out_of_cycle_adjust_time_message")
         }
         
         .onAppear {
@@ -517,9 +514,6 @@ struct AddTripView: View {
             if let firstMode = currentSupportedModes.first {
                 selectedType = firstMode
                 handleTypeChange(firstMode)
-            }
-            if let range = allowedDateRange, !range.contains(date) {
-                date = range.lowerBound
             }
         }
         .onChange(of: startStation) { _, _ in tryAutoFillFromHistory() }
@@ -687,10 +681,6 @@ struct AddTripView: View {
     }
     
     func saveTrip() {
-        saveTrip(forceAdjustOutOfRangeDate: false)
-    }
-
-    private func saveTrip(forceAdjustOutOfRangeDate: Bool) {
         guard let userId = auth.currentUser?.id, let p = Int(price) else { return }
         let calendar = Calendar.current
         let dateComps = calendar.dateComponents([.year, .month, .day], from: date)
@@ -701,15 +691,9 @@ struct AddTripView: View {
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute; finalComps.second = secondsNow
         var finalDate = calendar.date(from: finalComps) ?? date
         if let range = allowedDateRange, !range.contains(finalDate) {
-            if !forceAdjustOutOfRangeDate {
-                showDateOutOfRangeAlert = true
-                HapticManager.shared.notification(type: .warning)
-                return
-            }
-
-            finalDate = range.lowerBound
-            date = range.lowerBound
-            time = range.lowerBound
+            showDateOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+            return
         }
 
         let resolvedCycleId = viewModel.cycleForTrip(date: finalDate)?.id ?? currentCycleId
@@ -827,21 +811,12 @@ struct AddTripView: View {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
-            if let range = allowedDateRange, components.contains(.date) {
-                DatePicker("", selection: selection, in: range, displayedComponents: components)
-                    .labelsHidden()
-                    .scaleEffect(0.85)
-                    .accentColor(themeManager.accentColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
-            } else {
-                DatePicker("", selection: selection, displayedComponents: components)
-                    .labelsHidden()
-                    .scaleEffect(0.85)
-                    .accentColor(themeManager.accentColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
-            }
+            DatePicker("", selection: selection, displayedComponents: components)
+                .labelsHidden()
+                .scaleEffect(0.85)
+                .accentColor(themeManager.accentColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityLabel(components == .date ? Text("a11y_date") : Text("a11y_time"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)

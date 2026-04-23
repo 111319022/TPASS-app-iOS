@@ -305,12 +305,9 @@ struct QuickAddOutboundView: View {
             }
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
-            Button("date_out_of_cycle_cancel_action", role: .cancel) { }
-            Button("date_out_of_cycle_force_add_action") {
-                addTrip(forceAdjustOutOfRangeDate: true)
-            }
+            Button("ok", role: .cancel) { }
         } message: {
-            Text("date_out_of_cycle_force_add_message")
+            Text("date_out_of_cycle_adjust_time_message")
         }
         .onAppear {
             let now = Date()
@@ -460,17 +457,10 @@ struct QuickAddOutboundView: View {
                 .foregroundColor(themeManager.secondaryTextColor)
                 .frame(width: 20)
 
-            if let range = allowedDateRange {
-                DatePicker("", selection: selection, in: range, displayedComponents: components)
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    .accentColor(themeManager.accentColor)
-            } else {
-                DatePicker("", selection: selection, displayedComponents: components)
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    .accentColor(themeManager.accentColor)
-            }
+            DatePicker("", selection: selection, displayedComponents: components)
+                .labelsHidden()
+                .frame(maxWidth: .infinity)
+                .accentColor(themeManager.accentColor)
         }
         .padding(.horizontal, 12)
         .frame(height: 50)
@@ -534,10 +524,6 @@ struct QuickAddOutboundView: View {
     }
 
     func addTrip() {
-        addTrip(forceAdjustOutOfRangeDate: false)
-    }
-
-    private func addTrip(forceAdjustOutOfRangeDate: Bool) {
         guard let userId = auth.currentUser?.id,
               let outboundStation = selectedOutboundStation,
               let p = Int(price) else { return }
@@ -557,15 +543,9 @@ struct QuickAddOutboundView: View {
         var finalDate = calendar.date(from: finalComps) ?? date
 
         if let range = allowedDateRange, !range.contains(finalDate) {
-            if !forceAdjustOutOfRangeDate {
-                showDateOutOfRangeAlert = true
-                HapticManager.shared.notification(type: .warning)
-                return
-            }
-
-            finalDate = range.lowerBound
-            date = range.lowerBound
-            time = range.lowerBound
+            showDateOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+            return
         }
 
         let resolvedCycleId = viewModel.cycleForTrip(date: finalDate)?.id ?? currentCycleId
