@@ -865,12 +865,12 @@ class AppViewModel: ObservableObject {
     }
 
     @MainActor
-    func quickAddCommuterRoute(_ route: CommuterRoute) {
+    func quickAddCommuterRoute(_ route: CommuterRoute, baseDateOverride: Date? = nil) {
         guard let userId = AuthService.shared.currentUser?.id else { return }
         guard let context = modelContext else { return }
 
         let calendar = Calendar.current
-        let today = Date()
+        let today = baseDateOverride ?? Date()
         let baseDate = calendar.dateComponents([.year, .month, .day], from: today)
 
         for template in route.trips {

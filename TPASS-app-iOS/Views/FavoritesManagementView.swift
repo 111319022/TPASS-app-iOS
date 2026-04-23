@@ -17,6 +17,7 @@ struct FavoritesManagementView: View {
     @State private var swipedCommuterIds: Set<UUID> = []
     @State private var showDateOutOfRangeAlert = false
     @State private var pendingQuickAddFavorite: FavoriteRoute? = nil
+    @State private var pendingQuickAddCommuterRoute: CommuterRoute? = nil
 
     private var selectedCycleDateRange: ClosedRange<Date>? {
         guard let cycle = viewModel.activeCycle else { return nil }
@@ -146,15 +147,23 @@ struct FavoritesManagementView: View {
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
             Button("date_out_of_cycle_cancel_action", role: .cancel) {
                 pendingQuickAddFavorite = nil
+                pendingQuickAddCommuterRoute = nil
             }
             Button("date_out_of_cycle_force_add_action") {
-                guard let fav = pendingQuickAddFavorite,
-                      let forceDate = selectedCycleDateRange?.lowerBound else {
+                guard let forceDate = selectedCycleDateRange?.lowerBound else {
                     pendingQuickAddFavorite = nil
+                    pendingQuickAddCommuterRoute = nil
                     return
                 }
-                performQuickAddFavorite(fav, createdAt: forceDate)
+
+                if let fav = pendingQuickAddFavorite {
+                    performQuickAddFavorite(fav, createdAt: forceDate)
+                } else if let route = pendingQuickAddCommuterRoute {
+                    performQuickAddCommuterRoute(route, baseDate: forceDate)
+                }
+
                 pendingQuickAddFavorite = nil
+                pendingQuickAddCommuterRoute = nil
             }
         } message: {
             Text("date_out_of_cycle_force_add_message")
@@ -297,23 +306,37 @@ struct FavoritesManagementView: View {
             onQuickAdd?(routeName)
         }
     }
+
+    private func quickAddCommuterRouteWithDateValidation(_ route: CommuterRoute) {
+        let now = Date()
+        if let range = selectedCycleDateRange, !range.contains(now) {
+            pendingQuickAddCommuterRoute = route
+            showDateOutOfRangeAlert = true
+            HapticManager.shared.notification(type: .warning)
+            return
+        }
+        performQuickAddCommuterRoute(route, baseDate: now)
+    }
+
+    private func performQuickAddCommuterRoute(_ route: CommuterRoute, baseDate: Date) {
+        let routeName = route.name
+        viewModel.quickAddCommuterRoute(route, baseDateOverride: baseDate)
+
+        HapticManager.shared.notification(type: .success)
+
+        showToast(message: "favorites_added_commuter \(routeName)")
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            onQuickAddCommuter?(routeName)
+        }
+    }
     
     @ViewBuilder
     private func commuterRouteButtonWithActions(_ route: CommuterRoute) -> some View {
         ZStack(alignment: .trailing) {
             // 1. 底層主要按鈕 (新增通勤路線)
             Button(action: {
-                let routeName = route.name
-                viewModel.quickAddCommuterRoute(route)
-                
-                //     [新增] 震動：快速新增整組成功
-                HapticManager.shared.notification(type: .success)
-                
-                showToast(message: "favorites_added_commuter \(routeName)")
-                dismiss()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    onQuickAddCommuter?(routeName)
-                }
+                quickAddCommuterRouteWithDateValidation(route)
             }) {
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 2) {

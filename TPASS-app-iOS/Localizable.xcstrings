@@ -3170,6 +3170,22 @@
         }
       }
     },
+    "date_out_of_cycle_adjust_time_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected date and time is outside the current cycle. Please adjust the date or time and save again."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所選日期時間超出目前月票週期，請調整日期或時間後再儲存。"
+          }
+        }
+      }
+    },
     "date_out_of_cycle_cancel_action" : {
       "localizations" : {
         "en" : {
@@ -3230,22 +3246,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請選擇週期內日期"
-          }
-        }
-      }
-    },
-    "date_out_of_cycle_adjust_time_message" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The selected date and time is outside the current cycle. Please adjust the date or time and save again."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所選日期時間超出目前月票週期，請調整日期或時間後再儲存。"
           }
         }
       }
@@ -6706,7 +6706,20 @@
       }
     },
     "ok" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "original_price_label $%lld" : {
       "localizations" : {
@@ -10302,9 +10315,6 @@
         }
       }
     },
-    "仍要新增" : {
-
-    },
     "使用已保存" : {
 
     },
@@ -10381,9 +10391,6 @@
 
     },
     "截取結果" : {
-
-    },
-    "日期超出月票週期" : {
 
     },
     "會清除目前登入狀態並立即顯示 Intro，不會刪除 local_user。" : {
@@ -10479,9 +10486,6 @@
 
     },
     "複製完成" : {
-
-    },
-    "語音解析中有行程日期超出目前月票週期，若仍要新增，超出範圍的日期會自動改為月票起始日 00:00。" : {
 
     },
     "語音輸入" : {
