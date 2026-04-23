@@ -48,6 +48,7 @@ struct VoiceQuickTripView: View {
     
     @State private var showSaveSuccess = false
     @State private var showTRAOutOfRangeAlert = false
+    @State private var showCycleDateOutOfRangeAlert = false
     
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
     @State private var didSaveTrip: Bool = false
@@ -64,6 +65,19 @@ struct VoiceQuickTripView: View {
     
     private var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
+    }
+
+    private var activeCycleDateRange: ClosedRange<Date>? {
+        guard let cycle = viewModel.activeCycle else { return nil }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        return start...end
+    }
+
+    private var activeCycleStartDate: Date? {
+        guard let cycle = viewModel.activeCycle else { return nil }
+        return Calendar.current.startOfDay(for: cycle.start)
     }
     
     private var currentSupportedModes: [TransportType] {
@@ -124,6 +138,14 @@ struct VoiceQuickTripView: View {
             Button("知道了", role: .cancel) { }
         } message: {
             Text("目前選擇的台鐵起訖站不在你當前月票方案可使用範圍，請改選可用站點。")
+        }
+        .alert("日期超出月票週期", isPresented: $showCycleDateOutOfRangeAlert) {
+            Button("取消", role: .cancel) { }
+            Button("仍要新增") {
+                saveDraftsAsTrips(forceAdjustOutOfRangeDates: true)
+            }
+        } message: {
+            Text("語音解析中有行程日期超出目前月票週期，若仍要新增，超出範圍的日期會自動改為月票起始日 00:00。")
         }
         .onAppear {
             checkPermissions()
@@ -815,11 +837,36 @@ struct VoiceQuickTripView: View {
     // MARK: - 批次儲存
     
     private func saveDraftsAsTrips() {
+        saveDraftsAsTrips(forceAdjustOutOfRangeDates: false)
+    }
+
+    private func saveDraftsAsTrips(forceAdjustOutOfRangeDates: Bool) {
         guard let userId = auth.currentUser?.id else { return }
+
+        var segmentsToSave = segments
+
+        if let range = activeCycleDateRange {
+            let hasOutOfRangeDate = segmentsToSave.contains { !range.contains($0.date) }
+
+            if hasOutOfRangeDate && !forceAdjustOutOfRangeDates {
+                showCycleDateOutOfRangeAlert = true
+                HapticManager.shared.notification(type: .warning)
+                return
+            }
+
+            if hasOutOfRangeDate,
+               forceAdjustOutOfRangeDates,
+               let cycleStart = activeCycleStartDate {
+                for index in segmentsToSave.indices where !range.contains(segmentsToSave[index].date) {
+                    segmentsToSave[index].date = cycleStart
+                }
+                segments = segmentsToSave
+            }
+        }
         
         var finalTripDataArray: [[String: Any]] = []
         
-        for seg in segments {
+        for seg in segmentsToSave {
             guard let transportType = seg.transportType else { continue }
             
             // 台鐵站點範圍驗證

@@ -305,9 +305,12 @@ struct QuickAddOutboundView: View {
             }
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
-            Button("ok", role: .cancel) { }
+            Button("取消", role: .cancel) { }
+            Button("仍要新增") {
+                addTrip(forceAdjustOutOfRangeDate: true)
+            }
         } message: {
-            Text("date_out_of_cycle_message")
+            Text("日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。")
         }
         .onAppear {
             let now = Date()
@@ -531,6 +534,10 @@ struct QuickAddOutboundView: View {
     }
 
     func addTrip() {
+        addTrip(forceAdjustOutOfRangeDate: false)
+    }
+
+    private func addTrip(forceAdjustOutOfRangeDate: Bool) {
         guard let userId = auth.currentUser?.id,
               let outboundStation = selectedOutboundStation,
               let p = Int(price) else { return }
@@ -550,12 +557,18 @@ struct QuickAddOutboundView: View {
         var finalDate = calendar.date(from: finalComps) ?? date
 
         if let range = allowedDateRange, !range.contains(finalDate) {
-            let clamped = min(max(finalDate, range.lowerBound), range.upperBound)
-            finalDate = clamped
-            date = clamped
-            time = clamped
-            showDateOutOfRangeAlert = true
+            if !forceAdjustOutOfRangeDate {
+                showDateOutOfRangeAlert = true
+                HapticManager.shared.notification(type: .warning)
+                return
+            }
+
+            finalDate = range.lowerBound
+            date = range.lowerBound
+            time = range.lowerBound
         }
+
+        let resolvedCycleId = viewModel.cycleForTrip(date: finalDate)?.id ?? currentCycleId
 
         let discount: Int
         if isTransfer, let type = transferDiscountType {
@@ -580,7 +593,7 @@ struct QuickAddOutboundView: View {
             routeId: routeId,
             note: "",
             transferDiscountType: transferDiscountType,
-            cycleId: currentCycleId
+            cycleId: resolvedCycleId
         )
 
         viewModel.addTrip(newTrip)

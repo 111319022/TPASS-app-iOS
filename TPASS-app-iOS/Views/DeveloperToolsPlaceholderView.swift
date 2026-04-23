@@ -14,6 +14,8 @@ struct DeveloperToolsPlaceholderView: View {
     @State private var setupResultTitle = ""
     @State private var setupResultMessage = ""
     @State private var openIssueReportsFromNotification = false
+    @State private var isExporting = false
+    @State private var csvFileURL: URL?
 
     var body: some View {
         Form {
@@ -165,6 +167,43 @@ struct DeveloperToolsPlaceholderView: View {
                 }
                 .buttonStyle(.plain)
             }
+
+            Section(header: Text("資料分析")) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("語音輸入")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(themeManager.primaryTextColor)
+
+                    Button {
+                        exportVoiceParseLogs()
+                    } label: {
+                        HStack(spacing: 10) {
+                            if isExporting {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "square.and.arrow.down")
+                                    .foregroundColor(themeManager.accentColor)
+                            }
+
+                            Text(isExporting ? "匯出中..." : "匯出 VoiceParseLog CSV")
+                                .foregroundColor(themeManager.primaryTextColor)
+
+                            Spacer()
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isExporting)
+
+                    if let url = csvFileURL {
+                        ShareLink(item: url) {
+                            Label("分享已匯出的 CSV", systemImage: "square.and.arrow.up")
+                        }
+                        .font(.subheadline)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
         }
         .navigationTitle("開發者")
         .navigationBarTitleDisplayMode(.inline)
@@ -312,6 +351,26 @@ struct DeveloperToolsPlaceholderView: View {
             } catch {
                 isClearingNotificationMarks = false
                 setupResultTitle = "清除失敗"
+                setupResultMessage = error.localizedDescription
+                showSetupResultAlert = true
+            }
+        }
+    }
+
+    private func exportVoiceParseLogs() {
+        guard !isExporting else { return }
+        isExporting = true
+        csvFileURL = nil
+
+        Task {
+            do {
+                let fileURL = try await VoiceLogExportService.shared.exportLogsToCSV()
+                isExporting = false
+                csvFileURL = fileURL
+            } catch {
+                isExporting = false
+                csvFileURL = nil
+                setupResultTitle = "匯出失敗"
                 setupResultMessage = error.localizedDescription
                 showSetupResultAlert = true
             }

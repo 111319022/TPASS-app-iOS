@@ -504,9 +504,12 @@ struct AddTripView: View {
         .presentationDetents([.height(650)])
         .presentationDragIndicator(.hidden)
         .alert(Text("date_out_of_cycle_title"), isPresented: $showDateOutOfRangeAlert) {
-            Button("ok", role: .cancel) { }
+            Button("取消", role: .cancel) { }
+            Button("仍要新增") {
+                saveTrip(forceAdjustOutOfRangeDate: true)
+            }
         } message: {
-            Text("date_out_of_cycle_message")
+            Text("日期超出目前月票週期，若仍要新增，日期會改為月票起始日 00:00。")
         }
         
         .onAppear {
@@ -684,6 +687,10 @@ struct AddTripView: View {
     }
     
     func saveTrip() {
+        saveTrip(forceAdjustOutOfRangeDate: false)
+    }
+
+    private func saveTrip(forceAdjustOutOfRangeDate: Bool) {
         guard let userId = auth.currentUser?.id, let p = Int(price) else { return }
         let calendar = Calendar.current
         let dateComps = calendar.dateComponents([.year, .month, .day], from: date)
@@ -694,12 +701,18 @@ struct AddTripView: View {
         finalComps.hour = timeComps.hour; finalComps.minute = timeComps.minute; finalComps.second = secondsNow
         var finalDate = calendar.date(from: finalComps) ?? date
         if let range = allowedDateRange, !range.contains(finalDate) {
-            let clamped = min(max(finalDate, range.lowerBound), range.upperBound)
-            finalDate = clamped
-            date = clamped
-            time = clamped
-            showDateOutOfRangeAlert = true
+            if !forceAdjustOutOfRangeDate {
+                showDateOutOfRangeAlert = true
+                HapticManager.shared.notification(type: .warning)
+                return
+            }
+
+            finalDate = range.lowerBound
+            date = range.lowerBound
+            time = range.lowerBound
         }
+
+        let resolvedCycleId = viewModel.cycleForTrip(date: finalDate)?.id ?? currentCycleId
 
         let newTrip = Trip(
             id: UUID().uuidString,
@@ -715,7 +728,7 @@ struct AddTripView: View {
             routeId: routeId,
             note: note,
             transferDiscountType: transferDiscountType,
-            cycleId: currentCycleId
+            cycleId: resolvedCycleId
         )
         viewModel.addTrip(newTrip)
         

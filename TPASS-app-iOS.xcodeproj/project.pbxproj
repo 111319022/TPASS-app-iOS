@@ -12,6 +12,7 @@
 		FB025DFE2F98695600AEFB19 /* VoiceDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */; };
 		FB025E002F9869B800AEFB19 /* VoiceQuickTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */; };
 		FB025E032F98B02200AEFB19 /* VoiceNLP_Rules.json in Resources */ = {isa = PBXBuildFile; fileRef = FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */; };
+		FBC1A002302A100100AA0001 /* VoiceLogExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */; };
 		FB025E052F98B0CB00AEFB19 /* VoiceParseLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */; };
 		FB025E072F99BF6C00AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */; };
 		FB025E092F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */; };
@@ -111,6 +112,7 @@
 		FB025DFD2F98695600AEFB19 /* VoiceDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceDraft.swift; sourceTree = "<group>"; };
 		FB025DFF2F9869B800AEFB19 /* VoiceQuickTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceQuickTripView.swift; sourceTree = "<group>"; };
 		FB025E022F98B02200AEFB19 /* VoiceNLP_Rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = VoiceNLP_Rules.json; sourceTree = "<group>"; };
+		FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceLogExportService.swift; sourceTree = "<group>"; };
 		FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceParseLogService.swift; sourceTree = "<group>"; };
 		FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = VOICE_TRIP_INPUT_PLAN_V2.md; sourceTree = "<group>"; };
 		FB025E082F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceSegmentEditorCard.swift; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				FB0A20F12F8F8EF100405172 /* NotificationManager.swift */,
 				FB0A20F32F8F8EF100405172 /* ThemeManager.swift */,
 				FB025DF92F9868CB00AEFB19 /* VoiceInputService.swift */,
+				FBC1A001302A100100AA0001 /* VoiceLogExportService.swift */,
 				FB025DFB2F98692900AEFB19 /* TripVoiceParser.swift */,
 				FB025E042F98B0CB00AEFB19 /* VoiceParseLogService.swift */,
 			);
@@ -619,6 +622,7 @@
 				FB0A214F2F8F8EF100405172 /* CommuterRoutePickerOverlay.swift in Sources */,
 				FB025DFC2F98692900AEFB19 /* TripVoiceParser.swift in Sources */,
 				FB826C4E2F925E6700D6D1D7 /* LRTFareService.swift in Sources */,
+				FBC1A002302A100100AA0001 /* VoiceLogExportService.swift in Sources */,
 				FB025E052F98B0CB00AEFB19 /* VoiceParseLogService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
