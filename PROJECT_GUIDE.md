@@ -96,6 +96,7 @@ TPASS-app-iOS/
 │   ├── AuthService.swift
 │   ├── CSVManager.swift
 │   ├── CloudKitSyncService.swift
+│   ├── DevLog.swift
 │   ├── DeveloperAccessService.swift
 │   ├── HapticManager.swift
 │   ├── IssueReportService.swift
@@ -103,6 +104,7 @@ TPASS-app-iOS/
 │   ├── ThemeManager.swift
 │   ├── TripVoiceParser.swift
 │   ├── VoiceInputService.swift
+│   ├── VoiceLogExportService.swift
 │   ├── VoiceParseLogService.swift
 │   ├── FareServices/
 │   │   ├── THSRFareService.swift
@@ -124,8 +126,11 @@ TPASS-app-iOS/
 │   ├── CommuterRoutePickerOverlay.swift
 │   ├── CyclesView.swift
 │   ├── DashboardView.swift
-│   ├── DeveloperIssueReportsView.swift
-│   ├── DeveloperToolsPlaceholderView.swift
+│   ├── DevViews/
+│   │   ├── DevConsoleView.swift
+│   │   ├── DeveloperIssueReportsView.swift
+│   │   ├── DeveloperToolsPlaceholderView.swift
+│   │   └── SwiftDataManagementView.swift
 │   ├── EditTripView.swift
 │   ├── FavoritesManagementView.swift
 │   ├── HomeStationSettingsView.swift
@@ -143,6 +148,7 @@ TPASS-app-iOS/
 │   ├── TransferTypeSelectionView.swift
 │   ├── TripListView.swift
 │   ├── ViewFrameKey.swift
+│   ├── VoiceSegmentEditorCard.swift
 │   └── VoiceQuickTripView.swift
 ├── Localizable.xcstrings
 ├── TPASS-app-iOS-Info.plist
@@ -476,7 +482,9 @@ CloudKit container：
 |------|------|
 | `HapticManager.swift` | 觸覺回饋封裝 |
 | `IssueReportService.swift` | 使用者問題回報寫入 Public DB、開發者訂閱建立、回報列表查詢 |
+| `DevLog.swift` | App 內建 Console：攔截 stdout/stderr、保留最近 1000 筆 log、支援匯出文字 |
 | `VoiceParseLogService.swift` | 匿名上傳語音解析紀錄（解析結果 vs 最終修正）至 Public DB |
+| `VoiceLogExportService.swift` | 從 CloudKit Public DB 匯出 `VoiceParseLog` 為 CSV（供分析） |
 | 各 `FareService` | 運具票價查表與運算 |
 
 ### IssueReportService
@@ -512,17 +520,21 @@ CloudKit container：
 - 在語音快速新增儲存成功後，背景上傳語音解析紀錄到 CloudKit Public Database。
 - 記錄解析階段與最終確認結果，用於離線分析與規則優化。
 - 靜默失敗策略：上傳失敗不阻擋主流程，只在 debug 印出訊息。
+- 失敗與放棄也會上傳（`status = failed / abandoned`），協助定位「權限/空字串/信心過低/必填缺漏」等問題。
 
 CloudKit 設計：
 - Record Type：`VoiceParseLog`
 - 欄位（核心）：
+  - `status`（success / failed / abandoned）
+  - `failureReason`（failed 時才有值）
   - `originalTranscript`
-  - `parsedResult`（JSON 字串）
-  - `finalResult`（JSON 字串）
-  - `isCorrected`（0/1）
-  - `overallScore`
+  - `parsedResult`（JSON Array 字串，V2 多段行程）
+  - `finalResult`（JSON Array 字串，僅 success）
+  - `isCorrected`（0/1，任何段落有修正即為 1）
+  - `overallScore`（以首段代表）
   - `appVersion`
   - `rulesVersion`
+  - `segmentCount`
 
 隱私策略：
 - 上傳前會清洗敏感欄位，至少包含：`userId`、`appleId`、`deviceId`、`email`、`name`。
@@ -632,11 +644,13 @@ VoiceQuickTripView 回填欄位 + 自動查價
 | 檔案 | 職責 | 你應該在何時修改 |
 |------|------|------------------|
 | `Views/VoiceQuickTripView.swift` | 語音 UI 狀態流（ready/recording/parsing/preview）、欄位回填、儲存與告警 | 你要改語音頁行為、欄位同步、儲存前驗證時 |
+| `Views/VoiceSegmentEditorCard.swift` | 多段行程預覽用的「單段卡片」元件（欄位編輯、轉乘/免費/自由座、信心提示） | 你要改 V2 預覽 UI、欄位輸入樣式與互動時 |
 | `Services/VoiceInputService.swift` | 錄音與語音辨識（權限/開始/停止/轉錄） | 你要改語音權限、辨識生命週期、錯誤處理時 |
 | `Services/TripVoiceParser.swift` | NLP 規則解析（運具、起訖站、路線、時間、價格）與信心分數 | 你要改規則載入、解析流程、消歧策略時 |
 | `Data/VoiceNLP/VoiceNLP_Rules.json` | 語音規則資料庫（關鍵字、ASR 誤聽、別名、正則、信心門檻） | 你要改語音規則但不想改 Swift 程式碼時 |
 | `Models/VoiceDraft.swift` | ParsedTrip 到 UI 草稿的中介模型 | 你要新增語音欄位、調整草稿狀態判定時 |
 | `Services/VoiceParseLogService.swift` | 解析結果與最終修正結果的匿名上傳 | 你要改資料蒐集欄位、隱私過濾、上傳策略時 |
+| `Services/VoiceLogExportService.swift` | 從 CloudKit Public DB 匯出 `VoiceParseLog` 為 CSV（最多 500 筆） | 你要改匯出欄位、數量上限或查詢排序時 |
 | `Services/FareServices/*`、`Services/New_FareServices/*` | 各運具查價服務，供語音回填票價 | 你要改票價來源、查價邏輯、運具新規則時 |
 
 ### 目前解析能力與保護機制
@@ -770,7 +784,7 @@ decode snapshots
 3. CloudKit 目前偏手動備份，不是全量自動同步模型。
 4. 票價規則分散在多個 service，可評估加入統一 registry 層降低重複邏輯。
 5. 問題回報目前僅有列表檢視，尚未提供搜尋、標記狀態與指派流程。
-5. 問題回報已支援狀態更新與刪除，但尚未提供搜尋、指派與審核流程。
+6. 問題回報已支援狀態更新與刪除，但尚未提供搜尋、指派與審核流程。
 
 ---
 
