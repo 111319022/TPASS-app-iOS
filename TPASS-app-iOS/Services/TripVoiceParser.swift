@@ -961,9 +961,9 @@ struct TripVoiceParser {
             }
         }
         
-        // 都沒偵測到 → 使用預設時間，信心低
+        // 都沒偵測到 → 使用預設時間（現在），不扣分
         if dateResult == nil && timeResult == nil {
-            confidence = 0.3
+            confidence = 1.0
         }
         
         return (dateResult, timeResult, confidence)

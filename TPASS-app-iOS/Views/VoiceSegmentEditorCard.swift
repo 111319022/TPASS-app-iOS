@@ -81,7 +81,7 @@ struct VoiceSegmentEditorCard: View {
             segmentHeader
             
             // 運具選擇
-            fieldRow(label: "voice_field_transport", warningLevel: draft.transportScore) {
+            fieldRow(label: "voice_field_transport") {
                 Picker("", selection: $transportType) {
                     Text("voice_select_transport").tag(TransportType?.none)
                     ForEach(currentSupportedModes) { type in
@@ -110,7 +110,7 @@ struct VoiceSegmentEditorCard: View {
             priceAndOptionsSection
             
             // 日期
-            fieldRow(label: "voice_field_date", warningLevel: draft.timeScore) {
+            fieldRow(label: "voice_field_date") {
                 DatePicker("", selection: $date, displayedComponents: [.date, .hourAndMinute])
                     .labelsHidden()
                     .tint(themeManager.accentColor)
@@ -138,7 +138,7 @@ struct VoiceSegmentEditorCard: View {
     
     private var segmentHeader: some View {
         HStack {
-            // 段落編號 + 信心
+            // 段落編號
             HStack(spacing: 6) {
                 Image(systemName: segmentIndex == 0 ? "1.circle.fill" : "\(min(segmentIndex + 1, 9)).circle.fill")
                     .font(.title3)
@@ -148,9 +148,6 @@ struct VoiceSegmentEditorCard: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.primaryTextColor)
-                
-                // 信心徽章
-                confidenceBadge
             }
             
             Spacer()
@@ -175,20 +172,6 @@ struct VoiceSegmentEditorCard: View {
                 }
             }
         }
-    }
-    
-    private var confidenceBadge: some View {
-        let score = draft.overallScore
-        let color: Color = score >= 0.85 ? .green : (score >= 0.65 ? .orange : .red)
-        
-        return Text(String(format: "%.0f%%", score * 100))
-            .font(.caption2)
-            .fontWeight(.bold)
-            .foregroundColor(color)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.15))
-            .cornerRadius(4)
     }
     
     // MARK: - 站點選擇區塊
@@ -441,16 +424,9 @@ struct VoiceSegmentEditorCard: View {
     @ViewBuilder
     private func fieldRow<Content: View>(
         label: LocalizedStringKey,
-        warningLevel: Double? = nil,
         @ViewBuilder content: () -> Content
     ) -> some View {
         HStack(spacing: 8) {
-            if let level = warningLevel, level < 0.7 {
-                Circle()
-                    .fill(level < 0.4 ? Color.red : Color.orange)
-                    .frame(width: 8, height: 8)
-            }
-            
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)

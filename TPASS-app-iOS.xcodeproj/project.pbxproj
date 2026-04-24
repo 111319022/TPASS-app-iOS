@@ -21,6 +21,7 @@
 		FB025E122F9AAEA000AEFB19 /* DevLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E112F9AAEA000AEFB19 /* DevLog.swift */; };
 		FB025E142F9AAEC200AEFB19 /* DevConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */; };
 		FB025E162F9B3ABA00AEFB19 /* TransitCard_Plan.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */; };
+		FB025E192F9B565700AEFB19 /* VOICE_TRIP_INPUT_PLAN_V3.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E182F9B565700AEFB19 /* VOICE_TRIP_INPUT_PLAN_V3.md */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -125,6 +126,7 @@
 		FB025E112F9AAEA000AEFB19 /* DevLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLog.swift; sourceTree = "<group>"; };
 		FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevConsoleView.swift; sourceTree = "<group>"; };
 		FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TransitCard_Plan.md; sourceTree = "<group>"; };
+		FB025E182F9B565700AEFB19 /* VOICE_TRIP_INPUT_PLAN_V3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = VOICE_TRIP_INPUT_PLAN_V3.md; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 				FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */,
 				FB386D522F97A13B00486F0A /* VOICE_TRIP_INPUT_PLAN.md */,
 				FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */,
+				FB025E182F9B565700AEFB19 /* VOICE_TRIP_INPUT_PLAN_V3.md */,
 			);
 			path = Plan_Markdown;
 			sourceTree = "<group>";
@@ -607,6 +610,7 @@
 				FB025E092F99C32A00AEFB19 /* VoiceSegmentEditorCard.swift in Sources */,
 				FB0A212E2F8F8EF100405172 /* TCMRTStationData.swift in Sources */,
 				FB0A212F2F8F8EF100405172 /* AddTripView.swift in Sources */,
+				FB025E192F9B565700AEFB19 /* VOICE_TRIP_INPUT_PLAN_V3.md in Sources */,
 				FB0A21302F8F8EF100405172 /* Enums.swift in Sources */,
 				FB0A21312F8F8EF100405172 /* EditTripView.swift in Sources */,
 				FB0A21322F8F8EF100405172 /* StationData.swift in Sources */,

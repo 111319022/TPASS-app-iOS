@@ -31,13 +31,15 @@ struct VoiceQuickTripView: View {
     @StateObject private var voiceService = VoiceInputService()
     
     // MARK: - 狀態
-    enum ViewPhase {
-        case ready          // 準備錄音
-        case recording      // 錄音中
-        case parsing        // 解析中
-        case preview        // 草稿預覽
+    enum ViewPhase: Hashable {
+        case ready            // 準備錄音
+        case recording        // 錄音中
+        case parsing          // 解析中
+        case simplePreview    // V3：完美命中 — 極簡票券卡片
+        case missingInfo      // V3：缺漏必要欄位 — 針對性補填
+        case advancedEditor   // V3：多段轉乘/低信心 — 完整編輯器（原 preview）
         case permissionDenied // 權限被拒
-        case fallbackManual // 低信心，轉手動
+        case fallbackManual   // 低信心，轉手動
     }
     
     @State private var phase: ViewPhase = .ready
@@ -49,6 +51,13 @@ struct VoiceQuickTripView: View {
     @State private var showSaveSuccess = false
     @State private var showTRAOutOfRangeAlert = false
     @State private var showCycleDateOutOfRangeAlert = false
+    
+    // V3：missingInfo 模式需要補填的欄位
+    enum MissingField: CaseIterable {
+        case transportType, startStation, endStation
+    }
+    @State private var missingFields: [MissingField] = []
+    @State private var missingFieldIndex: Int = 0
     
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
     @State private var didSaveTrip: Bool = false
@@ -98,22 +107,31 @@ struct VoiceQuickTripView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        switch phase {
-                        case .ready:
-                            readyPhaseContent
-                        case .recording:
-                            recordingPhaseContent
-                        case .parsing:
-                            parsingPhaseContent
-                        case .preview:
-                            previewPhaseContent
-                        case .permissionDenied:
-                            permissionDeniedContent
-                        case .fallbackManual:
-                            fallbackManualContent
+                        Group {
+                            switch phase {
+                            case .ready:
+                                readyPhaseContent
+                            case .recording:
+                                recordingPhaseContent
+                            case .parsing:
+                                parsingPhaseContent
+                            case .simplePreview:
+                                simplePreviewContent
+                            case .missingInfo:
+                                missingInfoContent
+                            case .advancedEditor:
+                                advancedEditorContent
+                            case .permissionDenied:
+                                permissionDeniedContent
+                            case .fallbackManual:
+                                fallbackManualContent
+                            }
                         }
+                        .id(phase)
+                        .transition(.opacity)
                     }
                     .padding(20)
+                    .animation(.easeInOut(duration: 0.25), value: phase)
                 }
             }
             .navigationTitle("voice_quick_trip_title")
@@ -371,27 +389,310 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    // MARK: - 草稿預覽（V2 時間軸）
+    // MARK: - V3：極簡預覽 (Magic Card)
     
-    private var previewPhaseContent: some View {
-        VStack(spacing: 16) {
-            // 原始轉寫
-            VStack(alignment: .leading, spacing: 6) {
-                Text("voice_original_transcript")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(themeManager.secondaryTextColor)
+    /// 將站名 ID 轉換為顯示名稱（台鐵站名為代號，需要還原）
+    private func displayStationName(_ stationId: String, transportType: TransportType?) -> String {
+        guard let type = transportType else { return stationId }
+        if type == .tra {
+            return TRAStationData.shared.displayStationName(stationId)
+        }
+        return stationId
+    }
+    
+    private var simplePreviewContent: some View {
+        let transportType = segments.first?.transportType
+        let transportColor = transportType.map { themeManager.transportColor($0) } ?? themeManager.accentColor
+        
+        return VStack(spacing: 24) {
+            Spacer().frame(height: 20)
+            
+            // 成功圖示（使用運具配色）
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 56))
+                .foregroundColor(transportColor)
+            
+            // 票券風格大卡片（運具專屬配色）
+            VStack(spacing: 16) {
+                // 運具標籤
+                if let type = transportType {
+                    HStack(spacing: 6) {
+                        Image(systemName: type.systemIconName)
+                            .font(.caption)
+                        Text(type.displayName)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(transportColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(transportColor.opacity(0.12))
+                    .cornerRadius(20)
+                }
                 
-                Text(drafts.first?.originalTranscript ?? "")
-                    .font(.body)
-                    .foregroundColor(themeManager.primaryTextColor)
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(themeManager.cardBackgroundColor)
-                    .cornerRadius(10)
+                // 起迄站大字（台鐵 ID 還原為中文站名）
+                HStack(spacing: 12) {
+                    Text(displayStationName(segments.first?.startStation ?? "", transportType: transportType))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    
+                    Image(systemName: "arrow.right")
+                        .font(.title3)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    
+                    Text(displayStationName(segments.first?.endStation ?? "", transportType: transportType))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                
+                // 票價（使用運具配色）
+                if let priceStr = segments.first?.price, !priceStr.isEmpty, let price = Int(priceStr), price > 0 {
+                    Text("$\(price)")
+                        .font(.title)
+                        .fontWeight(.heavy)
+                        .foregroundColor(transportColor)
+                }
+                
+                // 日期 + 時間
+                if let date = segments.first?.date {
+                    Text(date, format: .dateTime.year().month().day().weekday(.abbreviated).hour().minute())
+                        .font(.subheadline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity)
+            .background(themeManager.cardBackgroundColor)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(transportColor.opacity(0.25), lineWidth: 1.5)
+            )
+            .shadow(color: transportColor.opacity(0.10), radius: 12, x: 0, y: 4)
+            
+            Spacer().frame(height: 8)
+            
+            // 主按鈕：確認儲存（使用運具配色）
+            Button(action: saveDraftsAsTrips) {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("voice_confirm_save")
+                        .fontWeight(.bold)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(canSaveAll ? transportColor : Color.gray.opacity(0.4))
+                .cornerRadius(14)
+                .shadow(color: transportColor.opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+            .disabled(!canSaveAll)
+            
+            // 次按鈕：修改詳細內容
+            Button(action: {
+                phase = .advancedEditor
+            }) {
+                Text("voice_edit_details")
+                    .font(.subheadline)
+                    .foregroundColor(transportColor)
             }
             
-            Divider()
+            // 重新錄音
+            Button(action: retryRecording) {
+                Text("voice_retry")
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+        }
+    }
+    
+    // MARK: - V3：補填缺漏欄位
+    
+    private var missingInfoContent: some View {
+        VStack(spacing: 24) {
+            Spacer().frame(height: 30)
+            
+            // 已辨識的資訊摘要
+            if let type = segments.first?.transportType {
+                HStack(spacing: 6) {
+                    Image(systemName: type.systemIconName)
+                        .font(.caption)
+                    Text(type.displayName)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(themeManager.accentColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(themeManager.accentColor.opacity(0.12))
+                .cornerRadius(20)
+            }
+            
+            // 大字提問
+            if missingFieldIndex < missingFields.count {
+                let field = missingFields[missingFieldIndex]
+                
+                VStack(spacing: 16) {
+                    Text(missingFieldQuestion(for: field))
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .multilineTextAlignment(.center)
+                    
+                    // 對應的輸入控制項
+                    missingFieldInput(for: field)
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity)
+                .background(themeManager.cardBackgroundColor)
+                .cornerRadius(16)
+            }
+            
+            Spacer()
+            
+            // 跳過：切到進階編輯
+            Button(action: {
+                phase = .advancedEditor
+            }) {
+                Text("voice_skip_to_editor")
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+        }
+    }
+    
+    /// 補填問句
+    private func missingFieldQuestion(for field: MissingField) -> LocalizedStringKey {
+        switch field {
+        case .transportType: return "voice_missing_transport_question"
+        case .startStation: return "voice_missing_start_question"
+        case .endStation: return "voice_missing_end_question"
+        }
+    }
+    
+    /// 補填輸入控制
+    @ViewBuilder
+    private func missingFieldInput(for field: MissingField) -> some View {
+        switch field {
+        case .transportType:
+            // 運具選擇按鈕群
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 10)], spacing: 10) {
+                ForEach(currentSupportedModes) { mode in
+                    Button(action: {
+                        segments[0].transportType = mode
+                        applyParsedSelectionMetadata(for: &segments[0])
+                        autoFillFareForSegment(&segments[0])
+                        advanceMissingField()
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: mode.systemIconName)
+                                .font(.title3)
+                            Text(mode.displayName)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(themeManager.cardBackgroundColor)
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                }
+            }
+            
+        case .startStation:
+            stationInputForMissingField(isStart: true)
+            
+        case .endStation:
+            stationInputForMissingField(isStart: false)
+        }
+    }
+    
+    /// 站點輸入（missingInfo 模式用）
+    @ViewBuilder
+    private func stationInputForMissingField(isStart: Bool) -> some View {
+        if let type = segments.first?.transportType {
+            VStack(spacing: 0) {
+                switch type {
+                case .tra:
+                    TRALineStationInputRow(
+                        label: isStart ? "start_point" : "end_point",
+                        regions: availableTRARegions,
+                        selectedRegion: isStart ? $segments[0].startTRARegion : $segments[0].endTRARegion,
+                        stationId: isStart ? $segments[0].startStation : $segments[0].endStation
+                    )
+                case .lrt:
+                    StationInputRow(
+                        label: isStart ? "start_point" : "end_point",
+                        type: .lrt,
+                        lineCode: $segments[0].startLineCode,
+                        stationName: isStart ? $segments[0].startStation : $segments[0].endStation,
+                        currentRegion: currentRegion,
+                        lineSelectionEnabled: isStart
+                    )
+                default:
+                    StationInputRow(
+                        label: isStart ? "start_point" : "end_point",
+                        type: type,
+                        lineCode: isStart ? $segments[0].startLineCode : $segments[0].endLineCode,
+                        stationName: isStart ? $segments[0].startStation : $segments[0].endStation,
+                        currentRegion: currentRegion
+                    )
+                }
+            }
+            .background(Color(uiColor: .secondarySystemBackground))
+            .cornerRadius(10)
+            .onChange(of: isStart ? segments[0].startStation : segments[0].endStation) { _, newValue in
+                if !newValue.isEmpty {
+                    applyParsedSelectionMetadata(for: &segments[0])
+                    autoFillFareForSegment(&segments[0])
+                    // 延遲一點讓動畫更自然
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        advanceMissingField()
+                    }
+                }
+            }
+        }
+    }
+    
+    /// 進到下一個缺漏欄位，或全部補完後跳到 simplePreview
+    private func advanceMissingField() {
+        let nextIndex = missingFieldIndex + 1
+        if nextIndex < missingFields.count {
+            missingFieldIndex = nextIndex
+        } else {
+            // 全部補完
+            phase = .simplePreview
+            HapticManager.shared.notification(type: .success)
+        }
+    }
+    
+    // MARK: - V3：進階編輯器（原 preview）
+    
+    private var advancedEditorContent: some View {
+        VStack(spacing: 16) {
+            // V3：提示辨識結果可能有誤
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                Text("voice_advanced_editor_hint")
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.orange.opacity(0.08))
+            .cornerRadius(10)
             
             // 多段時間軸
             ForEach(Array(segments.enumerated()), id: \.element.id) { index, _ in
@@ -654,9 +955,7 @@ struct VoiceQuickTripView: View {
     private func startRecording() {
         HapticManager.shared.impact(style: .light)
         voiceService.startRecording()
-        withAnimation(.easeInOut(duration: 0.3)) {
-            phase = .recording
-        }
+        phase = .recording
     }
     
     private func stopRecording() {
@@ -667,9 +966,7 @@ struct VoiceQuickTripView: View {
     private func parseTranscript() {
         let text = voiceService.transcript
         guard !text.isEmpty else {
-            withAnimation {
-                phase = .fallbackManual
-            }
+            phase = .fallbackManual
             HapticManager.shared.notification(type: .warning)
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
@@ -681,15 +978,13 @@ struct VoiceQuickTripView: View {
             return
         }
         
-        withAnimation {
-            phase = .parsing
-        }
+        phase = .parsing
         
         // V2：解析可能回傳多段 ParsedTrip
         let parsedArray = TripVoiceParser.parse(text)
         
         guard !parsedArray.isEmpty else {
-            withAnimation { phase = .fallbackManual }
+            phase = .fallbackManual
             HapticManager.shared.notification(type: .warning)
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
@@ -753,29 +1048,47 @@ struct VoiceQuickTripView: View {
             return seg
         }
         
-        // 取首段判斷信心度
+        // V3：根據解析結果分流
         let firstParsed = parsedArray[0]
         
-        if firstParsed.isLowConfidence || !firstParsed.hasRequiredFields {
-            withAnimation {
-                phase = .fallbackManual
-            }
+        if firstParsed.isLowConfidence {
+            // 低信心 → fallback
+            phase = .fallbackManual
             HapticManager.shared.notification(type: .warning)
-            let reason: VoiceParseLogService.FailureReason = firstParsed.hasRequiredFields ? .lowConfidence : .missingFields
             Task {
                 await VoiceParseLogService.shared.logFailedParse(
                     originalTranscript: text,
                     drafts: newDrafts,
-                    reason: reason
+                    reason: .lowConfidence
                 )
             }
-        } else {
-            withAnimation {
-                phase = .preview
-            }
-            if firstParsed.isHighConfidence {
+        } else if parsedArray.count > 1 {
+            // 多段轉乘 → advancedEditor
+            phase = .advancedEditor
+            HapticManager.shared.notification(type: .success)
+        } else if firstParsed.isHighConfidence && firstParsed.hasRequiredFields {
+            // 高信心 & 欄位齊全 → simplePreview (Magic Card)
+            phase = .simplePreview
+            HapticManager.shared.notification(type: .success)
+        } else if !firstParsed.hasRequiredFields {
+            // 中/高信心但缺欄位 → missingInfo
+            var missing: [MissingField] = []
+            if segments[0].transportType == nil { missing.append(.transportType) }
+            if segments[0].startStation.isEmpty { missing.append(.startStation) }
+            if segments[0].endStation.isEmpty { missing.append(.endStation) }
+            
+            if missing.isEmpty {
+                // 理論上不該到這，但安全起見
+                phase = .simplePreview
                 HapticManager.shared.notification(type: .success)
+            } else {
+                missingFields = missing
+                missingFieldIndex = 0
+                phase = .missingInfo
             }
+        } else {
+            // 中信心但欄位齊全 → advancedEditor 讓使用者確認
+            phase = .advancedEditor
         }
     }
 
@@ -1099,9 +1412,9 @@ struct VoiceQuickTripView: View {
         voiceService.reset()
         drafts = []
         segments = []
-        withAnimation {
-            phase = .ready
-        }
+        missingFields = []
+        missingFieldIndex = 0
+        phase = .ready
     }
     
     private func openSettings() {

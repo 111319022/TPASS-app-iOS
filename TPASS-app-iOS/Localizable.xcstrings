@@ -9635,6 +9635,22 @@
         }
       }
     },
+    "voice_advanced_editor_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results may be inaccurate. Please check the segments below."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辨識結果可能有誤，請檢查以下段落"
+          }
+        }
+      }
+    },
     "voice_auto_fare_hint" : {
       "localizations" : {
         "en" : {
@@ -9794,6 +9810,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "確認並儲存 %lld 筆行程"
+          }
+        }
+      }
+    },
+    "voice_edit_details" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Details"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修改詳細內容"
           }
         }
       }
@@ -10021,6 +10053,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "聆聽中⋯"
+          }
+        }
+      }
+    },
+    "voice_missing_end_question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which station did you arrive at?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請問您搭到哪一站？"
+          }
+        }
+      }
+    },
+    "voice_missing_start_question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which station did you depart from?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請問您從哪一站出發？"
+          }
+        }
+      }
+    },
+    "voice_missing_transport_question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What transport did you use?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請問是什麼交通工具？"
           }
         }
       }
@@ -10280,6 +10360,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選擇運具"
+          }
+        }
+      }
+    },
+    "voice_skip_to_editor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip, edit manually"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳過，手動編輯"
           }
         }
       }
