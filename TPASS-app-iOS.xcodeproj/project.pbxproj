@@ -20,6 +20,7 @@
 		FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E0C2F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift */; };
 		FB025E122F9AAEA000AEFB19 /* DevLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E112F9AAEA000AEFB19 /* DevLog.swift */; };
 		FB025E142F9AAEC200AEFB19 /* DevConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */; };
+		FB025E162F9B3ABA00AEFB19 /* TransitCard_Plan.md in Sources */ = {isa = PBXBuildFile; fileRef = FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */; };
 		FB0A211E2F8F8EF100405172 /* TPASSModelSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E82F8F8EF100405172 /* TPASSModelSchema.swift */; };
 		FB0A211F2F8F8EF100405172 /* TYMRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A20E12F8F8EF100405172 /* TYMRTStationData.swift */; };
 		FB0A21202F8F8EF100405172 /* QuickAddOutboundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A210B2F8F8EF100405172 /* QuickAddOutboundView.swift */; };
@@ -123,6 +124,7 @@
 		FB025E0D2F9A7E2200AEFB19 /* SwiftDataManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataManagementView.swift; sourceTree = "<group>"; };
 		FB025E112F9AAEA000AEFB19 /* DevLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLog.swift; sourceTree = "<group>"; };
 		FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevConsoleView.swift; sourceTree = "<group>"; };
+		FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TransitCard_Plan.md; sourceTree = "<group>"; };
 		FB0A20DA2F8F8EF100405172 /* HSRStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSRStationData.swift; sourceTree = "<group>"; };
 		FB0A20DB2F8F8EF100405172 /* KMRTStationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMRTStationData.swift; sourceTree = "<group>"; };
 		FB0A20DC2F8F8EF100405172 /* StationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationData.swift; sourceTree = "<group>"; };
@@ -242,6 +244,16 @@
 				FB025E132F9AAEC200AEFB19 /* DevConsoleView.swift */,
 			);
 			path = DevViews;
+			sourceTree = "<group>";
+		};
+		FB025E172F9B3C9000AEFB19 /* Plan_Markdown */ = {
+			isa = PBXGroup;
+			children = (
+				FB025E152F9B3AB200AEFB19 /* TransitCard_Plan.md */,
+				FB386D522F97A13B00486F0A /* VOICE_TRIP_INPUT_PLAN.md */,
+				FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */,
+			);
+			path = Plan_Markdown;
 			sourceTree = "<group>";
 		};
 		FB0A20E22F8F8EF100405172 /* Data */ = {
@@ -383,10 +395,9 @@
 		FB0D943D2F20BC1600B687D3 = {
 			isa = PBXGroup;
 			children = (
+				FB025E172F9B3C9000AEFB19 /* Plan_Markdown */,
 				FB6BC0BB2F7042950011877D /* README.md */,
 				FB0A21702F8F98EC00405172 /* PROJECT_GUIDE.md */,
-				FB386D522F97A13B00486F0A /* VOICE_TRIP_INPUT_PLAN.md */,
-				FB025E062F99BF6900AEFB19 /* VOICE_TRIP_INPUT_PLAN_V2.md */,
 				FB0A21652F8F955800405172 /* firebase.json */,
 				FB0A21192F8F8EF100405172 /* TPASS-app-iOS */,
 				FB0A216A2F8F955800405172 /* webpage */,
@@ -607,6 +618,7 @@
 				FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */,
 				FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */,
 				FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */,
+				FB025E162F9B3ABA00AEFB19 /* TransitCard_Plan.md in Sources */,
 				FB0A21352F8F8EF100405172 /* TransferIntroductionView.swift in Sources */,
 				FB0A21362F8F8EF100405172 /* HomeStationSettingsView.swift in Sources */,
 				FB0A21372F8F8EF100405172 /* CloudKitSyncService.swift in Sources */,
@@ -786,7 +798,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 90;
+				CURRENT_PROJECT_VERSION = 91;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -829,7 +841,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TPASS-app-iOS/TPASS-app-iOS.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 90;
+				CURRENT_PROJECT_VERSION = 91;
 				DEVELOPMENT_TEAM = 45SQT63B67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
