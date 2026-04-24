@@ -40,7 +40,7 @@ struct DeveloperDashboardView: View {
                         icon: "terminal",
                         iconColor: .green,
                         title: "Console",
-                        subtitle: "即時查看 App log"
+                        subtitle: "即時查看 App log（自動擷取所有 print 輸出）"
                     )
                 }
             }

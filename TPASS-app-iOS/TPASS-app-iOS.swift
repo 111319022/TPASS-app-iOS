@@ -15,6 +15,9 @@ struct TPASS_app_iOSApp: App {
     let modelContainer: ModelContainer?
     
     init() {
+        // 啟動 stdout/stderr 攔截，讓所有 print 輸出都能在 DevConsole 看到
+        DevLogStore.shared.startCapturing()
+
         var container: ModelContainer? = nil
         do {
             //           新增這段：手動建立 Application Support 資料夾
