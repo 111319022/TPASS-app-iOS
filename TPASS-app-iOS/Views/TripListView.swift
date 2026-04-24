@@ -398,6 +398,65 @@ struct TripListView: View {
                     showToast(message: "voice_trip_saved")
                 })
             }
+            .sheet(isPresented: $showDuplicateDayPicker) {
+                let range = selectedCycleDateRange ?? (Date()...Date())
+                VStack(spacing: 16) {
+                    Text("duplicate_day_select_title")
+                        .font(.headline)
+                        .foregroundColor(themeManager.primaryTextColor)
+
+                    Text("duplicate_day_select_message")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+
+                    DatePicker(
+                        "",
+                        selection: $pendingDuplicateDayTargetDate,
+                        in: range,
+                        displayedComponents: .date
+                    )
+                    .labelsHidden()
+                    .datePickerStyle(.graphical)
+
+                    HStack(spacing: 12) {
+                        Button("cancel", role: .cancel) {
+                            pendingDuplicateDaySourceDate = nil
+                            pendingDuplicateDaySourceCycleId = nil
+                            showDuplicateDayPicker = false
+                        }
+
+                        Spacer()
+
+                        Button("confirm_duplicate_day") {
+                            if let source = pendingDuplicateDaySourceDate {
+                                let calendar = Calendar.current
+                                let targetDay = calendar.startOfDay(for: pendingDuplicateDayTargetDate)
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    viewModel.duplicateDayTrips(
+                                        from: source,
+                                        cycleId: pendingDuplicateDaySourceCycleId,
+                                        targetDay: targetDay,
+                                        targetCycleId: pendingDuplicateDaySourceCycleId
+                                    )
+                                }
+                                let formatted = DateFormatter.localizedString(
+                                    from: targetDay,
+                                    dateStyle: .medium,
+                                    timeStyle: .none
+                                )
+                                showToast(message: "copied_day_to \(formatted)")
+                            }
+                            pendingDuplicateDaySourceDate = nil
+                            pendingDuplicateDaySourceCycleId = nil
+                            showDuplicateDayPicker = false
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(20)
+                .presentationDetents([.height(560), .large])
+                .presentationDragIndicator(.visible)
+            }
             .modifier(TripListAlertsModifier(
                 pendingDeleteDate: $pendingDeleteDate,
                 pendingDeleteCycleId: $pendingDeleteCycleId,
@@ -1086,8 +1145,10 @@ struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
             // 前景層：滑動卡片
             content()
                 .offset(x: offset)
-                .gesture(dragGesture)
         }
+        .contentShape(Rectangle())
+        .simultaneousGesture(dragGesture)
+        .animation(.interactiveSpring(response: 0.34, dampingFraction: 0.92), value: offset)
         .onChange(of: swipedRowId) { _, newValue in
             if newValue != rowId && offset != 0 {
                 closeRow()
@@ -1096,7 +1157,7 @@ struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
     }
 
     private func closeRow() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+        withAnimation(.spring(response: 0.55, dampingFraction: 0.9)) {
             offset = 0
             lastOffset = 0
             if swipedRowId == rowId {
@@ -1109,7 +1170,21 @@ struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
         DragGesture(minimumDistance: 30, coordinateSpace: .local)
             .onChanged { value in
                 let translation = value.translation.width
-                guard abs(translation) > abs(value.translation.height) * 1.2 else {
+                let verticalTranslation = value.translation.height
+
+                if offset != 0 && abs(verticalTranslation) > 6 && abs(verticalTranslation) > abs(translation) * 0.6 {
+                    closeRow()
+                    return
+                }
+
+                if abs(verticalTranslation) > 8 && abs(verticalTranslation) > abs(translation) * 0.9 {
+                    if offset != 0 || swipedRowId == rowId {
+                        closeRow()
+                    }
+                    return
+                }
+
+                guard abs(translation) > abs(verticalTranslation) * 1.2 else {
                     return
                 }
 
@@ -1127,18 +1202,28 @@ struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
 
                 // 阻尼效果
                 if newOffset > maxLeading {
-                    newOffset = maxLeading + (newOffset - maxLeading) * 0.2
+                    newOffset = maxLeading + (newOffset - maxLeading) * 0.1
                 } else if newOffset < -maxTrailing {
-                    newOffset = -maxTrailing + (newOffset + maxTrailing) * 0.2
+                    newOffset = -maxTrailing + (newOffset + maxTrailing) * 0.1
                 }
 
-                withAnimation(.interactiveSpring(response: 0.22, dampingFraction: 0.88)) {
-                    offset = newOffset
-                }
+                offset = newOffset
             }
             .onEnded { value in
                 let translation = value.translation.width
-                guard abs(translation) > abs(value.translation.height) * 1.2 else { return }
+                let verticalTranslation = value.translation.height
+
+                if offset != 0 && abs(verticalTranslation) > 6 && abs(verticalTranslation) > abs(translation) * 0.6 {
+                    closeRow()
+                    return
+                }
+
+                if abs(verticalTranslation) > 8 && abs(verticalTranslation) > abs(translation) * 0.9 {
+                    closeRow()
+                    return
+                }
+
+                guard abs(translation) > abs(verticalTranslation) * 1.2 else { return }
 
                 let velocity = value.predictedEndTranslation.width - translation
                 let projected = translation + velocity * 0.1
@@ -1169,7 +1254,7 @@ struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
                     }
                 }
 
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                withAnimation(.spring(response: 0.55, dampingFraction: 0.9)) {
                     offset = targetOffset
                     lastOffset = targetOffset
                     swipedRowId = targetOffset == 0 ? nil : rowId

@@ -2706,7 +2706,6 @@
       }
     },
     "confirm_duplicate_day" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2775,7 +2774,6 @@
       }
     },
     "copied_day_to %@" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4048,7 +4046,6 @@
       }
     },
     "duplicate_day_select_message" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4065,7 +4062,6 @@
       }
     },
     "duplicate_day_select_title" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
