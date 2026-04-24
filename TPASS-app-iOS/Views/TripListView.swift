@@ -222,6 +222,12 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
+                        .reportFrame(id: "quickHomeButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["quickHomeButton"] {
+                                tutorialPositions.quickHomeButtonFrame = frame
+                            }
+                        }
                         
                         Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
@@ -235,12 +241,24 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
+                        .reportFrame(id: "quickDepartureButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["quickDepartureButton"] {
+                                tutorialPositions.quickDepartureButtonFrame = frame
+                            }
+                        }
                         
                         Button(action: { showFavoritesSheet = true }) {
                             Image(systemName: "star.circle.fill")
                                 .font(.system(size: 28))
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
+                        }
+                        .reportFrame(id: "favoritesButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["favoritesButton"] {
+                                tutorialPositions.favoritesButtonFrame = frame
+                            }
                         }
                     }
                     .padding(.horizontal, horizontalPagePadding)
@@ -250,6 +268,12 @@ struct TripListView: View {
                     CycleSelectorView()
                         .padding(.horizontal, horizontalPagePadding)
                         .padding(.bottom, 6)
+                        .reportFrame(id: "cycleSelector", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["cycleSelector"] {
+                                tutorialPositions.cycleSelectorFrame = frame
+                            }
+                        }
                     
                     if viewModel.groupedTrips.isEmpty && !shouldShowDemoTripRow {
                         VStack(spacing: 16) {
@@ -361,6 +385,12 @@ struct TripListView: View {
                             .cornerRadius(30)
                             .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
+                        .reportFrame(id: "addButton", in: .global)
+                        .onPreferenceChange(ViewFrameKey.self) { frames in
+                            if let frame = frames["addButton"] {
+                                tutorialPositions.addButtonFrame = frame
+                            }
+                        }
                     }
                     .padding(.bottom, 20)
                 }
@@ -380,6 +410,23 @@ struct TripListView: View {
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                     .zIndex(100)
+                }
+
+                if showTutorial {
+                    SpotlightTutorialOverlay(
+                        currentStep: $currentTutorialStep,
+                        onFinish: {
+                            withAnimation {
+                                showTutorial = false
+                                hasShownTutorial = true
+                                savedTutorialStep = 0
+                            }
+                        },
+                        positions: tutorialPositions
+                    )
+                    .environmentObject(themeManager)
+                    .zIndex(999)
+                    .transition(.opacity)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -480,6 +527,23 @@ struct TripListView: View {
                     }
                 }
             }
+
+            if !hasShownTutorial {
+                if let step = SpotlightTutorialStep(rawValue: savedTutorialStep) {
+                    currentTutorialStep = step
+                } else {
+                    currentTutorialStep = .welcome
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        showTutorial = true
+                    }
+                }
+            }
+        }
+        .onChange(of: currentTutorialStep) { _, step in
+            savedTutorialStep = step.rawValue
         }
     }
     
