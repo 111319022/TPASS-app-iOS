@@ -1,6 +1,6 @@
 import SwiftUI
 
-//     轉乘選擇資料結構
+// 轉乘選擇資料結構
 struct TransferSelectionData: Identifiable {
     let id = UUID()
     let trip: Trip
@@ -11,7 +11,6 @@ struct TripListView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
-    //@EnvironmentObject var localizationManager: LocalizationManager
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) var modelContext
     
@@ -40,7 +39,7 @@ struct TripListView: View {
     @State private var showCommuterRoutePicker = false
     @State private var suppressedTapTripID: String? = nil
     
-    //     新增：轉乘類型選擇
+    // 新增：轉乘類型選擇
     @State private var transferSelectionData: TransferSelectionData?
     
     @State private var showNoCycleAlert = false
@@ -49,7 +48,6 @@ struct TripListView: View {
     @State private var showVoiceQuickTripSheet = false
     
     // MARK: - 教學狀態
-    // 使用 AppStorage 自動記住使用者是否看過教學
     @AppStorage("hasShownTutorial_v1") private var hasShownTutorial = false
     @AppStorage("tutorialStep_v1") private var savedTutorialStep: Int = 0
     @AppStorage("hasShownFirstTimeHint") private var hasShownFirstTimeHint = false
@@ -104,17 +102,9 @@ struct TripListView: View {
 
     private var demoTripRow: some View {
         TripRowView(trip: demoTrip)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 16)
-            .background(themeManager.cardBackgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(themeManager.secondaryTextColor.opacity(0.15), lineWidth: 1)
-            )
             .opacity(0.98)
             .allowsHitTesting(false)
-            //     關鍵：回報演示行程的準確座標給教學系統
+            // 回報演示行程的準確座標給教學系統
             .reportFrame(id: "tripRow", in: .global)
             .onPreferenceChange(ViewFrameKey.self) { frames in
                 if let rowFrame = frames["tripRow"] {
@@ -225,7 +215,7 @@ struct TripListView: View {
                             .foregroundColor(themeManager.primaryTextColor)
                         Spacer()
                         
-                        Button(action: { 
+                        Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
                                 showNoCycleAlert = true
                             } else {
@@ -275,7 +265,6 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("a11y_favorites"))
                         .accessibilityHint(Text("a11y_favorites_hint"))
-                        //     關鍵：回報星星按鈕的準確座標給教學系統
                         .reportFrame(id: "favoritesButton", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
                             if let favFrame = frames["favoritesButton"] {
@@ -289,7 +278,6 @@ struct TripListView: View {
                     CycleSelectorView()
                         .padding(.horizontal, horizontalPagePadding)
                         .padding(.bottom, 10)
-                        //     關鍵：回報週期選擇器的準確座標給教學系統
                         .reportFrame(id: "cycleSelector", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
                             if let selectorFrame = frames["cycleSelector"] {
@@ -306,8 +294,7 @@ struct TripListView: View {
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
                             
-                            // 新使用者提示：只在首次、只有一個週期、且該週期是彈性週期時顯示
-                            if let cycle = viewModel.activeCycle, 
+                            if let cycle = viewModel.activeCycle,
                                cycle.region == .flexible,
                                (auth.currentUser?.cycles.count ?? 0) <= 1,
                                !hasShownFirstTimeHint {
@@ -333,36 +320,21 @@ struct TripListView: View {
                                 .padding(.horizontal, 40)
                                 .padding(.top, 8)
                                 .onTapGesture {
-                                    // 點擊後標記為已顯示
                                     hasShownFirstTimeHint = true
-                                }
-                                .onAppear {
-                                    print("🎉 [DEBUG] First time hint displayed!")
-                                    print("   - Cycle: \(cycle.title)")
-                                    print("   - Region: \(cycle.region)")
-                                    print("   - hasShownFirstTimeHint: \(hasShownFirstTimeHint)")
                                 }
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .multilineTextAlignment(.center)
-                        .onAppear {
-                            print("📋 [DEBUG] Empty trips view displayed")
-                            print("   - activeCycle: \(viewModel.activeCycle?.title ?? "nil")")
-                            print("   - activeCycle region: \(viewModel.activeCycle?.region.rawValue ?? "nil")")
-                            print("   - hasShownFirstTimeHint: \(hasShownFirstTimeHint)")
-                            print("   - shouldShowDemoTripRow: \(shouldShowDemoTripRow)")
-                        }
                     } else {
                         List {
                             // 教學模式：只顯示演示行程
                             if shouldShowDemoTripRow {
                                 Section {
                                     demoTripRow
-                                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                                         .listRowSeparator(.hidden)
                                         .listRowBackground(Color.clear)
-                                        .padding(.vertical, 4)
                                         .buttonStyle(StaticButtonStyle())
                                         .allowsHitTesting(false)
                                 } header: {
@@ -375,7 +347,6 @@ struct TripListView: View {
                                         onDelete: {}
                                     )
                                         .frame(maxWidth: .infinity)
-                                        .padding(.horizontal, horizontalPagePadding)
                                         .padding(.top, 6)
                                         .padding(.bottom, 4)
                                         .background(themeManager.backgroundColor)
@@ -385,17 +356,14 @@ struct TripListView: View {
                                 .listSectionSeparator(.hidden)
                             }
                             
-                            // 正常模式：顯示所有行程（教學模式時隱藏）
+                            // 正常模式：顯示所有行程
                             if !showTutorial {
                                 ForEach(viewModel.groupedTrips) { group in
                                     Section {
-                                        // 行程列表
                                         ForEach(group.trips) { trip in
                                             tripRowWithActions(trip)
                                         }
                                     } header: {
-                                        //     關鍵修正：日期 Header 放在 Section header
-                                        // 這樣 SwiftUI 就不會把它當成「第一個 swipe row」
                                         DailyHeaderView(
                                             group: group,
                                             showDuplicateToToday: isSelectedCycleCurrent,
@@ -410,7 +378,6 @@ struct TripListView: View {
                                             }
                                         )
                                             .frame(maxWidth: .infinity)
-                                            .padding(.horizontal, horizontalPagePadding)
                                             .padding(.top, 6)
                                             .padding(.bottom, 4)
                                             .background(themeManager.backgroundColor)
@@ -434,7 +401,6 @@ struct TripListView: View {
                 VStack {
                     Spacer()
                     HStack(spacing: 12) {
-                        // 語音快速記錄按鈕
                         Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
                                 showNoCycleAlert = true
@@ -452,8 +418,7 @@ struct TripListView: View {
                         }
                         .accessibilityLabel(Text("voice_quick_trip_a11y"))
                         
-                        // 手動新增按鈕
-                        Button(action: { 
+                        Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
                                 showNoCycleAlert = true
                             } else {
@@ -473,7 +438,6 @@ struct TripListView: View {
                             .cornerRadius(30)
                             .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        //     關鍵：回報按鈕的準確座標給教學系統
                         .reportFrame(id: "addButton", in: .global)
                         .onPreferenceChange(ViewFrameKey.self) { frames in
                             if let btnFrame = frames["addButton"] {
@@ -507,12 +471,11 @@ struct TripListView: View {
                         .zIndex(101)
                 }
                 
-                // ===     新增：教學遮罩層 ===
+                // 教學遮罩層
                 if showTutorial {
                     SpotlightTutorialOverlay(
                         currentStep: $currentTutorialStep,
                         onFinish: {
-                            // 當教學結束時執行的動作
                             withAnimation {
                                 showTutorial = false
                                 hasShownTutorial = true
@@ -522,12 +485,12 @@ struct TripListView: View {
                         positions: tutorialPositions
                     )
                     .environmentObject(themeManager)
-                    .zIndex(999) // 確保蓋在最上面
+                    .zIndex(999)
                     .transition(.opacity)
                 }
                 
             }
-            // 關鍵修正：隱藏導航列，解決滑動跳動問題
+            // 隱藏導航列，解決滑動跳動問題
             .toolbar(.hidden, for: .navigationBar)
             .modifier(TripListSheetsModifier(
                 showAddTripSheet: $showAddTripSheet,
@@ -630,31 +593,24 @@ struct TripListView: View {
         .onAppear {
             if let user = auth.currentUser {
                 let sortedCycles = user.cycles.sorted { $0.start > $1.start }
-                
-                // 檢查 selectedCycle 是否有效（存在於週期列表中）
-                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                let isSelectedCycleValid = viewModel.selectedCycle != nil &&
                     user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
                 
-                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
                 if !isSelectedCycleValid {
                     let newCycle = sortedCycles.first
-                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
                     if viewModel.selectedCycle?.id != newCycle?.id {
                         viewModel.selectedCycle = newCycle
                     }
                 }
             }
             
-            // 檢查是否需要顯示教學
             if !hasShownTutorial {
-                // 重置步驟到第一步
                 if let step = SpotlightTutorialStep(rawValue: savedTutorialStep) {
                     currentTutorialStep = step
                 } else {
                     currentTutorialStep = .welcome
                 }
                 
-                // 延遲一點點顯示，讓 UI 先載入完成
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
                         showTutorial = true
@@ -665,15 +621,11 @@ struct TripListView: View {
         .onChange(of: auth.currentUser?.cycles.count) { oldCount, newCount in
             if let user = auth.currentUser {
                 let sortedCycles = user.cycles.sorted { $0.start > $1.start }
-                
-                // 檢查 selectedCycle 是否有效（存在於週期列表中）
-                let isSelectedCycleValid = viewModel.selectedCycle != nil && 
+                let isSelectedCycleValid = viewModel.selectedCycle != nil &&
                     user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
                 
-                // 如果沒有選擇週期，或選擇的週期已被刪除，自動選擇最新的週期
                 if !isSelectedCycleValid {
                     let newCycle = sortedCycles.first
-                    // 只有當新值與當前值不同時才更新，避免不必要的狀態變更
                     if viewModel.selectedCycle?.id != newCycle?.id {
                         viewModel.selectedCycle = newCycle
                     }
@@ -681,7 +633,6 @@ struct TripListView: View {
             }
         }
         .onChange(of: currentTutorialStep) { oldStep, step in
-            // 保存當前步驟
             savedTutorialStep = step.rawValue
         }
     }
@@ -775,30 +726,30 @@ struct TripListView: View {
             .onTapGesture {
                 selectedTripToEdit = trip
             }
-        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-        .listRowSeparator(.hidden)
-        .background(
-            GeometryReader { geo in
-                Color.clear
-                    .onAppear {
-                        // 只在第一筆時記錄位置
-                        if tutorialPositions.tripRowFrame == .zero {
-                            tutorialPositions.tripRowFrame = geo.frame(in: .global)
+            // 調整上下左右的間距，讓卡片浮出來
+            .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+            .listRowSeparator(.hidden)
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            if tutorialPositions.tripRowFrame == .zero {
+                                tutorialPositions.tripRowFrame = geo.frame(in: .global)
+                            }
                         }
-                    }
+                }
+            )
+            // 確保 Row 背景為透明，這樣滑動按鈕才會顯示在卡片後方
+            .listRowBackground(Color.clear)
+            .contextMenu {
+                tripContextMenuContent(trip: trip)
             }
-        )
-        .listRowBackground(Color.clear)
-        .padding(.vertical, 4)
-        .contextMenu {
-            tripContextMenuContent(trip: trip)
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            tripTrailingSwipeAction(trip)
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            tripLeadingSwipeActions(trip)
-        }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                tripTrailingSwipeAction(trip)
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                tripLeadingSwipeActions(trip)
+            }
     }
     
     @ViewBuilder
@@ -819,7 +770,6 @@ struct TripListView: View {
             guard !isProcessingSwipeAction else { return }
             isProcessingSwipeAction = true
             
-            // 🔧 如果正在取消轉乘，直接執行
             if trip.isTransfer {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     let tx = Transaction(animation: nil)
@@ -831,20 +781,17 @@ struct TripListView: View {
                     isProcessingSwipeAction = false
                 }
             } else {
-                // 🔧 如果要添加轉乘，先檢查可用的轉乘類型
-                let region = viewModel.cycleById(trip.cycleId)?.region ?? 
-                            viewModel.cycleForTrip(date: trip.createdAt)?.region ?? 
+                let region = viewModel.cycleById(trip.cycleId)?.region ??
+                            viewModel.cycleForTrip(date: trip.createdAt)?.region ??
                             AuthService.shared.currentRegion
                 
                 let availableTypes = region.availableTransferTypes
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     if availableTypes.count > 1 {
-                        // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
                         transferSelectionData = TransferSelectionData(trip: trip, region: region)
                         isProcessingSwipeAction = false
                     } else if availableTypes.count == 1 {
-                        // 只有一個選項，直接使用
                         let tx = Transaction(animation: nil)
                         withTransaction(tx) {
                             viewModel.setTransferType(trip, transferType: availableTypes[0])
@@ -912,26 +859,21 @@ struct TripListView: View {
         Divider()
         
         Button {
-            // 🔧 如果正在取消轉乘，直接執行
             if trip.isTransfer {
                 viewModel.setTransferType(trip, transferType: nil)
                 HapticManager.shared.impact(style: .medium)
                 showToast(message: "transfer_cancelled")
             } else {
-                // 🔧 如果要添加轉乘，先檢查可用的轉乘類型
-                let region = viewModel.cycleById(trip.cycleId)?.region ?? 
-                            viewModel.cycleForTrip(date: trip.createdAt)?.region ?? 
+                let region = viewModel.cycleById(trip.cycleId)?.region ??
+                            viewModel.cycleForTrip(date: trip.createdAt)?.region ??
                             AuthService.shared.currentRegion
                 
                 let availableTypes = region.availableTransferTypes
                 
-                //     使用延遲確保資料準備完成
                 DispatchQueue.main.async {
                     if availableTypes.count > 1 {
-                        // 多個選項，顯示選擇菜單（不震動，等選單內選擇後再震動）
                         transferSelectionData = TransferSelectionData(trip: trip, region: region)
                     } else if availableTypes.count == 1 {
-                        // 只有一個選項，直接使用
                         viewModel.setTransferType(trip, transferType: availableTypes[0])
                         HapticManager.shared.impact(style: .medium)
                         showToast(message: "transfer_added")
@@ -1078,13 +1020,11 @@ struct CyclePickerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 拖曳指示器
             Capsule()
                 .frame(width: 40, height: 5)
                 .foregroundColor(.secondary.opacity(0.3))
                 .padding(.top, 10)
 
-            // 標題
             Text("cycle_picker_title")
                 .font(.title3.bold())
                 .foregroundColor(themeManager.primaryTextColor)
@@ -1128,7 +1068,6 @@ struct CyclePickerSheet: View {
             dismiss()
         } label: {
             HStack(spacing: 12) {
-                // 左側圖示
                 VStack {
                     Image(systemName: "mappin.circle.fill")
                         .font(.title2)
@@ -1142,7 +1081,6 @@ struct CyclePickerSheet: View {
                               : themeManager.accentColor.opacity(0.12))
                 )
 
-                // 中間：週期資訊
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         Text(cycle.region.displayNameKey)
@@ -1176,7 +1114,6 @@ struct CyclePickerSheet: View {
 
                 Spacer()
 
-                // 右側：選中勾勾
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
@@ -1223,9 +1160,7 @@ struct DailyHeaderView: View {
     
     var cardBackground: Color {
         switch themeManager.currentTheme {
-        case .muji:
-            return Color.white
-        case .light, .purple:
+        case .muji, .light, .purple:
             return Color.white
         case .dark:
             return Color(uiColor: .secondarySystemGroupedBackground)
@@ -1235,57 +1170,50 @@ struct DailyHeaderView: View {
     }
     
     var body: some View {
-        ZStack {
-            themeManager.cardBackgroundColor.opacity(0.95)
-                .cornerRadius(12)
+        HStack(spacing: 8) {
+            Text(group.date)
+                .font(.headline)
+                .foregroundColor(themeManager.primaryTextColor)
+            Spacer()
+            Text("$\(group.dailyTotal)")
+                .font(.system(.subheadline, design: .rounded))
+                .fontWeight(.bold)
+                .foregroundColor(themeManager.secondaryTextColor)
             
-            HStack(spacing: 8) {
-                Text(group.date)
-                    .font(.headline)
-                    .foregroundColor(themeManager.primaryTextColor)
-                Spacer()
-                Text("$\(group.dailyTotal)")
-                    .font(.system(.subheadline, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundColor(themeManager.primaryTextColor)
-                    .padding(.horizontal, 10).padding(.vertical, 4)
-                    .background(themeManager.currentTheme == .muji ? Color.black.opacity(0.05) : Color(UIColor.systemGray6))
-                    .cornerRadius(8)
-                
-                Button {
-                    showActions = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(themeManager.secondaryTextColor)
-                        .font(.caption)
-                        .padding(.leading, 2)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(StaticButtonStyle())
-                .accessibilityLabel(Text("a11y_day_actions"))
-                .accessibilityHint(Text("a11y_day_actions_hint \(group.date)"))
-                .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
-                    if showDuplicateToToday {
-                        Button("duplicate_day_to_today") {
-                            HapticManager.shared.impact(style: .medium)
-                            onDuplicateToToday()
-                        }
-                    }
-                    Button("duplicate_day_to_date") {
-                        HapticManager.shared.impact(style: .medium)
-                        onDuplicateToDate()
-                    }
-                    Button("delete_day", role: .destructive) {
-                        HapticManager.shared.notification(type: .warning)
-                        onDelete()
-                    }
-                    Button("cancel", role: .cancel) { }
-                } message: {
-                    Text("day_actions \(group.date)")
-                }
+            Button {
+                showActions = true
+            } label: {
+                Image(systemName: "ellipsis")
+                    .foregroundColor(themeManager.secondaryTextColor)
+                    .font(.caption)
+                    .padding(.leading, 2)
+                    .contentShape(Rectangle())
             }
-            .padding(.horizontal, 20).padding(.vertical, 8)
+            .buttonStyle(StaticButtonStyle())
+            .accessibilityLabel(Text("a11y_day_actions"))
+            .accessibilityHint(Text("a11y_day_actions_hint \(group.date)"))
+            .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
+                if showDuplicateToToday {
+                    Button("duplicate_day_to_today") {
+                        HapticManager.shared.impact(style: .medium)
+                        onDuplicateToToday()
+                    }
+                }
+                Button("duplicate_day_to_date") {
+                    HapticManager.shared.impact(style: .medium)
+                    onDuplicateToDate()
+                }
+                Button("delete_day", role: .destructive) {
+                    HapticManager.shared.notification(type: .warning)
+                    onDelete()
+                }
+                Button("cancel", role: .cancel) { }
+            } message: {
+                Text("day_actions \(group.date)")
+            }
         }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
         .contentShape(Rectangle())
         .onTapGesture {
             showActions = true
@@ -1424,7 +1352,11 @@ struct TripRowView: View {
                 }
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(themeManager.cardBackgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.2 : 0.04), radius: 5, x: 0, y: 2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilitySummary)
     }
@@ -1463,8 +1395,8 @@ struct StaticButtonStyle: ButtonStyle {
 
 struct TripListSheetsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
-    @EnvironmentObject var auth: AuthService //     添加 auth 以傳遞給子視圖
-    @EnvironmentObject var themeManager: ThemeManager //     添加 themeManager 以傳遞給子視圖
+    @EnvironmentObject var auth: AuthService
+    @EnvironmentObject var themeManager: ThemeManager
     @Binding var showAddTripSheet: Bool
     @Binding var showFavoritesSheet: Bool
     @Binding var showQuickAddHomeSheet: Bool
@@ -1505,7 +1437,6 @@ struct TripListSheetsModifier: ViewModifier {
                 .presentationDetents([.height(650)])
                 .presentationDragIndicator(.hidden)
             }
-            //     新增：轉乘類型選擇菜單
             .sheet(item: $transferSelectionData) { data in
                 TransferTypeSelectionView(
                     trip: data.trip,
@@ -1524,8 +1455,8 @@ struct TripListSheetsModifier: ViewModifier {
                         isProcessingSwipeAction = false
                     }
                 )
-                .environmentObject(auth) //     傳遞 auth 服務
-                .environmentObject(themeManager) //     傳遞 themeManager
+                .environmentObject(auth)
+                .environmentObject(themeManager)
                 .presentationDetents([.height(420), .medium])
                 .presentationDragIndicator(.visible)
             }
