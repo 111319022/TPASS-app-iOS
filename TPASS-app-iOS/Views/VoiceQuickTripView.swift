@@ -129,10 +129,10 @@ struct VoiceQuickTripView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .alert("台鐵站點超出月票範圍", isPresented: $showTRAOutOfRangeAlert) {
-            Button("知道了", role: .cancel) { }
+        .alert(Text("voice_tra_out_of_range_title"), isPresented: $showTRAOutOfRangeAlert) {
+            Button("ok", role: .cancel) { }
         } message: {
-            Text("目前選擇的台鐵起訖站不在你當前月票方案可使用範圍，請改選可用站點。")
+            Text("voice_tra_out_of_range_message")
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showCycleDateOutOfRangeAlert) {
             Button("ok", role: .cancel) { }
@@ -158,81 +158,102 @@ struct VoiceQuickTripView: View {
     }
     
     // MARK: - 準備錄音
-    
-    private var readyPhaseContent: some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 40)
-            
-            Image(systemName: "mic.circle.fill")
-                .font(.system(size: 80))
-                .foregroundColor(themeManager.accentColor)
-                .shadow(color: themeManager.accentColor.opacity(0.3), radius: 10)
-            
-            Text("voice_ready_title")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            Text("voice_ready_subtitle")
-                .font(.subheadline)
-                .foregroundColor(themeManager.secondaryTextColor)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 20)
-            
-            // 範例提示
-            VStack(alignment: .leading, spacing: 8) {
-                Text("voice_example_header")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(themeManager.secondaryTextColor)
+        
+        private var readyPhaseContent: some View {
+            VStack(spacing: 24) {
+                Spacer().frame(height: 20)
                 
-                ForEach(examplePhrases, id: \.self) { phrase in
-                    HStack(spacing: 6) {
-                        Image(systemName: "text.quote")
-                            .font(.caption2)
-                            .foregroundColor(themeManager.accentColor)
-                        Text(phrase)
-                            .font(.caption)
-                            .foregroundColor(themeManager.secondaryTextColor)
+                Image(systemName: "mic.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(themeManager.accentColor)
+                    .shadow(color: themeManager.accentColor.opacity(0.3), radius: 10)
+                
+                Text("voice_ready_title")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                Text("voice_ready_subtitle")
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                
+                // 範例提示 (弱化視覺效果，移除底色與框線)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("voice_example_header")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
+                    
+                    ForEach(examplePhrases, id: \.self) { phrase in
+                        HStack(spacing: 6) {
+                            Image(systemName: "text.quote")
+                                .font(.caption2)
+                                .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
+                            Text(phrase)
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
                     }
                 }
-            }
-            .padding(16)
-            .background(themeManager.cardBackgroundColor)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(themeManager.secondaryTextColor.opacity(0.1), lineWidth: 1)
-            )
-            
-            Spacer().frame(height: 20)
-            
-            // 錄音按鈕
-            Button(action: startRecording) {
-                HStack(spacing: 8) {
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 20, weight: .bold))
-                    Text("voice_start_recording")
-                        .font(.system(size: 18, weight: .bold))
+                .padding(.horizontal, 20)
+                
+                Spacer().frame(height: 10)
+                
+                // 錄音按鈕
+                Button(action: startRecording) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 20, weight: .bold))
+                        Text("voice_start_recording")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 40)
+                    .background(themeManager.accentColor)
+                    .cornerRadius(30)
+                    .shadow(color: themeManager.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
-                .foregroundColor(.white)
-                .padding(.vertical, 16)
-                .padding(.horizontal, 40)
-                .background(themeManager.accentColor)
-                .cornerRadius(30)
-                .shadow(color: themeManager.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                
+                // 語音辨識僅支援中文提示
+                HStack(spacing: 4) {
+                    Image(systemName: "globe.asia.australia.fill")
+                        .font(.caption2)
+                    Text("voice_chinese_only_hint")
+                        .font(.caption)
+                }
+                .foregroundColor(.orange.opacity(0.9))
+                .padding(.top, 4)
+
+                // Beta 與隱私提示
+                VStack(spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "sparkles")
+                        Text("voice_beta_label")
+                    }
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(themeManager.accentColor.opacity(0.8))
+                    
+                    Text("voice_beta_privacy_notice")
+                        .font(.caption2)
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(2)
+                }
+                .padding(.horizontal, 30)
+                .padding(.top, 8)
             }
         }
-    }
-    
-    private var examplePhrases: [String] {
-        [
-            "「搭捷運從台北車站到市政府 25 元」",
-            "「昨天坐公車 307 花了 15 元」",
-            "「高鐵台北到台中」",
-            "「捷運北車到淡水，轉860公車到三芝」",
-        ]
-    }
+        
+        private var examplePhrases: [String] {
+            [
+                String(localized: "voice_example_1"),
+                String(localized: "voice_example_2"),
+                String(localized: "voice_example_3"),
+            ]
+        }
     
     // MARK: - 錄音中
     
@@ -409,7 +430,7 @@ struct VoiceQuickTripView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                         if segments.count > 1 {
-                            Text("確認並儲存 \(segments.count) 筆行程")
+                            Text("voice_confirm_save_count \(segments.count)")
                                 .fontWeight(.bold)
                         } else {
                             Text("voice_confirm_save")

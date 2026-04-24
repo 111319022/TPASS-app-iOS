@@ -9667,6 +9667,54 @@
         }
       }
     },
+    "voice_beta_label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beta"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beta 測試階段"
+          }
+        }
+      }
+    },
+    "voice_beta_privacy_notice" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice recognition may occasionally be inaccurate. Your corrections will be sent back to help improve the recognition model. Data is not linked to your identity."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語音辨識可能偶有誤差。您的修正紀錄將回傳作為優化辨識模型的數據，資料不會與個人身分連結，請安心使用！"
+          }
+        }
+      }
+    },
+    "voice_chinese_only_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice recognition currently supports Chinese only"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語音辨識目前僅支援中文"
+          }
+        }
+      }
+    },
     "voice_confidence_high" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9730,6 +9778,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "確認儲存"
+          }
+        }
+      }
+    },
+    "voice_confirm_save_count %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm & Save %lld Trips"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認並儲存 %lld 筆行程"
+          }
+        }
+      }
+    },
+    "voice_example_1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Take MRT from Taipei Main Station to City Hall, 25 NTD\""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「搭捷運從台北車站到市政府 25 元」"
+          }
+        }
+      }
+    },
+    "voice_example_2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Took bus 307 yesterday, cost 15 NTD\""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「昨天坐公車 307 花了 15 元」"
+          }
+        }
+      }
+    },
+    "voice_example_3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"MRT from Taipei Main to Tamsui, transfer to bus 860 to Sanzhi\""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「捷運北車到淡水，轉860公車到三芝」"
           }
         }
       }
@@ -10237,6 +10349,38 @@
         }
       }
     },
+    "voice_tra_out_of_range_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected TRA stations are outside your current pass coverage area. Please choose stations within the valid range."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前選擇的台鐵起訖站不在你當前月票方案可使用範圍，請改選可用站點。"
+          }
+        }
+      }
+    },
+    "voice_tra_out_of_range_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TRA Stations Out of Pass Range"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台鐵站點超出月票範圍"
+          }
+        }
+      }
+    },
     "voice_transfer_connector" : {
       "localizations" : {
         "en" : {
@@ -10417,9 +10561,6 @@
     "可導入" : {
 
     },
-    "台鐵站點超出月票範圍" : {
-
-    },
     "問題回報" : {
 
     },
@@ -10518,13 +10659,7 @@
     "目前沒有符合狀態的回報" : {
 
     },
-    "目前選擇的台鐵起訖站不在你當前月票方案可使用範圍，請改選可用站點。" : {
-
-    },
     "目前還沒有使用者送出回報。" : {
-
-    },
-    "知道了" : {
 
     },
     "確定" : {
@@ -10540,9 +10675,6 @@
 
     },
     "確定要清除所有 log 紀錄嗎？此動作無法復原。" : {
-
-    },
-    "確認並儲存 %lld 筆行程" : {
 
     },
     "確認匯入" : {
