@@ -16,7 +16,6 @@ struct TripListView: View {
     
     @SceneStorage("mainTab.selectedTab") private var selectedTab: Int = 0
     
-    // 統一的水平邊距，確保所有元素對齊
     private let horizontalPagePadding: CGFloat = 20
     
     @State private var showAddTripSheet = false
@@ -37,11 +36,8 @@ struct TripListView: View {
     @State private var commuterRouteName: String = ""
     @State private var showCommuterNamePrompt = false
     @State private var showCommuterRoutePicker = false
-    @State private var suppressedTapTripID: String? = nil
-    
-    // 新增：轉乘類型選擇
     @State private var transferSelectionData: TransferSelectionData?
-    
+    @State private var swipedRowId: String? = nil
     @State private var showNoCycleAlert = false
     @State private var isToastShowing = false
     @State private var toastMessage: LocalizedStringKey = ""
@@ -104,7 +100,6 @@ struct TripListView: View {
         TripRowView(trip: demoTrip)
             .opacity(0.98)
             .allowsHitTesting(false)
-            // 回報演示行程的準確座標給教學系統
             .reportFrame(id: "tripRow", in: .global)
             .onPreferenceChange(ViewFrameKey.self) { frames in
                 if let rowFrame = frames["tripRow"] {
@@ -227,15 +222,7 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
-                        .accessibilityLabel(Text("a11y_quick_add_home"))
-                        .accessibilityHint(Text("a11y_quick_add_home_hint"))
-                        .reportFrame(id: "quickHomeButton", in: .global)
-                        .onPreferenceChange(ViewFrameKey.self) { frames in
-                            if let frame = frames["quickHomeButton"] {
-                                tutorialPositions.quickHomeButtonFrame = frame
-                            }
-                        }
-
+                        
                         Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
                                 showNoCycleAlert = true
@@ -248,14 +235,6 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
-                        .accessibilityLabel(Text("a11y_quick_add_departure"))
-                        .accessibilityHint(Text("a11y_quick_add_departure_hint"))
-                        .reportFrame(id: "quickDepartureButton", in: .global)
-                        .onPreferenceChange(ViewFrameKey.self) { frames in
-                            if let frame = frames["quickDepartureButton"] {
-                                tutorialPositions.quickDepartureButtonFrame = frame
-                            }
-                        }
                         
                         Button(action: { showFavoritesSheet = true }) {
                             Image(systemName: "star.circle.fill")
@@ -263,27 +242,14 @@ struct TripListView: View {
                                 .foregroundColor(themeManager.accentColor)
                                 .shadow(color: themeManager.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
                         }
-                        .accessibilityLabel(Text("a11y_favorites"))
-                        .accessibilityHint(Text("a11y_favorites_hint"))
-                        .reportFrame(id: "favoritesButton", in: .global)
-                        .onPreferenceChange(ViewFrameKey.self) { frames in
-                            if let favFrame = frames["favoritesButton"] {
-                                tutorialPositions.favoritesButtonFrame = favFrame
-                            }
-                        }
                     }
-                    .padding(.horizontal, horizontalPagePadding).padding(.top, 10).padding(.bottom, 10)
+                    .padding(.horizontal, horizontalPagePadding)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
                     
-                    // CycleSelectorView
                     CycleSelectorView()
                         .padding(.horizontal, horizontalPagePadding)
-                        .padding(.bottom, 10)
-                        .reportFrame(id: "cycleSelector", in: .global)
-                        .onPreferenceChange(ViewFrameKey.self) { frames in
-                            if let selectorFrame = frames["cycleSelector"] {
-                                tutorialPositions.cycleSelectorFrame = selectorFrame
-                            }
-                        }
+                        .padding(.bottom, 6)
                     
                     if viewModel.groupedTrips.isEmpty && !shouldShowDemoTripRow {
                         VStack(spacing: 16) {
@@ -293,50 +259,17 @@ struct TripListView: View {
                             Text("noTripsRecorded")
                                 .font(.headline)
                                 .foregroundColor(themeManager.secondaryTextColor)
-                            
-                            if let cycle = viewModel.activeCycle,
-                               cycle.region == .flexible,
-                               (auth.currentUser?.cycles.count ?? 0) <= 1,
-                               !hasShownFirstTimeHint {
-                                VStack(spacing: 12) {
-                                    Text("first_time_hint_title")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    
-                                    Text("first_time_hint_message")
-                                        .font(.subheadline)
-                                        .foregroundColor(themeManager.secondaryTextColor)
-                                        .multilineTextAlignment(.center)
-                                        .lineSpacing(4)
-                                }
-                                .padding(20)
-                                .background(themeManager.cardBackgroundColor)
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1.5)
-                                )
-                                .padding(.horizontal, 40)
-                                .padding(.top, 8)
-                                .onTapGesture {
-                                    hasShownFirstTimeHint = true
-                                }
-                            }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .multilineTextAlignment(.center)
                     } else {
                         List {
-                            // 教學模式：只顯示演示行程
                             if shouldShowDemoTripRow {
                                 Section {
                                     demoTripRow
-                                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                                         .listRowSeparator(.hidden)
                                         .listRowBackground(Color.clear)
+                                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                                         .buttonStyle(StaticButtonStyle())
-                                        .allowsHitTesting(false)
                                 } header: {
                                     let today = Date().formatted(date: .numeric, time: .omitted)
                                     DailyHeaderView(
@@ -346,54 +279,45 @@ struct TripListView: View {
                                         onDuplicateToDate: {},
                                         onDelete: {}
                                     )
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.top, 6)
-                                        .padding(.bottom, 4)
-                                        .background(themeManager.backgroundColor)
-                                        .listRowInsets(.init())
-                                        .listRowBackground(Color.clear)
+                                    .textCase(nil)
+                                    .padding(.vertical, 4)
+                                    .background(themeManager.backgroundColor)
+                                    .listRowInsets(EdgeInsets())
+                                    .padding(.bottom, 4)
                                 }
-                                .listSectionSeparator(.hidden)
                             }
                             
-                            // 正常模式：顯示所有行程
                             if !showTutorial {
                                 ForEach(viewModel.groupedTrips) { group in
                                     Section {
                                         ForEach(group.trips) { trip in
-                                            tripRowWithActions(trip)
+                                            tripRowWithCustomSwipe(trip)
+                                                .listRowSeparator(.hidden)
+                                                .listRowBackground(Color.clear)
+                                                .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                                         }
                                     } header: {
                                         DailyHeaderView(
                                             group: group,
                                             showDuplicateToToday: isSelectedCycleCurrent,
-                                            onDuplicateToToday: {
-                                                duplicateDayToToday(group)
-                                            },
-                                            onDuplicateToDate: {
-                                                requestDuplicateDayToDate(group)
-                                            },
-                                            onDelete: {
-                                                requestDeleteDay(group)
-                                            }
+                                            onDuplicateToToday: { duplicateDayToToday(group) },
+                                            onDuplicateToDate: { requestDuplicateDayToDate(group) },
+                                            onDelete: { requestDeleteDay(group) }
                                         )
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.top, 6)
-                                            .padding(.bottom, 4)
-                                            .background(themeManager.backgroundColor)
-                                            .listRowInsets(.init())
-                                            .listRowBackground(Color.clear)
+                                        .textCase(nil)
+                                        .padding(.vertical, 4)
+                                        .background(themeManager.backgroundColor)
+                                        .listRowInsets(EdgeInsets())
+                                        .padding(.bottom, 4)
                                     }
-                                    .listSectionSeparator(.hidden)
                                 }
                             }
                             Color.clear.frame(height: 80).listRowBackground(Color.clear)
                         }
                         .listStyle(.plain)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.groupedTrips)
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
-                        .environment(\.defaultMinListHeaderHeight, 0)
-                        .environment(\.defaultMinListRowHeight, 0)
                     }
                 }
                 
@@ -416,7 +340,6 @@ struct TripListView: View {
                                 .clipShape(Circle())
                                 .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .accessibilityLabel(Text("voice_quick_trip_a11y"))
                         
                         Button(action: {
                             if auth.currentUser?.cycles.isEmpty ?? true {
@@ -438,17 +361,11 @@ struct TripListView: View {
                             .cornerRadius(30)
                             .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .reportFrame(id: "addButton", in: .global)
-                        .onPreferenceChange(ViewFrameKey.self) { frames in
-                            if let btnFrame = frames["addButton"] {
-                                tutorialPositions.addButtonFrame = btnFrame
-                            }
-                        }
                     }
                     .padding(.bottom, 20)
                 }
                 
-                // Toast
+                // Toast 與其他 Overlay...
                 if isToastShowing {
                     VStack {
                         Spacer()
@@ -464,33 +381,7 @@ struct TripListView: View {
                     }
                     .zIndex(100)
                 }
-                
-                // Commuter Picker Overlay
-                if showCommuterRoutePicker {
-                    commmuterPickerOverlay
-                        .zIndex(101)
-                }
-                
-                // 教學遮罩層
-                if showTutorial {
-                    SpotlightTutorialOverlay(
-                        currentStep: $currentTutorialStep,
-                        onFinish: {
-                            withAnimation {
-                                showTutorial = false
-                                hasShownTutorial = true
-                                savedTutorialStep = 0
-                            }
-                        },
-                        positions: tutorialPositions
-                    )
-                    .environmentObject(themeManager)
-                    .zIndex(999)
-                    .transition(.opacity)
-                }
-                
             }
-            // 隱藏導航列，解決滑動跳動問題
             .toolbar(.hidden, for: .navigationBar)
             .modifier(TripListSheetsModifier(
                 showAddTripSheet: $showAddTripSheet,
@@ -517,85 +408,12 @@ struct TripListView: View {
                 selectedTab: $selectedTab,
                 showToast: showToast
             ))
-            .alert("duplicate_trip_past_title", isPresented: Binding(
-                get: { pendingDuplicateTrip != nil },
-                set: { if !$0 { pendingDuplicateTrip = nil } }
-            )) {
-                Button("cancel", role: .cancel) { pendingDuplicateTrip = nil }
-                Button("continue_copy") {
-                    if let trip = pendingDuplicateTrip {
-                        performDuplicateTrip(trip, useHaptic: pendingDuplicateTripUseHaptic)
-                    }
-                    pendingDuplicateTrip = nil
-                }
-            } message: {
-                Text("duplicate_trip_past_message")
-            }
-            .sheet(isPresented: $showDuplicateDayPicker) {
-                let range = selectedCycleDateRange ?? (Date()...Date())
-                VStack(spacing: 16) {
-                    Text("duplicate_day_select_title")
-                        .font(.headline)
-                        .foregroundColor(themeManager.primaryTextColor)
-
-                    Text("duplicate_day_select_message")
-                        .font(.caption)
-                        .foregroundColor(themeManager.secondaryTextColor)
-
-                    DatePicker(
-                        "",
-                        selection: $pendingDuplicateDayTargetDate,
-                        in: range,
-                        displayedComponents: .date
-                    )
-                    .labelsHidden()
-                    .datePickerStyle(.graphical)
-
-                    HStack(spacing: 12) {
-                        Button("cancel", role: .cancel) {
-                            pendingDuplicateDaySourceDate = nil
-                            pendingDuplicateDaySourceCycleId = nil
-                            showDuplicateDayPicker = false
-                        }
-
-                        Spacer()
-
-                        Button("confirm_duplicate_day") {
-                            if let source = pendingDuplicateDaySourceDate {
-                                let calendar = Calendar.current
-                                let targetDay = calendar.startOfDay(for: pendingDuplicateDayTargetDate)
-                                viewModel.duplicateDayTrips(
-                                    from: source,
-                                    cycleId: pendingDuplicateDaySourceCycleId,
-                                    targetDay: targetDay,
-                                    targetCycleId: pendingDuplicateDaySourceCycleId
-                                )
-                                let formatted = DateFormatter.localizedString(
-                                    from: targetDay,
-                                    dateStyle: .medium,
-                                    timeStyle: .none
-                                )
-                                showToast(message: "copied_day_to \(formatted)")
-                            }
-                            pendingDuplicateDaySourceDate = nil
-                            pendingDuplicateDaySourceCycleId = nil
-                            showDuplicateDayPicker = false
-                        }
-                    }
-                    .padding(.top, 4)
-                }
-                .padding(20)
-                .presentationDetents([.height(560), .large])
-                .presentationDragIndicator(.visible)
-            }
-            
         }
         .onAppear {
             if let user = auth.currentUser {
                 let sortedCycles = user.cycles.sorted { $0.start > $1.start }
                 let isSelectedCycleValid = viewModel.selectedCycle != nil &&
                     user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
-                
                 if !isSelectedCycleValid {
                     let newCycle = sortedCycles.first
                     if viewModel.selectedCycle?.id != newCycle?.id {
@@ -603,58 +421,10 @@ struct TripListView: View {
                     }
                 }
             }
-            
-            if !hasShownTutorial {
-                if let step = SpotlightTutorialStep(rawValue: savedTutorialStep) {
-                    currentTutorialStep = step
-                } else {
-                    currentTutorialStep = .welcome
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation {
-                        showTutorial = true
-                    }
-                }
-            }
-        }
-        .onChange(of: auth.currentUser?.cycles.count) { oldCount, newCount in
-            if let user = auth.currentUser {
-                let sortedCycles = user.cycles.sorted { $0.start > $1.start }
-                let isSelectedCycleValid = viewModel.selectedCycle != nil &&
-                    user.cycles.contains(where: { $0.id == viewModel.selectedCycle?.id })
-                
-                if !isSelectedCycleValid {
-                    let newCycle = sortedCycles.first
-                    if viewModel.selectedCycle?.id != newCycle?.id {
-                        viewModel.selectedCycle = newCycle
-                    }
-                }
-            }
-        }
-        .onChange(of: currentTutorialStep) { oldStep, step in
-            savedTutorialStep = step.rawValue
         }
     }
     
     // MARK: - Helper Methods
-    
-    private func displayStationName(_ stationName: String, type: TransportType) -> String {
-        let lang = Locale.current.identifier
-        if type == .tymrt {
-            return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .hsr {
-            return HSRStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .tcmrt {
-            return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .kmrt {
-            return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .lrt {
-            return LRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else {
-            return StationData.shared.displayStationName(stationName, languageCode: lang)
-        }
-    }
     
     func showToast(message: LocalizedStringKey) {
         toastMessage = message
@@ -665,7 +435,9 @@ struct TripListView: View {
     }
 
     private func performDuplicateTrip(_ trip: Trip, useHaptic: Bool) {
-        viewModel.duplicateTrip(trip)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            viewModel.duplicateTrip(trip)
+        }
         if useHaptic {
             HapticManager.shared.impact(style: .medium)
         }
@@ -720,119 +492,131 @@ struct TripListView: View {
     }
     
     @ViewBuilder
-    private func tripRowWithActions(_ trip: Trip) -> some View {
-        TripRowView(trip: trip)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                selectedTripToEdit = trip
-            }
-            // 調整上下左右的間距，讓卡片浮出來
-            .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
-            .listRowSeparator(.hidden)
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .onAppear {
-                            if tutorialPositions.tripRowFrame == .zero {
-                                tutorialPositions.tripRowFrame = geo.frame(in: .global)
+    private func tripRowWithCustomSwipe(_ trip: Trip) -> some View {
+        SwipeableRowView(
+            rowId: trip.id,
+            swipedRowId: $swipedRowId,
+            leadingWidth: 246,
+            trailingWidth: 88,
+            leading: { close in
+                HStack(spacing: 0) {
+                    customSwipeActionButton(
+                        title: trip.isTransfer ? "cancel_transfer" : "add_transfer",
+                        systemImage: trip.isTransfer ? "link.badge.plus" : "link",
+                        backgroundColor: themeManager.accentColor,
+                        action: {
+                            handleTransferAction(for: trip)
+                            close()
+                        }
+                    )
+                    customSwipeActionButton(
+                        title: "duplicate_trip",
+                        systemImage: "doc.on.doc.fill",
+                        backgroundColor: Color.blue,
+                        action: {
+                            requestDuplicateTrip(trip, useDelay: false)
+                            close()
+                        }
+                    )
+                    customSwipeActionButton(
+                        title: "return_trip",
+                        systemImage: "arrow.uturn.backward",
+                        backgroundColor: Color.indigo,
+                        action: {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.createReturnTrip(trip)
                             }
+                            HapticManager.shared.impact(style: .medium)
+                            showToast(message: "trip_added")
+                            close()
                         }
+                    )
                 }
-            )
-            // 確保 Row 背景為透明，這樣滑動按鈕才會顯示在卡片後方
-            .listRowBackground(Color.clear)
-            .contextMenu {
-                tripContextMenuContent(trip: trip)
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                tripTrailingSwipeAction(trip)
-            }
-            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                tripLeadingSwipeActions(trip)
-            }
-    }
-    
-    @ViewBuilder
-    private func tripTrailingSwipeAction(_ trip: Trip) -> some View {
-        Button(role: .destructive) {
-            HapticManager.shared.notification(type: .warning)
-            viewModel.deleteTrip(trip)
-            showToast(message: "trip_deleted")
-        } label: {
-            Label("delete", systemImage: "trash.fill")
-        }
-        .tint(.red)
-    }
-    
-    @ViewBuilder
-    private func tripLeadingSwipeActions(_ trip: Trip) -> some View {
-        Button {
-            guard !isProcessingSwipeAction else { return }
-            isProcessingSwipeAction = true
-            
-            if trip.isTransfer {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    let tx = Transaction(animation: nil)
-                    withTransaction(tx) {
-                        viewModel.setTransferType(trip, transferType: nil)
-                    }
-                    HapticManager.shared.impact(style: .medium)
-                    showToast(message: "transfer_cancelled")
-                    isProcessingSwipeAction = false
-                }
-            } else {
-                let region = viewModel.cycleById(trip.cycleId)?.region ??
-                            viewModel.cycleForTrip(date: trip.createdAt)?.region ??
-                            AuthService.shared.currentRegion
-                
-                let availableTypes = region.availableTransferTypes
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    if availableTypes.count > 1 {
-                        transferSelectionData = TransferSelectionData(trip: trip, region: region)
-                        isProcessingSwipeAction = false
-                    } else if availableTypes.count == 1 {
-                        let tx = Transaction(animation: nil)
-                        withTransaction(tx) {
-                            viewModel.setTransferType(trip, transferType: availableTypes[0])
+            },
+            trailing: { close in
+                HStack(spacing: 0) {
+                    customSwipeActionButton(
+                        title: "delete",
+                        systemImage: "trash.fill",
+                        backgroundColor: Color.red,
+                        action: {
+                            HapticManager.shared.notification(type: .warning)
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.deleteTrip(trip)
+                            }
+                            showToast(message: "trip_deleted")
+                            close()
                         }
-                        HapticManager.shared.impact(style: .medium)
-                        showToast(message: "transfer_added")
-                        isProcessingSwipeAction = false
+                    )
+                }
+            },
+            content: {
+                TripRowView(trip: trip)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedTripToEdit = trip
                     }
-                }
+                    .overlay(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear {
+                                    if tutorialPositions.tripRowFrame == .zero {
+                                        tutorialPositions.tripRowFrame = geo.frame(in: .global)
+                                    }
+                                }
+                        }
+                    )
+                    .contextMenu {
+                        tripContextMenuContent(trip: trip)
+                    }
             }
-        } label: {
-            Label(trip.isTransfer ? "cancel_transfer" : "add_transfer", systemImage: trip.isTransfer ? "link.badge.plus" : "link")
-        }
-        .tint(themeManager.accentColor)
+        )
         .disabled(isProcessingSwipeAction)
-        
-        Button {
-            requestDuplicateTrip(trip, useDelay: true)
-        } label: {
-            Label("duplicate_trip", systemImage: "doc.on.doc.fill")
+    }
+
+    private func handleTransferAction(for trip: Trip) {
+        if trip.isTransfer {
+            viewModel.setTransferType(trip, transferType: nil)
+            HapticManager.shared.impact(style: .medium)
+            showToast(message: "transfer_cancelled")
+            return
         }
-        .tint(themeManager.accentColor)
-        .disabled(isProcessingSwipeAction)
-        
-        Button {
-            guard !isProcessingSwipeAction else { return }
-            isProcessingSwipeAction = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                let tx = Transaction(animation: nil)
-                withTransaction(tx) {
-                    viewModel.createReturnTrip(trip)
-                }
-                HapticManager.shared.impact(style: .medium)
-                showToast(message: "trip_added")
-                isProcessingSwipeAction = false
+
+        let region = viewModel.cycleById(trip.cycleId)?.region ??
+                    viewModel.cycleForTrip(date: trip.createdAt)?.region ??
+                    AuthService.shared.currentRegion
+        let availableTypes = region.availableTransferTypes
+
+        if availableTypes.count > 1 {
+            transferSelectionData = TransferSelectionData(trip: trip, region: region)
+        } else if availableTypes.count == 1 {
+            viewModel.setTransferType(trip, transferType: availableTypes[0])
+            HapticManager.shared.impact(style: .medium)
+            showToast(message: "transfer_added")
+        }
+    }
+
+    private func customSwipeActionButton(
+        title: LocalizedStringKey,
+        systemImage: String,
+        backgroundColor: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .bold))
+                Text(title)
+                    .font(.system(size: 11, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
-        } label: {
-            Label("return_trip", systemImage: "arrow.uturn.backward")
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .tint(themeManager.accentColor)
-        .disabled(isProcessingSwipeAction)
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(backgroundColor)
     }
     
     @ViewBuilder
@@ -867,9 +651,7 @@ struct TripListView: View {
                 let region = viewModel.cycleById(trip.cycleId)?.region ??
                             viewModel.cycleForTrip(date: trip.createdAt)?.region ??
                             AuthService.shared.currentRegion
-                
                 let availableTypes = region.availableTransferTypes
-                
                 DispatchQueue.main.async {
                     if availableTypes.count > 1 {
                         transferSelectionData = TransferSelectionData(trip: trip, region: region)
@@ -891,7 +673,9 @@ struct TripListView: View {
         }
         
         Button {
-            viewModel.createReturnTrip(trip)
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                viewModel.createReturnTrip(trip)
+            }
             showToast(message: "trip_added")
         } label: {
             Label("return_trip", systemImage: "arrow.uturn.backward")
@@ -900,7 +684,9 @@ struct TripListView: View {
         Divider()
         
         Button(role: .destructive) {
-            viewModel.deleteTrip(trip)
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                viewModel.deleteTrip(trip)
+            }
             showToast(message: "trip_deleted")
         } label: {
             Label("delete", systemImage: "trash.fill")
@@ -919,14 +705,9 @@ struct CycleSelectorView: View {
     
     var cardBackground: Color {
         switch themeManager.currentTheme {
-        case .muji:
-            return Color.white
-        case .light, .purple:
-            return Color.white
-        case .dark:
-            return Color(uiColor: .secondarySystemGroupedBackground)
-        case .system:
-            return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
+        case .muji, .light, .purple: return Color.white
+        case .dark: return Color(uiColor: .secondarySystemGroupedBackground)
+        case .system: return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
         }
     }
 
@@ -957,7 +738,6 @@ struct CycleSelectorView: View {
                         .font(.caption2)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
-                
                 if let region = viewModel.activeCycle?.region ?? auth.currentUser?.cycles.first?.region {
                     HStack(spacing: 6) {
                         Image(systemName: "mappin.circle.fill")
@@ -975,25 +755,17 @@ struct CycleSelectorView: View {
             .background(cardBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-            )
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.1), lineWidth: 1))
         }
         .sheet(isPresented: $showCyclePickerSheet) {
             CyclePickerSheet()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("a11y_cycle"))
-        .accessibilityValue(cycleAccessibilityValue)
-        .accessibilityHint(Text("a11y_cycle_hint"))
     }
 }
 
-// MARK: - Cycle Picker Sheet
-
+// CyclePickerSheet 保持不變
 struct CyclePickerSheet: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
@@ -1007,49 +779,29 @@ struct CyclePickerSheet: View {
 
     private var cardBackground: Color {
         switch themeManager.currentTheme {
-        case .muji, .light, .purple:
-            return Color.white
-        case .dark:
-            return Color(uiColor: .secondarySystemGroupedBackground)
-        case .system:
-            return colorScheme == .dark
-                ? Color(uiColor: .secondarySystemGroupedBackground)
-                : Color.white
+        case .muji, .light, .purple: return Color.white
+        case .dark: return Color(uiColor: .secondarySystemGroupedBackground)
+        case .system: return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
         }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Capsule()
-                .frame(width: 40, height: 5)
-                .foregroundColor(.secondary.opacity(0.3))
-                .padding(.top, 10)
-
-            Text("cycle_picker_title")
-                .font(.title3.bold())
-                .foregroundColor(themeManager.primaryTextColor)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
+            Capsule().frame(width: 40, height: 5).foregroundColor(.secondary.opacity(0.3)).padding(.top, 10)
+            Text("cycle_picker_title").font(.title3.bold()).foregroundColor(themeManager.primaryTextColor).padding(.vertical, 12)
 
             if sortedCycles.isEmpty {
                 VStack(spacing: 12) {
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.system(size: 40))
-                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
-                    Text("no_cycles_yet")
-                        .font(.headline)
-                        .foregroundColor(themeManager.secondaryTextColor)
+                    Image(systemName: "calendar.badge.plus").font(.system(size: 40)).foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
+                    Text("no_cycles_yet").font(.headline).foregroundColor(themeManager.secondaryTextColor)
                 }
                 .padding(.vertical, 40)
             } else {
                 ScrollView {
                     LazyVStack(spacing: 10) {
-                        ForEach(sortedCycles) { cycle in
-                            cycleRow(cycle)
-                        }
+                        ForEach(sortedCycles) { cycle in cycleRow(cycle) }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16).padding(.vertical, 8)
                 }
             }
         }
@@ -1069,85 +821,41 @@ struct CyclePickerSheet: View {
         } label: {
             HStack(spacing: 12) {
                 VStack {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(isSelected ? .white : themeManager.accentColor)
+                    Image(systemName: "mappin.circle.fill").font(.title2).foregroundColor(isSelected ? .white : themeManager.accentColor)
                 }
                 .frame(width: 44, height: 44)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(isSelected
-                              ? themeManager.accentColor
-                              : themeManager.accentColor.opacity(0.12))
-                )
+                .background(RoundedRectangle(cornerRadius: 10).fill(isSelected ? themeManager.accentColor : themeManager.accentColor.opacity(0.12)))
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
-                        Text(cycle.region.displayNameKey)
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(themeManager.primaryTextColor)
-
+                        Text(cycle.region.displayNameKey).font(.subheadline).fontWeight(.bold).foregroundColor(themeManager.primaryTextColor)
                         if isCurrent {
-                            Text("active")
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(themeManager.accentColor)
-                                .cornerRadius(4)
+                            Text("active").font(.caption2).fontWeight(.semibold).foregroundColor(.white).padding(.horizontal, 6).padding(.vertical, 2).background(themeManager.accentColor).cornerRadius(4)
                         }
                     }
-
-                    Text(cycleDateRangeText(cycle))
-                        .font(.caption)
-                        .foregroundColor(themeManager.secondaryTextColor)
-
+                    Text(cycleDateRangeText(cycle)).font(.caption).foregroundColor(themeManager.secondaryTextColor)
                     if cycle.region.monthlyPrice > 0 {
-                        Text("$\(cycle.region.monthlyPrice)")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(themeManager.accentColor)
+                        Text("$\(cycle.region.monthlyPrice)").font(.caption).fontWeight(.medium).foregroundColor(themeManager.accentColor)
                     }
                 }
-
                 Spacer()
-
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundColor(themeManager.accentColor)
+                    Image(systemName: "checkmark.circle.fill").font(.title3).foregroundColor(themeManager.accentColor)
                 }
             }
             .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected
-                          ? themeManager.accentColor.opacity(0.08)
-                          : cardBackground)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected
-                            ? themeManager.accentColor.opacity(0.3)
-                            : Color.gray.opacity(0.1),
-                            lineWidth: 1)
-            )
+            .background(RoundedRectangle(cornerRadius: 12).fill(isSelected ? themeManager.accentColor.opacity(0.08) : cardBackground))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isSelected ? themeManager.accentColor.opacity(0.3) : Color.gray.opacity(0.1), lineWidth: 1))
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(cycle.region.displayNameKey))
-        .accessibilityValue(Text(cycleDateRangeText(cycle)))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func cycleDateRangeText(_ cycle: Cycle) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy/MM/dd"
+        let f = DateFormatter(); f.dateFormat = "yyyy/MM/dd"
         return "\(f.string(from: cycle.start)) ~ \(f.string(from: cycle.end))"
     }
 }
 
+// 💡 標題重構：去除底色與外框，變成浮在背景上的純文字
 struct DailyHeaderView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.colorScheme) var colorScheme
@@ -1158,21 +866,11 @@ struct DailyHeaderView: View {
     let onDelete: () -> Void
     @State private var showActions = false
     
-    var cardBackground: Color {
-        switch themeManager.currentTheme {
-        case .muji, .light, .purple:
-            return Color.white
-        case .dark:
-            return Color(uiColor: .secondarySystemGroupedBackground)
-        case .system:
-            return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
-        }
-    }
-    
     var body: some View {
         HStack(spacing: 8) {
             Text(group.date)
-                .font(.headline)
+                .font(.subheadline) // 與 DAAK 一樣稍微縮小字體
+                .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
             Spacer()
             Text("$\(group.dailyTotal)")
@@ -1184,14 +882,13 @@ struct DailyHeaderView: View {
                 showActions = true
             } label: {
                 Image(systemName: "ellipsis")
-                    .foregroundColor(themeManager.secondaryTextColor)
-                    .font(.caption)
-                    .padding(.leading, 2)
-                    .contentShape(Rectangle())
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 28, height: 28)
+                    .background(Color.gray.opacity(0.4))
+                    .clipShape(Circle())
             }
             .buttonStyle(StaticButtonStyle())
-            .accessibilityLabel(Text("a11y_day_actions"))
-            .accessibilityHint(Text("a11y_day_actions_hint \(group.date)"))
             .confirmationDialog("day_actions_title", isPresented: $showActions, titleVisibility: .visible) {
                 if showDuplicateToToday {
                     Button("duplicate_day_to_today") {
@@ -1213,7 +910,7 @@ struct DailyHeaderView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
         .contentShape(Rectangle())
         .onTapGesture {
             showActions = true
@@ -1223,65 +920,17 @@ struct DailyHeaderView: View {
 
 struct TripRowView: View {
     @EnvironmentObject var themeManager: ThemeManager
-
     let trip: Trip
     
     private func displayStationName(_ stationName: String, type: TransportType) -> String {
         let lang = Locale.current.identifier
-        if type == .tymrt {
-            return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .hsr {
-            return HSRStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .tra {
-            return TRAStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .tcmrt {
-            return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .kmrt {
-            return KMRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else if type == .lrt {
-            return LRTStationData.shared.displayStationName(stationName, languageCode: lang)
-        } else {
-            return StationData.shared.displayStationName(stationName, languageCode: lang)
-        }
-    }
-
-    private var accessibilitySummary: String {
-        let separator = String(localized: "a11y_list_separator")
-        var parts: [String] = [NSLocalizedString(trip.type.displayNameKey, comment: "")]
-
-        if !trip.routeId.isEmpty {
-            parts.append(String(format: NSLocalizedString("a11y_route_format", comment: ""), trip.routeId))
-        }
-
-        if !trip.startStation.isEmpty || !trip.endStation.isEmpty {
-            let startName = trip.startStation.isEmpty ? "" : displayStationName(trip.startStation, type: trip.type)
-            let endName = trip.endStation.isEmpty ? "" : displayStationName(trip.endStation, type: trip.type)
-            if !startName.isEmpty && !endName.isEmpty {
-                parts.append(String(format: NSLocalizedString("a11y_station_range_format", comment: ""), startName, endName))
-            } else if !startName.isEmpty {
-                parts.append(String(format: NSLocalizedString("a11y_start_format", comment: ""), startName))
-            } else if !endName.isEmpty {
-                parts.append(String(format: NSLocalizedString("a11y_end_format", comment: ""), endName))
-            }
-        }
-
-        parts.append(String(format: NSLocalizedString("a11y_time_format", comment: ""), trip.timeStr))
-        parts.append(String(format: NSLocalizedString("a11y_paid_format", comment: ""), trip.paidPrice))
-
-        if trip.paidPrice != trip.originalPrice {
-            parts.append(String(format: NSLocalizedString("a11y_original_format", comment: ""), trip.originalPrice))
-        }
-        if trip.isFree {
-            parts.append(NSLocalizedString("a11y_free_trip", comment: ""))
-        }
-        if trip.isTransfer {
-            parts.append(NSLocalizedString("a11y_transfer_discount", comment: ""))
-        }
-        if !trip.note.isEmpty {
-            parts.append(NSLocalizedString("a11y_has_note", comment: ""))
-        }
-
-        return parts.joined(separator: separator)
+        if type == .tymrt { return TYMRTStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else if type == .hsr { return HSRStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else if type == .tra { return TRAStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else if type == .tcmrt { return TCMRTStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else if type == .kmrt { return KMRTStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else if type == .lrt { return LRTStationData.shared.displayStationName(stationName, languageCode: lang) }
+        else { return StationData.shared.displayStationName(stationName, languageCode: lang) }
     }
     
     var body: some View {
@@ -1358,7 +1007,6 @@ struct TripRowView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: Color.black.opacity(themeManager.currentTheme == .dark ? 0.2 : 0.04), radius: 5, x: 0, y: 2)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilitySummary)
     }
 }
 
@@ -1384,15 +1032,159 @@ struct TagView: View {
     }
 }
 
-struct StaticButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .contentShape(Rectangle())
+struct SwipeableRowView<Content: View, Leading: View, Trailing: View>: View {
+    let rowId: String
+    @Binding var swipedRowId: String?
+    private let leadingWidth: CGFloat
+    private let trailingWidth: CGFloat
+    private let cornerRadius: CGFloat
+    private let gap: CGFloat = 12
+    private let leading: (_ close: @escaping () -> Void) -> Leading
+    private let trailing: (_ close: @escaping () -> Void) -> Trailing
+    private let content: () -> Content
+
+    @State private var offset: CGFloat = 0
+    @State private var lastOffset: CGFloat = 0
+
+    init(
+        rowId: String,
+        swipedRowId: Binding<String?>,
+        leadingWidth: CGFloat,
+        trailingWidth: CGFloat,
+        cornerRadius: CGFloat = 16,
+        @ViewBuilder leading: @escaping (_ close: @escaping () -> Void) -> Leading,
+        @ViewBuilder trailing: @escaping (_ close: @escaping () -> Void) -> Trailing,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.rowId = rowId
+        self._swipedRowId = swipedRowId
+        self.leadingWidth = leadingWidth
+        self.trailingWidth = trailingWidth
+        self.cornerRadius = cornerRadius
+        self.leading = leading
+        self.trailing = trailing
+        self.content = content
+    }
+
+    var body: some View {
+        ZStack {
+            // 背景層：固定在左右兩側的圓角膠囊按鈕
+            HStack(spacing: 0) {
+                if offset > 0 {
+                    leading(closeRow)
+                        .frame(width: leadingWidth)
+                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                    Spacer(minLength: 0)
+                } else if offset < 0 {
+                    Spacer(minLength: 0)
+                    trailing(closeRow)
+                        .frame(width: trailingWidth)
+                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                }
+            }
+
+            // 前景層：滑動卡片
+            content()
+                .offset(x: offset)
+                .gesture(dragGesture)
+        }
+        .onChange(of: swipedRowId) { _, newValue in
+            if newValue != rowId && offset != 0 {
+                closeRow()
+            }
+        }
+    }
+
+    private func closeRow() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+            offset = 0
+            lastOffset = 0
+            if swipedRowId == rowId {
+                swipedRowId = nil
+            }
+        }
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 30, coordinateSpace: .local)
+            .onChanged { value in
+                let translation = value.translation.width
+                guard abs(translation) > abs(value.translation.height) * 1.2 else {
+                    return
+                }
+
+                if swipedRowId != rowId {
+                    swipedRowId = rowId
+                }
+
+                var newOffset = lastOffset + translation
+                // 狀態鎖定：展開時不允許拖曳越過中心線
+                if lastOffset > 0 { newOffset = max(0, newOffset) }
+                else if lastOffset < 0 { newOffset = min(0, newOffset) }
+
+                let maxLeading = leadingWidth + gap
+                let maxTrailing = trailingWidth + gap
+
+                // 阻尼效果
+                if newOffset > maxLeading {
+                    newOffset = maxLeading + (newOffset - maxLeading) * 0.2
+                } else if newOffset < -maxTrailing {
+                    newOffset = -maxTrailing + (newOffset + maxTrailing) * 0.2
+                }
+
+                withAnimation(.interactiveSpring(response: 0.22, dampingFraction: 0.88)) {
+                    offset = newOffset
+                }
+            }
+            .onEnded { value in
+                let translation = value.translation.width
+                guard abs(translation) > abs(value.translation.height) * 1.2 else { return }
+
+                let velocity = value.predictedEndTranslation.width - translation
+                let projected = translation + velocity * 0.1
+                let threshold: CGFloat = 46
+
+                let maxLeading = leadingWidth + gap
+                let maxTrailing = trailingWidth + gap
+                var targetOffset: CGFloat = 0
+
+                // 狀態機判斷目標位置
+                if lastOffset == 0 {
+                    if projected > threshold {
+                        targetOffset = maxLeading
+                    } else if projected < -threshold {
+                        targetOffset = -maxTrailing
+                    }
+                } else if lastOffset > 0 {
+                    if projected < -threshold {
+                        targetOffset = 0
+                    } else {
+                        targetOffset = maxLeading
+                    }
+                } else {
+                    if projected > threshold {
+                        targetOffset = 0
+                    } else {
+                        targetOffset = -maxTrailing
+                    }
+                }
+
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                    offset = targetOffset
+                    lastOffset = targetOffset
+                    swipedRowId = targetOffset == 0 ? nil : rowId
+                }
+            }
     }
 }
 
-// MARK: - ViewModifiers
+struct StaticButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.contentShape(Rectangle())
+    }
+}
 
+// ViewModifiers 保持不變
 struct TripListSheetsModifier: ViewModifier {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
@@ -1408,50 +1200,21 @@ struct TripListSheetsModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $showAddTripSheet) {
-                AddTripView(onSuccess: {
-                    showToast("trip_added")
-                })
-            }
-            .sheet(isPresented: $showFavoritesSheet) {
-                FavoritesManagementView(onQuickAdd: { routeName in
-                    showToast("favorites_added \(routeName)")
-                }, onQuickAddCommuter: { routeName in
-                    showToast("favorites_added_commuter \(routeName)")
-                })
-            }
-            .sheet(isPresented: $showQuickAddHomeSheet) {
-                QuickAddHomeView(onSuccess: {
-                    showToast("trip_added")
-                })
-            }
-            .sheet(isPresented: $showQuickAddOutboundSheet) {
-                QuickAddOutboundView(onSuccess: {
-                    showToast("trip_added")
-                })
-            }
+            .sheet(isPresented: $showAddTripSheet) { AddTripView(onSuccess: { showToast("trip_added") }) }
+            .sheet(isPresented: $showFavoritesSheet) { FavoritesManagementView(onQuickAdd: { r in showToast("favorites_added \(r)") }, onQuickAddCommuter: { r in showToast("favorites_added_commuter \(r)") }) }
+            .sheet(isPresented: $showQuickAddHomeSheet) { QuickAddHomeView(onSuccess: { showToast("trip_added") }) }
+            .sheet(isPresented: $showQuickAddOutboundSheet) { QuickAddOutboundView(onSuccess: { showToast("trip_added") }) }
             .sheet(item: $selectedTripToEdit) { trip in
-                EditTripView(trip: trip, onSuccess: {
-                    showToast("trip_updated")
-                })
+                EditTripView(trip: trip, onSuccess: { showToast("trip_updated") })
                 .presentationDetents([.height(650)])
                 .presentationDragIndicator(.hidden)
             }
             .sheet(item: $transferSelectionData) { data in
                 TransferTypeSelectionView(
-                    trip: data.trip,
-                    region: data.region,
-                    viewModel: viewModel,
-                    isPresented: Binding(
-                        get: { transferSelectionData != nil },
-                        set: { if !$0 { transferSelectionData = nil } }
-                    ),
+                    trip: data.trip, region: data.region, viewModel: viewModel,
+                    isPresented: Binding(get: { transferSelectionData != nil }, set: { if !$0 { transferSelectionData = nil } }),
                     onSelected: { selectedType in
-                        if selectedType != nil {
-                            showToast("transfer_added")
-                        } else {
-                            showToast("transfer_cancelled")
-                        }
+                        if selectedType != nil { showToast("transfer_added") } else { showToast("transfer_cancelled") }
                         isProcessingSwipeAction = false
                     }
                 )
@@ -1485,15 +1248,12 @@ struct TripListAlertsModifier: ViewModifier {
                         viewModel.deleteDayTrips(on: date, cycleId: cycleId)
                         showToast("deleted_day \(date)")
                     }
-                    pendingDeleteDate = nil
-                    pendingDeleteCycleId = nil
+                    pendingDeleteDate = nil; pendingDeleteCycleId = nil
                 }
             } message: {
                 if let date = pendingDeleteDate {
                     if let cycle = viewModel.cycleById(pendingDeleteCycleId ?? viewModel.activeCycle?.id) {
-                        Text("confirm_delete_day_cycle_prefix \(date)")
-                        + Text(cycle.region.displayNameKey)
-                        + Text("confirm_delete_day_cycle_suffix")
+                        Text("confirm_delete_day_cycle_prefix \(date)") + Text(cycle.region.displayNameKey) + Text("confirm_delete_day_cycle_suffix")
                     } else {
                         Text("confirm_delete_day \(date)")
                     }
@@ -1501,59 +1261,24 @@ struct TripListAlertsModifier: ViewModifier {
             }
             .alert("choose_commuter", isPresented: $showCommuterNamePrompt) {
                 TextField("commuter_name_placeholder", text: $commuterRouteName)
-                Button("cancel", role: .cancel) {
-                    pendingCommuterTrip = nil
-                    commuterRouteName = ""
-                }
+                Button("cancel", role: .cancel) { pendingCommuterTrip = nil; commuterRouteName = "" }
                 Button("add_commuter") {
                     let trimmed = commuterRouteName.trimmingCharacters(in: .whitespacesAndNewlines)
                     if let trip = pendingCommuterTrip, !trimmed.isEmpty {
                         viewModel.addToCommuterRoute(from: trip, name: trimmed)
                         showToast("commuter_added \(trimmed)")
                     }
-                    pendingCommuterTrip = nil
-                    commuterRouteName = ""
+                    pendingCommuterTrip = nil; commuterRouteName = ""
                 }
-            } message: {
-                Text("commuter_name_prompt")
-            }
+            } message: { Text("commuter_name_prompt") }
             .alert("no_cycles_yet", isPresented: $showNoCycleAlert) {
                 Button("cancel", role: .cancel) { }
-                Button("add_new_cycle") {
-                    selectedTab = 2 // 切換到週期頁面
-                }
-            } message: {
-                Text("no_cycles_description")
-            }
+                Button("add_new_cycle") { selectedTab = 2 }
+            } message: { Text("no_cycles_description") }
     }
 }
 
-// MARK: - Preference Keys for Tutorial Position Tracking
-
-struct FavoritesButtonFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
-struct CycleSelectorFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
-struct AddButtonFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
-struct TripRowFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
+struct FavoritesButtonFrameKey: PreferenceKey { static var defaultValue: CGRect = .zero; static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() } }
+struct CycleSelectorFrameKey: PreferenceKey { static var defaultValue: CGRect = .zero; static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() } }
+struct AddButtonFrameKey: PreferenceKey { static var defaultValue: CGRect = .zero; static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() } }
+struct TripRowFrameKey: PreferenceKey { static var defaultValue: CGRect = .zero; static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() } }

@@ -356,6 +356,7 @@
       }
     },
     "a11y_cycle" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -372,6 +373,7 @@
       }
     },
     "a11y_cycle_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -404,6 +406,7 @@
       }
     },
     "a11y_day_actions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -436,10 +439,8 @@
         }
       }
     },
-    "a11y_day_actions_hint %@" : {
-
-    },
     "a11y_end_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -456,6 +457,7 @@
       }
     },
     "a11y_favorites" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -472,6 +474,7 @@
       }
     },
     "a11y_favorites_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -504,6 +507,7 @@
       }
     },
     "a11y_has_note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -536,6 +540,7 @@
       }
     },
     "a11y_list_separator" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -664,6 +669,7 @@
       }
     },
     "a11y_original_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -680,6 +686,7 @@
       }
     },
     "a11y_paid_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -728,6 +735,7 @@
       }
     },
     "a11y_quick_add_departure" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -744,6 +752,7 @@
       }
     },
     "a11y_quick_add_departure_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -760,6 +769,7 @@
       }
     },
     "a11y_quick_add_home" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -776,6 +786,7 @@
       }
     },
     "a11y_quick_add_home_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -808,6 +819,7 @@
       }
     },
     "a11y_route_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -872,6 +884,7 @@
       }
     },
     "a11y_start_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -888,6 +901,7 @@
       }
     },
     "a11y_station_range_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -920,6 +934,7 @@
       }
     },
     "a11y_time_format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2691,6 +2706,7 @@
       }
     },
     "confirm_duplicate_day" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2726,6 +2742,7 @@
 
     },
     "continue_copy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2758,6 +2775,7 @@
       }
     },
     "copied_day_to %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4030,6 +4048,7 @@
       }
     },
     "duplicate_day_select_message" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4046,6 +4065,7 @@
       }
     },
     "duplicate_day_select_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4110,6 +4130,7 @@
       }
     },
     "duplicate_trip_past_message" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4126,6 +4147,7 @@
       }
     },
     "duplicate_trip_past_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4421,6 +4443,7 @@
     },
     "first_time_hint_message" : {
       "comment" : "Message for first-time user hint about flexible cycle",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4438,6 +4461,7 @@
     },
     "first_time_hint_title" : {
       "comment" : "Title for first-time user hint",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10253,6 +10277,7 @@
       }
     },
     "voice_quick_trip_a11y" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
