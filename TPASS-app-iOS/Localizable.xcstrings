@@ -11124,6 +11124,22 @@
     "無符合條件的 log" : {
 
     },
+    "無綁定卡片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不綁定卡片（目前無卡片）"
+          }
+        }
+      }
+    },
     "無資料" : {
 
     },
@@ -11185,6 +11201,9 @@
 
     },
     "複製完成" : {
+
+    },
+    "請先新增卡片後再繼續" : {
 
     },
     "請切換上方狀態查看其他紀錄。" : {

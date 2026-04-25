@@ -417,10 +417,42 @@ struct AddCycleView: View {
             Form {
                 Section(header: Text("transit_card"), footer: Text("card_binding_description")) {
                     if cards.isEmpty {
-                        NavigationLink("create_first_card") {
-                            TransitCardManagementView()
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("無綁定卡片")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(themeManager.primaryTextColor)
+
+                            NavigationLink {
+                                TransitCardManagementView()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(themeManager.accentColor)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("create_first_card")
+                                            .font(.subheadline)
+                                            .foregroundColor(themeManager.primaryTextColor)
+                                        Text("請先新增卡片後再繼續")
+                                            .font(.caption)
+                                            .foregroundColor(themeManager.secondaryTextColor)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(themeManager.secondaryTextColor)
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(themeManager.accentColor.opacity(0.08))
+                                )
+                            }
                         }
-                        .foregroundColor(.secondary)
                     } else {
                         Picker("transit_card", selection: $selectedCardId) {
                             Text("no_card_selected").tag(nil as String?)
@@ -545,10 +577,34 @@ struct EditCycleView: View {
             Form {
                 Section(header: Text("transit_card"), footer: Text("card_binding_description")) {
                     if cards.isEmpty {
-                        NavigationLink("create_first_card") {
-                            TransitCardManagementView()
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("無綁定卡片")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(themeManager.primaryTextColor)
+
+                            NavigationLink {
+                                TransitCardManagementView()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(themeManager.accentColor)
+                                    Text("create_first_card")
+                                        .font(.subheadline)
+                                        .foregroundColor(themeManager.primaryTextColor)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(themeManager.secondaryTextColor)
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(themeManager.accentColor.opacity(0.08))
+                                )
+                            }
                         }
-                        .foregroundColor(.secondary)
                     } else {
                         Picker("transit_card", selection: $selectedCardId) {
                             Text("no_card_selected").tag(nil as String?)
@@ -958,26 +1014,36 @@ struct AddFlexibleCycleView: View {
             
             VStack(spacing: 10) {
                 if cards.isEmpty {
-                    NavigationLink {
-                        TransitCardManagementView()
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                                .foregroundColor(flexibleCycleColor)
-                            Text("create_first_card")
-                                .font(.subheadline)
-                                .foregroundColor(themeManager.primaryTextColor)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(themeManager.secondaryTextColor)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("無綁定卡片")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(themeManager.primaryTextColor)
+
+                        NavigationLink {
+                            TransitCardManagementView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(flexibleCycleColor)
+
+                                Text("create_first_card")
+                                    .font(.subheadline)
+                                    .foregroundColor(themeManager.primaryTextColor)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(themeManager.secondaryTextColor)
+                            }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(flexibleCycleColor.opacity(0.08))
+                            )
                         }
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(flexibleCycleColor.opacity(0.08))
-                        )
                     }
                 } else {
                     Button {
