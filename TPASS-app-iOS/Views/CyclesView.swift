@@ -435,16 +435,9 @@ struct AddCycleView: View {
                                         Text("create_first_card")
                                             .font(.subheadline)
                                             .foregroundColor(themeManager.primaryTextColor)
-                                        Text("請先新增卡片後再繼續")
-                                            .font(.caption)
-                                            .foregroundColor(themeManager.secondaryTextColor)
                                     }
 
                                     Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(themeManager.secondaryTextColor)
                                 }
                                 .padding(16)
                                 .background(
@@ -594,9 +587,6 @@ struct EditCycleView: View {
                                         .font(.subheadline)
                                         .foregroundColor(themeManager.primaryTextColor)
                                     Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(themeManager.secondaryTextColor)
                                 }
                                 .padding(16)
                                 .background(
@@ -1033,10 +1023,6 @@ struct AddFlexibleCycleView: View {
                                     .foregroundColor(themeManager.primaryTextColor)
 
                                 Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(themeManager.secondaryTextColor)
                             }
                             .padding(16)
                             .background(
