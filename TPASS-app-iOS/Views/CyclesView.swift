@@ -956,33 +956,103 @@ struct AddFlexibleCycleView: View {
                     .foregroundColor(themeManager.primaryTextColor)
             }
             
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
                 if cards.isEmpty {
                     NavigationLink {
                         TransitCardManagementView()
                     } label: {
                         HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(flexibleCycleColor)
                             Text("create_first_card")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(themeManager.primaryTextColor)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(themeManager.secondaryTextColor)
                         }
                         .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(flexibleCycleColor.opacity(0.08))
+                        )
                     }
                 } else {
-                    Picker("transit_card", selection: $selectedCardId) {
-                        Text("no_card_selected").tag(nil as String?)
-                        ForEach(cards) { card in
-                            Text(card.name).tag(card.id.uuidString as String?)
+                    Button {
+                        HapticManager.shared.impact(style: .light)
+                        selectedCardId = nil
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "creditcard")
+                                .font(.system(size: 18))
+                                .foregroundColor(themeManager.secondaryTextColor)
+
+                            Text("no_card_selected")
+                                .font(.subheadline)
+                                .foregroundColor(themeManager.primaryTextColor)
+
+                            Spacer()
+
+                            Image(systemName: selectedCardId == nil ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 18))
+                                .foregroundColor(selectedCardId == nil ? flexibleCycleColor : themeManager.secondaryTextColor.opacity(0.35))
                         }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 13)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(selectedCardId == nil ? flexibleCycleColor.opacity(0.12) : themeManager.cardBackgroundColor)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(selectedCardId == nil ? flexibleCycleColor.opacity(0.55) : themeManager.secondaryTextColor.opacity(0.2), lineWidth: 1)
+                        )
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .buttonStyle(.plain)
+
+                    ForEach(cards) { card in
+                        let cardId = card.id.uuidString
+                        let isSelected = selectedCardId == cardId
+
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            selectedCardId = cardId
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "creditcard.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(isSelected ? flexibleCycleColor : themeManager.secondaryTextColor)
+
+                                Text(card.name)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(themeManager.primaryTextColor)
+                                    .lineLimit(1)
+
+                                Spacer()
+
+                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(isSelected ? flexibleCycleColor : themeManager.secondaryTextColor.opacity(0.35))
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 13)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(isSelected ? flexibleCycleColor.opacity(0.12) : themeManager.cardBackgroundColor)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isSelected ? flexibleCycleColor.opacity(0.55) : themeManager.secondaryTextColor.opacity(0.2), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
+            .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(themeManager.cardBackgroundColor)
