@@ -44,6 +44,9 @@
     ":" : {
 
     },
+    "·" : {
+
+    },
     "(" : {
 
     },
@@ -92,6 +95,16 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ ↔ %2$@"
+          }
+        }
+      }
+    },
+    "%@ | %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ | %2$@"
           }
         }
       }
@@ -1158,6 +1171,22 @@
         }
       }
     },
+    "add_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增卡片"
+          }
+        }
+      }
+    },
     "add_commuter" : {
       "localizations" : {
         "en" : {
@@ -1829,6 +1858,9 @@
         }
       }
     },
+    "balance: %lld" : {
+
+    },
     "bike" : {
       "localizations" : {
         "en" : {
@@ -1944,6 +1976,122 @@
           }
         }
       }
+    },
+    "card_binding_description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R1/R2 commuter rebates are calculated per card. You can leave this unbound if not needed."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R1/R2 常客回饋會分卡計算，一般情況下可選擇不綁定即可。"
+          }
+        }
+      }
+    },
+    "card_info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Card Info"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片資訊"
+          }
+        }
+      }
+    },
+    "card_initial_balance" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Initial Balance"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "初始餘額"
+          }
+        }
+      }
+    },
+    "card_name_placeholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter card name"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入卡片名稱"
+          }
+        }
+      }
+    },
+    "card_type" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Card Type"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片類型"
+          }
+        }
+      }
+    },
+    "card_type_custom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自訂"
+          }
+        }
+      }
+    },
+    "card_type_tpass" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TPASS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TPASS 專用"
+          }
+        }
+      }
+    },
+    "cardId: %@" : {
+
     },
     "chiayi_tainan_description" : {
       "comment" : "Description for Chiayi & Tainan plan",
@@ -2657,6 +2805,22 @@
         }
       }
     },
+    "confirm_delete_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Card?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確定刪除卡片？"
+          }
+        }
+      }
+    },
     "confirm_delete_day %@" : {
       "localizations" : {
         "en" : {
@@ -2817,6 +2981,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 趟"
+          }
+        }
+      }
+    },
+    "create_first_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create First Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增第一張卡片"
           }
         }
       }
@@ -3432,6 +3612,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除"
+          }
+        }
+      }
+    },
+    "delete_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除卡片"
+          }
+        }
+      }
+    },
+    "delete_card_warning" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This action cannot be undone."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除後無法復原。"
           }
         }
       }
@@ -4187,6 +4399,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "編輯"
+          }
+        }
+      }
+    },
+    "edit_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯卡片"
           }
         }
       }
@@ -6247,6 +6475,54 @@
         }
       }
     },
+    "no_card_selected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不綁定卡片"
+          }
+        }
+      }
+    },
+    "no_cards_description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add cards to track usage across different transit passes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增卡片以追蹤不同載具的使用情況"
+          }
+        }
+      }
+    },
+    "no_cards_yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Cards Yet"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未新增卡片"
+          }
+        }
+      }
+    },
     "no_cycles_description" : {
       "localizations" : {
         "en" : {
@@ -7364,7 +7640,40 @@
         }
       }
     },
+    "rebate_r2_mrt_item %@ %lld %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ TPE Metro (incl. Circular Line) (%2$lld trips) %3$lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 北捷(含環狀線) (%2$lld 趟) %3$lld%%"
+          }
+        }
+      }
+    },
+    "rebate_r2_nt_lrt_item %@ %lld %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ New Taipei Metro (%2$lld trips) %3$lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 新北捷運-輕軌 (%2$lld 趟) %3$lld%%"
+          }
+        }
+      }
+    },
     "rebate_r2_rail_item %@ %lld %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7376,6 +7685,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ 鐵路 (%2$lld 趟) %3$lld%%"
+          }
+        }
+      }
+    },
+    "rebate_r2_tra_item %@ %lld %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ TR (%2$lld trips) %3$lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 台鐵 (%2$lld 趟) %3$lld%%"
           }
         }
       }
@@ -9015,6 +9340,41 @@
           }
         }
       }
+    },
+    "transit_card" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transit Card"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "綁定卡片"
+          }
+        }
+      }
+    },
+    "transit_card_management" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Card Management"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片管理"
+          }
+        }
+      }
+    },
+    "TransitCard" : {
+
     },
     "transport_type" : {
       "localizations" : {

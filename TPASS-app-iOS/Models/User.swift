@@ -42,6 +42,7 @@ struct Cycle: Identifiable, Codable, Hashable {
     var displayName: String?
     var region: TPASSRegion = .north  // 綁定該週期的方案
     var selectedModes: [TransportType]?  // 彈性週期：使用者選擇的運具（nil 表示全選）
+    var cardId: String?  // 綁定的卡片 ID (TransitCard.id.uuidString)
 
     var title: String {
         if let name = displayName, !name.isEmpty { return name }
@@ -59,7 +60,7 @@ struct Cycle: Identifiable, Codable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, start, end, displayName, region, selectedModes
+        case id, start, end, displayName, region, selectedModes, cardId
     }
     
     //  讀取邏輯 (Decoding)
@@ -105,6 +106,9 @@ struct Cycle: Identifiable, Codable, Hashable {
         
         // 讀取彈性週期的運具選擇（向後相容：舊資料無此欄位時為 nil）
         selectedModes = try? container.decode([TransportType].self, forKey: .selectedModes)
+        
+        // 讀取綁定的卡片 ID（向後相容：舊資料無此欄位時為 nil）
+        cardId = try? container.decode(String.self, forKey: .cardId)
     }
     
     // 寫入 (Encoding)
@@ -117,16 +121,18 @@ struct Cycle: Identifiable, Codable, Hashable {
         try container.encode(Int64(end.timeIntervalSince1970 * 1000), forKey: .end)
         try container.encode(region.rawValue, forKey: .region)
         try container.encodeIfPresent(selectedModes, forKey: .selectedModes)
+        try container.encodeIfPresent(cardId, forKey: .cardId)
     }
     
     // 手動建立用
-    init(id: String = UUID().uuidString, start: Date, end: Date, displayName: String? = nil, region: TPASSRegion = .north, selectedModes: [TransportType]? = nil) {
+    init(id: String = UUID().uuidString, start: Date, end: Date, displayName: String? = nil, region: TPASSRegion = .north, selectedModes: [TransportType]? = nil, cardId: String? = nil) {
         self.id = id
         self.start = start
         self.end = end
         self.displayName = displayName
         self.region = region
         self.selectedModes = selectedModes
+        self.cardId = cardId
     }
 }
 

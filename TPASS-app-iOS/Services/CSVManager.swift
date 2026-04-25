@@ -6,7 +6,7 @@ class CSVManager {
     @MainActor static let shared = CSVManager()
     
     // 定義 CSV 表頭 (使用英文欄位名，確保跨語言相容)
-    private let header = "id,date,type,startStation,endStation,price,paidPrice,isTransfer,isFree,routeId,note,transferDiscountType,cycleId"
+    private let header = "id,date,type,startStation,endStation,price,paidPrice,isTransfer,isFree,routeId,note,transferDiscountType,cycleId,cardId"
     
     // 日期格式設定 (固定格式，避免受使用者手機地區設定影響)
     private let dateFormatter: DateFormatter = {
@@ -38,7 +38,8 @@ class CSVManager {
                 trip.routeId,
                 cleanNote,
                 trip.transferDiscountType?.rawValue ?? "", //     新增：轉乘優惠類型
-                trip.cycleId ?? "" //     新增：週期 ID
+                trip.cycleId ?? "", //     新增：週期 ID
+                trip.cardId ?? "" //     新增：卡片 ID
             ].joined(separator: ",")
             
             csvString.append(row + "\n")
@@ -121,6 +122,14 @@ class CSVManager {
                 }
             }
             
+            var cardId: String? = nil
+            if columns.count >= 14 {
+                let cardIdRaw = columns[13].trimmingCharacters(in: .whitespaces)
+                if !cardIdRaw.isEmpty {
+                    cardId = cardIdRaw
+                }
+            }
+            
             // 3. 建立 SwiftData 物件
             let newTrip = Trip(
                 id: id, // 使用 CSV 裡的舊 ID，確保資料一致性
@@ -136,7 +145,8 @@ class CSVManager {
                 routeId: columns[9],
                 note: note,
                 transferDiscountType: transferDiscountType,
-                cycleId: cycleId
+                cycleId: cycleId,
+                cardId: cardId
             )
             
             context.insert(newTrip)

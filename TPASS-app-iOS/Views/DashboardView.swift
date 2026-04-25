@@ -1,10 +1,12 @@
 import SwiftUI
 import Charts
+import SwiftData
 
 struct DashboardView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     @AppStorage("AppLanguage") private var appLanguage: String = "zh-Hant"
     
     @Environment(\.colorScheme) var colorScheme
@@ -40,6 +42,11 @@ struct DashboardView: View {
     }
     
     private var isBreakeven: Bool { roiValue >= 100 }
+
+    private func cardName(for cardId: String?) -> String? {
+        guard let cardId else { return nil }
+        return cards.first(where: { $0.id.uuidString == cardId })?.name
+    }
     
     var body: some View {
         NavigationView { dashboardRoot }
@@ -156,6 +163,15 @@ struct DashboardView: View {
                         Text(cycle.region.displayNameKey)
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
+                        if let cardName = cardName(for: cycle.cardId) {
+                            Text("·")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor.opacity(0.8))
+                            Text(cardName)
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                                .lineLimit(1)
+                        }
                         Spacer()
                     }
                 }
@@ -694,8 +710,12 @@ struct DashboardView: View {
                 return Text("rebate_r1_tra_item \(formattedMonth) \(detail.count) \(detail.percent)")
             case .r2Bus:
                 return Text("rebate_r2_bus_item \(formattedMonth) \(detail.count) \(detail.percent)")
-            case .r2Rail:
-                return Text("rebate_r2_rail_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r2Tra:
+                return Text("rebate_r2_tra_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r2Mrt:
+                return Text("rebate_r2_mrt_item \(formattedMonth) \(detail.count) \(detail.percent)")
+            case .r2NewTaipeiLrt:
+                return Text("rebate_r2_nt_lrt_item \(formattedMonth) \(detail.count) \(detail.percent)")
             }
         }
         

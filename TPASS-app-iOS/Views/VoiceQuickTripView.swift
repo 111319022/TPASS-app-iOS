@@ -72,6 +72,10 @@ struct VoiceQuickTripView: View {
         viewModel.activeCycle?.id
     }
     
+    private var currentCardId: String? {
+        viewModel.activeCycle?.cardId
+    }
+    
     private var currentIdentity: Identity {
         auth.currentUser?.identity ?? .adult
     }
@@ -1215,7 +1219,8 @@ struct VoiceQuickTripView: View {
                 routeId: seg.routeId,
                 note: seg.note,
                 transferDiscountType: seg.transferDiscountType,
-                cycleId: currentCycleId
+                cycleId: currentCycleId,
+                cardId: currentCardId
             )
             
             viewModel.addTrip(newTrip)

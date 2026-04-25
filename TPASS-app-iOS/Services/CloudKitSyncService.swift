@@ -41,6 +41,7 @@ struct TripSnapshot: Codable, Hashable {
     let note: String
     let cycleId: String?
     let transferDiscountTypeRaw: String?
+    let cardId: String?
 }
 
 struct FavoriteRouteSnapshot: Codable, Hashable {
@@ -60,6 +61,7 @@ struct CycleSnapshot: Codable, Hashable {
     let end: Date
     let displayName: String?
     let regionRaw: String
+    let cardId: String?
 
     init(cycle: Cycle) {
         self.id = cycle.id
@@ -67,6 +69,7 @@ struct CycleSnapshot: Codable, Hashable {
         self.end = cycle.end
         self.displayName = cycle.displayName
         self.regionRaw = cycle.region.rawValue
+        self.cardId = cycle.cardId
     }
 }
 
@@ -650,7 +653,8 @@ class CloudKitSyncService: ObservableObject {
             routeId: snapshot.routeId,
             note: snapshot.note,
             transferDiscountType: transferDiscountType,
-            cycleId: snapshot.cycleId
+            cycleId: snapshot.cycleId,
+            cardId: snapshot.cardId
         )
     }
 
@@ -675,13 +679,15 @@ class CloudKitSyncService: ObservableObject {
         let calendar = Calendar.current
         let startAtMidnight = calendar.startOfDay(for: snapshot.start)
         let endAtMidnight = calendar.startOfDay(for: snapshot.end)
-        return Cycle(
+        var cycle = Cycle(
             id: snapshot.id,
             start: startAtMidnight,
             end: endAtMidnight,
             displayName: snapshot.displayName,
             region: region
         )
+        cycle.cardId = snapshot.cardId
+        return cycle
     }
 
     private func snapshotToCommuterRoute(_ snapshot: CommuterRouteSnapshot) -> CommuterRoute {

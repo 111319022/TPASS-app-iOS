@@ -194,9 +194,126 @@ enum TPASSSchemaV2: VersionedSchema {
     }
 }
 
+enum TPASSSchemaV3: VersionedSchema {
+    static var versionIdentifier: Schema.Version = .init(3, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [Trip.self, FavoriteRoute.self, CommuterRoute.self, UserSettingsModel.self, TransitCard.self]
+    }
+
+    @Model
+    final class Trip {
+        @Attribute(.unique) var id: String
+        var userId: String
+        var createdAt: Date
+        var type: TransportType
+        var originalPrice: Int
+        var paidPrice: Int
+        var isTransfer: Bool
+        var isFree: Bool
+        var startStation: String
+        var endStation: String
+        var routeId: String
+        var note: String
+        var cycleId: String?
+        var transferDiscountType: TransferDiscountType?
+        var cardId: String?  // V3 新增：綁定的卡片 ID
+
+        init(id: String, userId: String, createdAt: Date, type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String, transferDiscountType: TransferDiscountType? = nil, cycleId: String? = nil, cardId: String? = nil) {
+            self.id = id
+            self.userId = userId
+            self.createdAt = createdAt
+            self.type = type
+            self.originalPrice = originalPrice
+            self.paidPrice = paidPrice
+            self.isTransfer = isTransfer
+            self.isFree = isFree
+            self.startStation = startStation
+            self.endStation = endStation
+            self.routeId = routeId
+            self.note = note
+            self.transferDiscountType = transferDiscountType
+            self.cycleId = cycleId
+            self.cardId = cardId
+        }
+    }
+
+    @Model
+    final class FavoriteRoute {
+        @Attribute(.unique) var id: UUID
+        var type: TransportType
+        var startStation: String
+        var endStation: String
+        var routeId: String
+        var price: Int
+        var isTransfer: Bool
+        var isFree: Bool
+        var transferDiscountType: TransferDiscountType?
+
+        init(id: UUID, type: TransportType, startStation: String, endStation: String, routeId: String, price: Int, isTransfer: Bool, isFree: Bool, transferDiscountType: TransferDiscountType? = nil) {
+            self.id = id
+            self.type = type
+            self.startStation = startStation
+            self.endStation = endStation
+            self.routeId = routeId
+            self.price = price
+            self.isTransfer = isTransfer
+            self.isFree = isFree
+            self.transferDiscountType = transferDiscountType
+        }
+    }
+
+    @Model
+    final class CommuterRoute {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var trips: [CommuterTripTemplate]
+
+        init(id: UUID, name: String, trips: [CommuterTripTemplate]) {
+            self.id = id
+            self.name = name
+            self.trips = trips
+        }
+    }
+
+    @Model
+    final class UserSettingsModel {
+        @Attribute(.unique) var userId: String
+        var identity: String
+        var isCloudSyncEnabled: Bool
+        var hasMigratedFromFirebase: Bool
+        var hasMigratedFromLocal: Bool
+
+        init(userId: String, identity: String, isCloudSyncEnabled: Bool, hasMigratedFromFirebase: Bool, hasMigratedFromLocal: Bool) {
+            self.userId = userId
+            self.identity = identity
+            self.isCloudSyncEnabled = isCloudSyncEnabled
+            self.hasMigratedFromFirebase = hasMigratedFromFirebase
+            self.hasMigratedFromLocal = hasMigratedFromLocal
+        }
+    }
+
+    @Model
+    final class TransitCard {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var type: TransitCardType
+        var initialBalance: Int
+        var createdAt: Date
+
+        init(id: UUID = UUID(), name: String, type: TransitCardType = .custom, initialBalance: Int = 0, createdAt: Date = Date()) {
+            self.id = id
+            self.name = name
+            self.type = type
+            self.initialBalance = initialBalance
+            self.createdAt = createdAt
+        }
+    }
+}
+
 enum TPASSMigrationPlan: SchemaMigrationPlan {
     static var schemas: [VersionedSchema.Type] {
-        [TPASSSchemaV1.self, TPASSSchemaV2.self]
+        [TPASSSchemaV1.self, TPASSSchemaV2.self, TPASSSchemaV3.self]
     }
 
     static var stages: [MigrationStage] {
@@ -208,9 +325,8 @@ enum TPASSMigrationPlan: SchemaMigrationPlan {
                    },
                    didMigrate: { context in
                        print("✅ 完成遷移: V1 -> V2")
-                       // 這裡可以添加資料轉換邏輯
-                       // 但因為只是添加可選欄位，SwiftData 會自動處理
-                   })
+                   }),
+            .lightweight(fromVersion: TPASSSchemaV2.self, toVersion: TPASSSchemaV3.self)
         ]
     }
 }

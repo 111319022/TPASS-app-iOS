@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 
 struct CyclesView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var viewModel: AppViewModel
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     
     @State private var showAddCycleSheet = false
     @State private var selectedCycleForEdit: Cycle? = nil
@@ -237,6 +239,16 @@ struct CyclesView: View {
                         Text(cycleDateRange(cycle))
                             .font(.subheadline)
                             .foregroundColor(themeManager.secondaryTextColor)
+                        
+                        if let name = cardName(for: cycle.cardId) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "creditcard.fill")
+                                    .font(.caption2)
+                                Text(name)
+                                    .font(.caption)
+                            }
+                            .foregroundColor(themeManager.accentColor.opacity(0.8))
+                        }
                     }
                     
                     Spacer()
@@ -309,6 +321,12 @@ struct CyclesView: View {
         .padding(.top, 60)
     }
     
+    // MARK: - 卡片輔助方法
+    private func cardName(for cardId: String?) -> String? {
+        guard let cardId else { return nil }
+        return cards.first(where: { $0.id.uuidString == cardId })?.name
+    }
+    
     // MARK: - 辅助方法
     private func cycleDateRange(_ cycle: Cycle) -> String {
         let formatter = DateFormatter()
@@ -340,11 +358,13 @@ struct AddCycleView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     
     @State private var startDate = Date()
     @State private var endDate = Date()
     @State private var selectedRegion: TPASSRegion = .north
     @State private var showOverlapAlert = false
+    @State private var selectedCardId: String? = nil
     
     init() {
         // 初始化：開始日期為今天0:00，結束日期為今天+29天0:00（含開始日共30天）
@@ -395,6 +415,22 @@ struct AddCycleView: View {
     var body: some View {
         NavigationView {
             Form {
+                Section(header: Text("transit_card"), footer: Text("card_binding_description")) {
+                    if cards.isEmpty {
+                        NavigationLink("create_first_card") {
+                            TransitCardManagementView()
+                        }
+                        .foregroundColor(.secondary)
+                    } else {
+                        Picker("transit_card", selection: $selectedCardId) {
+                            Text("no_card_selected").tag(nil as String?)
+                            ForEach(cards) { card in
+                                Text(card.name).tag(card.id.uuidString as String?)
+                            }
+                        }
+                    }
+                }
+                
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
                         .onChange(of: startDate) { oldDate, newDate in
@@ -436,7 +472,7 @@ struct AddCycleView: View {
                         } else {
                             // 儲存前給予震動回饋
                             HapticManager.shared.impact(style: .medium)
-                            auth.addCycle(start: startDate, end: endDate, region: selectedRegion)
+                            auth.addCycle(start: startDate, end: endDate, region: selectedRegion, cardId: selectedCardId)
                             
                             let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
                             if isCycleNotifOn {
@@ -455,7 +491,7 @@ struct AddCycleView: View {
                 Button("proceed", role: .destructive) {
                     // 進行覆蓋操作前給予警告震動
                     HapticManager.shared.notification(type: .warning)
-                    auth.addCycle(start: startDate, end: endDate, region: selectedRegion)
+                    auth.addCycle(start: startDate, end: endDate, region: selectedRegion, cardId: selectedCardId)
                     
                     let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
                     if isCycleNotifOn {
@@ -478,6 +514,7 @@ struct EditCycleView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var viewModel: AppViewModel
     @EnvironmentObject var themeManager: ThemeManager
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     
     let cycle: Cycle
     
@@ -485,6 +522,7 @@ struct EditCycleView: View {
     @State private var endDate: Date
     @State private var selectedRegion: TPASSRegion
     @State private var selectedModes: Set<TransportType>
+    @State private var selectedCardId: String?
     @State private var showDeleteConfirmation = false
     
     init(cycle: Cycle) {
@@ -496,6 +534,7 @@ struct EditCycleView: View {
         _startDate = State(initialValue: startOfDayStart)
         _endDate = State(initialValue: startOfDayEnd)
         _selectedRegion = State(initialValue: cycle.region)
+        _selectedCardId = State(initialValue: cycle.cardId)
         // 彈性週期：讀取已儲存的運具選擇，nil 表示全選
         let modes = cycle.selectedModes ?? Array(TPASSRegion.flexible.supportedModes)
         _selectedModes = State(initialValue: Set(modes))
@@ -504,6 +543,22 @@ struct EditCycleView: View {
     var body: some View {
         NavigationView {
             Form {
+                Section(header: Text("transit_card"), footer: Text("card_binding_description")) {
+                    if cards.isEmpty {
+                        NavigationLink("create_first_card") {
+                            TransitCardManagementView()
+                        }
+                        .foregroundColor(.secondary)
+                    } else {
+                        Picker("transit_card", selection: $selectedCardId) {
+                            Text("no_card_selected").tag(nil as String?)
+                            ForEach(cards) { card in
+                                Text(card.name).tag(card.id.uuidString as String?)
+                            }
+                        }
+                    }
+                }
+                
                 Section {
                     DatePicker("start_date", selection: $startDate, displayedComponents: .date)
                         .onChange(of: startDate) { oldDate, newDate in
@@ -609,7 +664,7 @@ struct EditCycleView: View {
                         HapticManager.shared.impact(style: .medium)
                         let allModes = TPASSRegion.flexible.supportedModes
                         let modesToSave: [TransportType]? = (selectedRegion == .flexible && selectedModes.count < allModes.count) ? Array(selectedModes) : nil
-                        auth.updateCycle(cycle, start: startDate, end: endDate, region: selectedRegion, selectedModes: modesToSave)
+                        auth.updateCycle(cycle, start: startDate, end: endDate, region: selectedRegion, selectedModes: modesToSave, cardId: selectedCardId)
                         viewModel.refreshSelectedCycle()
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -635,6 +690,7 @@ struct AddFlexibleCycleView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     
     @State private var startDate = Date()
     @State private var endDate = Date()
@@ -642,6 +698,7 @@ struct AddFlexibleCycleView: View {
     @State private var showInfoSheet = false  // 顯示說明頁面
     @State private var selectedModes: Set<TransportType> = Set(TPASSRegion.flexible.supportedModes)
     @State private var showModeRequiredAlert = false
+    @State private var selectedCardId: String? = nil
     
     init() {
         // 初始化：自動設定為當月月初到月底
@@ -680,6 +737,9 @@ struct AddFlexibleCycleView: View {
                     VStack(spacing: 24) {
                         // 🎨 標題區塊
                         headerSection
+                        
+                        // 💳 卡片選擇
+                        cardSelectionSection
                         
                         // 📅 日期選擇
                         dateSection
@@ -885,6 +945,60 @@ struct AddFlexibleCycleView: View {
         )
     }
     
+    // MARK: - 卡片選擇
+    private var cardSelectionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "creditcard.fill")
+                    .foregroundColor(flexibleCycleColor)
+                Text("transit_card")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            VStack(spacing: 0) {
+                if cards.isEmpty {
+                    NavigationLink {
+                        TransitCardManagementView()
+                    } label: {
+                        HStack {
+                            Text("create_first_card")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(16)
+                    }
+                } else {
+                    Picker("transit_card", selection: $selectedCardId) {
+                        Text("no_card_selected").tag(nil as String?)
+                        ForEach(cards) { card in
+                            Text(card.name).tag(card.id.uuidString as String?)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(themeManager.cardBackgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(flexibleCycleColor.opacity(0.2), lineWidth: 1)
+            )
+            
+            Text("card_binding_description")
+                .font(.caption)
+                .foregroundColor(themeManager.secondaryTextColor)
+                .padding(.horizontal, 4)
+        }
+    }
+    
     // MARK: - 功能說明
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -998,7 +1112,7 @@ struct AddFlexibleCycleView: View {
         HapticManager.shared.impact(style: .medium)
         let allModes = TPASSRegion.flexible.supportedModes
         let modesToSave: [TransportType]? = selectedModes.count == allModes.count ? nil : Array(selectedModes)
-        auth.addCycle(start: startDate, end: endDate, region: .flexible, selectedModes: modesToSave)
+        auth.addCycle(start: startDate, end: endDate, region: .flexible, selectedModes: modesToSave, cardId: selectedCardId)
         
         let isCycleNotifOn = UserDefaults.standard.bool(forKey: "isCycleReminderEnabled")
         if isCycleNotifOn {

@@ -371,7 +371,8 @@ struct BackupManagementView: View {
                         routeId: $0.routeId,
                         note: $0.note,
                         cycleId: $0.cycleId,
-                        transferDiscountTypeRaw: $0.transferDiscountType?.rawValue
+                        transferDiscountTypeRaw: $0.transferDiscountType?.rawValue,
+                        cardId: $0.cardId
                     )
                 }
                 let favorites = appViewModel.favorites.map {

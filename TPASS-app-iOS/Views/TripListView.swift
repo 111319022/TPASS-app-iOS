@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // 轉乘選擇資料結構
 struct TransferSelectionData: Identifiable {
@@ -824,6 +825,7 @@ struct CycleSelectorView: View {
     @EnvironmentObject var auth: AuthService
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.colorScheme) var colorScheme
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
     @State private var showCyclePickerSheet = false
     
     var cardBackground: Color {
@@ -836,6 +838,11 @@ struct CycleSelectorView: View {
 
     private var sortedCycles: [Cycle] {
         (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
+    }
+
+    private func cardName(for cardId: String?) -> String? {
+        guard let cardId else { return nil }
+        return cards.first(where: { $0.id.uuidString == cardId })?.name
     }
 
     private var cycleAccessibilityValue: Text {
@@ -861,14 +868,23 @@ struct CycleSelectorView: View {
                         .font(.caption2)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
-                if let region = viewModel.activeCycle?.region ?? auth.currentUser?.cycles.first?.region {
+                if let cycle = viewModel.activeCycle ?? sortedCycles.first {
                     HStack(spacing: 6) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.caption2)
                             .foregroundColor(themeManager.accentColor)
-                        Text(region.displayNameKey)
+                        Text(cycle.region.displayNameKey)
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
+                        if let cardName = cardName(for: cycle.cardId) {
+                            Text("·")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor.opacity(0.8))
+                            Text(cardName)
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                                .lineLimit(1)
+                        }
                         Spacer()
                     }
                 }
@@ -895,6 +911,7 @@ struct CyclePickerSheet: View {
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
+    @Query(sort: \TransitCard.createdAt, order: .reverse) private var cards: [TransitCard]
 
     private var sortedCycles: [Cycle] {
         (auth.currentUser?.cycles ?? []).sorted { $0.start > $1.start }
@@ -906,6 +923,11 @@ struct CyclePickerSheet: View {
         case .dark: return Color(uiColor: .secondarySystemGroupedBackground)
         case .system: return colorScheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
         }
+    }
+
+    private func cardName(for cardId: String?) -> String? {
+        guard let cardId else { return nil }
+        return cards.first(where: { $0.id.uuidString == cardId })?.name
     }
 
     var body: some View {
@@ -952,6 +974,15 @@ struct CyclePickerSheet: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         Text(cycle.region.displayNameKey).font(.subheadline).fontWeight(.bold).foregroundColor(themeManager.primaryTextColor)
+                        if let cardName = cardName(for: cycle.cardId) {
+                            Text("·")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor.opacity(0.8))
+                            Text(cardName)
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                                .lineLimit(1)
+                        }
                         if isCurrent {
                             Text("active").font(.caption2).fontWeight(.semibold).foregroundColor(.white).padding(.horizontal, 6).padding(.vertical, 2).background(themeManager.accentColor).cornerRadius(4)
                         }

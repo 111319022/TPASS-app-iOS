@@ -696,7 +696,9 @@ struct AddTripView: View {
             return
         }
 
-        let resolvedCycleId = viewModel.cycleForTrip(date: finalDate)?.id ?? currentCycleId
+        let resolvedCycle = viewModel.cycleForTrip(date: finalDate)
+        let resolvedCycleId = resolvedCycle?.id ?? currentCycleId
+        let resolvedCardId = resolvedCycle?.cardId
 
         let newTrip = Trip(
             id: UUID().uuidString,
@@ -712,7 +714,8 @@ struct AddTripView: View {
             routeId: routeId,
             note: note,
             transferDiscountType: transferDiscountType,
-            cycleId: resolvedCycleId
+            cycleId: resolvedCycleId,
+            cardId: resolvedCardId
         )
         viewModel.addTrip(newTrip)
         

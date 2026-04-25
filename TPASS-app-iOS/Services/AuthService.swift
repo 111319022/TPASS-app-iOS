@@ -177,7 +177,7 @@ final class AuthService: NSObject, ObservableObject {
         }
     }
     
-    func addCycle(start: Date, end: Date, region: TPASSRegion = .north, selectedModes: [TransportType]? = nil) {
+    func addCycle(start: Date, end: Date, region: TPASSRegion = .north, selectedModes: [TransportType]? = nil, cardId: String? = nil) {
         guard var user = currentUser else { return }
         
         let idVal = Int64(Date().timeIntervalSince1970 * 1000)
@@ -187,7 +187,7 @@ final class AuthService: NSObject, ObservableObject {
         let startAtMidnight = calendar.startOfDay(for: start)
         let endAtMidnight = calendar.startOfDay(for: end)
         
-        let newCycle = Cycle(id: String(idVal), start: startAtMidnight, end: endAtMidnight, region: region, selectedModes: selectedModes)
+        let newCycle = Cycle(id: String(idVal), start: startAtMidnight, end: endAtMidnight, region: region, selectedModes: selectedModes, cardId: cardId)
         
         user.cycles.insert(newCycle, at: 0)
         currentUser = user
@@ -201,7 +201,7 @@ final class AuthService: NSObject, ObservableObject {
         saveLocalUser()
     }
     
-    func updateCycle(_ cycle: Cycle, start: Date, end: Date, region: TPASSRegion, selectedModes: [TransportType]? = nil) {
+    func updateCycle(_ cycle: Cycle, start: Date, end: Date, region: TPASSRegion, selectedModes: [TransportType]? = nil, cardId: String? = nil) {
         guard var user = currentUser else { return }
         if let index = user.cycles.firstIndex(where: { $0.id == cycle.id }) {
             // 🔧 確保日期是午夜時間
@@ -213,6 +213,7 @@ final class AuthService: NSObject, ObservableObject {
             user.cycles[index].end = endAtMidnight
             user.cycles[index].region = region
             user.cycles[index].selectedModes = selectedModes
+            user.cycles[index].cardId = cardId
             currentUser = user
             saveLocalUser()
         }

@@ -549,7 +549,8 @@ struct EditTripView: View {
             routeId: routeId,
             note: note,
             transferDiscountType: transferDiscountType,
-            cycleId: trip.cycleId ?? resolvedCycleForTrip?.id
+            cycleId: trip.cycleId ?? resolvedCycleForTrip?.id,
+            cardId: trip.cardId ?? resolvedCycleForTrip?.cardId
         )
         
         viewModel.updateTrip(updatedTrip)

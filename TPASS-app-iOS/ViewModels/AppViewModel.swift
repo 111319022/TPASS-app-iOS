@@ -29,7 +29,9 @@ struct FinancialBreakdown {
     enum RebateKind: String {
         case r1Mrt
         case r1Tra
-        case r2Rail
+        case r2Tra
+        case r2Mrt
+        case r2NewTaipeiLrt
         case r2Bus
     }
 
@@ -303,12 +305,15 @@ class AppViewModel: ObservableObject {
         if let cycle = activeCycle {
             let range = cycleDateRange(for: cycle)
             let cycleId = cycle.id
+            let cycleCardId = cycle.cardId
             
             result = trips.filter { trip in
                 // 先檢查日期範圍（最快的過濾條件）
                 guard trip.createdAt >= range.start && trip.createdAt <= range.end else { return false }
                 // 如果有 cycleId 就直接比對
                 if let tripCycleId = trip.cycleId { return tripCycleId == cycleId }
+                // 如果週期有綁定卡片，只包含同卡片的行程（解決數據失真）
+                if let cCardId = cycleCardId, let tCardId = trip.cardId { return tCardId == cCardId }
                 // 否則推論
                 if let inferred = resolveCycle(for: trip.createdAt) { return inferred.id == cycleId }
                 return true
@@ -365,6 +370,8 @@ class AppViewModel: ObservableObject {
         }
         var cycleMonthlyStats: [String: MonthStats] = [:]
         var globalMonthlyCounts: [String: [TransportType: Int]] = [:]
+        var cycleMonthlyR2EligibleLRTPaid: [String: Int] = [:]
+        var globalMonthlyR2EligibleLRTCount: [String: Int] = [:]
         
         let targetTrips = filteredTrips
         
@@ -385,15 +392,43 @@ class AppViewModel: ObservableObject {
             monthStats.paidSums[trip.type, default: 0] += trip.paidPrice
             monthStats.counts[trip.type, default: 0] += 1
             cycleMonthlyStats[monthKey] = monthStats
+
+            if isR2EligibleLRTTrip(trip) {
+                cycleMonthlyR2EligibleLRTPaid[monthKey, default: 0] += trip.paidPrice
+            }
         }
         
         // � R2 跨方案計算：統計所有週期在同一日曆月的搭乘次數（不限當前週期）
         // 這樣才能正確計算跨方案的回饋百分比
+        // 若 activeCycle 有綁定卡片，只計算同卡片的行程，避免 TPASS 0 元行程干擾常客回饋
+        let activeCardId = activeCycle?.cardId
+
+        // 預先建立 cycleId → cardId 查找表，避免重複查詢
+        let allCycles = AuthService.shared.currentUser?.cycles ?? []
+        let cycleCardMap: [String: String?] = Dictionary(
+            uniqueKeysWithValues: allCycles.map { ($0.id, $0.cardId) }
+        )
+
         for trip in trips {  // 使用所有 trips，不只是 targetTrips
+            // 若 activeCycle 有綁定卡片，需檢查此行程所屬週期是否綁定同一張卡
+            if let cId = activeCardId {
+                if let tripCycleId = trip.cycleId {
+                    // 有 cycleId → 查該週期的 cardId
+                    let tripCycleCardId = cycleCardMap[tripCycleId] ?? nil
+                    if tripCycleCardId != cId { continue }
+                } else {
+                    // 無 cycleId（舊資料）→ fallback 用 trip.cardId
+                    if trip.cardId != cId { continue }
+                }
+            }
             let monthKey = String(trip.dateStr.prefix(7))
             var monthCounts = globalMonthlyCounts[monthKey] ?? [:]
             monthCounts[trip.type, default: 0] += 1
             globalMonthlyCounts[monthKey] = monthCounts
+
+            if isR2EligibleLRTTrip(trip) {
+                globalMonthlyR2EligibleLRTCount[monthKey, default: 0] += 1
+            }
         }
         
         var r1_total = 0
@@ -449,32 +484,54 @@ class AppViewModel: ObservableObject {
                 )
             }
             
-            //     R2軌道類：包含所有捷運系統 + 台鐵 + 輕軌（跨方案計算）
-            let c_mrt = gCounts[.mrt] ?? 0
-            let c_tra = gCounts[.tra] ?? 0
-            let c_tymrt = gCounts[.tymrt] ?? 0
-            let c_tcmrt = gCounts[.tcmrt] ?? 0
-            let c_kmrt = gCounts[.kmrt] ?? 0
-            let c_lrt = gCounts[.lrt] ?? 0
-            let railCount = c_mrt + c_tra + c_tymrt + c_tcmrt + c_kmrt + c_lrt
-            
-            let p_mrt = stats.paidSums[.mrt] ?? 0
-            let p_tra = stats.paidSums[.tra] ?? 0
-            let p_tymrt = stats.paidSums[.tymrt] ?? 0
-            let p_tcmrt = stats.paidSums[.tcmrt] ?? 0
-            let p_kmrt = stats.paidSums[.kmrt] ?? 0
-            let p_lrt = stats.paidSums[.lrt] ?? 0
-            let railPaid = p_mrt + p_tra + p_tymrt + p_tcmrt + p_kmrt + p_lrt
-            
-            if railCount >= 11 {
-                let rebate = Int(Double(railPaid) * 0.02)
+            //     R2 軌道類分開計算：台鐵 / 北捷(含環狀線) / 新北捷運-輕軌(淡海、安坑)
+            let r2TraCount = gCounts[.tra] ?? 0
+            let r2TraPaid = stats.paidSums[.tra] ?? 0
+            if r2TraCount >= 11 {
+                let rebate = Int(Double(r2TraPaid) * 0.02)
                 r2_total += rebate
                 if rebate > 0 {
                     r2_list.append(
                         FinancialBreakdown.RebateDetail(
-                            kind: .r2Rail,
+                            kind: .r2Tra,
                             month: month,
-                            count: railCount,
+                            count: r2TraCount,
+                            percent: 2,
+                            amount: rebate
+                        )
+                    )
+                }
+            }
+
+            let r2MrtCount = gCounts[.mrt] ?? 0
+            let r2MrtPaid = stats.paidSums[.mrt] ?? 0
+            if r2MrtCount >= 11 {
+                let rebate = Int(Double(r2MrtPaid) * 0.02)
+                r2_total += rebate
+                if rebate > 0 {
+                    r2_list.append(
+                        FinancialBreakdown.RebateDetail(
+                            kind: .r2Mrt,
+                            month: month,
+                            count: r2MrtCount,
+                            percent: 2,
+                            amount: rebate
+                        )
+                    )
+                }
+            }
+
+            let newTaipeiLrtCount = globalMonthlyR2EligibleLRTCount[month] ?? 0
+            let newTaipeiLrtPaid = cycleMonthlyR2EligibleLRTPaid[month] ?? 0
+            if newTaipeiLrtCount >= 11 {
+                let rebate = Int(Double(newTaipeiLrtPaid) * 0.02)
+                r2_total += rebate
+                if rebate > 0 {
+                    r2_list.append(
+                        FinancialBreakdown.RebateDetail(
+                            kind: .r2NewTaipeiLrt,
+                            month: month,
+                            count: newTaipeiLrtCount,
                             percent: 2,
                             amount: rebate
                         )
@@ -534,6 +591,32 @@ class AppViewModel: ObservableObject {
             r1Details: r1_list,
             r2Details: r2_list
         )
+    }
+
+    @MainActor
+    private func isR2EligibleLRTTrip(_ trip: Trip) -> Bool {
+        guard trip.type == .lrt else { return false }
+
+        let routeUpper = trip.routeId.uppercased()
+        if routeUpper == "NTDLRT" || routeUpper == "NTALRT" {
+            return true
+        }
+
+        let routeText = trip.routeId
+        if routeText.contains("淡海") || routeText.contains("安坑") {
+            return true
+        }
+
+        let normalizedStart = LRTStationData.shared.normalizeStationNameToZH(trip.startStation)
+        let normalizedEnd = LRTStationData.shared.normalizeStationNameToZH(trip.endStation)
+
+        let eligibleStationNames = Set(
+            LRTStationData.shared.lines
+                .filter { $0.code == "NTDLRT" || $0.code == "NTALRT" }
+                .flatMap { $0.stations.map(\ .nameZH) }
+        )
+
+        return eligibleStationNames.contains(normalizedStart) || eligibleStationNames.contains(normalizedEnd)
     }
     
     // MARK: - 通勤 DNA
@@ -843,7 +926,7 @@ class AppViewModel: ObservableObject {
         }
         
         let createdAt = createdAtOverride ?? Date()
-        let cycleId = cycleForTrip(date: createdAt)?.id
+        let resolvedCycle = cycleForTrip(date: createdAt)
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
@@ -858,7 +941,8 @@ class AppViewModel: ObservableObject {
             routeId: fav.routeId,
             note: "",
             transferDiscountType: fav.transferDiscountType,
-            cycleId: cycleId
+            cycleId: resolvedCycle?.id,
+            cardId: resolvedCycle?.cardId
         )
         
         addTrip(newTrip)
@@ -888,7 +972,7 @@ class AppViewModel: ObservableObject {
             let resolvedTransferDiscountType = resolvedTransferDiscountType(for: template, region: region)
             let paidPrice = paidPriceForTemplate(template, transferDiscountType: resolvedTransferDiscountType)
 
-            let cycleId = cycleForTrip(date: createdAt)?.id
+            let resolvedCycle = cycleForTrip(date: createdAt)
             let newTrip = Trip(
                 id: UUID().uuidString,
                 userId: userId,
@@ -903,7 +987,8 @@ class AppViewModel: ObservableObject {
                 routeId: template.routeId,
                 note: template.note,
                 transferDiscountType: resolvedTransferDiscountType,
-                cycleId: cycleId
+                cycleId: resolvedCycle?.id,
+                cardId: resolvedCycle?.cardId
             )
 
             context.insert(newTrip)
@@ -1007,6 +1092,7 @@ class AppViewModel: ObservableObject {
             original.note = trip.note
             original.transferDiscountType = trip.transferDiscountType
             original.cycleId = trip.cycleId
+            original.cardId = trip.cardId
             saveContext()
             // 🔧 優化：只清除快取，不重新載入
             _filteredTripsCache = nil
@@ -1125,7 +1211,9 @@ class AppViewModel: ObservableObject {
     func duplicateTrip(_ trip: Trip) {
         guard let userId = currentUserId else { return }
         let createdAt = preferredDuplicateDate(for: trip)
-        let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
+        let resolvedCycle = cycleForTrip(date: createdAt)
+        let cycleId = trip.cycleId ?? resolvedCycle?.id
+        let cardId = trip.cardId ?? resolvedCycle?.cardId
         let newTrip = Trip(
             id: UUID().uuidString,
             userId: userId,
@@ -1140,7 +1228,8 @@ class AppViewModel: ObservableObject {
             routeId: trip.routeId,
             note: trip.note,
             transferDiscountType: trip.transferDiscountType,
-            cycleId: cycleId
+            cycleId: cycleId,
+            cardId: cardId
         )
         modelContext?.insert(newTrip)
         saveContext()
@@ -1158,7 +1247,9 @@ class AppViewModel: ObservableObject {
         let newStart = shouldSwap ? trip.endStation : trip.startStation
         let newEnd = shouldSwap ? trip.startStation : trip.endStation
         let createdAt = preferredDuplicateDate(for: trip)
-        let cycleId = trip.cycleId ?? cycleForTrip(date: createdAt)?.id
+        let resolvedCycle = cycleForTrip(date: createdAt)
+        let cycleId = trip.cycleId ?? resolvedCycle?.id
+        let cardId = trip.cardId ?? resolvedCycle?.cardId
         
         let newTrip = Trip(
             id: UUID().uuidString,
@@ -1174,7 +1265,8 @@ class AppViewModel: ObservableObject {
             routeId: trip.routeId,
             note: trip.note,
             transferDiscountType: trip.transferDiscountType,
-            cycleId: cycleId
+            cycleId: cycleId,
+            cardId: cardId
         )
         modelContext?.insert(newTrip)
         saveContext()
@@ -1224,7 +1316,9 @@ class AppViewModel: ObservableObject {
                 second: comps.second ?? 0,
                 of: normalizedTarget
             ) ?? normalizedTarget
-            let cycleId = resolvedTargetCycleId ?? trip.cycleId ?? cycleForTrip(date: newDate)?.id
+            let resolvedCycle = cycleForTrip(date: newDate)
+            let cycleId = resolvedTargetCycleId ?? trip.cycleId ?? resolvedCycle?.id
+            let cardId = trip.cardId ?? resolvedCycle?.cardId
             let newTrip = Trip(
                 id: UUID().uuidString,
                 userId: userId,
@@ -1238,7 +1332,8 @@ class AppViewModel: ObservableObject {
                 endStation: trip.endStation,
                 routeId: trip.routeId,
                 note: trip.note,
-                cycleId: cycleId
+                cycleId: cycleId,
+                cardId: cardId
             )
             modelContext?.insert(newTrip)
             trips.insert(newTrip, at: 0)

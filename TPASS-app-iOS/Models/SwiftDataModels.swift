@@ -19,6 +19,7 @@ final class Trip {
     var note: String
     var transferDiscountType: TransferDiscountType? //     新增：轉乘優惠類型
     var cycleId: String? //     新增：所屬週期（避免重疊週期混算）
+    var cardId: String?  //     新增：綁定的卡片 ID（多卡管理）
     
     // 🔧 效能優化：共享 DateFormatter 避免重複建立
     private static let dateFormatter: DateFormatter = {
@@ -50,7 +51,7 @@ final class Trip {
         return components.compactMap { $0 }.joined(separator: " ")
     }
     
-    init(id: String = UUID().uuidString, userId: String, createdAt: Date = Date(), type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String, transferDiscountType: TransferDiscountType? = nil, cycleId: String? = nil) {
+    init(id: String = UUID().uuidString, userId: String, createdAt: Date = Date(), type: TransportType, originalPrice: Int, paidPrice: Int, isTransfer: Bool, isFree: Bool, startStation: String, endStation: String, routeId: String, note: String, transferDiscountType: TransferDiscountType? = nil, cycleId: String? = nil, cardId: String? = nil) {
         self.id = id
         self.userId = userId
         self.createdAt = createdAt
@@ -65,6 +66,7 @@ final class Trip {
         self.note = note
         self.transferDiscountType = transferDiscountType
         self.cycleId = cycleId
+        self.cardId = cardId
     }
 }
 

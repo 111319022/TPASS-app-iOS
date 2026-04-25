@@ -9,6 +9,7 @@ struct SwiftDataManagementView: View {
     @Query(sort: [SortDescriptor(\FavoriteRoute.id, order: .forward)]) private var favorites: [FavoriteRoute]
     @Query(sort: [SortDescriptor(\CommuterRoute.name, order: .forward)]) private var commuterRoutes: [CommuterRoute]
     @Query(sort: [SortDescriptor(\UserSettingsModel.userId, order: .forward)]) private var userSettings: [UserSettingsModel]
+    @Query(sort: [SortDescriptor(\TransitCard.createdAt, order: .reverse)]) private var transitCards: [TransitCard]
 
     @StateObject private var themeManager = ThemeManager.shared
 
@@ -38,6 +39,11 @@ struct SwiftDataManagementView: View {
                             Text("createdAt: \(Self.dateTimeFormatter.string(from: trip.createdAt))")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
+                            if let cardId = trip.cardId {
+                                Text("cardId: \(cardId)")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                         }
                         .padding(.vertical, 2)
                         .swipeActions(edge: .trailing) {
@@ -104,6 +110,34 @@ struct SwiftDataManagementView: View {
                 }
             }
 
+            Section("TransitCard") {
+                if transitCards.isEmpty {
+                    emptyRow
+                } else {
+                    ForEach(transitCards, id: \.id) { card in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("\(card.name) | \(card.type.rawValue)")
+                                .font(.headline)
+                            Text("balance: \(card.initialBalance)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("id: \(card.id.uuidString)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Text("createdAt: \(Self.dateTimeFormatter.string(from: card.createdAt))")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 2)
+                        .swipeActions(edge: .trailing) {
+                            Button("刪除", role: .destructive) {
+                                deleteTransitCard(card)
+                            }
+                        }
+                    }
+                }
+            }
+
             Section("UserSettingsModel") {
                 if userSettings.isEmpty {
                     emptyRow
@@ -159,6 +193,10 @@ struct SwiftDataManagementView: View {
 
     private func deleteCommuterRoute(_ route: CommuterRoute) {
         modelContext.delete(route)
+    }
+
+    private func deleteTransitCard(_ card: TransitCard) {
+        modelContext.delete(card)
     }
 
     private func deleteUserSetting(_ setting: UserSettingsModel) {

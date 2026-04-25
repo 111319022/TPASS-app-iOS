@@ -124,6 +124,14 @@ struct SettingsView: View {
                         }
                     }
                     
+                    // 多卡管理
+                    NavigationLink(destination: TransitCardManagementView()) {
+                        HStack {
+                            Image(systemName: "creditcard.fill").foregroundColor(.cyan)
+                            Text("transit_card_management")
+                        }
+                    }
+                    
                 } header: {
                     Text("tpassSettings")
                 } footer: {

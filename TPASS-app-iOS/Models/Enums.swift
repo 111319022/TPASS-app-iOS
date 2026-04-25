@@ -292,3 +292,18 @@ enum MetroDataSource {
     case kaohsiung   // KMRT
 }
 
+// MARK: - 卡片類型
+enum TransitCardType: String, Codable, CaseIterable, Identifiable {
+    case tpass = "tpass"
+    case custom = "custom"
+    
+    var id: String { rawValue }
+    
+    var displayName: LocalizedStringKey {
+        switch self {
+        case .tpass: return "card_type_tpass"
+        case .custom: return "card_type_custom"
+        }
+    }
+}
+
