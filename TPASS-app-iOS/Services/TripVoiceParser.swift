@@ -533,31 +533,79 @@ struct TripVoiceParser {
     }
     
     // MARK: - 運具抽取
-    
-    private static func extractTransport(_ text: String) -> (TransportType?, Double) {
-        let lowered = text.lowercased()
-        var bestMatch: (type: TransportType, keywordLength: Int, priority: Int)?
-        
-        for rule in sortedTransportRules {
-            guard let type = rule.transportType else { continue }
-            for keyword in rule.allKeywords {
-                if lowered.contains(keyword.lowercased()) {
-                    let length = keyword.count
-                    if let current = bestMatch {
-                        // 更長的關鍵字優先；同長度則 priority 小的優先
-                        if length > current.keywordLength ||
-                           (length == current.keywordLength && rule.priority < current.priority) {
-                            bestMatch = (type, length, rule.priority)
-                        }
-                    } else {
-                        bestMatch = (type, length, rule.priority)
+
+    private static func parseTransportType(from text: String, rules: VoiceNLPRules) -> TransportType? {
+        let lowercasedText = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // --- 0. 數字開頭自動判定 (最高優先級) ---
+        // 規則：3碼(含)以下為公車，4碼(含)以上為客運
+        let numberPattern = "^([0-9]{1,})"
+        if let regex = try? NSRegularExpression(pattern: numberPattern),
+           let match = regex.firstMatch(in: lowercasedText, range: NSRange(lowercasedText.startIndex..., in: lowercasedText)),
+           let range = Range(match.range(at: 1), in: lowercasedText) {
+            let numStr = String(lowercasedText[range])
+            if numStr.count >= 4 { return .coach }
+            return .bus
+        }
+
+        // --- 1. 強綁定 (Explicit Intent) ---
+
+        // A. 動詞強綁定 (有明確動詞)
+        let verbs = ["搭", "坐", "轉", "搭乘", "換"]
+        for rule in rules.transports {
+            guard let type = TransportType(rawValue: rule.id) else { continue }
+            for keyword in rule.keywords {
+                for verb in verbs {
+                    if lowercasedText.contains("\(verb)\(keyword.lowercased())") {
+                        return type
                     }
                 }
             }
         }
-        
-        if let bestMatch {
-            return (bestMatch.type, 1.0)
+
+        // B. 路線號碼強綁定 (針對「284公車」、「綠1客運」這種沒有動詞的直述句)
+        if lowercasedText.range(of: "[0-9]+[a-zA-Z]*(路|號)?\\s*(公車|市公車|客運|巴士)", options: .regularExpression) != nil {
+            if lowercasedText.contains("客運") { return .coach }
+            return .bus
+        }
+
+        // C. 特別保留：口語中常直接說「機捷」作為開頭
+        if lowercasedText.contains("機捷") || lowercasedText.contains("機場捷運") {
+            return .tymrt
+        }
+
+        // --- 2. 關鍵字比對與地標降權 (Landmark Penalty) ---
+        var candidates: [(TransportType, Int)] = []
+
+        for rule in rules.transports {
+            guard let type = TransportType(rawValue: rule.id) else { continue }
+            for keyword in rule.keywords {
+                let lowerKeyword = keyword.lowercased()
+                if lowercasedText.contains(lowerKeyword) {
+                    var currentPriority = rule.priority
+
+                    // 【精準降權邏輯】限制最多往後找 8 個字，且「絕對不能」跨越「到、至、往、->」等方向詞。
+                    // 這樣「公車...到...捷運站」中的公車就絕對不會被誤降權。
+                    let pattern = "\(lowerKeyword)[^到至往→]{0,8}站"
+                    if let regex = try? NSRegularExpression(pattern: pattern),
+                       regex.firstMatch(in: lowercasedText, range: NSRange(lowercasedText.startIndex..., in: lowercasedText)) != nil {
+                        currentPriority += 10
+                    }
+
+                    candidates.append((type, currentPriority))
+                    break // 該運具只要中一個 keyword 就記下來並計算優先級
+                }
+            }
+        }
+
+        // 優先權排序 (數字越小越優先)
+        candidates.sort { $0.1 < $1.1 }
+        return candidates.first?.0
+    }
+    
+    private static func extractTransport(_ text: String) -> (TransportType?, Double) {
+        if let type = parseTransportType(from: text, rules: rules) {
+            return (type, 1.0)
         }
         return (nil, 0.0)
     }
@@ -628,22 +676,25 @@ struct TripVoiceParser {
                let endRange = Range(match.range(at: 2), in: textWithoutTime) {
                 var startName = String(textWithoutTime[startRange]).trimmingCharacters(in: .whitespacesAndNewlines)
                 var endName = String(textWithoutTime[endRange]).trimmingCharacters(in: .whitespacesAndNewlines)
-                
-                // 移除運具關鍵字
-                startName = removeTransportKeywords(startName)
-                endName = removeTransportKeywords(endName)
-                
-                // 清理噪音詞與路線號碼
+
+                // 基本清理（移除從/到、時間前綴、路線號碼等）
                 startName = sanitizeStationCandidate(startName, transport: transport)
                 endName = sanitizeStationCandidate(endName, transport: transport)
-                
-                // 套用別名
-                startName = resolveStationAlias(startName)
-                endName = resolveStationAlias(endName)
-                
-                // 依運具做站名補全
-                startName = normalizeStationByTransport(startName, transport: transport)
-                endName = normalizeStationByTransport(endName, transport: transport)
+
+                // 公車/客運保留完整站名，不做侵入性清理
+                if transport != .bus && transport != .coach {
+                    // 只有軌道交通才移除「捷運」等運具關鍵字
+                    startName = removeTransportKeywords(startName)
+                    endName = removeTransportKeywords(endName)
+
+                    // 只有軌道交通才套用別名映射（可能包含去尾字）
+                    startName = resolveStationAlias(startName)
+                    endName = resolveStationAlias(endName)
+
+                    // 只有軌道交通才做運具專屬站名補全
+                    startName = normalizeStationByTransport(startName, transport: transport)
+                    endName = normalizeStationByTransport(endName, transport: transport)
+                }
                 
                 // 台鐵站名統一格式
                 if transport == .tra {
@@ -760,6 +811,15 @@ struct TripVoiceParser {
                     result.removeSubrange(range)
                     result = result.trimmingCharacters(in: .whitespacesAndNewlines)
                 }
+            }
+        }
+
+        // 移除站名開頭殘留的運具字眼，避免「公車臥龍街」殘留為站名
+        let transportPrefixes = ["公車", "市公車", "客運", "巴士", "國道客運"]
+        for prefix in transportPrefixes {
+            if result.hasPrefix(prefix) {
+                result.removeFirst(prefix.count)
+                result = result.trimmingCharacters(in: .whitespacesAndNewlines)
             }
         }
         
