@@ -35,6 +35,7 @@ final class VoiceInputService: ObservableObject {
     @Published var state: RecordingState = .idle
     @Published var transcript: String = ""
     @Published var elapsedSeconds: Int = 0
+    @Published var audioLevel: Float = 0.0  // 0.0~1.0 正規化音量，供波形 UI 使用
     
     /// 60 秒限制（iOS SFSpeechRecognizer 限制）
     static let maxDuration: Int = 55
@@ -174,6 +175,19 @@ final class VoiceInputService: ObservableObject {
         
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
+            
+            // 計算音量 RMS 供波形 UI 使用
+            guard let channelData = buffer.floatChannelData?[0] else { return }
+            let frameLength = Int(buffer.frameLength)
+            var sum: Float = 0
+            for i in 0..<frameLength {
+                sum += channelData[i] * channelData[i]
+            }
+            let rms = sqrtf(sum / Float(max(frameLength, 1)))
+            let normalized = min(1.0, rms * 5.0) // 放大並裁切到 0~1
+            Task { @MainActor [weak self] in
+                self?.audioLevel = normalized
+            }
         }
         
         do {
@@ -236,6 +250,7 @@ final class VoiceInputService: ObservableObject {
         stopAudioEngine()
         transcript = ""
         elapsedSeconds = 0
+        audioLevel = 0.0
         state = .idle
     }
 }

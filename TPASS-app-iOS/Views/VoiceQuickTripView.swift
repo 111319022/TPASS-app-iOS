@@ -62,6 +62,9 @@ struct VoiceQuickTripView: View {
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
     @State private var didSaveTrip: Bool = false
     
+    // 時間軸：正在編輯的段落 index（nil 表示全部收合為摘要卡片）
+    @State private var editingSegmentIndex: Int? = nil
+    
     var onSuccess: (() -> Void)? = nil
     
     private var currentRegion: TPASSRegion {
@@ -279,42 +282,41 @@ struct VoiceQuickTripView: View {
     
     // MARK: - 錄音中
     
+    /// 波形柱狀歷史紀錄
+    @State private var waveformSamples: [Float] = Array(repeating: 0, count: 30)
+    
     private var recordingPhaseContent: some View {
         VStack(spacing: 20) {
-            Spacer().frame(height: 30)
+            Spacer().frame(height: 20)
             
-            // 錄音動畫指示
-            ZStack {
-                // 脈衝環
-                Circle()
-                    .stroke(Color.red.opacity(0.3), lineWidth: 3)
-                    .frame(width: 120, height: 120)
-                    .scaleEffect(voiceService.state == .recording ? 1.3 : 1.0)
-                    .opacity(voiceService.state == .recording ? 0.0 : 0.5)
-                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: false), value: voiceService.state)
-                
+            // 錄音計時
+            HStack(spacing: 6) {
                 Circle()
                     .fill(Color.red)
-                    .frame(width: 80, height: 80)
-                
-                Image(systemName: "mic.fill")
-                    .font(.system(size: 36))
-                    .foregroundColor(.white)
+                    .frame(width: 8, height: 8)
+                Text(timerDisplay)
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
-            // 計時器
-            Text(timerDisplay)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            // 進度條（55秒限制）
-            ProgressView(value: Double(voiceService.elapsedSeconds), total: Double(VoiceInputService.maxDuration))
-                .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
-                .padding(.horizontal, 40)
-            
-            Text("voice_listening")
-                .font(.subheadline)
-                .foregroundColor(themeManager.secondaryTextColor)
+            // 波形視覺化區域
+            ZStack {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(themeManager.cardBackgroundColor)
+                    .frame(height: 180)
+                
+                // 波形柱狀圖
+                HStack(spacing: 3) {
+                    ForEach(Array(waveformSamples.enumerated()), id: \.offset) { _, sample in
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(themeManager.accentColor.opacity(0.7))
+                            .frame(width: 4, height: max(4, CGFloat(sample) * 100))
+                    }
+                }
+                .frame(height: 120)
+                .animation(.easeOut(duration: 0.1), value: waveformSamples)
+            }
+            .padding(.horizontal, 4)
             
             // 即時轉寫文字
             if !voiceService.transcript.isEmpty {
@@ -325,9 +327,18 @@ struct VoiceQuickTripView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(themeManager.cardBackgroundColor)
                     .cornerRadius(12)
+            } else {
+                Text("voice_listening")
+                    .font(.subheadline)
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
-            Spacer().frame(height: 20)
+            // 進度條（55秒限制）
+            ProgressView(value: Double(voiceService.elapsedSeconds), total: Double(VoiceInputService.maxDuration))
+                .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
+                .padding(.horizontal, 20)
+            
+            Spacer()
             
             // 停止按鈕
             Button(action: stopRecording) {
@@ -339,9 +350,9 @@ struct VoiceQuickTripView: View {
                 }
                 .foregroundColor(.white)
                 .padding(.vertical, 16)
-                .padding(.horizontal, 40)
+                .frame(maxWidth: .infinity)
                 .background(Color.red)
-                .cornerRadius(30)
+                .cornerRadius(14)
                 .shadow(color: Color.red.opacity(0.3), radius: 8, x: 0, y: 4)
             }
         }
@@ -349,6 +360,13 @@ struct VoiceQuickTripView: View {
             // 當 voiceService 自動停止（55秒到達）時觸發解析
             if newState == .idle && phase == .recording {
                 parseTranscript()
+            }
+        }
+        .onChange(of: voiceService.audioLevel) { _, newLevel in
+            // 滾動更新波形歷史
+            waveformSamples.append(newLevel)
+            if waveformSamples.count > 30 {
+                waveformSamples.removeFirst()
             }
         }
     }
@@ -669,43 +687,73 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    /// 進到下一個缺漏欄位，或全部補完後跳到 simplePreview
+    /// 進到下一個缺漏欄位，或全部補完後跳到時間軸
     private func advanceMissingField() {
         let nextIndex = missingFieldIndex + 1
         if nextIndex < missingFields.count {
             missingFieldIndex = nextIndex
         } else {
-            // 全部補完
-            phase = .simplePreview
+            // 全部補完 → 進入時間軸
+            editingSegmentIndex = nil
+            phase = .advancedEditor
             HapticManager.shared.notification(type: .success)
         }
     }
     
-    // MARK: - V3：進階編輯器（原 preview）
+    // MARK: - V3：時間軸編輯器（票券時間軸 A→B→C）
     
     private var advancedEditorContent: some View {
-        VStack(spacing: 16) {
-            // V3：提示辨識結果可能有誤
-            HStack(spacing: 8) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
-                Text("voice_advanced_editor_hint")
-                    .font(.subheadline)
-                    .foregroundColor(themeManager.secondaryTextColor)
+        VStack(spacing: 0) {
+            // 標題列：行程時間軸
+            HStack {
+                Text("voice_timeline_title")
+                    .font(.headline)
+                    .foregroundColor(themeManager.primaryTextColor)
+                Spacer()
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.orange.opacity(0.08))
-            .cornerRadius(10)
+            .padding(.bottom, 12)
             
-            // 多段時間軸
-            ForEach(Array(segments.enumerated()), id: \.element.id) { index, _ in
+            // 時間軸段落列表
+            ForEach(Array(segments.enumerated()), id: \.element.id) { index, seg in
                 // 轉乘連接線（第二段以後）
                 if index > 0 {
                     transferConnector
                 }
                 
-                segmentCard(at: index)
+                if editingSegmentIndex == index {
+                    // 展開：完整編輯卡片
+                    VStack(spacing: 0) {
+                        // 編輯標題列
+                        HStack {
+                            Text("編輯第 \(index + 1) 段")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(themeManager.primaryTextColor)
+                            Spacer()
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    editingSegmentIndex = nil
+                                }
+                            }) {
+                                HStack(spacing: 4) {
+                                    Text("voice_collapse_editor")
+                                        .font(.caption)
+                                    Image(systemName: "chevron.up")
+                                        .font(.caption)
+                                }
+                                .foregroundColor(themeManager.accentColor)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.top, 12)
+                        .padding(.bottom, 4)
+                        
+                        segmentCard(at: index)
+                    }
+                } else {
+                    // 收合：摘要卡片
+                    segmentSummaryCard(at: index, segment: seg)
+                }
             }
             
             // + 手動加入下一段轉乘
@@ -725,8 +773,21 @@ struct VoiceQuickTripView: View {
                         .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
                 )
             }
+            .padding(.top, 12)
             
-            Spacer().frame(height: 10)
+            // 缺漏提示
+            if !canSaveAll {
+                HStack(spacing: 6) {
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                    Text("voice_fill_required_hint")
+                        .font(.caption)
+                }
+                .foregroundColor(.orange)
+                .padding(.top, 12)
+            }
+            
+            Spacer().frame(height: 16)
             
             // 操作按鈕
             VStack(spacing: 12) {
@@ -734,19 +795,14 @@ struct VoiceQuickTripView: View {
                 Button(action: saveDraftsAsTrips) {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                        if segments.count > 1 {
-                            Text("voice_confirm_save_count \(segments.count)")
-                                .fontWeight(.bold)
-                        } else {
-                            Text("voice_confirm_save")
-                                .fontWeight(.bold)
-                        }
+                        Text("voice_confirm_save_count \(segments.count)")
+                            .fontWeight(.bold)
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(canSaveAll ? themeManager.accentColor : Color.gray.opacity(0.4))
-                    .cornerRadius(12)
+                    .cornerRadius(14)
                 }
                 .disabled(!canSaveAll)
                 
@@ -775,6 +831,134 @@ struct VoiceQuickTripView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - 摘要卡片（收合狀態）
+    
+    /// 段落摘要卡片：顯示運具、起迄站、票價，點 ✏ 展開編輯
+    private func segmentSummaryCard(at index: Int, segment seg: SegmentEditState) -> some View {
+        let transportColor = seg.transportType.map { themeManager.transportColor($0) } ?? themeManager.accentColor
+        let isMissing = seg.transportType == nil || seg.startStation.isEmpty || seg.endStation.isEmpty
+        
+        return HStack(spacing: 12) {
+            // 左側：段落編號圓圈
+            ZStack {
+                Circle()
+                    .fill(isMissing ? Color.orange.opacity(0.15) : transportColor.opacity(0.15))
+                    .frame(width: 36, height: 36)
+                
+                if let type = seg.transportType {
+                    Image(systemName: type.systemIconName)
+                        .font(.system(size: 14))
+                        .foregroundColor(transportColor)
+                } else {
+                    Text("\(index + 1)")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                }
+            }
+            
+            // 中間：站名與運具資訊
+            VStack(alignment: .leading, spacing: 4) {
+                // 運具標籤
+                if let type = seg.transportType {
+                    Text(type.displayName)
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(transportColor)
+                }
+                
+                // 起迄站
+                if !seg.startStation.isEmpty || !seg.endStation.isEmpty {
+                    HStack(spacing: 4) {
+                        Text(displayStationName(seg.startStation.isEmpty ? "?" : seg.startStation, transportType: seg.transportType))
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(seg.startStation.isEmpty ? .orange : themeManager.primaryTextColor)
+                        Image(systemName: "arrow.right")
+                            .font(.caption2)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Text(displayStationName(seg.endStation.isEmpty ? "?" : seg.endStation, transportType: seg.transportType))
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(seg.endStation.isEmpty ? .orange : themeManager.primaryTextColor)
+                    }
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                } else {
+                    Text("voice_tap_to_fill")
+                        .font(.subheadline)
+                        .foregroundColor(.orange)
+                }
+                
+                // 缺漏警告
+                if isMissing {
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption2)
+                        Text("voice_missing_fields_hint")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(.orange)
+                }
+            }
+            
+            Spacer()
+            
+            // 右側：票價 + 編輯按鈕
+            VStack(alignment: .trailing, spacing: 4) {
+                if let originalPrice = Int(seg.price), originalPrice > 0 {
+                    let paidPrice = calculatePaidPrice(
+                        originalPrice: originalPrice,
+                        isFree: seg.isFree,
+                        isTransfer: seg.isTransfer,
+                        transferDiscountType: seg.transferDiscountType
+                    )
+                    if paidPrice != originalPrice {
+                        // 有折扣：原價劃掉 + 實付價
+                        Text("$\(originalPrice)")
+                            .font(.caption2)
+                            .strikethrough()
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Text("$\(paidPrice)")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(transportColor)
+                    } else {
+                        Text("$\(originalPrice)")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(transportColor)
+                    }
+                }
+                
+                // 轉乘標記
+                if seg.isTransfer {
+                    Text("voice_auto_transfer_hint")
+                        .font(.caption2)
+                        .foregroundColor(.green)
+                }
+            }
+            
+            // 編輯按鈕
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    editingSegmentIndex = index
+                }
+            }) {
+                Image(systemName: "pencil.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.6))
+            }
+        }
+        .padding(12)
+        .background(themeManager.cardBackgroundColor)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isMissing ? Color.orange.opacity(0.4) : themeManager.secondaryTextColor.opacity(0.15), lineWidth: isMissing ? 1.5 : 1)
+        )
     }
     
     /// 段落卡片（使用 VoiceSegmentEditorCard）
@@ -1052,7 +1236,7 @@ struct VoiceQuickTripView: View {
             return seg
         }
         
-        // V3：根據解析結果分流
+        // V4：根據解析結果分流 — 統一使用時間軸視圖
         let firstParsed = parsedArray[0]
         
         if firstParsed.isLowConfidence {
@@ -1066,33 +1250,11 @@ struct VoiceQuickTripView: View {
                     reason: .lowConfidence
                 )
             }
-        } else if parsedArray.count > 1 {
-            // 多段轉乘 → advancedEditor
-            phase = .advancedEditor
-            HapticManager.shared.notification(type: .success)
-        } else if firstParsed.isHighConfidence && firstParsed.hasRequiredFields {
-            // 高信心 & 欄位齊全 → simplePreview (Magic Card)
-            phase = .simplePreview
-            HapticManager.shared.notification(type: .success)
-        } else if !firstParsed.hasRequiredFields {
-            // 中/高信心但缺欄位 → missingInfo
-            var missing: [MissingField] = []
-            if segments[0].transportType == nil { missing.append(.transportType) }
-            if segments[0].startStation.isEmpty { missing.append(.startStation) }
-            if segments[0].endStation.isEmpty { missing.append(.endStation) }
-            
-            if missing.isEmpty {
-                // 理論上不該到這，但安全起見
-                phase = .simplePreview
-                HapticManager.shared.notification(type: .success)
-            } else {
-                missingFields = missing
-                missingFieldIndex = 0
-                phase = .missingInfo
-            }
         } else {
-            // 中信心但欄位齊全 → advancedEditor 讓使用者確認
+            // 所有成功解析（不論單段/多段、欄位是否齊全）→ 時間軸視圖
+            editingSegmentIndex = nil
             phase = .advancedEditor
+            HapticManager.shared.notification(type: .success)
         }
     }
 
@@ -1419,6 +1581,8 @@ struct VoiceQuickTripView: View {
         segments = []
         missingFields = []
         missingFieldIndex = 0
+        editingSegmentIndex = nil
+        waveformSamples = Array(repeating: 0, count: 30)
         phase = .ready
     }
     

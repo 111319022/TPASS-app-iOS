@@ -10016,6 +10016,7 @@
       }
     },
     "voice_advanced_editor_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10107,6 +10108,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "語音辨識目前僅支援中文"
+          }
+        }
+      }
+    },
+    "voice_collapse_editor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collapse"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收合"
           }
         }
       }
@@ -10421,6 +10438,22 @@
         }
       }
     },
+    "voice_fill_required_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fill in all required fields to save"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "補完才能儲存"
+          }
+        }
+      }
+    },
     "voice_listening" : {
       "localizations" : {
         "en" : {
@@ -10449,6 +10482,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請問您搭到哪一站？"
+          }
+        }
+      }
+    },
+    "voice_missing_fields_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing fields"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺站缺"
           }
         }
       }
@@ -10826,6 +10875,38 @@
         }
       }
     },
+    "voice_tap_to_fill" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to fill in"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點擊填寫"
+          }
+        }
+      }
+    },
+    "voice_timeline_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trip Timeline"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "行程時間軸"
+          }
+        }
+      }
+    },
     "voice_tra_out_of_range_message" : {
       "localizations" : {
         "en" : {
@@ -11183,6 +11264,9 @@
 
     },
     "系統資訊" : {
+
+    },
+    "編輯第 %lld 段" : {
 
     },
     "繁體中文" : {
