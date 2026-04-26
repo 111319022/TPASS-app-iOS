@@ -835,79 +835,108 @@ struct VoiceQuickTripView: View {
     
     // MARK: - 摘要卡片（收合狀態）
     
-    /// 段落摘要卡片：顯示運具、起迄站、票價，點 ✏ 展開編輯
+    /// 段落摘要卡片：票券風格（左色條 + 運具大字 + 起迄站垂直 + 底部票價列）
     private func segmentSummaryCard(at index: Int, segment seg: SegmentEditState) -> some View {
         let transportColor = seg.transportType.map { themeManager.transportColor($0) } ?? themeManager.accentColor
         let isMissing = seg.transportType == nil || seg.startStation.isEmpty || seg.endStation.isEmpty
         
-        return HStack(spacing: 12) {
-            // 左側：段落編號圓圈
-            ZStack {
-                Circle()
-                    .fill(isMissing ? Color.orange.opacity(0.15) : transportColor.opacity(0.15))
-                    .frame(width: 36, height: 36)
-                
-                if let type = seg.transportType {
-                    Image(systemName: type.systemIconName)
-                        .font(.system(size: 14))
-                        .foregroundColor(transportColor)
-                } else {
-                    Text("\(index + 1)")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                }
-            }
+        return HStack(spacing: 0) {
+            // 左側色條
+            RoundedRectangle(cornerRadius: 2)
+                .fill(isMissing ? Color.orange : transportColor)
+                .frame(width: 4)
+                .padding(.vertical, 4)
             
-            // 中間：站名與運具資訊
-            VStack(alignment: .leading, spacing: 4) {
-                // 運具標籤
-                if let type = seg.transportType {
-                    Text(type.displayName)
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(transportColor)
-                }
-                
-                // 起迄站
-                if !seg.startStation.isEmpty || !seg.endStation.isEmpty {
-                    HStack(spacing: 4) {
-                        Text(displayStationName(seg.startStation.isEmpty ? "?" : seg.startStation, transportType: seg.transportType))
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(seg.startStation.isEmpty ? .orange : themeManager.primaryTextColor)
-                        Image(systemName: "arrow.right")
-                            .font(.caption2)
-                            .foregroundColor(themeManager.secondaryTextColor)
-                        Text(displayStationName(seg.endStation.isEmpty ? "?" : seg.endStation, transportType: seg.transportType))
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(seg.endStation.isEmpty ? .orange : themeManager.primaryTextColor)
+            // 主內容
+            VStack(alignment: .leading, spacing: 10) {
+                // 第一區：運具標題 + 編輯按鈕
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        // 運具小標
+                        if let type = seg.transportType {
+                            Text(type.displayName)
+                                .font(.caption)
+                                .foregroundColor(transportColor)
+                        }
+                        
+                        // 運具大字：公車/客運顯示「N° 路線號」，其他顯示運具名稱
+                        if (seg.transportType == .bus || seg.transportType == .coach) {
+                            if !seg.routeId.isEmpty {
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    Text("No.")
+                                        .font(.caption)
+                                        .foregroundColor(themeManager.secondaryTextColor)
+                                    Text(seg.routeId)
+                                        .font(.title)
+                                        .foregroundColor(themeManager.primaryTextColor)
+                                }
+                            }
+                        } else if let type = seg.transportType {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                Text(transportTypeShortCode(type))
+                                    .font(.caption)
+                                    .foregroundColor(themeManager.secondaryTextColor)
+                                Text(type.displayName)
+                                    .font(.title)
+                                    .foregroundColor(themeManager.primaryTextColor)
+                            }
+                        }
                     }
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                } else {
-                    Text("voice_tap_to_fill")
-                        .font(.subheadline)
-                        .foregroundColor(.orange)
+                    
+                    Spacer()
+                    
+                    // 編輯按鈕
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            editingSegmentIndex = index
+                        }
+                    }) {
+                        Image(systemName: "pencil.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(themeManager.secondaryTextColor.opacity(0.35))
+                    }
                 }
                 
-                // 缺漏警告
-                if isMissing {
+                // 第二區：起迄站（垂直排列）
+                if !seg.startStation.isEmpty || !seg.endStation.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // 起站
+                        HStack(spacing: 8) {
+                            Circle()
+                                .stroke(themeManager.primaryTextColor, lineWidth: 1.5)
+                                .frame(width: 10, height: 10)
+                            Text(displayStationName(seg.startStation.isEmpty ? "?" : seg.startStation, transportType: seg.transportType))
+                                .font(.body)
+                                .foregroundColor(seg.startStation.isEmpty ? .orange : themeManager.primaryTextColor)
+                        }
+                        
+                        // 連結線
+                        Rectangle()
+                            .fill(themeManager.secondaryTextColor.opacity(0.3))
+                            .frame(width: 1.5, height: 14)
+                            .padding(.leading, 4)
+                        
+                        // 迄站
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(themeManager.primaryTextColor)
+                                .frame(width: 10, height: 10)
+                            Text(displayStationName(seg.endStation.isEmpty ? "?" : seg.endStation, transportType: seg.transportType))
+                                .font(.body)
+                                .foregroundColor(seg.endStation.isEmpty ? .orange : themeManager.primaryTextColor)
+                        }
+                    }
+                } else if isMissing {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.caption2)
-                        Text("voice_missing_fields_hint")
-                            .font(.caption2)
+                            .font(.caption)
+                        Text("voice_tap_to_fill")
+                            .font(.subheadline)
                     }
                     .foregroundColor(.orange)
                 }
-            }
-            
-            Spacer()
-            
-            // 右側：票價 + 編輯按鈕
-            VStack(alignment: .trailing, spacing: 4) {
+                
+                // 第三區：票價底欄
                 if let originalPrice = Int(seg.price), originalPrice > 0 {
                     let paidPrice = calculatePaidPrice(
                         originalPrice: originalPrice,
@@ -915,50 +944,65 @@ struct VoiceQuickTripView: View {
                         isTransfer: seg.isTransfer,
                         transferDiscountType: seg.transferDiscountType
                     )
-                    if paidPrice != originalPrice {
-                        // 有折扣：原價劃掉 + 實付價
-                        Text("$\(originalPrice)")
-                            .font(.caption2)
-                            .strikethrough()
-                            .foregroundColor(themeManager.secondaryTextColor)
-                        Text("$\(paidPrice)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(transportColor)
-                    } else {
-                        Text("$\(originalPrice)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(transportColor)
+                    
+                    HStack {
+                        if paidPrice != originalPrice {
+                            Text("voice_fare_with_transfer")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        } else {
+                            Text("voice_fare_label")
+                                .font(.caption)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
+                        
+                        Spacer()
+                        
+                        if paidPrice != originalPrice {
+                            Text("$\(originalPrice)")
+                                .font(.caption)
+                                .strikethrough()
+                                .foregroundColor(themeManager.secondaryTextColor)
+                            Text("$\(paidPrice)")
+                                .font(.title3)
+                                .foregroundColor(themeManager.primaryTextColor)
+                        } else {
+                            Text("$\(originalPrice)")
+                                .font(.title3)
+                                .foregroundColor(themeManager.primaryTextColor)
+                        }
                     }
-                }
-                
-                // 轉乘標記
-                if seg.isTransfer {
-                    Text("voice_auto_transfer_hint")
-                        .font(.caption2)
-                        .foregroundColor(.green)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(themeManager.backgroundColor)
+                    .cornerRadius(8)
                 }
             }
-            
-            // 編輯按鈕
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    editingSegmentIndex = index
-                }
-            }) {
-                Image(systemName: "pencil.circle.fill")
-                    .font(.title3)
-                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.6))
-            }
+            .padding(.leading, 12)
+            .padding(.trailing, 4)
+            .padding(.vertical, 14)
         }
-        .padding(12)
+        .padding(.trailing, 8)
         .background(themeManager.cardBackgroundColor)
-        .cornerRadius(12)
+        .cornerRadius(14)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isMissing ? Color.orange.opacity(0.4) : themeManager.secondaryTextColor.opacity(0.15), lineWidth: isMissing ? 1.5 : 1)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(isMissing ? Color.orange.opacity(0.4) : themeManager.secondaryTextColor.opacity(0.1), lineWidth: isMissing ? 1.5 : 1)
         )
+    }
+    
+    /// 運具短代碼（用於摘要卡片大字前綴）
+    private func transportTypeShortCode(_ type: TransportType) -> String {
+        switch type {
+        case .mrt, .kmrt, .tcmrt, .tymrt: return "M"
+        case .tra: return "TRA"
+        case .hsr: return "HSR"
+        case .lrt: return "LRT"
+        case .bus: return "N°"
+        case .coach: return "N°"
+        case .bike: return "🚲"
+        case .ferry: return "⛴"
+        }
     }
     
     /// 段落卡片（使用 VoiceSegmentEditorCard）

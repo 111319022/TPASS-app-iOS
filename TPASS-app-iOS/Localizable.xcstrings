@@ -6443,6 +6443,9 @@
         }
       }
     },
+    "N°" : {
+
+    },
     "neverBackup" : {
       "localizations" : {
         "en" : {
@@ -10003,14 +10006,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "+ Add transfer segment"
+            "state" : "needs_review",
+            "value" : "Add transfer segment"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "＋ 手動加入下一段轉乘"
+            "value" : "手動加入下一段轉乘"
           }
         }
       }
@@ -10323,6 +10326,38 @@
         }
       }
     },
+    "voice_fare_label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fare"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "票價"
+          }
+        }
+      }
+    },
+    "voice_fare_with_transfer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fare · Transfer discount"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "票價 · 含轉乘優惠"
+          }
+        }
+      }
+    },
     "voice_field_date" : {
       "localizations" : {
         "en" : {
@@ -10487,17 +10522,18 @@
       }
     },
     "voice_missing_fields_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Missing fields"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "缺站缺"
+            "value" : "缺站"
           }
         }
       }
