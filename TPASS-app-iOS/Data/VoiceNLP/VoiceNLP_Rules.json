@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.0.0",
     "description": "語音行程解析規則資料庫 — 供 TripVoiceParser 使用",
-    "last_updated": "2025-01-01",
+    "last_updated": "2026-04-26",
     "notes": [
       "所有陣列皆按「最常用 → 最少用」排序",
       "keywords 與 asr_errors 中的詞條需 lowercased 後比較",
@@ -213,7 +213,9 @@
       { "keyword": "傍晚", "hour": 17, "minute": 0 },
       { "keyword": "晚上", "hour": 20, "minute": 0 },
       { "keyword": "深夜", "hour": 23, "minute": 0 }
-    ]
+    ],
+    "_comment_pm_keywords": "用於精確時間（如X點Y分）的 24 小時制轉換修飾詞",
+    "pm_keywords": ["下午", "傍晚", "晚上", "夜間", "pm", "p.m."]
   },
 
   "_comment_chinese_numbers": "中文數字轉阿拉伯數字的映射表",
@@ -230,7 +232,7 @@
 
   "_comment_multi_segment": "多段行程偵測關鍵字",
   "multi_segment_keywords": {
-    "direction_words": ["到", "至", "往", "去", "→", "->"],
+    "direction_words": ["到", "至", "往", "去"],
     "transfer_keywords": ["轉乘", "轉", "換乘", "再搭", "然後搭", "接著搭", "再坐", "然後坐"],
     "direction_threshold": 2,
     "_comment": "direction_threshold: 方向詞出現次數 >= 此值視為多段行程"

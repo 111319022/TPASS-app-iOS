@@ -1406,6 +1406,11 @@ struct VoiceQuickTripView: View {
     private func saveDraftsAsTrips() {
         guard let userId = auth.currentUser?.id else { return }
 
+        // 鎖定當下 activeCycle 狀態，避免儲存期間切換週期造成 cardId/cycleId 不一致
+        let activeCycleSnapshot = viewModel.activeCycle
+        let cycleIdForSave = activeCycleSnapshot?.id
+        let cardIdForSave = activeCycleSnapshot?.cardId
+
         let segmentsToSave = segments
 
         if let range = activeCycleDateRange {
@@ -1456,8 +1461,8 @@ struct VoiceQuickTripView: View {
                 routeId: seg.routeId,
                 note: seg.note,
                 transferDiscountType: seg.transferDiscountType,
-                cycleId: currentCycleId,
-                cardId: currentCardId
+                cycleId: cycleIdForSave,
+                cardId: cardIdForSave
             )
             
             viewModel.addTrip(newTrip)

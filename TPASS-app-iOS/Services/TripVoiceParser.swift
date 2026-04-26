@@ -113,10 +113,12 @@ struct PatternRule: Codable {
 struct TimeSemantics: Codable {
     let relativeDays: [RelativeDay]
     let timeOfDay: [TimeOfDay]
+    let pmKeywords: [String]?
     
     enum CodingKeys: String, CodingKey {
         case relativeDays = "relative_days"
         case timeOfDay = "time_of_day"
+        case pmKeywords = "pm_keywords"
     }
     
     struct RelativeDay: Codable {
@@ -191,6 +193,8 @@ struct TripVoiceParser {
         var transportType: TransportType?
         var startStation: String?
         var endStation: String?
+        var startLineCode: String?
+        var endLineCode: String?
         var price: Int?
         var routeId: String?
         var date: Date?
@@ -300,7 +304,24 @@ struct TripVoiceParser {
         for i in 1..<results.count {
             // 起點推論：若缺乏起點，帶入上一段終點
             if results[i].startStation == nil, let prevEnd = results[i - 1].endStation {
-                results[i].startStation = prevEnd
+                var inheritedStart = prevEnd
+
+                // 💡 跨運具補全：前段軌道 -> 本段公車/客運時，自動加上「捷運」前綴與「站」後綴
+                let prevTransport = results[i - 1].transportType
+                let currTransport = results[i].transportType ?? inferTransportFromRouteId(results[i].routeId ?? "")
+                let isPrevRail = prevTransport == .mrt || prevTransport == .tymrt || prevTransport == .tcmrt || prevTransport == .kmrt
+                let isCurrBus = currTransport == .bus || currTransport == .coach
+
+                if isPrevRail && isCurrBus {
+                    if !inheritedStart.hasPrefix("捷運") { inheritedStart = "捷運" + inheritedStart }
+                    if !inheritedStart.hasSuffix("站") { inheritedStart += "站" }
+                }
+
+                results[i].startStation = inheritedStart
+                // 線路代碼推論：若有上一段終點線路，帶入本段起點線路
+                if results[i].startLineCode == nil {
+                    results[i].startLineCode = results[i - 1].endLineCode ?? results[i - 1].startLineCode
+                }
                 // 補上站名信心（繼承上一段的部分信心）
                 if results[i].stationScore < 0.3 {
                     results[i].stationScore = max(results[i].stationScore, results[i - 1].stationScore * 0.7)
@@ -308,9 +329,11 @@ struct TripVoiceParser {
             }
             
             // 運具推論：若缺乏運具但有路線號，預設為公車
-            if results[i].transportType == nil, results[i].routeId != nil {
-                results[i].transportType = .bus
-                results[i].transportScore = 0.6
+            if results[i].transportType == nil,
+               let routeId = results[i].routeId,
+               let inferred = inferTransportFromRouteId(routeId) {
+                results[i].transportType = inferred
+                results[i].transportScore = max(results[i].transportScore, 0.8)
             }
             
             // 時間推論：若缺乏時間，帶入上一段的時間
@@ -338,6 +361,14 @@ struct TripVoiceParser {
     
     /// 利用轉乘關鍵字將長句切割為多段行程文字
     private static func splitIntoSegments(_ text: String) -> [String] {
+        // 💡 隱式轉乘預處理：當「站、樓」等字尾後直接接新運具/路線時，自動插入「轉乘」
+        let implicitPattern = "([站樓院區市心])(\\s*)(\\d{1,4}[A-Za-z]?(?:公車|市公車|客運|巴士)|捷運|台鐵|高鐵|輕軌)"
+        var processedText = text
+        if let regex = try? NSRegularExpression(pattern: implicitPattern, options: []) {
+            let nsRange = NSRange(text.startIndex..., in: text)
+            processedText = regex.stringByReplacingMatches(in: text, options: [], range: nsRange, withTemplate: "$1轉乘$3")
+        }
+
         let transferKeywords = rules.multiSegmentKeywords.transferKeywords
         
         // 建構正則：用轉乘關鍵字作為分割點
@@ -347,22 +378,22 @@ struct TripVoiceParser {
         let pattern = "(" + escapedKeywords.joined(separator: "|") + ")"
         
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return [text]
+            return [processedText]
         }
         
-        let nsRange = NSRange(text.startIndex..., in: text)
-        let matches = regex.matches(in: text, options: [], range: nsRange)
+        let nsRange = NSRange(processedText.startIndex..., in: processedText)
+        let matches = regex.matches(in: processedText, options: [], range: nsRange)
         
         guard !matches.isEmpty else {
-            return [text]
+            return [processedText]
         }
         
         var segments: [String] = []
-        var lastEnd = text.startIndex
+        var lastEnd = processedText.startIndex
         
         for match in matches {
-            guard let range = Range(match.range, in: text) else { continue }
-            let segment = String(text[lastEnd..<range.lowerBound])
+            guard let range = Range(match.range, in: processedText) else { continue }
+            let segment = String(processedText[lastEnd..<range.lowerBound])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if !segment.isEmpty {
                 segments.append(segment)
@@ -371,14 +402,14 @@ struct TripVoiceParser {
         }
         
         // 最後一段
-        let lastSegment = String(text[lastEnd...])
+        let lastSegment = String(processedText[lastEnd...])
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if !lastSegment.isEmpty {
             segments.append(lastSegment)
         }
         
         // 若切割結果為空，回傳原文
-        return segments.isEmpty ? [text] : segments
+        return segments.isEmpty ? [processedText] : segments
     }
     
     // MARK: - 單段解析
@@ -392,8 +423,16 @@ struct TripVoiceParser {
         result.transportType = transport
         result.transportScore = transportConfidence
         
-        // 路線抽取（公車/客運）
+        // 路線抽取（先抽取，避免後續站名清理影響）
         result.routeId = extractRouteId(normalized, transport: transport)
+
+        // 運具反向推論：若未辨識運具但有路線號，依數字長度推論公車/客運
+        if result.transportType == nil,
+           let routeId = result.routeId,
+           let inferred = inferTransportFromRouteId(routeId) {
+            result.transportType = inferred
+            result.transportScore = max(result.transportScore, 0.8)
+        }
         
         // 價格抽取
         let (price, priceConfidence) = extractPrice(normalized)
@@ -401,10 +440,19 @@ struct TripVoiceParser {
         result.priceScore = priceConfidence
         
         // 起迄站抽取
-        let (start, end, stationConfidence) = extractStations(normalized, transport: transport)
+        let resolvedTransport = result.transportType
+        let (start, end, stationConfidence) = extractStations(normalized, transport: resolvedTransport)
         result.startStation = start
         result.endStation = end
         result.stationScore = stationConfidence
+
+        // 線路代碼推論（捷運轉乘上下文可用）
+        if let startStation = result.startStation {
+            result.startLineCode = resolveLineCode(for: startStation, transport: resolvedTransport)
+        }
+        if let endStation = result.endStation {
+            result.endLineCode = resolveLineCode(for: endStation, transport: resolvedTransport)
+        }
         
         // 時間抽取
         let (date, time, timeConfidence) = extractDateTime(normalized)
@@ -628,19 +676,36 @@ struct TripVoiceParser {
     }
     
     // MARK: - 路線抽取
+
+    private static func inferTransportFromRouteId(_ routeId: String) -> TransportType? {
+        let cleaned = routeId
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "-", with: "")
+
+        guard !cleaned.isEmpty,
+              cleaned.allSatisfy({ $0.isNumber }) else {
+            return nil
+        }
+
+        if cleaned.count <= 3 { return .bus }
+        return .coach
+    }
     
     private static func extractRouteId(_ text: String, transport: TransportType?) -> String? {
-        guard transport == .bus || transport == .coach || transport == .lrt else { return nil }
-
         // 針對輕軌的專屬處理
-        if transport == .lrt {
+        if transport == .lrt || transport == nil {
             let lrtPattern = try? NSRegularExpression(pattern: "(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌)", options: [])
             if let match = lrtPattern?.firstMatch(in: text, options: [], range: NSRange(text.startIndex..., in: text)),
                let range = Range(match.range, in: text) {
                 return String(text[range])
             }
-            return nil
+            if transport == .lrt {
+                return nil
+            }
         }
+
+        guard transport == nil || transport == .bus || transport == .coach else { return nil }
         
         // 先移除時間格式，避免誤抓
         let timeRegex = try? NSRegularExpression(
@@ -728,6 +793,10 @@ struct TripVoiceParser {
                     startName = normalizeTRAStationName(startName)
                     endName = normalizeTRAStationName(endName)
                 }
+
+                // 模糊容錯後回填為資料庫標準站名（台/臺、站字等）
+                startName = normalizeStationForValidation(startName, transport: transport)
+                endName = normalizeStationForValidation(endName, transport: transport)
                 
                 // 至少要有一個站名
                 guard !startName.isEmpty || !endName.isEmpty else { continue }
@@ -922,29 +991,165 @@ struct TripVoiceParser {
     /// 驗證站名是否存在於已知站名資料庫
     @MainActor
     private static func validateStation(_ name: String, transport: TransportType?) -> Bool {
+        let candidates = stationValidationCandidates(for: name)
+
+        func matchesAny(_ stationList: [String]) -> Bool {
+            for candidate in candidates where stationList.contains(candidate) {
+                return true
+            }
+            return false
+        }
+
         switch transport {
         case .mrt:
-            return StationData.shared.lines.contains(where: { $0.stations.contains(name) })
+            return StationData.shared.lines.contains(where: { matchesAny($0.stations) })
         case .tymrt:
-            return TYMRTStationData.shared.line.stations.contains(name)
+            return matchesAny(TYMRTStationData.shared.line.stations)
         case .tcmrt:
-            return TCMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) })
+            return TCMRTStationData.shared.lines.contains(where: { matchesAny($0.stations) })
         case .kmrt:
-            return KMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) })
+            return KMRTStationData.shared.lines.contains(where: { matchesAny($0.stations) })
         case .bus, .coach:
             return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         case .tra:
-            return TRAStationData.shared.resolveStationID(normalizeTRAStationName(name)) != nil
+            return candidates.contains(where: { TRAStationData.shared.resolveStationID(normalizeTRAStationName($0)) != nil })
         case .hsr:
-            return HSRStationData.shared.line.stations.contains(name)
+            return matchesAny(HSRStationData.shared.line.stations)
         default:
-            if StationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
-            if TYMRTStationData.shared.line.stations.contains(name) { return true }
-            if TCMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
-            if KMRTStationData.shared.lines.contains(where: { $0.stations.contains(name) }) { return true }
-            if TRAStationData.shared.resolveStationID(normalizeTRAStationName(name)) != nil { return true }
-            if HSRStationData.shared.line.stations.contains(name) { return true }
+            if StationData.shared.lines.contains(where: { matchesAny($0.stations) }) { return true }
+            if matchesAny(TYMRTStationData.shared.line.stations) { return true }
+            if TCMRTStationData.shared.lines.contains(where: { matchesAny($0.stations) }) { return true }
+            if KMRTStationData.shared.lines.contains(where: { matchesAny($0.stations) }) { return true }
+            if candidates.contains(where: { TRAStationData.shared.resolveStationID(normalizeTRAStationName($0)) != nil }) { return true }
+            if matchesAny(HSRStationData.shared.line.stations) { return true }
             return false
+        }
+    }
+
+    @MainActor
+    private static func normalizeStationForValidation(_ name: String, transport: TransportType?) -> String {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return trimmed }
+
+        let candidates = stationValidationCandidates(for: trimmed)
+
+        func firstMatchedStation(in stationList: [String]) -> String? {
+            for candidate in candidates {
+                if let exact = stationList.first(where: { $0 == candidate }) {
+                    return exact
+                }
+            }
+            return nil
+        }
+
+        switch transport {
+        case .mrt:
+            for line in StationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            return trimmed
+        case .tymrt:
+            return firstMatchedStation(in: TYMRTStationData.shared.line.stations) ?? trimmed
+        case .tcmrt:
+            for line in TCMRTStationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            return trimmed
+        case .kmrt:
+            for line in KMRTStationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            return trimmed
+        case .hsr:
+            return firstMatchedStation(in: HSRStationData.shared.line.stations) ?? trimmed
+        case .tra:
+            for candidate in candidates {
+                let normalized = normalizeTRAStationName(candidate)
+                if TRAStationData.shared.resolveStationID(normalized) != nil {
+                    return normalized
+                }
+            }
+            return normalizeTRAStationName(trimmed)
+        case .bus, .coach:
+            return trimmed
+        default:
+            for line in StationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            if let matched = firstMatchedStation(in: TYMRTStationData.shared.line.stations) { return matched }
+            for line in TCMRTStationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            for line in KMRTStationData.shared.lines {
+                if let matched = firstMatchedStation(in: line.stations) { return matched }
+            }
+            if let matched = firstMatchedStation(in: HSRStationData.shared.line.stations) { return matched }
+
+            for candidate in candidates {
+                let normalized = normalizeTRAStationName(candidate)
+                if TRAStationData.shared.resolveStationID(normalized) != nil {
+                    return normalized
+                }
+            }
+
+            return trimmed
+        }
+    }
+
+    private static func stationValidationCandidates(for name: String) -> [String] {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+
+        var candidates = Set<String>()
+
+        func addVariants(_ value: String) {
+            let base = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !base.isEmpty else { return }
+            candidates.insert(base)
+
+            if base.hasSuffix("站"), base.count > 1 {
+                candidates.insert(String(base.dropLast()))
+            } else {
+                candidates.insert(base + "站")
+            }
+
+            let toTai = base.replacingOccurrences(of: "臺", with: "台")
+            let toTaiwan = base.replacingOccurrences(of: "台", with: "臺")
+            candidates.insert(toTai)
+            candidates.insert(toTaiwan)
+
+            if toTai.hasSuffix("站"), toTai.count > 1 {
+                candidates.insert(String(toTai.dropLast()))
+            } else {
+                candidates.insert(toTai + "站")
+            }
+
+            if toTaiwan.hasSuffix("站"), toTaiwan.count > 1 {
+                candidates.insert(String(toTaiwan.dropLast()))
+            } else {
+                candidates.insert(toTaiwan + "站")
+            }
+        }
+
+        addVariants(trimmed)
+        return Array(candidates)
+    }
+
+    @MainActor
+    private static func resolveLineCode(for station: String, transport: TransportType?) -> String? {
+        let canonicalStation = normalizeStationForValidation(station, transport: transport)
+
+        switch transport {
+        case .mrt:
+            return StationData.shared.lines.first(where: { $0.stations.contains(canonicalStation) })?.code
+        case .tymrt:
+            return TYMRTStationData.shared.line.stations.contains(canonicalStation) ? TYMRTStationData.shared.line.code : nil
+        case .tcmrt:
+            return TCMRTStationData.shared.lines.first(where: { $0.stations.contains(canonicalStation) })?.code
+        case .kmrt:
+            return KMRTStationData.shared.lines.first(where: { $0.stations.contains(canonicalStation) })?.code
+        default:
+            return nil
         }
     }
     
@@ -1003,8 +1208,12 @@ struct TripVoiceParser {
         var timeResult: Date?
         var confidence: Double = 0.0
 
-        // 1. 判斷是否含有 PM 修飾詞 (下午、晚上、pm)
-        let isPM = text.contains("下午") || text.contains("晚上") || text.lowercased().contains("pm")
+        // 1. 判斷是否含有 PM 修飾詞（從 JSON 動態讀取）
+        let pmWords = rules.timeSemantics.pmKeywords ?? ["下午", "晚上", "pm"]
+        let lowerText = text.lowercased()
+        let isPM = pmWords
+            .map { $0.lowercased() }
+            .contains(where: { lowerText.contains($0) })
 
         // 2. 解析相對日期
         for entry in rules.timeSemantics.relativeDays {
