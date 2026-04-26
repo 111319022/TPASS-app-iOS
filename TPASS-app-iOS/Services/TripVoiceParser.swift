@@ -470,6 +470,23 @@ struct TripVoiceParser {
                 }
             }
         }
+
+        // 處理時間格式：「X點」「X分」
+        let timePattern = try? NSRegularExpression(pattern: "([\(digitChars)]+)(點|分)", options: [])
+        if let timePattern {
+            let nsRange = NSRange(result.startIndex..., in: result)
+            let matches = timePattern.matches(in: result, options: [], range: nsRange)
+            for match in matches.reversed() {
+                guard let numRange = Range(match.range(at: 1), in: result) else { continue }
+                let chineseNum = String(result[numRange])
+                if let arabicNum = chineseToArabic(chineseNum),
+                   let suffixRange = Range(match.range(at: 2), in: result) {
+                    let fullRange = Range(match.range, in: result)!
+                    let suffix = String(result[suffixRange])
+                    result.replaceSubrange(fullRange, with: "\(arabicNum)\(suffix)")
+                }
+            }
+        }
         
         // 路線號碼逐字轉換：「三零七」→「307」
         let routePattern = try? NSRegularExpression(
@@ -613,7 +630,17 @@ struct TripVoiceParser {
     // MARK: - 路線抽取
     
     private static func extractRouteId(_ text: String, transport: TransportType?) -> String? {
-        guard transport == .bus || transport == .coach else { return nil }
+        guard transport == .bus || transport == .coach || transport == .lrt else { return nil }
+
+        // 針對輕軌的專屬處理
+        if transport == .lrt {
+            let lrtPattern = try? NSRegularExpression(pattern: "(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌)", options: [])
+            if let match = lrtPattern?.firstMatch(in: text, options: [], range: NSRange(text.startIndex..., in: text)),
+               let range = Range(match.range, in: text) {
+                return String(text[range])
+            }
+            return nil
+        }
         
         // 先移除時間格式，避免誤抓
         let timeRegex = try? NSRegularExpression(
@@ -814,13 +841,13 @@ struct TripVoiceParser {
             }
         }
 
-        // 移除站名開頭殘留的運具字眼，避免「公車臥龍街」殘留為站名
-        let transportPrefixes = ["公車", "市公車", "客運", "巴士", "國道客運"]
-        for prefix in transportPrefixes {
-            if result.hasPrefix(prefix) {
-                result.removeFirst(prefix.count)
-                result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
+        // 移除站名開頭殘留的運具字眼，避免「輕軌淡海輕軌」或「公車臥龍街」殘留
+        let transportPrefixesPattern = "^(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌|輕軌|公車|市公車|客運|巴士|國道客運|捷運|火車|台鐵|高鐵)+"
+        if let regex = try? NSRegularExpression(pattern: transportPrefixesPattern, options: []),
+           let match = regex.firstMatch(in: result, options: [], range: NSRange(result.startIndex..., in: result)),
+           let range = Range(match.range, in: result) {
+            result.removeSubrange(range)
+            result = result.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         
         return result
@@ -932,15 +959,15 @@ struct TripVoiceParser {
         // 例如：「今天下午 3:30」「明天中午 12:30」「2026年4月22日 03:30」
         let timeExpressionPatterns = [
             // 相對日期 + 時段 + 時間
-            "(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            "(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
             // 相對日期 + 時段（無時間數字）
             "(?:昨天|今天|明天|後天|前天|大前天)\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
             // 時段 + 時間（無日期）
-            "(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            "(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
             // ISO 格式日期 + 時間
             "\\d{4}年\\d{1,2}月\\d{1,2}日\\s*\\d{1,2}\\s*(?::|點)\\s*\\d{1,2}",
             // 純時間格式（HH:MM 或 HH點MM分）
-            "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
+            "\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
             // 相對日期單獨出現
             "(?:昨天|今天|明天|後天|前天|大前天)",
             // 月日格式
@@ -975,8 +1002,11 @@ struct TripVoiceParser {
         var dateResult: Date?
         var timeResult: Date?
         var confidence: Double = 0.0
-        
-        // 相對日期（從 JSON 載入）
+
+        // 1. 判斷是否含有 PM 修飾詞 (下午、晚上、pm)
+        let isPM = text.contains("下午") || text.contains("晚上") || text.lowercased().contains("pm")
+
+        // 2. 解析相對日期
         for entry in rules.timeSemantics.relativeDays {
             if text.contains(entry.keyword) {
                 dateResult = calendar.date(byAdding: .day, value: entry.dayOffset, to: Date())
@@ -984,31 +1014,27 @@ struct TripVoiceParser {
                 break
             }
         }
-        
-        // 時間段（從 JSON 載入）
-        for entry in rules.timeSemantics.timeOfDay {
-            if text.contains(entry.keyword) {
-                var components = DateComponents()
-                components.hour = entry.hour
-                components.minute = entry.minute
-                timeResult = calendar.date(from: components)
-                confidence = max(confidence, 0.6)
-                break
-            }
-        }
-        
-        // 精確時間：「X點Y分」「X:Y」
+
+        // 3. 解析精確時間：「X點Y分」「X:Y」
         let timeRegex = try? NSRegularExpression(
             pattern: "(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?",
             options: []
         )
+
         if let timeRegex {
             let nsRange = NSRange(text.startIndex..., in: text)
             if let match = timeRegex.firstMatch(in: text, options: [], range: nsRange),
                let hourRange = Range(match.range(at: 1), in: text),
-               let hour = Int(text[hourRange]), hour >= 0, hour < 24 {
+               var hour = Int(text[hourRange]), hour >= 0, hour < 24 {
+
+                // 關鍵修復：PM 偏移邏輯
+                if isPM && hour < 12 {
+                    hour += 12
+                }
+
                 var components = DateComponents()
                 components.hour = hour
+
                 if match.range(at: 2).location != NSNotFound,
                    let minRange = Range(match.range(at: 2), in: text),
                    let minute = Int(text[minRange]) {
@@ -1016,8 +1042,23 @@ struct TripVoiceParser {
                 } else {
                     components.minute = 0
                 }
+
                 timeResult = calendar.date(from: components)
                 confidence = 0.9
+            }
+        }
+
+        // 4. 若無精確時間，才解析概略時段
+        if timeResult == nil {
+            for entry in rules.timeSemantics.timeOfDay {
+                if text.contains(entry.keyword) {
+                    var components = DateComponents()
+                    components.hour = entry.hour
+                    components.minute = entry.minute
+                    timeResult = calendar.date(from: components)
+                    confidence = max(confidence, 0.6)
+                    break
+                }
             }
         }
         

@@ -444,6 +444,8 @@ struct TripListView: View {
             .sheet(isPresented: $showVoiceQuickTripSheet) {
                 VoiceQuickTripView(onSuccess: {
                     showToast(message: "voice_trip_saved")
+                }, onSwitchToManual: {
+                    showAddTripSheet = true
                 })
             }
             .sheet(isPresented: $showDuplicateDayPicker) {

@@ -6443,9 +6443,6 @@
         }
       }
     },
-    "N°" : {
-
-    },
     "neverBackup" : {
       "localizations" : {
         "en" : {
@@ -6702,6 +6699,9 @@
           }
         }
       }
+    },
+    "No." : {
+
     },
     "non_reserved_seat" : {
       "localizations" : {
@@ -10111,6 +10111,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "語音辨識目前僅支援中文"
+          }
+        }
+      }
+    },
+    "voice_edit_label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯"
           }
         }
       }

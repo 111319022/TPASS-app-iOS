@@ -66,6 +66,7 @@ struct VoiceQuickTripView: View {
     @State private var editingSegmentIndex: Int? = nil
     
     var onSuccess: (() -> Void)? = nil
+    var onSwitchToManual: (() -> Void)? = nil
     
     private var currentRegion: TPASSRegion {
         viewModel.activeCycle?.region ?? auth.currentRegion
@@ -421,6 +422,24 @@ struct VoiceQuickTripView: View {
         }
         return stationId
     }
+
+    private func displayTransportName(_ transportType: TransportType?, routeId: String) -> String {
+        guard let type = transportType else { return "" }
+        if type == .lrt && !routeId.isEmpty {
+            return routeId
+        }
+        return String(localized: String.LocalizationValue(type.displayNameKey))
+    }
+
+    private func displayDateTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_TW")
+        formatter.dateFormat = "yyyy/MM/dd"
+        let dateText = formatter.string(from: date)
+        formatter.dateFormat = "HH:mm"
+        let timeText = formatter.string(from: date)
+        return "\(dateText) · \(timeText)"
+    }
     
     private var simplePreviewContent: some View {
         let transportType = segments.first?.transportType
@@ -441,7 +460,7 @@ struct VoiceQuickTripView: View {
                     HStack(spacing: 6) {
                         Image(systemName: type.systemIconName)
                             .font(.caption)
-                        Text(type.displayName)
+                        Text(displayTransportName(type, routeId: segments.first?.routeId ?? ""))
                             .font(.caption)
                             .fontWeight(.semibold)
                     }
@@ -483,7 +502,7 @@ struct VoiceQuickTripView: View {
                 
                 // 日期 + 時間
                 if let date = segments.first?.date {
-                    Text(date, format: .dateTime.year().month().day().weekday(.abbreviated).hour().minute())
+                    Text(displayDateTime(date))
                         .font(.subheadline)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
@@ -545,7 +564,7 @@ struct VoiceQuickTripView: View {
                 HStack(spacing: 6) {
                     Image(systemName: type.systemIconName)
                         .font(.caption)
-                    Text(type.displayName)
+                    Text(displayTransportName(type, routeId: segments.first?.routeId ?? ""))
                         .font(.caption)
                         .fontWeight(.semibold)
                 }
@@ -824,7 +843,16 @@ struct VoiceQuickTripView: View {
                 }
                 
                 // 轉手動輸入
-                Button(action: { dismiss() }) {
+                Button(action: {
+                    let callback = onSwitchToManual
+                    dismiss()
+                    // 延遲呼叫，等 sheet dismiss 完成後再開啟 AddTripView
+                    if let callback {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            callback()
+                        }
+                    }
+                }) {
                     Text("voice_switch_manual")
                         .font(.subheadline)
                         .foregroundColor(themeManager.secondaryTextColor)
@@ -849,17 +877,25 @@ struct VoiceQuickTripView: View {
             
             // 主內容
             VStack(alignment: .leading, spacing: 10) {
-                // 第一區：運具標題 + 編輯按鈕
+                // 第一區：運具標題 + 日期時間 + 編輯按鈕
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        // 運具小標
-                        if let type = seg.transportType {
-                            Text(type.displayName)
+                    VStack(alignment: .leading, spacing: 4) {
+                        // 運具標籤（icon + 名稱）+ 日期時間
+                        HStack(spacing: 6) {
+                            if let type = seg.transportType {
+                                Image(systemName: type.systemIconName)
+                                    .font(.footnote)
+                                    .foregroundColor(transportColor)
+                                Text(displayTransportName(type, routeId: seg.routeId))
+                                    .font(.footnote)
+                                    .foregroundColor(transportColor)
+                            }
+                            Text(displayDateTime(seg.date))
                                 .font(.caption)
-                                .foregroundColor(transportColor)
+                                .foregroundColor(Color.gray)
                         }
                         
-                        // 運具大字：公車/客運顯示「N° 路線號」，其他顯示運具名稱
+                        // 公車/客運：顯示路線號大字
                         if (seg.transportType == .bus || seg.transportType == .coach) {
                             if !seg.routeId.isEmpty {
                                 HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -870,15 +906,6 @@ struct VoiceQuickTripView: View {
                                         .font(.title)
                                         .foregroundColor(themeManager.primaryTextColor)
                                 }
-                            }
-                        } else if let type = seg.transportType {
-                            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text(transportTypeShortCode(type))
-                                    .font(.caption)
-                                    .foregroundColor(themeManager.secondaryTextColor)
-                                Text(type.displayName)
-                                    .font(.title)
-                                    .foregroundColor(themeManager.primaryTextColor)
                             }
                         }
                     }
@@ -891,9 +918,13 @@ struct VoiceQuickTripView: View {
                             editingSegmentIndex = index
                         }
                     }) {
-                        Image(systemName: "pencil.circle.fill")
-                            .font(.title3)
-                            .foregroundColor(themeManager.secondaryTextColor.opacity(0.35))
+                        HStack(spacing: 4) {
+                            Text("voice_edit_label")
+                                .font(.caption)
+                            Image(systemName: "pencil")
+                                .font(.caption)
+                        }
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
                     }
                 }
                 
