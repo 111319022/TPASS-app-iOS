@@ -53,6 +53,7 @@ struct FavoriteRouteSnapshot: Codable, Hashable {
     let price: Int
     let isTransfer: Bool
     let isFree: Bool
+    let transferDiscountTypeRaw: String?
 }
 
 struct CycleSnapshot: Codable, Hashable {
@@ -662,6 +663,7 @@ class CloudKitSyncService: ObservableObject {
         guard let type = TransportType(rawValue: snapshot.typeRaw) else {
             throw NSError(domain: "CloudKit", code: 422, userInfo: [NSLocalizedDescriptionKey: "Invalid favorite transport type in backup"])
         }
+        let transferDiscountType = snapshot.transferDiscountTypeRaw.flatMap { TransferDiscountType(rawValue: $0) }
         return FavoriteRoute(
             id: snapshot.id,
             type: type,
@@ -670,7 +672,8 @@ class CloudKitSyncService: ObservableObject {
             routeId: snapshot.routeId,
             price: snapshot.price,
             isTransfer: snapshot.isTransfer,
-            isFree: snapshot.isFree
+            isFree: snapshot.isFree,
+            transferDiscountType: transferDiscountType
         )
     }
 
@@ -744,6 +747,8 @@ class CloudKitSyncService: ObservableObject {
               let isFree = boolValue(from: record["isFree"]) else { return nil }
 
         let uuid = UUID(uuidString: id) ?? UUID()
+        let transferDiscountTypeRaw = record["transferDiscountTypeRaw"] as? String
+        let transferDiscountType = transferDiscountTypeRaw.flatMap { TransferDiscountType(rawValue: $0) }
         return FavoriteRoute(
             id: uuid,
             type: type,
@@ -752,7 +757,8 @@ class CloudKitSyncService: ObservableObject {
             routeId: routeId,
             price: price,
             isTransfer: isTransfer,
-            isFree: isFree
+            isFree: isFree,
+            transferDiscountType: transferDiscountType
         )
     }
 

@@ -384,7 +384,8 @@ struct BackupManagementView: View {
                         routeId: $0.routeId,
                         price: $0.price,
                         isTransfer: $0.isTransfer,
-                        isFree: $0.isFree
+                        isFree: $0.isFree,
+                        transferDiscountTypeRaw: $0.transferDiscountType?.rawValue
                     )
                 }
                 let cycles = auth.currentUser?.cycles ?? []
