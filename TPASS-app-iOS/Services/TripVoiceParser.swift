@@ -306,7 +306,7 @@ struct TripVoiceParser {
             if results[i].startStation == nil, let prevEnd = results[i - 1].endStation {
                 var inheritedStart = prevEnd
 
-                // 💡 跨運具補全：前段軌道 -> 本段公車/客運時，自動加上「捷運」前綴與「站」後綴
+                // 跨運具補全：前段軌道 -> 本段公車/客運時，自動加上「捷運」前綴與「站」後綴
                 let prevTransport = results[i - 1].transportType
                 let currTransport = results[i].transportType ?? inferTransportFromRouteId(results[i].routeId ?? "")
                 let isPrevRail = prevTransport == .mrt || prevTransport == .tymrt || prevTransport == .tcmrt || prevTransport == .kmrt
@@ -315,6 +315,16 @@ struct TripVoiceParser {
                 if isPrevRail && isCurrBus {
                     if !inheritedStart.hasPrefix("捷運") { inheritedStart = "捷運" + inheritedStart }
                     if !inheritedStart.hasSuffix("站") { inheritedStart += "站" }
+                }
+
+                // 跨運具清理：前段公車/客運 -> 本段軌道時，清除冗餘前後綴，避免站名分數下降
+                let isPrevBus = prevTransport == .bus || prevTransport == .coach
+                let isCurrRail = currTransport == .mrt || currTransport == .tymrt || currTransport == .tcmrt || currTransport == .kmrt || currTransport == .tra || currTransport == .hsr || currTransport == .lrt
+
+                if isPrevBus && isCurrRail {
+                    inheritedStart = removeTransportKeywords(inheritedStart)
+                    inheritedStart = resolveStationAlias(inheritedStart)
+                    inheritedStart = normalizeStationByTransport(inheritedStart, transport: currTransport)
                 }
 
                 results[i].startStation = inheritedStart
@@ -911,7 +921,15 @@ struct TripVoiceParser {
         }
 
         // 移除站名開頭殘留的運具字眼，避免「輕軌淡海輕軌」或「公車臥龍街」殘留
-        let transportPrefixesPattern = "^(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌|輕軌|公車|市公車|客運|巴士|國道客運|捷運|火車|台鐵|高鐵)+"
+        let transportPrefixesPattern: String
+        if transport == .bus || transport == .coach {
+            // 💡 公車/客運模式：只移除公車客運相關前綴，【嚴格保留】捷運、火車、高鐵等轉乘地標字眼
+            transportPrefixesPattern = "^(公車|市公車|客運|巴士|國道客運)+"
+        } else {
+            // 軌道運具模式：移除所有運具類別字眼
+            transportPrefixesPattern = "^(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌|輕軌|公車|市公車|客運|巴士|國道客運|捷運|火車|台鐵|高鐵)+"
+        }
+
         if let regex = try? NSRegularExpression(pattern: transportPrefixesPattern, options: []),
            let match = regex.firstMatch(in: result, options: [], range: NSRange(result.startIndex..., in: result)),
            let range = Range(match.range, in: result) {
