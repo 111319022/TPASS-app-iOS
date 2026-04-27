@@ -175,6 +175,7 @@ struct TripListView: View {
                 }
                 
                 Button(action: {
+                    pendingCommuterTrip = nil
                     showCommuterRoutePicker = false
                 }) {
                     Text("cancel")
@@ -428,6 +429,11 @@ struct TripListView: View {
                     .environmentObject(themeManager)
                     .zIndex(999)
                     .transition(.opacity)
+                }
+
+                if showCommuterRoutePicker {
+                    commmuterPickerOverlay
+                        .zIndex(400)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
