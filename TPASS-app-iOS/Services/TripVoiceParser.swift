@@ -846,99 +846,63 @@ struct TripVoiceParser {
     }
     
     /// 清理站名候選中的噪音（日期、時間前綴、路線號碼等）
-    private static func sanitizeStationCandidate(_ text: String, transport: TransportType?) -> String {
-        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !result.isEmpty else { return result }
-        
-        // 移除日期前綴
-        let datePatterns = [
-            "昨天", "今天", "明天", "後天",
-            "今年", "去年", "明年",
-            "本週", "下週", "上週",
-            "\\d{1,2}月\\d{1,2}日",
-        ]
-        for pattern in datePatterns {
-            if result.hasPrefix(pattern) || result.starts(with: NSRegularExpression.escapedPattern(for: pattern)) {
-                if let regex = try? NSRegularExpression(pattern: "^\(pattern)", options: []) {
-                    let nsRange = NSRange(result.startIndex..., in: result)
-                    if let match = regex.firstMatch(in: result, options: [], range: nsRange),
-                       let range = Range(match.range, in: result) {
-                        result.removeSubrange(range)
-                        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        private static func sanitizeStationCandidate(_ text: String, transport: TransportType?) -> String {
+            var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !result.isEmpty else { return result }
+
+            var previousResult = ""
+            let digitChars = chineseDigitMap.keys.map { String($0) }.joined()
+
+            // 建立所有要移除的噪音正則表達式
+            var prefixPatterns: [String] = [
+                // 1. 標點符號與空白 (解決 ASR 產生的 ".3" 或逗號等殘留)
+                "^[.,:;?!。，：；？！\\s]+",
+
+                // 2. 日期前綴
+                "^(?:昨天|今天|明天|後天|今年|去年|明年|本週|下週|上週|\\d{1,2}月\\d{1,2}日)",
+
+                // 3. 時間前綴 (包含時段+精確時間、單獨時段、單獨精確時間)
+                "^(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
+                "^(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
+                "^\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
+
+                // 4. 語音常見引導詞
+                "^(?:從|由|在|自|搭|坐)"
+            ]
+
+            // 5. 路線號碼前綴 (僅限公車/客運)
+            if transport == .bus || transport == .coach {
+                prefixPatterns.append("^[A-Za-z0-9]{1,6}(?:路|號)?")
+                prefixPatterns.append("^[\(digitChars)0-9]{1,6}\\s*(?:號|路)?")
+            }
+
+            // 6. 運具前綴
+            if transport == .bus || transport == .coach {
+                // 💡 公車/客運模式：只移除公車客運相關前綴，【嚴格保留】捷運、火車、高鐵等轉乘地標字眼
+                prefixPatterns.append("^(?:公車|市公車|客運|巴士|國道客運)+")
+            } else {
+                // 軌道運具模式：移除所有運具類別字眼
+                prefixPatterns.append("^(?:淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌|輕軌|公車|市公車|客運|巴士|國道客運|捷運|火車|台鐵|高鐵)+")
+            }
+
+            // 💡 核心修復：循環移除，直到沒有匹配項目為止（解決「公車307」與「307公車」交錯出現的問題）
+            while result != previousResult {
+                previousResult = result
+
+                for pattern in prefixPatterns {
+                    if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+                        let nsRange = NSRange(result.startIndex..., in: result)
+                        if let match = regex.firstMatch(in: result, options: [], range: nsRange),
+                           let range = Range(match.range, in: result) {
+                            result.removeSubrange(range)
+                            result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }
                     }
                 }
             }
-        }
-        
-        // 移除時間前綴
-        let timePrefixPatterns = [
-            "^(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*",
-            "^(?:今天|昨日|昨天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?\\s*",
-            "^(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?\\s*"
-        ]
-        for pattern in timePrefixPatterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { continue }
-            let nsRange = NSRange(result.startIndex..., in: result)
-            if let match = regex.firstMatch(in: result, options: [], range: nsRange),
-               let range = Range(match.range, in: result) {
-                result.removeSubrange(range)
-                result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-        }
-        
-        // 常見前綴詞去除（使用 noise_filters 的子集）
-        let leadingWords = ["從", "由", "在", "自", "搭", "坐"]
-        for word in leadingWords where result.hasPrefix(word) {
-            result.removeFirst(word.count)
-            result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        
-        // 公車/客運：移除路線號碼前綴
-        if transport == .bus || transport == .coach {
-            let englishRoutePattern = try? NSRegularExpression(pattern: "^[A-Za-z0-9]{1,6}(路|號)?", options: [])
-            if let englishRoutePattern {
-                let nsRange = NSRange(result.startIndex..., in: result)
-                if let match = englishRoutePattern.firstMatch(in: result, options: [], range: nsRange),
-                   let range = Range(match.range, in: result) {
-                    result.removeSubrange(range)
-                    result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-                }
-            }
-            
-            let digitChars = chineseDigitMap.keys.map { String($0) }.joined()
-            let chineseRoutePattern = try? NSRegularExpression(
-                pattern: "^[\(digitChars)0-9]{1,6}\\s*(?:號|路)?",
-                options: []
-            )
-            if let chineseRoutePattern {
-                let nsRange = NSRange(result.startIndex..., in: result)
-                if let match = chineseRoutePattern.firstMatch(in: result, options: [], range: nsRange),
-                   let range = Range(match.range, in: result) {
-                    result.removeSubrange(range)
-                    result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-                }
-            }
-        }
 
-        // 移除站名開頭殘留的運具字眼，避免「輕軌淡海輕軌」或「公車臥龍街」殘留
-        let transportPrefixesPattern: String
-        if transport == .bus || transport == .coach {
-            // 💡 公車/客運模式：只移除公車客運相關前綴，【嚴格保留】捷運、火車、高鐵等轉乘地標字眼
-            transportPrefixesPattern = "^(公車|市公車|客運|巴士|國道客運)+"
-        } else {
-            // 軌道運具模式：移除所有運具類別字眼
-            transportPrefixesPattern = "^(淡海輕軌|安坑輕軌|高雄輕軌|環狀輕軌|輕軌|公車|市公車|客運|巴士|國道客運|捷運|火車|台鐵|高鐵)+"
+            return result
         }
-
-        if let regex = try? NSRegularExpression(pattern: transportPrefixesPattern, options: []),
-           let match = regex.firstMatch(in: result, options: [], range: NSRange(result.startIndex..., in: result)),
-           let range = Range(match.range, in: result) {
-            result.removeSubrange(range)
-            result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        
-        return result
-    }
     
     /// 依運具做站名補全（如機捷「第一航廈」→「機場第一航廈」）
     @MainActor
