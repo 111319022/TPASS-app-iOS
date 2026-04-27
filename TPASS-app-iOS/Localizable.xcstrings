@@ -10537,13 +10537,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"Take MRT from Taipei Main Station to City Hall, 25 NTD\""
+            "value" : "「捷運科技大樓到台北車站」"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「搭捷運從台北車站到市政府 25 元」"
+            "value" : "「捷運科技大樓到台北車站」"
           }
         }
       }
@@ -10553,13 +10553,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"Took bus 307 yesterday, cost 15 NTD\""
+            "value" : "「今天下午三點307公車 台北車站到南京公寓」"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「昨天坐公車 307 花了 15 元」"
+            "value" : "「今天下午三點307公車 台北車站到南京公寓」"
           }
         }
       }
@@ -10569,13 +10569,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"MRT from Taipei Main to Tamsui, transfer to bus 860 to Sanzhi\""
+            "value" : "「捷運中山到公館轉284到師大分部」"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「捷運北車到淡水，轉860公車到三芝」"
+            "value" : "「捷運中山到公館轉284到師大分部」"
           }
         }
       }
