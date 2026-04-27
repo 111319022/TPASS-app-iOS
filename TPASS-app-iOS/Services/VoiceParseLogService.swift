@@ -196,6 +196,14 @@ final class VoiceParseLogService {
             dict["routeId"] = routeId
         }
         
+        // 解析出的日期與時間
+        if let tripDate = draft.tripDate {
+            dict["parsedDate"] = dateFormatter.string(from: tripDate)
+        }
+        if let tripTime = draft.tripTime {
+            dict["parsedTime"] = timeFormatter.string(from: tripTime)
+        }
+        
         dict["isTransfer"] = draft.isTransfer
         dict["stationScore"] = draft.stationScore
         dict["transportScore"] = draft.transportScore
@@ -252,8 +260,54 @@ final class VoiceParseLogService {
             return true
         }
         
+        // 日期時間修正偵測
+        if let finalDateTime = finalData["finalDateTime"] as? String {
+            let draftDate = draft.tripDate ?? Date()
+            var draftDateTime = draftDate
+            if let parsedTime = draft.tripTime {
+                let calendar = Calendar.current
+                let timeComps = calendar.dateComponents([.hour, .minute], from: parsedTime)
+                var dateComps = calendar.dateComponents([.year, .month, .day], from: draftDate)
+                dateComps.hour = timeComps.hour
+                dateComps.minute = timeComps.minute
+                if let merged = calendar.date(from: dateComps) {
+                    draftDateTime = merged
+                }
+            }
+            let draftDateTimeStr = dateTimeFormatter.string(from: draftDateTime)
+            if finalDateTime != draftDateTimeStr {
+                return true
+            }
+        }
+        
         return false
     }
+    
+    // MARK: - 日期格式化工具
+    
+    /// 日期格式化：yyyy-MM-dd（例：2025-01-15）
+    private let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+    
+    /// 時間格式化：HHmm（例：1500 = 下午三點）
+    private let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HHmm"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+    
+    /// 完整日期時間格式化：yyyy-MM-dd HH:mm（例：2025-01-15 15:00）
+    private let dateTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
     
     /// App 版本號
     private var appVersion: String {
