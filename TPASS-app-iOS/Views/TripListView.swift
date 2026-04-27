@@ -1114,9 +1114,12 @@ struct TripRowView: View {
                         .font(.headline)
                         .foregroundColor(themeColor)
                     
+                    let hasRealStations = !trip.startStation.isEmpty && !trip.endStation.isEmpty
+                        && trip.startStation.trimmingCharacters(in: .whitespaces) != ""
+                        && trip.endStation.trimmingCharacters(in: .whitespaces) != ""
                     let details = [
                         trip.routeId.isEmpty ? nil : trip.routeId,
-                        (trip.startStation.isEmpty || trip.endStation.isEmpty) ? nil : "\(displayStationName(trip.startStation, type: trip.type)) → \(displayStationName(trip.endStation, type: trip.type))"
+                        hasRealStations ? "\(displayStationName(trip.startStation, type: trip.type)) → \(displayStationName(trip.endStation, type: trip.type))" : nil
                     ].compactMap { $0 }.joined(separator: " ")
                     
                     if !details.isEmpty {

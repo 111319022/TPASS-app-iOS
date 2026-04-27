@@ -9718,6 +9718,38 @@
         }
       }
     },
+    "voice_coach_price_required_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intercity bus fare is required"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "客運必須輸入金額才能儲存"
+          }
+        }
+      }
+    },
+    "voice_unsupported_transport_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This transport mode is not supported in the current plan. Please change it."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前方案不支援此運具，請更換運具類型"
+          }
+        }
+      }
+    },
     "voice_fill_required_hint" : {
       "localizations" : {
         "en" : {

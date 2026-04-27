@@ -472,24 +472,37 @@ struct VoiceQuickTripView: View {
                 }
                 
                 // 起迄站大字（台鐵 ID 還原為中文站名）
-                HStack(spacing: 12) {
-                    Text(displayStationName(segments.first?.startStation ?? "", transportType: transportType))
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    
-                    Image(systemName: "arrow.right")
-                        .font(.title3)
-                        .foregroundColor(themeManager.secondaryTextColor)
-                    
-                    Text(displayStationName(segments.first?.endStation ?? "", transportType: transportType))
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                let startRaw = segments.first?.startStation ?? ""
+                let endRaw = segments.first?.endStation ?? ""
+                let hasRealStart = !startRaw.trimmingCharacters(in: .whitespaces).isEmpty
+                let hasRealEnd = !endRaw.trimmingCharacters(in: .whitespaces).isEmpty
+                
+                if hasRealStart || hasRealEnd {
+                    HStack(spacing: 12) {
+                        if hasRealStart {
+                            Text(displayStationName(startRaw, transportType: transportType))
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(themeManager.primaryTextColor)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        
+                        if hasRealStart && hasRealEnd {
+                            Image(systemName: "arrow.right")
+                                .font(.title3)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
+                        
+                        if hasRealEnd {
+                            Text(displayStationName(endRaw, transportType: transportType))
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(themeManager.primaryTextColor)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                    }
                 }
                 
                 // 票價（使用運具配色）
@@ -534,6 +547,17 @@ struct VoiceQuickTripView: View {
                 .shadow(color: transportColor.opacity(0.3), radius: 8, x: 0, y: 4)
             }
             .disabled(!canSaveAll)
+            
+            // 不支援運具提示
+            if hasUnsupportedTransport {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                    Text("voice_unsupported_transport_hint")
+                        .font(.caption)
+                }
+                .foregroundColor(.red)
+            }
             
             // 次按鈕：修改詳細內容
             Button(action: {
@@ -797,12 +821,20 @@ struct VoiceQuickTripView: View {
             // 缺漏提示
             if !canSaveAll {
                 HStack(spacing: 6) {
-                    Image(systemName: "info.circle")
+                    Image(systemName: hasUnsupportedTransport ? "exclamationmark.triangle.fill" : "info.circle")
                         .font(.caption)
-                    Text("voice_fill_required_hint")
-                        .font(.caption)
+                    if hasUnsupportedTransport {
+                        Text("voice_unsupported_transport_hint")
+                            .font(.caption)
+                    } else if segments.contains(where: { $0.transportType == .coach && (Int($0.price) ?? 0) <= 0 }) {
+                        Text("voice_coach_price_required_hint")
+                            .font(.caption)
+                    } else {
+                        Text("voice_fill_required_hint")
+                            .font(.caption)
+                    }
                 }
-                .foregroundColor(.orange)
+                .foregroundColor(hasUnsupportedTransport ? .red : .orange)
                 .padding(.top, 12)
             }
             
@@ -1095,10 +1127,40 @@ struct VoiceQuickTripView: View {
     private var canSaveAll: Bool {
         guard !segments.isEmpty else { return false }
         return segments.allSatisfy { seg in
-            seg.transportType != nil &&
-            !seg.startStation.isEmpty &&
-            !seg.endStation.isEmpty &&
-            (Int(seg.price) != nil || seg.price.isEmpty)
+            guard let type = seg.transportType else { return false }
+            
+            // 運具必須在該週期支援的範圍內
+            guard currentSupportedModes.contains(type) else { return false }
+            
+            let isStationlessAllowed = type == .bus || type == .bike || type == .ferry
+            
+            // 客運必須有金額
+            if type == .coach {
+                guard let price = Int(seg.price), price > 0 else { return false }
+            }
+            
+            // 公車/YouBike/渡輪允許無起訖站
+            if isStationlessAllowed {
+                return (Int(seg.price) != nil || seg.price.isEmpty)
+            }
+            
+            // 客運允許無起訖站，但上面已檢查金額
+            if type == .coach {
+                return true
+            }
+            
+            // 軌道運輸等需要起訖站
+            return !seg.startStation.isEmpty &&
+                   !seg.endStation.isEmpty &&
+                   (Int(seg.price) != nil || seg.price.isEmpty)
+        }
+    }
+    
+    /// 是否有段落使用了該週期不支援的運具
+    private var hasUnsupportedTransport: Bool {
+        segments.contains { seg in
+            guard let type = seg.transportType else { return false }
+            return !currentSupportedModes.contains(type)
         }
     }
     
@@ -1467,6 +1529,10 @@ struct VoiceQuickTripView: View {
             
             viewModel.addTrip(newTrip)
             
+            let dtFormatter = DateFormatter()
+            dtFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            dtFormatter.locale = Locale(identifier: "en_US_POSIX")
+            
             finalTripDataArray.append([
                 "transportType": transportType.rawValue,
                 "startStation": seg.startStation,
@@ -1474,7 +1540,8 @@ struct VoiceQuickTripView: View {
                 "price": originalPrice,
                 "routeId": seg.routeId,
                 "isTransfer": seg.isTransfer,
-                "isFree": seg.isFree
+                "isFree": seg.isFree,
+                "finalDateTime": dtFormatter.string(from: seg.date)
             ])
         }
         
