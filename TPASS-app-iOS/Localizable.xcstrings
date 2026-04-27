@@ -254,6 +254,9 @@
     "%lld 筆交易" : {
 
     },
+    "%lld%%" : {
+
+    },
     "•" : {
 
     },
@@ -3295,6 +3298,22 @@
         }
       }
     },
+    "cycle_actual_spending" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Spending"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "實際總支出"
+          }
+        }
+      }
+    },
     "cycle_management" : {
       "localizations" : {
         "en" : {
@@ -3307,6 +3326,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "週期"
+          }
+        }
+      }
+    },
+    "cycle_monthly_cost" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan cost $%d"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方案月費 $%d"
+          }
+        }
+      }
+    },
+    "cycle_payback_rate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payback Rate"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回本率"
           }
         }
       }
@@ -3340,6 +3391,241 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "週期切換"
+          }
+        }
+      }
+    },
+    "cycle_remaining_to_breakeven" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "$%d to breakeven"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "距回本還差 $%d"
+          }
+        }
+      }
+    },
+    "cycle_saved_amount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved $%d"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已省 $%d"
+          }
+        }
+      }
+    },
+    "cycle_total_paid" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Paid"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "實付總額"
+          }
+        }
+      }
+    },
+    "cycle_transfer_savings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer Savings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉乘折扣"
+          }
+        }
+      }
+    },
+    "cycle_trip_count" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d trips"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 趟"
+          }
+        }
+      }
+    },
+    "cycle_year_cycles_count" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycles"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "週期數"
+          }
+        }
+      }
+    },
+    "cycle_year_net_loss" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net Deficit"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淨虧金額"
+          }
+        }
+      }
+    },
+    "cycle_year_net_saved" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net Saved"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淨省金額"
+          }
+        }
+      }
+    },
+    "cycle_year_payback" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payback Rate"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整體回本率"
+          }
+        }
+      }
+    },
+    "cycle_year_plan_cost" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan Fees"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方案費用"
+          }
+        }
+      }
+    },
+    "cycle_year_summary" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year Overview"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度總覽"
+          }
+        }
+      }
+    },
+    "cycle_year_total_paid" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Spent"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消費總額"
+          }
+        }
+      }
+    },
+    "cycle_year_transfer_savings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer Savings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轉乘折扣"
+          }
+        }
+      }
+    },
+    "cycle_year_trips" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trips"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "總行程數"
           }
         }
       }
@@ -10115,22 +10401,6 @@
         }
       }
     },
-    "voice_edit_label" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "編輯"
-          }
-        }
-      }
-    },
     "voice_collapse_editor" : {
       "localizations" : {
         "en" : {
@@ -10242,6 +10512,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "修改詳細內容"
+          }
+        }
+      }
+    },
+    "voice_edit_label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯"
           }
         }
       }

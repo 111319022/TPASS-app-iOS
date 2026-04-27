@@ -41,6 +41,7 @@ struct CyclesView: View {
             }
             .sorted { $0.start > $1.start }
     }
+
     
     var body: some View {
         NavigationView {
@@ -52,7 +53,7 @@ struct CyclesView: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 20) {
                         
-                        // 🆕 彈性記帳週期按鈕（獨立區塊）
+                        // 彈性記帳週期按鈕（獨立區塊）
                         flexibleCycleButton
                         
                         // 添加周期按钮
@@ -225,7 +226,9 @@ struct CyclesView: View {
     
     // MARK: - 周期卡片
     private func cycleCard(_ cycle: Cycle, isCurrent: Bool) -> some View {
-        Button(action: {
+        let summary = financialSummary(for: cycle)
+        
+        return Button(action: {
             selectedCycleForEdit = cycle
         }) {
             VStack(alignment: .leading, spacing: 12) {
@@ -273,8 +276,13 @@ struct CyclesView: View {
                 
                 Divider()
                 
+                // 支出與回本資訊
+                cycleFinancialSection(summary: summary, isCurrent: isCurrent)
+                
                 HStack(spacing: 16) {
                     cycleInfoItem(icon: "calendar", text: daysRemaining(cycle))
+                    Spacer()
+                    cycleInfoItem(icon: "tram.fill", text: String(format: NSLocalizedString("cycle_trip_count", comment: ""), summary.tripCount))
                 }
             }
             .padding(16)
@@ -289,7 +297,101 @@ struct CyclesView: View {
         }
     }
     
-    // MARK: - 周期信息项
+    // MARK: - 週期支出與回本率區塊
+    private func cycleFinancialSection(summary: CycleFinancialSummary, isCurrent: Bool) -> some View {
+        VStack(spacing: 8) {
+            // 實際總支出（實付 - 轉乘折扣）
+            HStack {
+                Text("cycle_actual_spending")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                Spacer()
+                Text("$\(summary.actualSpending)")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.primaryTextColor)
+            }
+            
+            // 回本率（僅限有月費的方案）
+            if summary.monthlyPrice > 0 {
+                let barColor = progressBarColor(isBreakeven: summary.isBreakeven, isCurrent: isCurrent)
+                
+                HStack {
+                    Text("cycle_payback_rate")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Spacer()
+                    
+                    HStack(spacing: 4) {
+                        Text("\(summary.paybackRate)%")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(barColor)
+                        
+                        Image(systemName: summary.isBreakeven ? "checkmark.circle.fill" : "arrow.up.circle")
+                            .font(.caption)
+                            .foregroundColor(barColor)
+                    }
+                }
+                
+                // 回本進度條
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color(uiColor: .systemGray4))
+                            .frame(height: 6)
+                        
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(barColor)
+                            .frame(width: min(geometry.size.width * CGFloat(summary.paybackRate) / 100.0, geometry.size.width), height: 6)
+                    }
+                }
+                .frame(height: 6)
+                
+                // 月費 vs 實付對比
+                HStack {
+                    Text(String(format: NSLocalizedString("cycle_monthly_cost", comment: ""), summary.monthlyPrice))
+                        .font(.caption2)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Spacer()
+                    if summary.isBreakeven {
+                        Text(String(format: NSLocalizedString("cycle_saved_amount", comment: ""), summary.netSavings))
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(barColor)
+                    } else {
+                        Text(String(format: NSLocalizedString("cycle_remaining_to_breakeven", comment: ""), abs(summary.netSavings)))
+                            .font(.caption2)
+                            .foregroundColor(barColor)
+                    }
+                }
+            }
+        }
+    }
+    
+    /// 進度條顏色
+    private func progressBarColor(isBreakeven: Bool, isCurrent: Bool) -> Color {
+        if isCurrent {
+            return isBreakeven ? .green : themeManager.accentColor
+        } else {
+            // 過去週期：依回本狀態使用深綠/深橘，在灰色背景上清晰可見，深色模式下維持亮色
+            if isBreakeven {
+                return Color(uiColor: UIColor { tc in
+                    tc.userInterfaceStyle == .dark
+                        ? UIColor(red: 0.30, green: 0.78, blue: 0.40, alpha: 1.0)
+                        : UIColor(red: 0.15, green: 0.55, blue: 0.25, alpha: 1.0)
+                })
+            } else {
+                return Color(uiColor: UIColor { tc in
+                    tc.userInterfaceStyle == .dark
+                        ? UIColor(red: 1.0, green: 0.62, blue: 0.25, alpha: 1.0)
+                        : UIColor(red: 0.80, green: 0.45, blue: 0.10, alpha: 1.0)
+                })
+            }
+        }
+    }
+    
+    // MARK: - 周期訊息項
     private func cycleInfoItem(icon: String, text: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
@@ -301,7 +403,7 @@ struct CyclesView: View {
         }
     }
     
-    // MARK: - 空状态
+    // MARK: - 空狀態
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "calendar.badge.plus")
@@ -325,6 +427,160 @@ struct CyclesView: View {
     private func cardName(for cardId: String?) -> String? {
         guard let cardId else { return nil }
         return cards.first(where: { $0.id.uuidString == cardId })?.name
+    }
+    
+    // MARK: - 週期行程查詢
+    private func tripsForCycle(_ cycle: Cycle) -> [Trip] {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: cycle.start)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: cycle.end) ?? cycle.end
+        let cycleId = cycle.id
+        let cycleCardId = cycle.cardId
+        
+        return viewModel.trips.filter { trip in
+            guard trip.createdAt >= start && trip.createdAt <= end else { return false }
+            if let tripCycleId = trip.cycleId { return tripCycleId == cycleId }
+            if let cCardId = cycleCardId, let tCardId = trip.cardId { return tCardId == cCardId }
+            return true
+        }
+    }
+    
+    /// 計算週期的支出統計
+    private struct CycleFinancialSummary {
+        let tripCount: Int
+        let totalOriginal: Int   // 原價總計
+        let totalPaid: Int       // 實付總計（含轉乘折扣後）
+        let monthlyPrice: Int    // 方案月費
+        let r1Total: Int         // 常客回饋（R1）
+        let r2Total: Int         // TPASS2 回饋（R2）
+        
+        /// 實際總支出 = 實付 - R1 - R2
+        var actualSpending: Int { max(0, totalPaid - r1Total - r2Total) }
+        
+        /// 回本率 = 實際總支出 / 月費 × 100（彈性週期無月費則為 0）
+        var paybackRate: Int {
+            guard monthlyPrice > 0 else { return 0 }
+            return Int((Double(actualSpending) / Double(monthlyPrice)) * 100)
+        }
+        
+        /// 是否已回本
+        var isBreakeven: Bool { paybackRate >= 100 }
+        
+        /// 淨省金額 = 實際總支出 - 月費（正值表示已回本超出的部分）
+        var netSavings: Int { actualSpending - monthlyPrice }
+    }
+    
+    private func financialSummary(for cycle: Cycle) -> CycleFinancialSummary {
+        let cycleTrips = tripsForCycle(cycle)
+        let totalOriginal = cycleTrips.reduce(0) { $0 + $1.originalPrice }
+        let totalPaid = cycleTrips.reduce(0) { $0 + $1.paidPrice }
+        let monthlyPrice = cycle.region.monthlyPrice
+        
+        // 計算 R1/R2 回饋（與 AppViewModel.financialStats 同邏輯）
+        let (r1, r2) = calculateRebates(cycleTrips: cycleTrips, cycle: cycle)
+        
+        return CycleFinancialSummary(
+            tripCount: cycleTrips.count,
+            totalOriginal: totalOriginal,
+            totalPaid: totalPaid,
+            monthlyPrice: monthlyPrice,
+            r1Total: r1,
+            r2Total: r2
+        )
+    }
+    
+    /// 計算 R1/R2 回饋，與 AppViewModel.financialStats 同邏輯：
+    /// - 回饋門檻（次數）使用全域所有行程的月次數（globalCounts）
+    /// - 回饋金額只計算該週期內的行程金額（cycleSums）
+    private func calculateRebates(cycleTrips: [Trip], cycle: Cycle) -> (r1: Int, r2: Int) {
+        // --- 1. 統計該週期內的行程（用於計算回饋金額）---
+        struct CycleMonthStats {
+            var originalSums: [TransportType: Int] = [:]
+            var paidSums: [TransportType: Int] = [:]
+        }
+        var cycleMonthlyStats: [String: CycleMonthStats] = [:]
+        
+        for trip in cycleTrips {
+            let monthKey = String(trip.dateStr.prefix(7))
+            var stats = cycleMonthlyStats[monthKey] ?? CycleMonthStats()
+            let r1Original = trip.isFree ? 0 : trip.originalPrice
+            stats.originalSums[trip.type, default: 0] += r1Original
+            stats.paidSums[trip.type, default: 0] += trip.paidPrice
+            cycleMonthlyStats[monthKey] = stats
+        }
+        
+        // --- 2. 統計全域的月次數（用於判斷回饋門檻）---
+        // 與 AppViewModel 一致：使用所有 trips，若週期有綁卡則只計同卡行程
+        let allCycles = auth.currentUser?.cycles ?? []
+        let cycleCardMap: [String: String?] = Dictionary(
+            uniqueKeysWithValues: allCycles.map { ($0.id, $0.cardId) }
+        )
+        let activeCardId = cycle.cardId
+        
+        var globalMonthlyCounts: [String: [TransportType: Int]] = [:]
+        
+        for trip in viewModel.trips {
+            if let cId = activeCardId {
+                if let tripCycleId = trip.cycleId {
+                    let tripCycleCardId = cycleCardMap[tripCycleId] ?? nil
+                    if tripCycleCardId != cId { continue }
+                } else {
+                    if trip.cardId != cId { continue }
+                }
+            }
+            let monthKey = String(trip.dateStr.prefix(7))
+            globalMonthlyCounts[monthKey, default: [:]][trip.type, default: 0] += 1
+        }
+        
+        // --- 3. 計算回饋 ---
+        var r1 = 0, r2 = 0
+        
+        for (month, stats) in cycleMonthlyStats {
+            let gCounts = globalMonthlyCounts[month] ?? [:]
+            
+            // R1 北捷：全域次數判門檻，週期金額算回饋
+            let mrtCount = gCounts[.mrt] ?? 0
+            let mrtOriginal = stats.originalSums[.mrt] ?? 0
+            var mrtRate = 0.0
+            if mrtCount > 40 { mrtRate = 0.15 }
+            else if mrtCount > 20 { mrtRate = 0.10 }
+            else if mrtCount > 10 { mrtRate = 0.05 }
+            r1 += Int(Double(mrtOriginal) * mrtRate)
+            
+            // R1 台鐵
+            let traCount = gCounts[.tra] ?? 0
+            let traOriginal = stats.originalSums[.tra] ?? 0
+            var traRate = 0.0
+            if traCount > 40 { traRate = 0.20 }
+            else if traCount > 20 { traRate = 0.15 }
+            else if traCount > 10 { traRate = 0.10 }
+            r1 += Int(Double(traOriginal) * traRate)
+            
+            // R2 北捷
+            let r2MrtCount = gCounts[.mrt] ?? 0
+            let r2MrtPaid = stats.paidSums[.mrt] ?? 0
+            if r2MrtCount >= 11 { r2 += Int(Double(r2MrtPaid) * 0.02) }
+            
+            // R2 台鐵
+            let r2TraCount = gCounts[.tra] ?? 0
+            let r2TraPaid = stats.paidSums[.tra] ?? 0
+            if r2TraCount >= 11 { r2 += Int(Double(r2TraPaid) * 0.02) }
+            
+            // R2 公車/客運
+            let busCount = (gCounts[.bus] ?? 0) + (gCounts[.coach] ?? 0)
+            let busPaid = (stats.paidSums[.bus] ?? 0) + (stats.paidSums[.coach] ?? 0)
+            var busRate = 0.0
+            if busCount > 30 { busRate = 0.30 }
+            else if busCount >= 11 { busRate = 0.15 }
+            r2 += Int(Double(busPaid) * busRate)
+            
+            // R2 輕軌（淡海、安坑）
+            let lrtCount = gCounts[.lrt] ?? 0
+            let lrtPaid = stats.paidSums[.lrt] ?? 0
+            if lrtCount >= 11 { r2 += Int(Double(lrtPaid) * 0.02) }
+        }
+        
+        return (r1, r2)
     }
     
     // MARK: - 辅助方法
