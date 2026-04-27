@@ -90,6 +90,7 @@ TPASS-app-iOS/
 │   ├── SwiftDataModels.swift
 │   ├── TPASSModelSchema.swift
 │   ├── TPASSRegion.swift
+│   ├── TransitCard.swift
 │   ├── User.swift
 │   └── VoiceDraft.swift
 ├── Services/
@@ -146,6 +147,7 @@ TPASS-app-iOS/
 │   ├── TPASSRegionSelectionView.swift
 │   ├── TransferIntroductionView.swift
 │   ├── TransferTypeSelectionView.swift
+│   ├── TransitCardManagementView.swift
 │   ├── TripListView.swift
 │   ├── ViewFrameKey.swift
 │   ├── VoiceSegmentEditorCard.swift
@@ -159,10 +161,10 @@ TPASS-app-iOS/
 功能：
 - `TPASS-app-iOS.swift`：App 啟動入口、登入狀態切換、ModelContainer 初始化。
 - `Data/`：站點/票價/NLP 規則資料與讀取服務。
-- `Models/`：商業模型、SwiftData schema、TPASS 規則與語音草稿模型。
+- `Models/`：商業模型、SwiftData schema、TPASS 規則、票卡模型與語音草稿模型。
 - `Services/`：認證、備份、查價、通知、語音解析、問題回報與記錄上傳。
 - `ViewModels/AppViewModel.swift`：主流程狀態與核心商業邏輯。
-- `Views/`：所有 UI 頁面與互動流程。
+- `Views/`：所有 UI 頁面與互動流程（含票卡管理與卡片交易匯入）。
 - `Helpers/MigrationManager.swift`：舊資料遷移。
 - `Localizable.xcstrings`：多語系文案。
 - `TPASS-app-iOS-Info.plist` / `TPASS-app-iOS.entitlements`：App 設定與權限。
@@ -308,6 +310,7 @@ TPASS.calc 目前的資料層已改為 JSON 驅動，站點資料與票價資料
 | `Trip` | 行程主資料（運具、原價、實付、轉乘、路線、備註、週期） |
 | `FavoriteRoute` | 常用路線設定 |
 | `CommuterRoute` | 通勤模板（內含 `CommuterTripTemplate`） |
+| `TransitCard` | 實體票卡資料（名稱、卡別、初始餘額） |
 | `UserSettingsModel` | 使用者設定持久化（身分、遷移狀態等） |
 
 `Trip` 核心欄位：
@@ -347,6 +350,7 @@ TPASS.calc 目前的資料層已改為 JSON 驅動，站點資料與票價資料
 - 支援轉乘類型（`supportedTransferTypes`）
 - 預設轉乘類型（`defaultTransferType`）
 - 台鐵有效區間（多段 ID range）
+- `flexible`（彈性記帳週期）保留為特殊方案，不列在一般方案選單，支援全運具與完整轉乘型態。
 
 ### 主要列舉
 
@@ -573,6 +577,7 @@ CloudKit 設計：
 | `TransferIntroductionView` | 轉乘規則導覽 |
 | `HomeStationSettingsView` / `OutboundStationSettingsView` | 快捷站點管理 |
 | `QuickAddHomeView` / `QuickAddOutboundView` | 站點快速新增 |
+| `TransitCardManagementView` | 票卡新增/編輯/刪除管理 |
 | `ReportIssueView` | 使用者提交問題回報 |
 | `DeveloperToolsPlaceholderView` | 開發者入口（啟用回報推播、工具整合） |
 | `DeveloperIssueReportsView` | 開發者查看回報清單 |
@@ -688,6 +693,7 @@ VoiceQuickTripView 回填欄位 + 自動查價
 
 - 使用 `@AppStorage("selectedTheme")` 持久化
 - `ThemeManager` 控制 `colorScheme` 與 `accentColor`
+- 支援 `system/light/dark/muji/purple` 五種主題
 - 根據主題切換全域背景、卡片色、運具色與圖表色
 
 ### 通知
@@ -783,8 +789,7 @@ decode snapshots
 2. 啟動時仍依賴本地 session + migration，未來可進一步模組化初始化流程。
 3. CloudKit 目前偏手動備份，不是全量自動同步模型。
 4. 票價規則分散在多個 service，可評估加入統一 registry 層降低重複邏輯。
-5. 問題回報目前僅有列表檢視，尚未提供搜尋、標記狀態與指派流程。
-6. 問題回報已支援狀態更新與刪除，但尚未提供搜尋、指派與審核流程。
+5. 問題回報已支援狀態更新與刪除，但仍缺少搜尋、指派與審核流程。
 
 ---
 
