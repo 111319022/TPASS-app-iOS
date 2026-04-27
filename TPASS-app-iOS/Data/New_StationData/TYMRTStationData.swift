@@ -14,7 +14,7 @@ final class TYMRTStationData {
 
         guard let url = Bundle.main.url(forResource: "TYMRT_StationData", withExtension: "json") else {
             print("TYMRTStationData: could not find TYMRT_StationData.json in bundle")
-            self.line = MRTLine(id: "A", code: "A", name: "🟣 機場捷運", color: Color(hex: "#8246AF"), stations: [])
+            self.line = MRTLine(id: "A", code: "A", name: "🟣 機場捷運", color: Color("Colors/TransitLines/Line_TYMRT_A"), stations: [])
             self.stationNameENByZH = [:]
             self.fareNameByLookupKey = [:]
             return
@@ -70,14 +70,14 @@ final class TYMRTStationData {
                 id: "A",
                 code: "A",
                 name: "🟣 機場捷運",
-                color: Color(hex: "#8246AF"),
+                color: Color("Colors/TransitLines/Line_TYMRT_A"),
                 stations: stations
             )
             self.stationNameENByZH = stationNameENByZH
             self.fareNameByLookupKey = fareNameByLookupKey
         } catch {
             print("TYMRTStationData: failed to load TYMRT_StationData.json - \(error)")
-            self.line = MRTLine(id: "A", code: "A", name: "🟣 機場捷運", color: Color(hex: "#8246AF"), stations: [])
+            self.line = MRTLine(id: "A", code: "A", name: "🟣 機場捷運", color: Color("Colors/TransitLines/Line_TYMRT_A"), stations: [])
             self.stationNameENByZH = [:]
             self.fareNameByLookupKey = [:]
         }

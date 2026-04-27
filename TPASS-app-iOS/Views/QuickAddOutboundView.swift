@@ -380,7 +380,7 @@ struct QuickAddOutboundView: View {
     }
 
     func transferButton() -> some View {
-        let bgColor = isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor
+        let bgColor = isTransfer ? Color("Colors/Semantic/TransferGreen") : inputBackgroundColor
         let fgColor = isTransfer ? Color.white : themeManager.secondaryTextColor
         let showChevron = filteredTransferTypes.count > 1 && isTransfer
 

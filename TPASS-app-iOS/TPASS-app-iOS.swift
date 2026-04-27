@@ -285,7 +285,7 @@ private struct LaunchSplashView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: "#faf9f8"), Color(hex: "#f3ebe3"), Color(hex: "#ede3d9")],
+                colors: [Color("Colors/Intro/IntroGradientStart"), Color("Colors/Intro/IntroGradientMid"), Color("Colors/Intro/IntroGradientEnd")],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -301,7 +301,7 @@ private struct LaunchSplashView: View {
 
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .tint(Color(hex: "#d97761"))
+                    .tint(Color("Colors/Intro/IntroAccent"))
             }
         }
     }

@@ -632,22 +632,22 @@ class AppViewModel: ObservableObject {
         if let topMode = typeCounts.max(by: { a, b in a.value < b.value })?.key {
             switch topMode {
             case .mrt, .tcmrt, .kmrt, .lrt:
-                tags.append(DNATag(text: "dna_mrt_addict", description: "dna_mrt_addict_desc", color: Color(hex: "#00d2ff")))
+                tags.append(DNATag(text: "dna_mrt_addict", description: "dna_mrt_addict_desc", color: Color("Colors/Chart/DNA_MRT/System")))
             case .bus:
-                tags.append(DNATag(text: "dna_bus_master", description: "dna_bus_master_desc", color: Color(hex: "#2ecc71")))
+                tags.append(DNATag(text: "dna_bus_master", description: "dna_bus_master_desc", color: Color("Colors/Chart/DNA_Bus/System")))
             case .tra:
-                tags.append(DNATag(text: "dna_tra_fan", description: "dna_tra_fan_desc", color: Color(hex: "#bdc3c7")))
+                tags.append(DNATag(text: "dna_tra_fan", description: "dna_tra_fan_desc", color: Color("Colors/Chart/DNA_TRA/System")))
             case .tymrt:
-                tags.append(DNATag(text: "dna_tymrt_flyer", description: "dna_tymrt_flyer_desc", color: Color(hex: "#9b59b6")))
+                tags.append(DNATag(text: "dna_tymrt_flyer", description: "dna_tymrt_flyer_desc", color: Color("Colors/Chart/DNA_TYMRT/System")))
             default:
                 break
             }
         }
         
         if totalCount >= 120 {
-            tags.append(DNATag(text: "dna_fanatic_commuter", description: "dna_fanatic_commuter_desc", color: Color(hex: "#ff7675")))
+            tags.append(DNATag(text: "dna_fanatic_commuter", description: "dna_fanatic_commuter_desc", color: Color("Colors/Chart/DNA_Fanatic/System")))
         } else if totalCount > 100 {
-            tags.append(DNATag(text: "dna_regular_life", description: "dna_regular_life_desc", color: Color(hex: "#55efc4")))
+            tags.append(DNATag(text: "dna_regular_life", description: "dna_regular_life_desc", color: Color("Colors/Chart/DNA_Regular/System")))
         }
         
         let monthlyPrice = activeCycle?.region.monthlyPrice ?? AuthService.shared.currentRegion.monthlyPrice
@@ -655,12 +655,12 @@ class AppViewModel: ObservableObject {
         let netProfit = actualTotalExpense - monthlyPrice
 
         if netProfit > 1200 {
-            tags.append(DNATag(text: "dna_netprofit_king", description: "dna_netprofit_king_desc", color: Color(hex: "#ffeaa7")))
+            tags.append(DNATag(text: "dna_netprofit_king", description: "dna_netprofit_king_desc", color: Color("Colors/Chart/DNA_Profit/System")))
         }
 
         // 「回本大師」：使用實際總支出是否超過 TPASS 成本來判斷。
         if actualTotalExpense > monthlyPrice {
-            tags.append(DNATag(text: "dna_breakeven_master", description: "dna_breakeven_master_desc", color: Color(hex: "#55efc4")))
+            tags.append(DNATag(text: "dna_breakeven_master", description: "dna_breakeven_master_desc", color: Color("Colors/Chart/DNA_Regular/System")))
         }
         
         let calendar = Calendar.current
@@ -669,7 +669,7 @@ class AppViewModel: ObservableObject {
             return h < 8
         }.count
         if Double(earlyBirds) / totalCount > 0.3 {
-            tags.append(DNATag(text: "dna_early_bird", description: "dna_early_bird_desc", color: Color(hex: "#74b9ff")))
+            tags.append(DNATag(text: "dna_early_bird", description: "dna_early_bird_desc", color: Color("Colors/DNATags/DNA_EarlyBird")))
         }
         
         let nightOwls = trips.filter {
@@ -677,7 +677,7 @@ class AppViewModel: ObservableObject {
             return h > 21
         }.count
         if Double(nightOwls) / totalCount > 0.2 {
-            tags.append(DNATag(text: "dna_night_owl", description: "dna_night_owl_desc", color: Color(hex: "#a29bfe")))
+            tags.append(DNATag(text: "dna_night_owl", description: "dna_night_owl_desc", color: Color("Colors/DNATags/DNA_NightOwl")))
         }
         
         let c_mrt = typeCounts[.mrt] ?? 0
@@ -689,20 +689,20 @@ class AppViewModel: ObservableObject {
         let railCount = c_mrt + c_tcmrt + c_kmrt + c_tra + c_tymrt + c_lrt
         
         if railCount / totalCount > 0.8 {
-            tags.append(DNATag(text: "dna_rail_friend", description: "dna_rail_friend_desc", color: Color(hex: "#81ecec")))
+            tags.append(DNATag(text: "dna_rail_friend", description: "dna_rail_friend_desc", color: Color("Colors/DNATags/DNA_RailFriend")))
         }
         
         if (typeCounts[.bike] ?? 0) > 10 {
-            tags.append(DNATag(text: "dna_bike_pioneer", description: "dna_bike_pioneer_desc", color: Color(hex: "#55efc4")))
+            tags.append(DNATag(text: "dna_bike_pioneer", description: "dna_bike_pioneer_desc", color: Color("Colors/DNATags/DNA_BikePioneer")))
         }
         
         if (typeCounts[.coach] ?? 0) > 5 {
-            tags.append(DNATag(text: "dna_cross_region", description: "dna_cross_region_desc", color: Color(hex: "#fab1a0")))
+            tags.append(DNATag(text: "dna_cross_region", description: "dna_cross_region_desc", color: Color("Colors/DNATags/DNA_CrossRegion")))
         }
         
         let dayCounts = Dictionary(grouping: trips, by: { $0.dateStr }).mapValues { $0.count }
         if dayCounts.values.contains(where: { $0 >= 10 }) {
-            tags.append(DNATag(text: "dna_energy_full", description: "dna_energy_full_desc", color: Color(hex: "#fd79e4")))
+            tags.append(DNATag(text: "dna_energy_full", description: "dna_energy_full_desc", color: Color("Colors/DNATags/DNA_EnergyFull")))
         }
         
         return tags

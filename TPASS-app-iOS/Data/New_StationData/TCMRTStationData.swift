@@ -19,7 +19,7 @@ final class TCMRTStationData {
                     id: "GREEN",
                     code: "GREEN",
                     name: "🟢綠線",
-                    color: Color(hex: "#00AA4F"),
+                    color: Color("Colors/TransitLines/Line_TCMRT_Green"),
                     stations: []
                 )
             ]
@@ -56,7 +56,7 @@ final class TCMRTStationData {
                     id: "GREEN",
                     code: "GREEN",
                     name: "🟢綠線",
-                    color: Color(hex: "#00AA4F"),
+                    color: Color("Colors/TransitLines/Line_TCMRT_Green"),
                     stations: stations
                 )
             ]
@@ -69,7 +69,7 @@ final class TCMRTStationData {
                     id: "GREEN",
                     code: "GREEN",
                     name: "🟢綠線",
-                    color: Color(hex: "#00AA4F"),
+                    color: Color("Colors/TransitLines/Line_TCMRT_Green"),
                     stations: []
                 )
             ]

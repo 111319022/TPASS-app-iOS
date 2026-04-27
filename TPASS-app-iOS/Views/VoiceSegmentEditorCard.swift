@@ -319,7 +319,7 @@ struct VoiceSegmentEditorCard: View {
                         }
                         .frame(maxHeight: .infinity)
                         .padding(.horizontal, 12)
-                        .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackground)
+                        .background(isHSRNonReserved ? Color("Colors/Semantic/TransferGreen") : inputBackground)
                         .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
                         .cornerRadius(10)
                     }
@@ -413,7 +413,7 @@ struct VoiceSegmentEditorCard: View {
             }
             .frame(maxHeight: .infinity)
             .padding(.horizontal, 10)
-            .background(isTransfer ? Color(hex: "#27ae60") : inputBackground)
+            .background(isTransfer ? Color("Colors/Semantic/TransferGreen") : inputBackground)
             .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
             .cornerRadius(10)
         }

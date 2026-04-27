@@ -31,19 +31,21 @@ enum TransportType: String, Codable, CaseIterable, Identifiable {
     }
     
     var color: Color {
+        let typeName: String
         switch self {
-        case .mrt: return Color(hex: "#0070BD")
-        case .bus: return Color(hex: "#2ECC71")
-        case .coach: return Color(hex: "#16A085")
-        case .tra: return Color(hex: "#2C3E50")
-        case .tymrt: return Color(hex: "#8E44AD")
-        case .lrt: return Color(hex: "#F39C12")
-        case .bike: return Color(hex: "#D35400")
-        case .ferry: return Color(hex: "#1E88E5")
-        case .tcmrt: return Color(hex: "#E31937")  // 台中捷運紅色
-        case .kmrt: return Color(hex: "#FF6B35")   // 高雄捷運橘色
-        case .hsr: return Color(hex: "#FF6600")    // 高鐵橘色
+        case .mrt: typeName = "MRT"
+        case .bus: typeName = "Bus"
+        case .coach: typeName = "Coach"
+        case .tra: typeName = "TRA"
+        case .tymrt: typeName = "TYMRT"
+        case .lrt: typeName = "LRT"
+        case .bike: typeName = "Bike"
+        case .ferry: typeName = "Ferry"
+        case .tcmrt: typeName = "TCMRT"
+        case .kmrt: typeName = "KMRT"
+        case .hsr: typeName = "HSR"
         }
+        return Color("Colors/Transport/\(typeName)/Default")
     }
     
     var systemIconName: String {

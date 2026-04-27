@@ -30,7 +30,7 @@ struct FavoritesManagementView: View {
     private var screenBackground: Color {
         switch themeManager.currentTheme {
         case .muji:
-            return Color(hex: "#f5f0eb")
+            return Color("Colors/Base/Background/Muji")
         case .light, .purple:
             return Color(uiColor: .systemGroupedBackground)
         case .dark:
@@ -532,7 +532,7 @@ struct CommuterRouteDetailView: View {
         private var screenBackground: Color {
             switch themeManager.currentTheme {
             case .muji:
-                return Color(hex: "#f5f0eb")
+                return Color("Colors/Base/Background/Muji")
             case .light, .purple:
                 return Color(uiColor: .systemGroupedBackground)
             case .dark:

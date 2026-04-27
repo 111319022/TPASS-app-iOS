@@ -47,6 +47,15 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var localizedDisplayName: LocalizedStringKey {
         LocalizedStringKey(localizationKey)
     }
+    
+    /// Asset Catalog 中對應的主題資料夾名稱
+    var assetName: String {
+        switch self {
+        case .muji: return "Muji"
+        case .purple: return "Purple"
+        case .system, .light, .dark: return "System"
+        }
+    }
 }
 
 // MARK: - 主題管理器
@@ -57,71 +66,34 @@ class ThemeManager: ObservableObject {
     
     // MARK: - 基礎背景與文字
     var backgroundColor: AnyShapeStyle {
-        switch currentTheme {
-        case .muji:
-            return AnyShapeStyle(Color(hex: "#f5f0eb"))
-        case .purple:
-            return AnyShapeStyle(Color(hex: "#F6F4FB"))
-        case .light: 
-            return AnyShapeStyle(Color(uiColor: .systemGroupedBackground))
-        case .dark: 
-            return AnyShapeStyle(Color.black)
-        case .system:
-            // 跟隨系統：深色模式用黑色，淺色模式用系統背景
-            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
-            return isDark ? AnyShapeStyle(Color.black) : AnyShapeStyle(Color(uiColor: .systemGroupedBackground))
-        }
+        return AnyShapeStyle(Color("Colors/Base/Background/\(currentTheme.assetName)"))
     }
     
     var cardBackgroundColor: Color {
-        switch currentTheme {
-        case .muji: 
-            return Color.white
-        case .purple:
-            return Color.white
-        case .light: 
-            return Color.white
-        case .dark: 
-            return Color(uiColor: .secondarySystemGroupedBackground)
-        case .system:
-            // 跟隨系統：根據當前深/淺色模式返回相應顏色
-            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
-            return isDark ? Color(uiColor: .secondarySystemGroupedBackground) : Color.white
-        }
+        return Color("Colors/Base/CardBackground/\(currentTheme.assetName)")
     }
     
     var primaryTextColor: Color {
         switch currentTheme {
-        case .muji: return Color(hex: "#434343")
-        case .purple: return Color(hex: "#2F2A3D")
-        default: return Color.primary
+        case .muji, .purple:
+            return Color("Colors/Base/PrimaryText/\(currentTheme.assetName)")
+        default:
+            return Color.primary
         }
     }
     
     var secondaryTextColor: Color {
         switch currentTheme {
-        case .muji: return Color(hex: "#8c8c8c")
-        case .purple: return Color(hex: "#7A738E")
-        default: return Color.secondary
+        case .muji, .purple:
+            return Color("Colors/Base/SecondaryText/\(currentTheme.assetName)")
+        default:
+            return Color.secondary
         }
     }
     
     //     這是 MainTabView 需要的變數
     var accentColor: Color {
-        switch currentTheme {
-        case .muji: 
-            return Color(hex: "#B07D62")
-        case .purple:
-            return Color(hex: "#7A5AF8")
-        case .dark: 
-            return Color(hex: "#5AC8FA")
-        case .light:
-            return Color.blue
-        case .system:
-            // 跟隨系統：深色模式用淺藍色，淺色模式用藍色
-            let isDark = UITraitCollection.current.userInterfaceStyle == .dark
-            return isDark ? Color(hex: "#5AC8FA") : Color.blue
-        }
+        return Color("Colors/Base/Accent/\(currentTheme.assetName)")
     }
     
     var colorScheme: ColorScheme? {
@@ -134,92 +106,41 @@ class ThemeManager: ObservableObject {
     
     // MARK: - 🎨 交通工具配色
     func transportColor(_ type: TransportType) -> Color {
-        // 判斷是否為深色模式
-        let isDark: Bool = {
-            switch currentTheme {
-            case .dark:
-                return true
-            case .light, .muji, .purple:
-                return false
-            case .system:
-                return UITraitCollection.current.userInterfaceStyle == .dark
-            }
-        }()
-        
-        switch currentTheme {
-        case .muji:
-            switch type {
-            case .mrt: return Color(hex: "#4A90E2")
-            case .bus: return Color(hex: "#6BCB77")
-            case .tra: return Color(hex: "#9E9E9E")
-            case .tymrt: return Color(hex: "#B388EB")
-            case .tcmrt: return Color(hex: "#C41E3A")
-            case .kmrt: return Color(hex: "#E67E22")
-            case .coach: return Color(hex: "#3E8E41")
-            case .bike: return Color(hex: "#FF7F50")
-            case .lrt: return Color(hex: "#FFD93D")
-            case .ferry: return Color(hex: "#1E88E5")
-            case .hsr: return Color(hex: "#FF6600")
-            }
-        case .purple:
-            switch type {
-            case .mrt: return Color(hex: "#5B6CFF")
-            case .bus: return Color(hex: "#3BAE9F")
-            case .tra: return Color(hex: "#7B8599")
-            case .tymrt: return Color(hex: "#8C63FF")
-            case .tcmrt: return Color(hex: "#D75A7F")
-            case .kmrt: return Color(hex: "#C77DFF")
-            case .coach: return Color(hex: "#4EA078")
-            case .bike: return Color(hex: "#FF9F5A")
-            case .lrt: return Color(hex: "#E6B31E")
-            case .ferry: return Color(hex: "#4A8DFF")
-            case .hsr: return Color(hex: "#F07A4A")
-            }
-        case .system where isDark, .dark:
-            // 深色模式（包括跟隨系統且當前為深色）
-            switch type {
-            case .mrt: return Color(hex: "#5AC8FA")
-            case .bus: return Color(hex: "#30D158")
-            case .tra: return Color(hex: "#AFAFAF")
-            case .tymrt: return Color(hex: "#BF5AF2")
-            case .tcmrt: return Color(hex: "#FF6B6B")
-            case .kmrt: return Color(hex: "#FFA94D")
-            case .lrt: return Color(hex: "#FFD60A")
-            case .coach: return Color(hex: "#FF453A")
-            case .bike: return Color(hex: "#FF9F0A")
-            case .ferry: return Color(hex: "#64B5F6")
-            case .hsr: return Color(hex: "#FF6600")
-            }
-        default:
-            return type.color
+        let typeName: String
+        switch type {
+        case .mrt: typeName = "MRT"
+        case .bus: typeName = "Bus"
+        case .tra: typeName = "TRA"
+        case .tymrt: typeName = "TYMRT"
+        case .tcmrt: typeName = "TCMRT"
+        case .kmrt: typeName = "KMRT"
+        case .coach: typeName = "Coach"
+        case .bike: typeName = "Bike"
+        case .lrt: typeName = "LRT"
+        case .ferry: typeName = "Ferry"
+        case .hsr: typeName = "HSR"
         }
+        return Color("Colors/Transport/\(typeName)/\(currentTheme.assetName)")
     }
     
     // MARK: - 📊 圖表配色
+    
+    /// DNA hex 對應的語意 key 映射表
+    private static let dnaHexToKey: [String: String] = [
+        "#00d2ff": "DNA_MRT",
+        "#2ecc71": "DNA_Bus",
+        "#bdc3c7": "DNA_TRA",
+        "#9b59b6": "DNA_TYMRT",
+        "#ff7675": "DNA_Fanatic",
+        "#55efc4": "DNA_Regular",
+        "#ffeaa7": "DNA_Profit"
+    ]
+    
     func dnaColor(hex: String) -> Color {
-        if currentTheme == .muji {
-            switch hex.lowercased() {
-            case "#00d2ff": return Color(hex: "#2E86AB")
-            case "#2ecc71": return Color(hex: "#58A858")
-            case "#bdc3c7": return Color(hex: "#757575")
-            case "#9b59b6": return Color(hex: "#9B6EB8")
-            case "#ff7675": return Color(hex: "#E85D3F")
-            case "#55efc4": return Color(hex: "#2D5A27")
-            case "#ffeaa7": return Color(hex: "#F2C94C")
-            default: return Color(hex: hex).opacity(0.9)
-            }
-        } else if currentTheme == .purple {
-            switch hex.lowercased() {
-            case "#00d2ff": return Color(hex: "#5B6CFF")
-            case "#2ecc71": return Color(hex: "#3BAE9F")
-            case "#bdc3c7": return Color(hex: "#7B8599")
-            case "#9b59b6": return Color(hex: "#8C63FF")
-            case "#ff7675": return Color(hex: "#D75A7F")
-            case "#55efc4": return Color(hex: "#4EA078")
-            case "#ffeaa7": return Color(hex: "#E6B31E")
-            default: return Color(hex: hex).opacity(0.95)
-            }
+        if let key = Self.dnaHexToKey[hex.lowercased()] {
+            return Color("Colors/Chart/\(key)/\(currentTheme.assetName)")
         }
+        // 未知的 hex 值，fallback 到直接使用
         return Color(hex: hex)
     }
 
@@ -228,31 +149,38 @@ class ThemeManager: ObservableObject {
     }
     
     func recordColor(_ type: RecordType) -> Color {
-        switch currentTheme {
-        case .muji:
-            switch type {
-            case .cost:   return Color(hex: "#D1605E")
-            case .count:  return Color(hex: "#E09F3E")
-            case .single: return Color(hex: "#8D7B9F")
-            }
-        case .purple:
-            switch type {
-            case .cost:   return Color(hex: "#D75A7F")
-            case .count:  return Color(hex: "#E6B31E")
-            case .single: return Color(hex: "#8C63FF")
-            }
-        default:
-            switch type {
-            case .cost:   return .red
-            case .count:  return .orange
-            case .single: return .purple
-            }
+        let typeName: String
+        switch type {
+        case .cost: typeName = "RecordCost"
+        case .count: typeName = "RecordCount"
+        case .single: typeName = "RecordSingle"
         }
+        return Color("Colors/Chart/\(typeName)/\(currentTheme.assetName)")
+    }
+    
+    // MARK: - 📊 時段配色
+    func slotPalette() -> [Color] {
+        let slots = ["SlotDawn", "SlotMorning", "SlotAfternoon", "SlotEvening"]
+        let themeName = currentTheme == .muji ? "Muji" : "System"
+        return slots.map { Color("Colors/Chart/\($0)/\(themeName)") }
+    }
+    
+    // MARK: - 📊 熱力圖配色
+    func heatMapColor(level: Int) -> Color {
+        guard (1...4).contains(level) else { return Color.gray.opacity(0.15) }
+        let themeName = currentTheme == .muji ? "Muji" : "Default"
+        return Color("Colors/Chart/HeatMap\(level)/\(themeName)")
+    }
+    
+    // MARK: - 📊 週期配色
+    var cycleAccentColor: Color {
+        return Color("Colors/Cycle/\(currentTheme.assetName)")
     }
 }
 
 // MARK: -     [擴充功能] 放置於此以確保可見性
 // 這裡使用了純 Swift 寫法，避免 lroundf 報錯
+@available(*, deprecated, message: "Use Asset Catalog colors instead")
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

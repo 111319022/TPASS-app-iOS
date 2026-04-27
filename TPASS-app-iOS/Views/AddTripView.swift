@@ -377,7 +377,7 @@ struct AddTripView: View {
             }
             .frame(maxHeight: .infinity)
             .padding(.horizontal, 12)
-            .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackgroundColor)
+            .background(isHSRNonReserved ? Color("Colors/Semantic/TransferGreen") : inputBackgroundColor)
             .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
             .cornerRadius(10)
         }
@@ -761,7 +761,7 @@ struct AddTripView: View {
     }
     
     func transferButton() -> some View {
-        let bgColor = isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor
+        let bgColor = isTransfer ? Color("Colors/Semantic/TransferGreen") : inputBackgroundColor
         let fgColor = isTransfer ? Color.white : themeManager.secondaryTextColor
         let showChevron = filteredTransferTypes.count > 1 && isTransfer
         
@@ -999,7 +999,7 @@ struct StationInputRow: View {
             Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
             Spacer()
             Text("機場捷運", comment: "Airport MRT line name")
-                .font(.subheadline).fontWeight(.bold).foregroundColor(Color(hex: "#8246AF"))
+                .font(.subheadline).fontWeight(.bold).foregroundColor(Color("Colors/TransitLines/Line_TYMRT_A"))
                 .lineLimit(1).minimumScaleFactor(0.8)
             Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
         }
@@ -1038,7 +1038,7 @@ struct StationInputRow: View {
             Text(label).font(.caption).foregroundColor(themeManager.primaryTextColor).padding(.leading, 12)
             Spacer()
             Text("hsr_line_name")
-                .font(.subheadline).fontWeight(.bold).foregroundColor(Color(hex: "#FF6600"))
+                .font(.subheadline).fontWeight(.bold).foregroundColor(Color("Colors/TransitLines/Line_HSR"))
                 .lineLimit(1).minimumScaleFactor(0.8)
             Image(systemName: "chevron.down").font(.caption2).foregroundColor(themeManager.primaryTextColor).padding(.trailing, 8)
         }

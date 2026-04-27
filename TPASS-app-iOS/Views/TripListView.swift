@@ -361,7 +361,7 @@ struct TripListView: View {
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(width: 52, height: 52)
-                                .background(Color(hex: "#2c3e50"))
+                                .background(Color("Colors/Semantic/NavyBackground"))
                                 .clipShape(Circle())
                                 .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
@@ -382,7 +382,7 @@ struct TripListView: View {
                             .foregroundColor(.white)
                             .padding(.vertical, 14)
                             .padding(.horizontal, 24)
-                            .background(Color(hex: "#2c3e50"))
+                            .background(Color("Colors/Semantic/NavyBackground"))
                             .cornerRadius(30)
                             .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }

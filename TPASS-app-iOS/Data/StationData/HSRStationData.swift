@@ -8,7 +8,7 @@ class HSRStationData {
         id: "HSR",
         code: "HSR",
         name: "台灣高鐵",
-        color: Color(hex: "#FF6600"),
+        color: Color("Colors/TransitLines/Line_HSR"),
         stations: [
             "南港", "台北", "板橋", "桃園", "新竹", "苗栗", "台中", "彰化", "雲林", "嘉義", "台南", "左營"
         ]

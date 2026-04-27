@@ -291,7 +291,7 @@ struct EditTripView: View {
                                         }
                                     }
                                     .frame(maxHeight: .infinity).padding(.horizontal, 12)
-                                    .background(isTransfer ? Color(hex: "#27ae60") : inputBackgroundColor)
+                                    .background(isTransfer ? Color("Colors/Semantic/TransferGreen") : inputBackgroundColor)
                                     .foregroundColor(isTransfer ? .white : themeManager.secondaryTextColor)
                                     .cornerRadius(10)
                                 }
@@ -836,7 +836,7 @@ struct EditTripView: View {
             }
             .frame(maxHeight: .infinity)
             .padding(.horizontal, 12)
-            .background(isHSRNonReserved ? Color(hex: "#27ae60") : inputBackgroundColor)
+            .background(isHSRNonReserved ? Color("Colors/Semantic/TransferGreen") : inputBackgroundColor)
             .foregroundColor(isHSRNonReserved ? .white : themeManager.secondaryTextColor)
             .cornerRadius(10)
         }

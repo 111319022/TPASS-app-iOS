@@ -201,9 +201,7 @@ struct DashboardView: View {
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
                                 .background(
-                                    themeManager.currentTheme == .muji
-                                    ? themeManager.dnaColor(hex: tag.color.toHex() ?? "")
-                                    : tag.color
+                                    themeManager.dnaColor(hex: tag.color.toHex() ?? "")
                                 )
                                 .cornerRadius(15)
                                 .foregroundColor(.white)
@@ -226,7 +224,7 @@ struct DashboardView: View {
                 title: "breakeven_rate",
                 value: "\(roiValue)%",
                 unit: nil,
-                color: isBreakeven ? Color(hex: "#2ecc71") : Color(hex: "#e74c3c")
+                color: isBreakeven ? Color("Colors/Semantic/BreakevenGreen") : Color("Colors/Semantic/BreakevenRed")
             )
         }
         .padding(.horizontal)
@@ -492,36 +490,7 @@ struct DashboardView: View {
     }
     
     private func slotPalette(_ theme: AppTheme, _ colorScheme: ColorScheme?) -> [Color] {
-        let isDark: Bool = {
-            switch theme {
-            case .dark: return true
-            case .light, .muji, .purple: return false
-            case .system: return colorScheme == .dark
-            }
-        }()
-        switch theme {
-        case .muji:
-            return [
-                Color(hex: "#9AA0A6"), // 清晨/深夜 - 柔灰
-                Color(hex: "#5E81AC"), // 上午 - 靜謐藍
-                Color(hex: "#D08770"), // 下午 - 溫暖杏
-                Color(hex: "#B48EAD")  // 晚上 - 薰衣紫
-            ]
-        case .dark where isDark, .system where isDark:
-            return [
-                Color(hex: "#8E8E93"), // 清晨/深夜 - 中灰
-                Color(hex: "#5AC8FA"), // 上午 - 淺亮藍
-                Color(hex: "#FFD166"), // 下午 - 琥珀
-                Color(hex: "#BF5AF2")  // 晚上 - 亮紫
-            ]
-        default: // light/system-light
-            return [
-                Color(hex: "#9CA3AF"), // 清晨/深夜 - 灰
-                Color(hex: "#1E88E5"), // 上午 - 藍
-                Color(hex: "#FB8C00"), // 下午 - 橘
-                Color(hex: "#9C27B0")  // 晚上 - 紫
-            ]
-        }
+        return themeManager.slotPalette()
     }
     
     // MARK: - Components (支援 ThemeManager)
@@ -783,27 +752,10 @@ struct DashboardView: View {
         }
         
         func colorForLevel(_ level: Int) -> Color {
-            //     無印風特製熱力圖色階
-            if themeManager.currentTheme == .muji {
-                switch level {
-                case 0: return Color.gray.opacity(0.1)
-                case 1: return Color(hex: "#D8E6D6") // 極淺綠
-                case 2: return Color(hex: "#BCE0BC") // 淺綠
-                case 3: return Color(hex: "#A8C9A4") // 抹茶
-                case 4: return Color(hex: "#7A9E7E") // 深抹茶
-                default: return Color.gray.opacity(0.1)
-                }
-            } else {
-                // 原本的 GitHub 風格
-                switch level {
-                case 0: return Color.gray.opacity(0.2)
-                case 1: return Color(hex: "#9be9a8")
-                case 2: return Color(hex: "#40c463")
-                case 3: return Color(hex: "#30a14e")
-                case 4: return Color(hex: "#216e39")
-                default: return Color.gray.opacity(0.2)
-                }
+            guard (1...4).contains(level) else {
+                return Color.gray.opacity(themeManager.currentTheme == .muji ? 0.1 : 0.2)
             }
+            return themeManager.heatMapColor(level: level)
         }
     }
     

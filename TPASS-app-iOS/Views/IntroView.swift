@@ -24,7 +24,7 @@ struct IntroView: View {
         ZStack {
             // 背景漸層
             LinearGradient(
-                colors: [Color(hex: "#faf9f8"), Color(hex: "#f3ebe3"), Color(hex: "#ede3d9")],
+                colors: [Color("Colors/Intro/IntroGradientStart"), Color("Colors/Intro/IntroGradientMid"), Color("Colors/Intro/IntroGradientEnd")],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ).ignoresSafeArea()
@@ -71,13 +71,13 @@ struct IntroView: View {
                     }
                     .accessibilityLabel(Text("a11y_prev_page"))
                     .accessibilityHint(Text("a11y_prev_page_hint"))
-                    .opacity(currentTab == 0 ? 0 : 1).disabled(currentTab == 0).foregroundColor(Color(hex: "#2c3e50"))
+                    .opacity(currentTab == 0 ? 0 : 1).disabled(currentTab == 0).foregroundColor(Color("Colors/Intro/IntroTitle"))
                     
                     Spacer()
                     // 進度點
                     HStack(spacing: 6) {
                         ForEach(0..<totalPages, id: \.self) { index in
-                            Capsule().fill(currentTab == index ? Color(hex: "#d97761") : Color.gray.opacity(0.3)).frame(width: currentTab == index ? 20 : 6, height: 6).animation(.spring(), value: currentTab)
+                            Capsule().fill(currentTab == index ? Color("Colors/Intro/IntroAccent") : Color.gray.opacity(0.3)).frame(width: currentTab == index ? 20 : 6, height: 6).animation(.spring(), value: currentTab)
                         }
                     }
                     .accessibilityHidden(true)
@@ -89,7 +89,7 @@ struct IntroView: View {
                     }
                     .accessibilityLabel(Text("a11y_next_page"))
                     .accessibilityHint(Text("a11y_next_page_hint"))
-                    .opacity(currentTab == totalPages - 1 ? 0 : 1).disabled(currentTab == totalPages - 1).foregroundColor(Color(hex: "#2c3e50"))
+                    .opacity(currentTab == totalPages - 1 ? 0 : 1).disabled(currentTab == totalPages - 1).foregroundColor(Color("Colors/Intro/IntroTitle"))
                 }
                 .padding(.horizontal, 30).padding(.bottom, 40)
             }
@@ -152,11 +152,11 @@ struct WelcomeCard: View {
                 Text("intro_welcome_title")
                     .font(.system(size: 32, weight: .bold))
                     .multilineTextAlignment(.center)
-                    .foregroundColor(Color(hex: "#2c3e50"))
+                    .foregroundColor(Color("Colors/Intro/IntroTitle"))
                 
                 Text("By Raaay")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color(hex: "#d97761"))
+                    .foregroundColor(Color("Colors/Intro/IntroAccent"))
                 
                 Spacer().frame(height: 20)
                 
@@ -173,7 +173,7 @@ struct WelcomeCard: View {
                     Text("intro_swipe_more")
                     Image(systemName: "arrow.right")
                 }
-                .font(.caption).foregroundColor(Color(hex: "#7f8c8d")).opacity(0.8)
+                .font(.caption).foregroundColor(Color("Colors/Intro/IntroSubtext")).opacity(0.8)
             }
             .padding(.vertical, 30).padding(.horizontal, 20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -195,13 +195,13 @@ struct IdentityCard: View {
                 Spacer()
                 
                 ZStack {
-                    Circle().fill(Color(hex: "#d97761")).frame(width: 70, height: 70)
+                    Circle().fill(Color("Colors/Intro/IntroAccent")).frame(width: 70, height: 70)
                     Image(systemName: "person.2.fill").font(.system(size: 32)).foregroundColor(.white)
                 }
                 .accessibilityHidden(true)
                 
                 Text("intro_identity_title")
-                    .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
+                    .font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle"))
                 
                 Text("intro_choose_identity_desc")
                     .font(.subheadline).multilineTextAlignment(.center).foregroundColor(.gray)
@@ -245,7 +245,7 @@ struct PlanCycleCard: View {
         VStack {
             VStack(spacing: 12) {
                 Text("intro_plan_title")
-                    .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
+                    .font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle"))
                     .padding(.top, 20)
                 
                 // 方案分組列表
@@ -255,7 +255,7 @@ struct PlanCycleCard: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(group.title)
                                     .font(.caption).fontWeight(.semibold)
-                                    .foregroundColor(Color(hex: "#7f8c8d"))
+                                    .foregroundColor(Color("Colors/Intro/IntroSubtext"))
                                     .padding(.leading, 4)
                                 
                                 ForEach(group.regions, id: \.self) { region in
@@ -310,29 +310,29 @@ struct PlanCycleCard: View {
                 if isFlexible {
                     Image(systemName: "calendar.badge.plus")
                         .font(.subheadline)
-                        .foregroundColor(isSelected ? .white : Color(hex: "#2ecc71"))
+                        .foregroundColor(isSelected ? .white : Color("Colors/Intro/IntroSuccess"))
                 }
                 
                 Text(region.displayNameKey)
                     .font(.subheadline)
                     .fontWeight(isSelected ? .bold : .regular)
-                    .foregroundColor(isSelected ? .white : Color(hex: "#2c3e50"))
+                    .foregroundColor(isSelected ? .white : Color("Colors/Intro/IntroTitle"))
                 
                 Spacer()
                 
                 Text(region.monthlyPrice > 0 ? "$\(region.monthlyPrice)" : String(localized: "intro_plan_price_free"))
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(isSelected ? .white.opacity(0.9) : Color(hex: "#7f8c8d"))
+                    .foregroundColor(isSelected ? .white.opacity(0.9) : Color("Colors/Intro/IntroSubtext"))
             }
             .padding(.horizontal, 14).padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? Color(hex: "#d97761") : (isFlexible ? Color(hex: "#2ecc71").opacity(0.06) : Color.clear))
+                    .fill(isSelected ? Color("Colors/Intro/IntroAccent") : (isFlexible ? Color("Colors/Intro/IntroSuccess").opacity(0.06) : Color.clear))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color(hex: "#d97761") : Color.gray.opacity(0.15), lineWidth: 1)
+                    .stroke(isSelected ? Color("Colors/Intro/IntroAccent") : Color.gray.opacity(0.15), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -366,13 +366,13 @@ struct CitizenCityCard: View {
                 Spacer().frame(height: 8)
                 
                 ZStack {
-                    Circle().fill(Color(hex: "#2ecc71")).frame(width: 70, height: 70)
+                    Circle().fill(Color("Colors/Intro/IntroSuccess")).frame(width: 70, height: 70)
                     Image(systemName: "building.2.fill").font(.system(size: 32)).foregroundColor(.white)
                 }
                 .accessibilityHidden(true)
                 
                 Text("intro_citizen_title")
-                    .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
+                    .font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle"))
                 
                 Text("intro_citizen_desc")
                     .font(.subheadline).multilineTextAlignment(.center).foregroundColor(.gray)
@@ -409,21 +409,21 @@ struct CitizenCityCard: View {
             HStack {
                 Text(city?.displayName ?? "citizen_city_all")
                     .font(.subheadline)
-                    .foregroundColor(isSelected ? Color(hex: "#d97761") : Color(hex: "#2c3e50"))
+                    .foregroundColor(isSelected ? Color("Colors/Intro/IntroAccent") : Color("Colors/Intro/IntroTitle"))
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "#d97761"))
+                        .foregroundColor(Color("Colors/Intro/IntroAccent"))
                 }
             }
             .padding(.horizontal, 14).padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? Color(hex: "#d97761").opacity(0.08) : Color.clear)
+                    .fill(isSelected ? Color("Colors/Intro/IntroAccent").opacity(0.08) : Color.clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color(hex: "#d97761") : Color.gray.opacity(0.15), lineWidth: 1)
+                    .stroke(isSelected ? Color("Colors/Intro/IntroAccent") : Color.gray.opacity(0.15), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -440,13 +440,13 @@ struct NotificationCard: View {
                 Spacer()
                 
                 ZStack {
-                    Circle().fill(Color(hex: "#f39c12")).frame(width: 70, height: 70)
+                    Circle().fill(Color("Colors/Intro/IntroWarning")).frame(width: 70, height: 70)
                     Image(systemName: "bell.badge.fill").font(.system(size: 32)).foregroundColor(.white)
                 }
                 .accessibilityHidden(true)
                 
                 Text("intro_notification_title")
-                    .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
+                    .font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle"))
                 
                 Text("intro_notification_desc")
                     .font(.subheadline).multilineTextAlignment(.center).foregroundColor(.gray)
@@ -472,9 +472,9 @@ struct NotificationCard: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color(hex: "#f39c12"))
+                            .background(Color("Colors/Intro/IntroWarning"))
                             .cornerRadius(12)
-                            .shadow(color: Color(hex: "#f39c12").opacity(0.3), radius: 8, x: 0, y: 4)
+                            .shadow(color: Color("Colors/Intro/IntroWarning").opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                     
                     Button {
@@ -524,13 +524,13 @@ struct SummaryStartCard: View {
                 Spacer()
                 
                 ZStack {
-                    Circle().fill(Color(hex: "#2c3e50")).frame(width: 70, height: 70)
+                    Circle().fill(Color("Colors/Intro/IntroTitle")).frame(width: 70, height: 70)
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 36)).foregroundColor(.white)
                 }
                 .accessibilityHidden(true)
                 
                 Text("intro_summary_title")
-                    .font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50"))
+                    .font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle"))
                 
                 // 摘要列表
                 VStack(spacing: 0) {
@@ -563,9 +563,9 @@ struct SummaryStartCard: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color(hex: "#d97761"))
+                        .background(Color("Colors/Intro/IntroAccent"))
                         .cornerRadius(12)
-                        .shadow(color: Color(hex: "#d97761").opacity(0.3), radius: 8, x: 0, y: 4)
+                        .shadow(color: Color("Colors/Intro/IntroAccent").opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 
                 Text("intro_data_stored_local")
@@ -586,19 +586,19 @@ struct SummaryStartCard: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 14))
-                .foregroundColor(Color(hex: "#d97761"))
+                .foregroundColor(Color("Colors/Intro/IntroAccent"))
                 .frame(width: 32)
             
             Text(label)
                 .font(.subheadline)
-                .foregroundColor(Color(hex: "#7f8c8d"))
+                .foregroundColor(Color("Colors/Intro/IntroSubtext"))
             
             Spacer()
             
             value
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundColor(Color(hex: "#2c3e50"))
+                .foregroundColor(Color("Colors/Intro/IntroTitle"))
         }
         .padding(.horizontal, 14).padding(.vertical, 10)
     }
@@ -616,8 +616,8 @@ struct FeatureCard: View {
                 }
                 .accessibilityHidden(true)
                 .padding(.bottom, 20)
-                Text(title).font(.title2).fontWeight(.bold).foregroundColor(Color(hex: "#2c3e50")).padding(.bottom, 10)
-                Text(desc).font(.body).multilineTextAlignment(.center).lineSpacing(6).foregroundColor(Color(hex: "#666666"))
+                Text(title).font(.title2).fontWeight(.bold).foregroundColor(Color("Colors/Intro/IntroTitle")).padding(.bottom, 10)
+                Text(desc).font(.body).multilineTextAlignment(.center).lineSpacing(6).foregroundColor(Color("Colors/Intro/IntroBody"))
             }
             .padding(30).frame(maxWidth: .infinity).background(Color.white.opacity(0.95)).cornerRadius(24).shadow(color: .black.opacity(0.05), radius: 20, x: 0, y: 8)
         }
@@ -640,11 +640,11 @@ struct IdentityOption: View {
                 Text(subtitle).font(.caption).opacity(0.8)
             }
             .accessibilityElement(children: .combine)
-            .foregroundColor(isSelected ? Color(hex: "#d97761") : .gray)
+            .foregroundColor(isSelected ? Color("Colors/Intro/IntroAccent") : .gray)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(isSelected ? Color(hex: "#eaf2fa") : .clear)
+            .background(isSelected ? Color("Colors/Intro/IntroSelected") : .clear)
             .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isSelected ? Color(hex: "#d97761") : Color.gray.opacity(0.3), lineWidth: 2))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isSelected ? Color("Colors/Intro/IntroAccent") : Color.gray.opacity(0.3), lineWidth: 2))
         }
     }
 }
