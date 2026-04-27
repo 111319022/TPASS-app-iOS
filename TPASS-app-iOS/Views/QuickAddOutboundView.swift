@@ -47,6 +47,11 @@ struct QuickAddOutboundView: View {
         }
     }
 
+    private func displayOutboundStationName(_ station: OutboundStation) -> String {
+        guard station.transportType == .tra else { return station.name }
+        return TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)
+    }
+
     @State private var date = Date()
     @State private var time = Date()
     @State private var selectedOutboundStation: OutboundStation?
@@ -186,7 +191,7 @@ struct QuickAddOutboundView: View {
                                                 .frame(width: 32)
 
                                             VStack(alignment: .leading, spacing: 2) {
-                                                Text(station.name)
+                                                Text(displayOutboundStationName(station))
                                                     .font(.headline)
                                                     .foregroundColor(themeManager.primaryTextColor)
                                                 Text(station.transportType.displayName)

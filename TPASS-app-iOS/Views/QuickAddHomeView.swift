@@ -50,6 +50,11 @@ struct QuickAddHomeView: View {
             return true
         }
     }
+
+    private func displayHomeStationName(_ station: HomeStation) -> String {
+        guard station.transportType == .tra else { return station.name }
+        return TRAStationData.shared.displayStationName(station.name, languageCode: Locale.current.identifier)
+    }
     
     // === 表單狀態 ===
     @State private var date = Date()
@@ -191,7 +196,7 @@ struct QuickAddHomeView: View {
                                                 .frame(width: 32)
                                             
                                             VStack(alignment: .leading, spacing: 2) {
-                                                Text(station.name)
+                                                Text(displayHomeStationName(station))
                                                     .font(.headline)
                                                     .foregroundColor(themeManager.primaryTextColor)
                                                 Text(station.transportType.displayName)
