@@ -41,7 +41,7 @@
       "id": "hsr",
       "canonical_name": "高鐵",
       "priority": 3,
-      "keywords": ["高鐵", "hsr", "高速鐵路", "THSR"],
+      "keywords": ["高鐵", "hsr", "高速鐵路", "台灣高鐵"],
       "asr_errors": ["高貼", "高跌", "搞鐵"]
     },
     {

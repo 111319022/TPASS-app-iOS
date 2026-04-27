@@ -236,9 +236,25 @@ struct TripVoiceParser {
         }
         
         /// 必要欄位是否完整
-        var hasRequiredFields: Bool {
-            transportType != nil && startStation != nil && endStation != nil
-        }
+                var hasRequiredFields: Bool {
+                    guard let type = transportType else { return false }
+                    let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+                    
+                    if isStationlessAllowed {
+                        // 💡 嚴格條件：必須要有「路線號碼」或「金額」或「真實站名」，才能被判定為完整可儲存
+                        let hasRouteOrPrice = routeId != nil || price != nil
+                        // 將判斷條件改為空白字元 " "
+                        let hasRealStation = (startStation != nil && startStation != " ") || (endStation != nil && endStation != " ")
+                        
+                        // 若已經被系統合法補上空白 " "，也算完整
+                        let isSystemFilled = startStation == " " && endStation == " "
+                        
+                        return hasRouteOrPrice || hasRealStation || isSystemFilled
+                    } else {
+                        // 軌道運輸等必須同時有真實起訖站，且不能是系統代填的 " "
+                        return startStation != nil && endStation != nil && startStation != " " && endStation != " "
+                    }
+                }
     }
     
     // MARK: - 規則載入（懶載入，整個 App 生命週期只讀一次）
@@ -358,14 +374,38 @@ struct TripVoiceParser {
             results[i].isTransfer = true
             
             // 原始文字備註
-            results[i].note = rawText
-            
-            // 重新計算一致性
-            results[i].consistencyScore = calculateConsistency(results[i])
-        }
-        
-        return results
-    }
+                        results[i].note = rawText
+                        
+                        // 重新計算一致性
+                        results[i].consistencyScore = calculateConsistency(results[i])
+                    }
+                    
+        // 💡 6. 最終防呆處理：針對允許無起訖站的運具，審核是否滿足「免站名儲存條件」
+                for i in 0..<results.count {
+                    let type = results[i].transportType
+                    let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+                    
+                    if isStationlessAllowed {
+                        // 條件：檢查是否有「路線號碼」或「金額」，或者至少講了一個「站名」
+                        let hasRouteOrPrice = results[i].routeId != nil || results[i].price != nil
+                        let hasAnyStation = results[i].startStation != nil || results[i].endStation != nil
+                        
+                        // 必須滿足上述條件，才幫他補上一個空白字元 " " 繞過 UI 的 isEmpty 阻擋
+                        if hasRouteOrPrice || hasAnyStation {
+                            if results[i].startStation == nil {
+                                results[i].startStation = " " // 改成一個空白
+                            }
+                            if results[i].endStation == nil {
+                                results[i].endStation = " " // 改成一個空白
+                            }
+                        }
+                        // ⚠️ 若什麼條件都沒滿足（例如只說了「搭公車」），則保持 nil。
+                        // 這樣 UI 發現是 nil，就會正常觸發「點擊填寫補完才能儲存」！
+                    }
+                }
+                
+                return results
+            }
     
     // MARK: - 句子切割
     
@@ -450,13 +490,27 @@ struct TripVoiceParser {
         result.priceScore = priceConfidence
         
         // 起迄站抽取
-        let resolvedTransport = result.transportType
-        let (start, end, stationConfidence) = extractStations(normalized, transport: resolvedTransport)
-        result.startStation = start
-        result.endStation = end
-        result.stationScore = stationConfidence
+                let resolvedTransport = result.transportType
+                let (start, end, stationConfidence) = extractStations(normalized, transport: resolvedTransport)
+                result.startStation = start
+                result.endStation = end
+                
+            // 💡 新增：特例處理，公車、客運、腳踏車、渡輪可以沒有起訖站
+            let isStationlessAllowed = resolvedTransport == .bus || resolvedTransport == .coach || resolvedTransport == .bike || resolvedTransport == .ferry
+                
+            if isStationlessAllowed {
+                if start == nil && end == nil {
+                    // 如果完全沒有站名：有路線號碼給 1.0 滿分，什麼都沒有給 0.8
+                    result.stationScore = result.routeId != nil ? 1.0 : 0.8
+                } else {
+                    // 如果有提供單邊或雙邊站名，分數拉高保障及格
+                    result.stationScore = max(stationConfidence, 0.9)
+                }
+            } else {
+                result.stationScore = stationConfidence
+            }
 
-        // 線路代碼推論（捷運轉乘上下文可用）
+            // 線路代碼推論（捷運轉乘上下文可用）
         if let startStation = result.startStation {
             result.startLineCode = resolveLineCode(for: startStation, transport: resolvedTransport)
         }
@@ -718,10 +772,11 @@ struct TripVoiceParser {
         guard transport == nil || transport == .bus || transport == .coach else { return nil }
         
         // 先移除時間格式，避免誤抓
-        let timeRegex = try? NSRegularExpression(
-            pattern: "\\d{1,2}\\s*(?:點|:)\\s*\\d{1,2}\\s*(?:分)?",
-            options: []
-        )
+                // 修正：加入 \. 支援以及 (?!\d) 負向先行斷言，確保不會把 307 的 30 誤刪
+            let timeRegex = try? NSRegularExpression(
+                pattern: "\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
+                options: []
+                )
         let textWithoutTime: String
         if let timeRegex {
             textWithoutTime = timeRegex.stringByReplacingMatches(
@@ -854,21 +909,21 @@ struct TripVoiceParser {
             let digitChars = chineseDigitMap.keys.map { String($0) }.joined()
 
             // 建立所有要移除的噪音正則表達式
-            var prefixPatterns: [String] = [
-                // 1. 標點符號與空白 (解決 ASR 產生的 ".3" 或逗號等殘留)
-                "^[.,:;?!。，：；？！\\s]+",
+                var prefixPatterns: [String] = [
+                    // 1. 標點符號與空白 (解決 ASR 產生的 ".3" 或逗號等殘留)
+                    "^[.,:;?!。，：；？！\\s]+",
 
-                // 2. 日期前綴
-                "^(?:昨天|今天|明天|後天|今年|去年|明年|本週|下週|上週|\\d{1,2}月\\d{1,2}日)",
+                    // 2. 日期前綴
+                    "^(?:昨天|今天|明天|後天|今年|去年|明年|本週|下週|上週|\\d{1,2}月\\d{1,2}日)",
 
-                // 3. 時間前綴 (包含時段+精確時間、單獨時段、單獨精確時間)
-                "^(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
-                "^(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
-                "^\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
+                    // 3. 時間前綴 (💡 修正：加入 \. 支援以及 (?!\d) 邊界檢查)
+                    "^(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
+                    "^(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
+                    "^\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
 
-                // 4. 語音常見引導詞
-                "^(?:從|由|在|自|搭|坐)"
-            ]
+                    // 4. 語音常見引導詞
+                    "^(?:從|由|在|自|搭|坐)"
+                ]
 
             // 5. 路線號碼前綴 (僅限公車/客運)
             if transport == .bus || transport == .coach {
@@ -1143,23 +1198,29 @@ struct TripVoiceParser {
         var result = text
         
         // 移除「日期+時段+時間」組合
-        // 例如：「今天下午 3:30」「明天中午 12:30」「2026年4月22日 03:30」
-        let timeExpressionPatterns = [
-            // 相對日期 + 時段 + 時間
-            "(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
-            // 相對日期 + 時段（無時間數字）
-            "(?:昨天|今天|明天|後天|前天|大前天)\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
-            // 時段 + 時間（無日期）
-            "(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
-            // ISO 格式日期 + 時間
-            "\\d{4}年\\d{1,2}月\\d{1,2}日\\s*\\d{1,2}\\s*(?::|點)\\s*\\d{1,2}",
-            // 純時間格式（HH:MM 或 HH點MM分）
-            "\\d{1,2}\\s*(?:點|:)\\s*(?:\\d{1,2})?\\s*(?:分)?",
-            // 相對日期單獨出現
-            "(?:昨天|今天|明天|後天|前天|大前天)",
-            // 月日格式
-            "\\d{1,2}月\\d{1,2}日"
-        ]
+                // 例如：「今天下午 3:30」「明天中午 12:30」「2026年4月22日 03:30」
+                let timeExpressionPatterns = [
+                    // 相對日期 + 時段 + 時間（把 (?!\d) 移入分鐘的括號內）
+                    "(?:昨天|今天|明天|後天|前天|大前天)?\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
+                    
+                    // 相對日期 + 時段（無時間數字）
+                    "(?:昨天|今天|明天|後天|前天|大前天)\\s*(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)",
+                    
+                    // 時段 + 時間（無日期，把 (?!\d) 移入分鐘的括號內）
+                    "(?:凌晨|清晨|早上|上午|中午|下午|傍晚|晚上)\\s*\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
+                    
+                    // ISO 格式日期 + 時間（結尾增加邊界檢查）
+                    "\\d{4}年\\d{1,2}月\\d{1,2}日\\s*\\d{1,2}\\s*(?::|點|\\.)\\s*\\d{1,2}(?!\\d)",
+                    
+                    // 純時間格式（把 (?!\d) 移入分鐘的括號內）
+                    "\\d{1,2}\\s*(?:點|:|\\.)\\s*(?:\\d{1,2}(?!\\d))?\\s*(?:分)?",
+                    
+                    // 相對日期單獨出現
+                    "(?:昨天|今天|明天|後天|前天|大前天)",
+                    
+                    // 月日格式
+                    "\\d{1,2}月\\d{1,2}日"
+                ]
         
         for pattern in timeExpressionPatterns {
             guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { continue }
@@ -1207,10 +1268,12 @@ struct TripVoiceParser {
         }
 
         // 3. 解析精確時間：「X點Y分」「X:Y」
-        let timeRegex = try? NSRegularExpression(
-            pattern: "(\\d{1,2})\\s*(?:點|:)\\s*(\\d{1,2})?\\s*(?:分)?",
-            options: []
-        )
+            let timeRegex = try? NSRegularExpression(
+                // 關鍵修復：將分鐘部分改為 (?:(\\d{1,2})(?!\\d))?
+                // 這樣如果遇到 3.307，分鐘抓不到沒關係，它會快樂地把 "3." 當作小時抓下來，留下 307
+                pattern: "(\\d{1,2})\\s*(?:點|:|\\.)\\s*(?:(\\d{1,2})(?!\\d))?\\s*(?:分)?",
+                options: []
+                )
 
         if let timeRegex {
             let nsRange = NSRange(text.startIndex..., in: text)
@@ -1262,18 +1325,31 @@ struct TripVoiceParser {
     }
     
     // MARK: - 一致性分數
-    
-    private static func calculateConsistency(_ parsed: ParsedTrip) -> Double {
-        var score = 0.5
         
-        if parsed.transportType != nil && parsed.startStation != nil && parsed.endStation != nil {
-            score += 0.3
+        private static func calculateConsistency(_ parsed: ParsedTrip) -> Double {
+            var score = 0.5
+            
+            let isStationlessAllowed = parsed.transportType == .bus || parsed.transportType == .coach || parsed.transportType == .bike || parsed.transportType == .ferry
+            
+            if parsed.transportType != nil {
+                if parsed.startStation != nil && parsed.endStation != nil {
+                    // 一般情況：有起訖站給予完整一致性加分
+                    score += 0.3
+                } else if isStationlessAllowed {
+                    // 特例運具：如果只有單邊站名，或是只有路線號碼（例如"284公車"），一樣給予完整加分
+                    if parsed.routeId != nil || parsed.startStation != nil || parsed.endStation != nil {
+                        score += 0.3
+                    } else {
+                        // 只有「公車」兩個字什麼都沒講，給一半加分
+                        score += 0.15
+                    }
+                }
+            }
+            
+            if let price = parsed.price, price >= 0, price <= 5000 {
+                score += 0.2
+            }
+            
+            return min(score, 1.0)
         }
-        
-        if let price = parsed.price, price >= 0, price <= 5000 {
-            score += 0.2
-        }
-        
-        return min(score, 1.0)
-    }
 }

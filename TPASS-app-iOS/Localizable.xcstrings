@@ -371,40 +371,6 @@
         }
       }
     },
-    "a11y_cycle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cycle"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "週期"
-          }
-        }
-      }
-    },
-    "a11y_cycle_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select a cycle"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選擇週期"
-          }
-        }
-      }
-    },
     "a11y_date" : {
       "localizations" : {
         "en" : {
@@ -417,91 +383,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "日期"
-          }
-        }
-      }
-    },
-    "a11y_day_actions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Day actions"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "單日操作"
-          }
-        }
-      }
-    },
-    "a11y_day_actions_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shows actions for %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示 %@ 的操作"
-          }
-        }
-      }
-    },
-    "a11y_end_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "End %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "終點 %@"
-          }
-        }
-      }
-    },
-    "a11y_favorites" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorites"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常用路線"
-          }
-        }
-      }
-    },
-    "a11y_favorites_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens favorite routes"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開啟常用路線"
           }
         }
       }
@@ -522,23 +403,6 @@
         }
       }
     },
-    "a11y_has_note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Has note"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有備註"
-          }
-        }
-      }
-    },
     "a11y_hide_details" : {
       "localizations" : {
         "en" : {
@@ -551,23 +415,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點兩下收起詳細資料"
-          }
-        }
-      }
-    },
-    "a11y_list_separator" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : ", "
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "，"
           }
         }
       }
@@ -684,40 +531,6 @@
         }
       }
     },
-    "a11y_original_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Original $%lld"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原價 $%lld"
-          }
-        }
-      }
-    },
-    "a11y_paid_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paid $%lld"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "實付 $%lld"
-          }
-        }
-      }
-    },
     "a11y_prev_page" : {
       "localizations" : {
         "en" : {
@@ -750,74 +563,6 @@
         }
       }
     },
-    "a11y_quick_add_departure" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Quick Add Departure"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快速新增出門路線"
-          }
-        }
-      }
-    },
-    "a11y_quick_add_departure_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quickly add a trip from your departure station"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快速新增從出門站出發的行程"
-          }
-        }
-      }
-    },
-    "a11y_quick_add_home" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quick Add Home Trip"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快速新增回家路線"
-          }
-        }
-      }
-    },
-    "a11y_quick_add_home_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quickly add a trip to your home station"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快速新增到回家站點的行程"
-          }
-        }
-      }
-    },
     "a11y_ranked_route_format" : {
       "localizations" : {
         "en" : {
@@ -830,23 +575,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "第 %lld 名，"
-          }
-        }
-      }
-    },
-    "a11y_route_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Route %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "路線 %@"
           }
         }
       }
@@ -899,40 +627,6 @@
         }
       }
     },
-    "a11y_start_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "起點 %@"
-          }
-        }
-      }
-    },
-    "a11y_station_range_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ to %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 到 %@"
-          }
-        }
-      }
-    },
     "a11y_time" : {
       "localizations" : {
         "en" : {
@@ -945,23 +639,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "時間"
-          }
-        }
-      }
-    },
-    "a11y_time_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間 %@"
           }
         }
       }
@@ -1683,23 +1360,6 @@
         }
       }
     },
-    "backup_restore_success_message %lld %lld %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup restored\nTrips: %1$lld\nFavorites: %2$lld\nCycles: %3$lld"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "備份已恢復\n行程: %1$lld\n常用路線: %2$lld\n週期: %3$lld"
-          }
-        }
-      }
-    },
     "backup_restore_success_message_v2 %lld %lld %lld %lld %lld %lld" : {
       "localizations" : {
         "en" : {
@@ -1808,23 +1468,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上傳本地數據到 iCloud"
-          }
-        }
-      }
-    },
-    "backup_upload_success_message %lld %lld %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup uploaded to iCloud\n%1$lld trips, %2$lld favorites, %3$lld cycles"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "備份已上傳到 iCloud\n%1$lld 筆行程、%2$lld 個常用路線、%3$lld 個週期"
           }
         }
       }
@@ -2008,23 +1651,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "卡片資訊"
-          }
-        }
-      }
-    },
-    "card_initial_balance" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Initial Balance"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "初始餘額"
           }
         }
       }
@@ -2593,23 +2219,6 @@
         }
       }
     },
-    "cloudkit_partial_upload_failed_detail %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upload failed: %lld records failed to upload."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上傳失敗：%lld 筆記錄上傳失敗"
-          }
-        }
-      }
-    },
     "cloudkit_unavailable" : {
       "localizations" : {
         "en" : {
@@ -2906,23 +2515,6 @@
     },
     "Console" : {
 
-    },
-    "continue_copy" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continue"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "繼續"
-          }
-        }
-      }
     },
     "copied_day %@" : {
       "localizations" : {
@@ -3265,23 +2857,6 @@
         }
       }
     },
-    "currentCycleAuto" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Current Month Cycle (Auto)"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "本月週期 (自動)"
-          }
-        }
-      }
-    },
     "currentTheme" : {
       "localizations" : {
         "en" : {
@@ -3427,40 +3002,6 @@
         }
       }
     },
-    "cycle_total_paid" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total Paid"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "實付總額"
-          }
-        }
-      }
-    },
-    "cycle_transfer_savings" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transfer Savings"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "轉乘折扣"
-          }
-        }
-      }
-    },
     "cycle_trip_count" : {
       "localizations" : {
         "en" : {
@@ -3473,159 +3014,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%d 趟"
-          }
-        }
-      }
-    },
-    "cycle_year_cycles_count" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cycles"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "週期數"
-          }
-        }
-      }
-    },
-    "cycle_year_net_loss" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Net Deficit"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "淨虧金額"
-          }
-        }
-      }
-    },
-    "cycle_year_net_saved" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Net Saved"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "淨省金額"
-          }
-        }
-      }
-    },
-    "cycle_year_payback" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Payback Rate"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "整體回本率"
-          }
-        }
-      }
-    },
-    "cycle_year_plan_cost" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plan Fees"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "方案費用"
-          }
-        }
-      }
-    },
-    "cycle_year_summary" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Year Overview"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "年度總覽"
-          }
-        }
-      }
-    },
-    "cycle_year_total_paid" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total Spent"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "消費總額"
-          }
-        }
-      }
-    },
-    "cycle_year_transfer_savings" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transfer Savings"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "轉乘折扣"
-          }
-        }
-      }
-    },
-    "cycle_year_trips" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trips"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "總行程數"
           }
         }
       }
@@ -4623,40 +4011,6 @@
         }
       }
     },
-    "duplicate_trip_past_message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This will use the original trip time. Continue?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將以原本行程時間複製。是否繼續？"
-          }
-        }
-      }
-    },
-    "duplicate_trip_past_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate trip from past cycle?"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "複製過去週期行程？"
-          }
-        }
-      }
-    },
     "early_morning" : {
       "localizations" : {
         "en" : {
@@ -4947,42 +4301,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "渡輪"
-          }
-        }
-      }
-    },
-    "first_time_hint_message" : {
-      "comment" : "Message for first-time user hint about flexible cycle",
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You can start recording trips with this flexible cycle, or set up your first regular cycle in the Cycles page."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您可以依照此彈性週期開始記錄，或者至週期頁面設置第一個正式週期。"
-          }
-        }
-      }
-    },
-    "first_time_hint_title" : {
-      "comment" : "Title for first-time user hint",
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Welcome"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "歡迎使用"
           }
         }
       }
@@ -5573,142 +4891,6 @@
         }
       }
     },
-    "intro_feature_1_desc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Built for MegaCity Pass commuters.\nIs 1200 worth it?\nLet’s calculate together."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "專為基北北桃通勤族打造。\n1200 買下去，到底有沒有回本？\n讓我們幫你算清楚。"
-          }
-        }
-      }
-    },
-    "intro_feature_1_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Commute smart, spend less"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通勤，也要精打細算"
-          }
-        }
-      }
-    },
-    "intro_feature_2_desc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatically applies transfer discounts ($8/$6).\nSupports frequent rider rebates\nand TPASS 2.0 subsidy calculations."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動扣除轉乘優惠 ($8/$6)。\n支援「常客優惠」階梯回饋\n與「TPASS 2.0」運具補貼計算。"
-          }
-        }
-      }
-    },
-    "intro_feature_2_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smart transfers & discounts"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "智慧轉乘與優惠"
-          }
-        }
-      }
-    },
-    "intro_feature_3_desc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not limited to the 1st of each month.\nPick your pass start date,\nand track rebates across the 30-day validity."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不限於每月 1 號！\n自訂月票啟用日，\n自動計算 30 天效期內的每一筆回饋。"
-          }
-        }
-      }
-    },
-    "intro_feature_3_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flexible cycle settings"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "彈性週期設定"
-          }
-        }
-      }
-    },
-    "intro_feature_4_desc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New: commuter heatmap & breakeven race.\nVisualize weekday/weekend patterns\nand detailed spend breakdowns."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全新推出「通勤熱力圖」與「回本競速」。\n視覺化分析您的平日/假日貢獻，\n與每一筆支出的詳細結構。"
-          }
-        }
-      }
-    },
-    "intro_feature_4_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deep analytics dashboard"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "深度數據儀表板"
-          }
-        }
-      }
-    },
     "intro_identity_adult_title" : {
       "localizations" : {
         "en" : {
@@ -6029,23 +5211,6 @@
         }
       }
     },
-    "intro_start_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get Started"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開始使用"
-          }
-        }
-      }
-    },
     "intro_summary_citizen" : {
       "localizations" : {
         "en" : {
@@ -6289,23 +5454,6 @@
         }
       }
     },
-    "issueReportHint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tip: long-press the title on this page to create the developer CloudKit push subscription."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提示：你可以在此頁面長按標題，建立開發者專屬的 CloudKit 推播訂閱。"
-          }
-        }
-      }
-    },
     "issueReportNotificationPermissionDenied" : {
       "localizations" : {
         "en" : {
@@ -6318,57 +5466,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "推播權限尚未開啟，無法建立開發者訂閱。"
-          }
-        }
-      }
-    },
-    "issueReportSetupFailureTitle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Setup Failed"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "建立失敗"
-          }
-        }
-      }
-    },
-    "issueReportSetupSuccessMessage" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CloudKit push notifications for Issue Report are now enabled."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已成功啟用 Issue Report 的 CloudKit 推播訂閱。"
-          }
-        }
-      }
-    },
-    "issueReportSetupSuccessTitle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Developer Subscription Created"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開發者訂閱已建立"
           }
         }
       }
@@ -6656,24 +5753,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "基北北桃"
-          }
-        }
-      }
-    },
-    "metros" : {
-      "comment" : "Metro/MRT display name unified for all metro systems",
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Metro"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "捷運"
           }
         }
       }
@@ -7957,23 +7036,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ 新北捷運-輕軌 (%2$lld 趟) %3$lld%%"
-          }
-        }
-      }
-    },
-    "rebate_r2_rail_item %@ %lld %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ Rail (%2$lld trips) %3$lld%%"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ 鐵路 (%2$lld 趟) %3$lld%%"
           }
         }
       }
@@ -10304,23 +9366,6 @@
         }
       }
     },
-    "voice_advanced_editor_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Results may be inaccurate. Please check the segments below."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "辨識結果可能有誤，請檢查以下段落"
-          }
-        }
-      }
-    },
     "voice_auto_fare_hint" : {
       "localizations" : {
         "en" : {
@@ -10413,57 +9458,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "收合"
-          }
-        }
-      }
-    },
-    "voice_confidence_high" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "High confidence — ready to save"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "高信心 — 可直接儲存"
-          }
-        }
-      }
-    },
-    "voice_confidence_low" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Low confidence — please check carefully"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "信心不足 — 請仔細確認"
-          }
-        }
-      }
-    },
-    "voice_confidence_medium" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please verify the fields below"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請確認以下欄位"
           }
         }
       }
@@ -10676,23 +9670,6 @@
         }
       }
     },
-    "voice_field_end" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "終點"
-          }
-        }
-      }
-    },
     "voice_field_note" : {
       "localizations" : {
         "en" : {
@@ -10709,23 +9686,6 @@
         }
       }
     },
-    "voice_field_price" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Price"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "票價"
-          }
-        }
-      }
-    },
     "voice_field_route" : {
       "localizations" : {
         "en" : {
@@ -10738,23 +9698,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "路線"
-          }
-        }
-      }
-    },
-    "voice_field_start" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "From"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "起點"
           }
         }
       }
@@ -10823,23 +9766,6 @@
         }
       }
     },
-    "voice_missing_fields_hint" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Missing fields"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "缺站"
-          }
-        }
-      }
-    },
     "voice_missing_start_question" : {
       "localizations" : {
         "en" : {
@@ -10868,40 +9794,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "請問是什麼交通工具？"
-          }
-        }
-      }
-    },
-    "voice_multi_segment_message" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Currently only single trip recording is supported. Please split into separate records."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目前僅支援單趟辨識，請拆成兩筆紀錄。"
-          }
-        }
-      }
-    },
-    "voice_multi_segment_title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Multiple segments detected"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偵測到多段行程"
           }
         }
       }
@@ -10998,40 +9890,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要權限"
-          }
-        }
-      }
-    },
-    "voice_price_placeholder" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Amount"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "金額"
-          }
-        }
-      }
-    },
-    "voice_quick_trip_a11y" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice quick record trip"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "語音快速記錄行程"
           }
         }
       }
@@ -11160,23 +10018,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開始錄音"
-          }
-        }
-      }
-    },
-    "voice_station_placeholder" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Station name"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "站名"
           }
         }
       }
