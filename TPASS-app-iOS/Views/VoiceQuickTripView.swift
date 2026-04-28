@@ -36,7 +36,6 @@ struct VoiceQuickTripView: View {
         case recording        // 錄音中
         case parsing          // 解析中
         case simplePreview    // V3：完美命中 — 極簡票券卡片
-        case missingInfo      // V3：缺漏必要欄位 — 針對性補填
         case advancedEditor   // V3：多段轉乘/低信心 — 完整編輯器（原 preview）
         case permissionDenied // 權限被拒
         case fallbackManual   // 低信心，轉手動
@@ -52,18 +51,20 @@ struct VoiceQuickTripView: View {
     @State private var showTRAOutOfRangeAlert = false
     @State private var showCycleDateOutOfRangeAlert = false
     
-    // V3：missingInfo 模式需要補填的欄位
-    enum MissingField: CaseIterable {
-        case transportType, startStation, endStation
-    }
-    @State private var missingFields: [MissingField] = []
-    @State private var missingFieldIndex: Int = 0
-    
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
     @State private var didSaveTrip: Bool = false
     
     // 時間軸：正在編輯的段落 index（nil 表示全部收合為摘要卡片）
     @State private var editingSegmentIndex: Int? = nil
+    
+    // 快速補填：展開迷你編輯面板的段落 index（與 editingSegmentIndex 互斥）
+    @State private var quickFixSegmentIndex: Int? = nil
+
+    // 快速補填：站名欄位是否維持展開，避免輸入時因條件變更而重建
+    @State private var quickFixStationExpandedIndex: Int? = nil
+
+    // 快速補填：金額欄位是否維持展開，避免輸入時因條件變更而重建
+    @State private var quickFixPriceExpandedIndex: Int? = nil
     
     var onSuccess: (() -> Void)? = nil
     var onSwitchToManual: (() -> Void)? = nil
@@ -125,8 +126,6 @@ struct VoiceQuickTripView: View {
                                 parsingPhaseContent
                             case .simplePreview:
                                 simplePreviewContent
-                            case .missingInfo:
-                                missingInfoContent
                             case .advancedEditor:
                                 advancedEditorContent
                             case .permissionDenied:
@@ -577,172 +576,6 @@ struct VoiceQuickTripView: View {
         }
     }
     
-    // MARK: - V3：補填缺漏欄位
-    
-    private var missingInfoContent: some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 30)
-            
-            // 已辨識的資訊摘要
-            if let type = segments.first?.transportType {
-                HStack(spacing: 6) {
-                    Image(systemName: type.systemIconName)
-                        .font(.caption)
-                    Text(displayTransportName(type, routeId: segments.first?.routeId ?? ""))
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                }
-                .foregroundColor(themeManager.accentColor)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(themeManager.accentColor.opacity(0.12))
-                .cornerRadius(20)
-            }
-            
-            // 大字提問
-            if missingFieldIndex < missingFields.count {
-                let field = missingFields[missingFieldIndex]
-                
-                VStack(spacing: 16) {
-                    Text(missingFieldQuestion(for: field))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .multilineTextAlignment(.center)
-                    
-                    // 對應的輸入控制項
-                    missingFieldInput(for: field)
-                }
-                .padding(20)
-                .frame(maxWidth: .infinity)
-                .background(themeManager.cardBackgroundColor)
-                .cornerRadius(16)
-            }
-            
-            Spacer()
-            
-            // 跳過：切到進階編輯
-            Button(action: {
-                phase = .advancedEditor
-            }) {
-                Text("voice_skip_to_editor")
-                    .font(.subheadline)
-                    .foregroundColor(themeManager.secondaryTextColor)
-            }
-        }
-    }
-    
-    /// 補填問句
-    private func missingFieldQuestion(for field: MissingField) -> LocalizedStringKey {
-        switch field {
-        case .transportType: return "voice_missing_transport_question"
-        case .startStation: return "voice_missing_start_question"
-        case .endStation: return "voice_missing_end_question"
-        }
-    }
-    
-    /// 補填輸入控制
-    @ViewBuilder
-    private func missingFieldInput(for field: MissingField) -> some View {
-        switch field {
-        case .transportType:
-            // 運具選擇按鈕群
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 10)], spacing: 10) {
-                ForEach(currentSupportedModes) { mode in
-                    Button(action: {
-                        segments[0].transportType = mode
-                        applyParsedSelectionMetadata(for: &segments[0])
-                        autoFillFareForSegment(&segments[0])
-                        advanceMissingField()
-                    }) {
-                        VStack(spacing: 4) {
-                            Image(systemName: mode.systemIconName)
-                                .font(.title3)
-                            Text(mode.displayName)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                        }
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(themeManager.cardBackgroundColor)
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
-                        )
-                    }
-                }
-            }
-            
-        case .startStation:
-            stationInputForMissingField(isStart: true)
-            
-        case .endStation:
-            stationInputForMissingField(isStart: false)
-        }
-    }
-    
-    /// 站點輸入（missingInfo 模式用）
-    @ViewBuilder
-    private func stationInputForMissingField(isStart: Bool) -> some View {
-        if let type = segments.first?.transportType {
-            VStack(spacing: 0) {
-                switch type {
-                case .tra:
-                    TRALineStationInputRow(
-                        label: isStart ? "start_point" : "end_point",
-                        regions: availableTRARegions,
-                        selectedRegion: isStart ? $segments[0].startTRARegion : $segments[0].endTRARegion,
-                        stationId: isStart ? $segments[0].startStation : $segments[0].endStation
-                    )
-                case .lrt:
-                    StationInputRow(
-                        label: isStart ? "start_point" : "end_point",
-                        type: .lrt,
-                        lineCode: $segments[0].startLineCode,
-                        stationName: isStart ? $segments[0].startStation : $segments[0].endStation,
-                        currentRegion: currentRegion,
-                        lineSelectionEnabled: isStart
-                    )
-                default:
-                    StationInputRow(
-                        label: isStart ? "start_point" : "end_point",
-                        type: type,
-                        lineCode: isStart ? $segments[0].startLineCode : $segments[0].endLineCode,
-                        stationName: isStart ? $segments[0].startStation : $segments[0].endStation,
-                        currentRegion: currentRegion
-                    )
-                }
-            }
-            .background(Color(uiColor: .secondarySystemBackground))
-            .cornerRadius(10)
-            .onChange(of: isStart ? segments[0].startStation : segments[0].endStation) { _, newValue in
-                if !newValue.isEmpty {
-                    applyParsedSelectionMetadata(for: &segments[0])
-                    autoFillFareForSegment(&segments[0])
-                    // 延遲一點讓動畫更自然
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        advanceMissingField()
-                    }
-                }
-            }
-        }
-    }
-    
-    /// 進到下一個缺漏欄位，或全部補完後跳到時間軸
-    private func advanceMissingField() {
-        let nextIndex = missingFieldIndex + 1
-        if nextIndex < missingFields.count {
-            missingFieldIndex = nextIndex
-        } else {
-            // 全部補完 → 進入時間軸
-            editingSegmentIndex = nil
-            phase = .advancedEditor
-            HapticManager.shared.notification(type: .success)
-        }
-    }
-    
     // MARK: - V3：時間軸編輯器（票券時間軸 A→B→C）
     
     private var advancedEditorContent: some View {
@@ -796,46 +629,25 @@ struct VoiceQuickTripView: View {
                 } else {
                     // 收合：摘要卡片
                     segmentSummaryCard(at: index, segment: seg)
+                    
+                    // 快速補填面板（警告按鈕展開時顯示）
+                    if quickFixSegmentIndex == index {
+                        segmentQuickFixPanel(at: index)
+                            .padding(.top, 4)
+                    }
                 }
             }
             
-            // + 手動加入下一段轉乘
+            // + 手動加入下一段轉乘 (降級視覺層級)
             Button(action: addEmptySegment) {
                 HStack(spacing: 6) {
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus.circle")
                     Text("voice_add_segment")
                 }
                 .font(.subheadline)
-                .foregroundColor(themeManager.accentColor)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(themeManager.cardBackgroundColor)
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
-                )
-            }
-            .padding(.top, 12)
-            
-            // 缺漏提示
-            if !canSaveAll {
-                HStack(spacing: 6) {
-                    Image(systemName: hasUnsupportedTransport ? "exclamationmark.triangle.fill" : "info.circle")
-                        .font(.caption)
-                    if hasUnsupportedTransport {
-                        Text("voice_unsupported_transport_hint")
-                            .font(.caption)
-                    } else if segments.contains(where: { $0.transportType == .coach && (Int($0.price) ?? 0) <= 0 }) {
-                        Text("voice_coach_price_required_hint")
-                            .font(.caption)
-                    } else {
-                        Text("voice_fill_required_hint")
-                            .font(.caption)
-                    }
-                }
-                .foregroundColor(hasUnsupportedTransport ? .red : .orange)
-                .padding(.top, 12)
+                .fontWeight(.medium)
+                .foregroundColor(themeManager.secondaryTextColor)
+                .padding(.vertical, 16)
             }
             
             Spacer().frame(height: 16)
@@ -893,6 +705,311 @@ struct VoiceQuickTripView: View {
         }
     }
     
+    // MARK: - 快速補填面板（僅顯示缺漏欄位）
+    
+    /// 迷你編輯面板：只顯示該段落缺漏的欄位，點擊警告後向下展開
+    @ViewBuilder
+    private func segmentQuickFixPanel(at index: Int) -> some View {
+        let seg = segments[index]
+        let type = seg.transportType
+        let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+        let isQuickFixing = quickFixSegmentIndex == index
+        let isStationExpanded = quickFixStationExpandedIndex == index
+        let isPriceExpanded = quickFixPriceExpandedIndex == index
+        let hasStart = !seg.startStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.startStation != " "
+        let hasEnd = !seg.endStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.endStation != " "
+        let priceWarning = type == .coach && (Int(seg.price) ?? 0) <= 0
+        let showFareDisplay = type == .bus && !seg.price.isEmpty
+        let stationWarning = stationMissingWarning(for: seg)
+        
+        VStack(spacing: 12) {
+            // 缺運具：顯示運具選擇格
+            if type == nil {
+                quickFixTransportPicker(at: index)
+            }
+            
+            // 缺金額（客運）
+            if isPriceExpanded || priceWarning {
+                quickFixPriceInput(at: index)
+            }
+            
+            // 缺起訖站
+            if type != nil {
+                if isStationExpanded {
+                    quickFixStationInput(at: index, needStart: true, needEnd: true, isExpanded: true)
+                } else if stationWarning != nil {
+                    quickFixStationInput(at: index, needStart: !hasStart, needEnd: !hasEnd, isExpanded: false)
+                } else if isStationlessAllowed {
+                    if hasStart != hasEnd {
+                        quickFixStationInput(at: index, needStart: !hasStart, needEnd: !hasEnd, isExpanded: false)
+                    }
+                } else {
+                    if !hasStart || !hasEnd {
+                        quickFixStationInput(at: index, needStart: !hasStart, needEnd: !hasEnd, isExpanded: false)
+                    }
+                }
+            }
+
+            // 收合按鈕
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    quickFixSegmentIndex = nil
+                    quickFixStationExpandedIndex = nil
+                    quickFixPriceExpandedIndex = nil
+                }
+            }) {
+                HStack(spacing: 4) {
+                    Text("voice_collapse_editor")
+                        .font(.caption)
+                    Image(systemName: "chevron.up")
+                        .font(.caption)
+                }
+                .foregroundColor(themeManager.secondaryTextColor)
+            }
+        }
+        .padding(12)
+        .background(themeManager.cardBackgroundColor)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.red.opacity(0.2), lineWidth: 1)
+        )
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+    
+    /// 快速補填：運具選擇
+    @ViewBuilder
+    private func quickFixTransportPicker(at index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("voice_missing_transport_question")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(themeManager.secondaryTextColor)
+            
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 8)], spacing: 8) {
+                ForEach(currentSupportedModes) { mode in
+                    Button(action: {
+                        segments[index].transportType = mode
+                        applyParsedSelectionMetadata(for: &segments[index])
+                        autoFillFareForSegment(&segments[index])
+                        // 如果補完後沒有其他缺漏，自動收合
+                        if segmentMissingWarning(for: segments[index]) == nil {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                quickFixSegmentIndex = nil
+                                quickFixStationExpandedIndex = nil
+                                quickFixPriceExpandedIndex = nil
+                            }
+                            HapticManager.shared.notification(type: .success)
+                        }
+                    }) {
+                        VStack(spacing: 3) {
+                            Image(systemName: mode.systemIconName)
+                                .font(.subheadline)
+                            Text(mode.displayName)
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(themeManager.backgroundColor)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    /// 快速補填：金額輸入
+    @ViewBuilder
+    private func quickFixPriceInput(at index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("voice_missing_price_question")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(themeManager.secondaryTextColor)
+            
+            HStack(spacing: 10) {
+                Text("$")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                TextField("0", text: $segments[index].price)
+                    .keyboardType(.numberPad)
+                    .font(.title3.bold())
+                    .foregroundColor(themeManager.primaryTextColor)
+
+                let isValid = (Int(segments[index].price) ?? 0) > 0
+                Button(action: {
+                    if isValid {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            quickFixSegmentIndex = nil
+                            quickFixStationExpandedIndex = nil
+                            quickFixPriceExpandedIndex = nil
+                        }
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                }) {
+                    Text("voice_quick_fix_confirm")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(isValid ? .white : themeManager.secondaryTextColor)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isValid ? AnyShapeStyle(themeManager.accentColor) : themeManager.backgroundColor)
+                        .cornerRadius(8)
+                }
+                .disabled(!isValid)
+            }
+            .padding(10)
+            .background(themeManager.backgroundColor)
+            .cornerRadius(8)
+        }
+    }
+    
+    /// 快速補填：起訖站輸入
+    @ViewBuilder
+    private func quickFixStationInput(at index: Int, needStart: Bool, needEnd: Bool, isExpanded: Bool) -> some View {
+        if let type = segments[index].transportType {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("voice_missing_station_question")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                
+                VStack(spacing: 0) {
+                    if isExpanded || needStart {
+                        quickFixSingleStationRow(at: index, type: type, isStart: true)
+                    }
+                    if isExpanded || (needStart && needEnd) {
+                        Divider().opacity(0.5).padding(.leading, 12)
+                    }
+                    if isExpanded || needEnd {
+                        quickFixSingleStationRow(at: index, type: type, isStart: false)
+                    }
+                }
+                .background(themeManager.backgroundColor)
+                .cornerRadius(8)
+
+                let warning = segmentMissingWarning(for: segments[index])
+                Button(action: {
+                    if warning == nil {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            quickFixSegmentIndex = nil
+                            quickFixStationExpandedIndex = nil
+                            quickFixPriceExpandedIndex = nil
+                        }
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                }) {
+                    Text("voice_quick_fix_confirm")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(warning == nil ? .white : themeManager.secondaryTextColor)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(warning == nil ? AnyShapeStyle(themeManager.accentColor) : themeManager.backgroundColor)
+                        .cornerRadius(8)
+                }
+                .disabled(warning != nil)
+            }
+            .onSubmit {
+                if segmentMissingWarning(for: segments[index]) == nil {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        quickFixSegmentIndex = nil
+                        quickFixStationExpandedIndex = nil
+                        quickFixPriceExpandedIndex = nil
+                    }
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+            }
+        }
+    }
+    
+    /// 快速補填：單一站點選擇列
+    @ViewBuilder
+    private func quickFixSingleStationRow(at index: Int, type: TransportType, isStart: Bool) -> some View {
+        switch type {
+        case .tra:
+            TRALineStationInputRow(
+                label: isStart ? "start_point" : "end_point",
+                regions: availableTRARegions,
+                selectedRegion: isStart ? $segments[index].startTRARegion : $segments[index].endTRARegion,
+                stationId: isStart ? $segments[index].startStation : $segments[index].endStation
+            )
+        case .lrt:
+            StationInputRow(
+                label: isStart ? "start_point" : "end_point",
+                type: .lrt,
+                lineCode: $segments[index].startLineCode,
+                stationName: isStart ? $segments[index].startStation : $segments[index].endStation,
+                currentRegion: currentRegion,
+                lineSelectionEnabled: isStart
+            )
+        default:
+            StationInputRow(
+                label: isStart ? "start_point" : "end_point",
+                type: type,
+                lineCode: isStart ? $segments[index].startLineCode : $segments[index].endLineCode,
+                stationName: isStart ? $segments[index].startStation : $segments[index].endStation,
+                currentRegion: currentRegion,
+                manualPlaceholderKey: "enter_station_name_required"
+            )
+        }
+    }
+
+    /// 快速補填：票價顯示列（公車用，不可編輯）
+    @ViewBuilder
+    private func quickFixFareDisplay(at index: Int) -> some View {
+        let seg = segments[index]
+        if let originalPrice = Int(seg.price), originalPrice > 0 {
+            let paidPrice = calculatePaidPrice(
+                originalPrice: originalPrice,
+                isFree: seg.isFree,
+                isTransfer: seg.isTransfer,
+                transferDiscountType: seg.transferDiscountType
+            )
+
+            HStack {
+                if paidPrice != originalPrice {
+                    Text("voice_fare_with_transfer")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                } else {
+                    Text("voice_fare_label")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+
+                Spacer()
+
+                if paidPrice != originalPrice {
+                    Text("$\(originalPrice)")
+                        .font(.caption)
+                        .strikethrough()
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Text("$\(paidPrice)")
+                        .font(.title3)
+                        .foregroundColor(themeManager.primaryTextColor)
+                } else {
+                    Text("$\(originalPrice)")
+                        .font(.title3)
+                        .foregroundColor(themeManager.primaryTextColor)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .frame(minHeight: 44)
+            .background(themeManager.backgroundColor)
+            .cornerRadius(8)
+        }
+    }
+    
     // MARK: - 摘要卡片（收合狀態）
     
     /// 段落摘要卡片：票券風格（左色條 + 運具大字 + 起迄站垂直 + 底部票價列）
@@ -944,9 +1061,10 @@ struct VoiceQuickTripView: View {
                     
                     Spacer()
                     
-                    // 編輯按鈕
+                    // 編輯按鈕（開啟完整編輯器）
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.25)) {
+                            quickFixSegmentIndex = nil
                             editingSegmentIndex = index
                         }
                     }) {
@@ -999,8 +1117,57 @@ struct VoiceQuickTripView: View {
                     .foregroundColor(.orange)
                 }
                 
-                // 第三區：票價底欄
-                if let originalPrice = Int(seg.price), originalPrice > 0 {
+                // 第三區：票價底欄 或 警告提示 (Warning Badge)
+                let warning = segmentMissingWarning(for: seg)
+                let isQuickFixing = (quickFixSegmentIndex == index)
+                let showFareDisplay = seg.transportType == .bus && (Int(seg.price) ?? 0) > 0
+
+                if warning != nil || isQuickFixing {
+                    // 缺漏需要補齊時：票價在上、警示在下
+                    if showFareDisplay {
+                        quickFixFareDisplay(at: index)
+                    }
+
+                    // 點擊後向下展開迷你補填面板
+                    Button(action: {
+                        let shouldCollapse = quickFixSegmentIndex == index
+                        let stationWarning = stationMissingWarning(for: seg)
+                        let priceWarning = seg.transportType == .coach && (Int(seg.price) ?? 0) <= 0
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            editingSegmentIndex = nil
+                            quickFixSegmentIndex = shouldCollapse ? nil : index
+                            quickFixStationExpandedIndex = shouldCollapse ? nil : (stationWarning != nil ? index : nil)
+                            quickFixPriceExpandedIndex = shouldCollapse ? nil : (priceWarning ? index : nil)
+                        }
+                        // 收合時降下鍵盤
+                        if shouldCollapse {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                    }) {
+                        HStack {
+                            if let w = warning {
+                                Text(w)
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.red)
+                            } else {
+                                Text("voice_quick_fix_complete_hint")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.green)
+                            }
+                            Spacer()
+                            Image(systemName: isQuickFixing ? "chevron.up" : "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(warning != nil ? .red.opacity(0.7) : .green.opacity(0.7))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(warning != nil ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                } else if let originalPrice = Int(seg.price), originalPrice > 0 {
+                    // 原本的票價顯示邏輯 (維持不變)
                     let paidPrice = calculatePaidPrice(
                         originalPrice: originalPrice,
                         isFree: seg.isFree,
@@ -1036,7 +1203,8 @@ struct VoiceQuickTripView: View {
                         }
                     }
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
+                    .frame(minHeight: 44)
                     .background(themeManager.backgroundColor)
                     .cornerRadius(8)
                 }
@@ -1052,6 +1220,49 @@ struct VoiceQuickTripView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(isMissing ? Color.orange.opacity(0.4) : themeManager.secondaryTextColor.opacity(0.1), lineWidth: isMissing ? 1.5 : 1)
         )
+    }
+    
+    /// 判斷該段落缺乏什麼必要資訊，回傳警告文字（nil 表示無缺漏）
+    private func segmentMissingWarning(for seg: SegmentEditState) -> String? {
+        let type = seg.transportType
+        let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+        
+        let hasStart = !seg.startStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.startStation != " "
+        let hasEnd = !seg.endStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.endStation != " "
+        
+        if type == nil {
+            return "⚠️ 點擊選擇交通工具"
+        } else if type == .coach && (Int(seg.price) ?? 0) <= 0 {
+            return "⚠️ 點擊輸入金額"
+        } else if isStationlessAllowed {
+            // 單邊站名缺漏，必須要求補齊
+            if hasStart != hasEnd {
+                return "⚠️ 點擊補齊起訖站"
+            }
+            return nil
+        } else {
+            if !hasStart || !hasEnd {
+                return "⚠️ 點擊補齊起訖站"
+            }
+            return nil
+        }
+    }
+
+    /// 只判斷是否還缺起訖站，用來控制站名補填面板的顯示
+    private func stationMissingWarning(for seg: SegmentEditState) -> String? {
+        let type = seg.transportType
+        let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+
+        let hasStart = !seg.startStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.startStation != " "
+        let hasEnd = !seg.endStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.endStation != " "
+
+        guard type != nil else { return nil }
+
+        if isStationlessAllowed {
+            return hasStart != hasEnd ? "⚠️ 點擊補齊起訖站" : nil
+        }
+
+        return (!hasStart || !hasEnd) ? "⚠️ 點擊補齊起訖站" : nil
     }
     
     /// 運具短代碼（用於摘要卡片大字前綴）
@@ -1132,27 +1343,27 @@ struct VoiceQuickTripView: View {
             // 運具必須在該週期支援的範圍內
             guard currentSupportedModes.contains(type) else { return false }
             
-            let isStationlessAllowed = type == .bus || type == .bike || type == .ferry
+            let isStationlessAllowed = type == .bus || type == .bike || type == .ferry || type == .coach
+            let hasStart = !seg.startStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.startStation != " "
+            let hasEnd = !seg.endStation.trimmingCharacters(in: .whitespaces).isEmpty && seg.endStation != " "
             
-            // 客運必須有金額
             if type == .coach {
                 guard let price = Int(seg.price), price > 0 else { return false }
             }
             
-            // 公車/YouBike/渡輪允許無起訖站
             if isStationlessAllowed {
-                return (Int(seg.price) != nil || seg.price.isEmpty)
+                if !hasStart && !hasEnd {
+                    // 雙空：有路線或有金額即可 (客運上面已檢查)
+                    return !seg.routeId.isEmpty || Int(seg.price) != nil || type == .coach
+                } else if hasStart && hasEnd {
+                    return true
+                } else {
+                    // 單邊缺漏，不給存
+                    return false
+                }
+            } else {
+                return hasStart && hasEnd
             }
-            
-            // 客運允許無起訖站，但上面已檢查金額
-            if type == .coach {
-                return true
-            }
-            
-            // 軌道運輸等需要起訖站
-            return !seg.startStation.isEmpty &&
-                   !seg.endStation.isEmpty &&
-                   (Int(seg.price) != nil || seg.price.isEmpty)
         }
     }
     
@@ -1544,7 +1755,7 @@ struct VoiceQuickTripView: View {
                 "finalDateTime": dtFormatter.string(from: seg.date)
             ])
         }
-        
+
         HapticManager.shared.notification(type: .success)
         didSaveTrip = true
         
@@ -1624,8 +1835,19 @@ struct VoiceQuickTripView: View {
     
     /// 自動查價（內部共用，作用於 SegmentEditState）
     private func autoFillFareForSegment(_ seg: inout SegmentEditState) {
-        guard let type = seg.transportType,
-              !seg.startStation.isEmpty,
+        guard let type = seg.transportType else { return }
+
+        // 公車：只要語音沒說票價，就一律先帶入方案預設票價
+        // 不依賴起訖站是否完整，避免「缺迄站」時無法自動帶入。
+        if type == .bus {
+            if seg.price.isEmpty {
+                seg.price = currentRegion.defaultBusPrice(identity: currentIdentity)
+            }
+            return
+        }
+
+        // 其餘運具維持原邏輯：需有完整起訖站才進行自動查價。
+        guard !seg.startStation.isEmpty,
               !seg.endStation.isEmpty else { return }
         
         switch type {
@@ -1662,17 +1884,6 @@ struct VoiceQuickTripView: View {
         case .hsr:
             if let fare = THSRFareService.shared.getFare(from: seg.startStation, to: seg.endStation, isNonReserved: seg.isHSRNonReserved) {
                 seg.price = String(fare)
-            }
-        case .bus:
-            if seg.price.isEmpty {
-                seg.price = currentRegion.defaultBusPrice(identity: currentIdentity)
-            }
-            if !seg.routeId.isEmpty {
-                if let match = viewModel.trips.first(where: { $0.type == .bus && $0.routeId == seg.routeId }) {
-                    if seg.price.isEmpty {
-                        seg.price = String(match.originalPrice)
-                    }
-                }
             }
         case .coach:
             if !seg.routeId.isEmpty {
@@ -1726,9 +1937,10 @@ struct VoiceQuickTripView: View {
         voiceService.reset()
         drafts = []
         segments = []
-        missingFields = []
-        missingFieldIndex = 0
         editingSegmentIndex = nil
+        quickFixSegmentIndex = nil
+        quickFixStationExpandedIndex = nil
+        quickFixPriceExpandedIndex = nil
         waveformSamples = Array(repeating: 0, count: 30)
         phase = .ready
     }

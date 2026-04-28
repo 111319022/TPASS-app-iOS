@@ -272,6 +272,9 @@
     "$%lld" : {
 
     },
+    "0" : {
+
+    },
     "0000000000000000" : {
 
     },
@@ -4138,6 +4141,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "輸入站名（選填）"
+          }
+        }
+      }
+    },
+    "enter_station_name_required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter station name"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入站名（必填）"
           }
         }
       }
@@ -9446,6 +9465,23 @@
         }
       }
     },
+    "voice_coach_price_required_hint" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intercity bus fare is required"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "客運必須輸入金額才能儲存"
+          }
+        }
+      }
+    },
     "voice_collapse_editor" : {
       "localizations" : {
         "en" : {
@@ -9718,39 +9754,8 @@
         }
       }
     },
-    "voice_coach_price_required_hint" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Intercity bus fare is required"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "客運必須輸入金額才能儲存"
-          }
-        }
-      }
-    },
-    "voice_unsupported_transport_hint" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This transport mode is not supported in the current plan. Please change it."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目前方案不支援此運具，請更換運具類型"
-          }
-        }
-      }
-    },
     "voice_fill_required_hint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9783,6 +9788,7 @@
       }
     },
     "voice_missing_end_question" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9798,7 +9804,24 @@
         }
       }
     },
+    "voice_missing_price_question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing amount"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺少金額"
+          }
+        }
+      }
+    },
     "voice_missing_start_question" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9814,18 +9837,34 @@
         }
       }
     },
-    "voice_missing_transport_question" : {
+    "voice_missing_station_question" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What transport did you use?"
+            "value" : "Missing Station"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "請問是什麼交通工具？"
+            "value" : "缺少站點"
+          }
+        }
+      }
+    },
+    "voice_missing_transport_question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing Transportation"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺少運具"
           }
         }
       }
@@ -9922,6 +9961,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要權限"
+          }
+        }
+      }
+    },
+    "voice_quick_fix_complete_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap confirm when done"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成後請點擊確認"
+          }
+        }
+      }
+    },
+    "voice_quick_fix_confirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認"
           }
         }
       }
@@ -10023,6 +10094,7 @@
       }
     },
     "voice_skip_to_editor" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10178,6 +10250,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "語音行程已儲存！"
+          }
+        }
+      }
+    },
+    "voice_unsupported_transport_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This transport mode is not supported in the current plan. Please change it."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前方案不支援此運具，請更換運具類型"
           }
         }
       }

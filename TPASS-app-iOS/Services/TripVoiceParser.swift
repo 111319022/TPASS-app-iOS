@@ -380,29 +380,25 @@ struct TripVoiceParser {
                         results[i].consistencyScore = calculateConsistency(results[i])
                     }
                     
-        // 💡 6. 最終防呆處理：針對允許無起訖站的運具，審核是否滿足「免站名儲存條件」
-                for i in 0..<results.count {
-                    let type = results[i].transportType
-                    let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
-                    
-                    if isStationlessAllowed {
-                        // 條件：檢查是否有「路線號碼」或「金額」，或者至少講了一個「站名」
-                        let hasRouteOrPrice = results[i].routeId != nil || results[i].price != nil
-                        let hasAnyStation = results[i].startStation != nil || results[i].endStation != nil
-                        
-                        // 必須滿足上述條件，才幫他補上一個空白字元 " " 繞過 UI 的 isEmpty 阻擋
-                        if hasRouteOrPrice || hasAnyStation {
-                            if results[i].startStation == nil {
-                                results[i].startStation = " " // 改成一個空白
-                            }
-                            if results[i].endStation == nil {
-                                results[i].endStation = " " // 改成一個空白
-                            }
-                        }
-                        // ⚠️ 若什麼條件都沒滿足（例如只說了「搭公車」），則保持 nil。
-                        // 這樣 UI 發現是 nil，就會正常觸發「點擊填寫補完才能儲存」！
-                    }
+        // 💡 6. 最終防呆處理：嚴格區分「完全無站名」與「單邊缺漏」
+        for i in 0..<results.count {
+            let type = results[i].transportType
+            let isStationlessAllowed = type == .bus || type == .coach || type == .bike || type == .ferry
+            
+            if isStationlessAllowed {
+                let hasRouteOrPrice = results[i].routeId != nil || results[i].price != nil
+                let hasStart = results[i].startStation != nil
+                let hasEnd = results[i].endStation != nil
+                
+                // 只有在「完全沒提到起訖站」且「有路線或有金額」時，才合法補上空白繞過防呆
+                if !hasStart && !hasEnd && hasRouteOrPrice {
+                    results[i].startStation = " "
+                    results[i].endStation = " "
                 }
+                // ⚠️ 若是「單邊站名」（例如有說起站，沒說迄站），絕不補空白，維持 nil！
+                // 這樣 UI 才會正確判定為缺漏並跳出警告。
+            }
+        }
                 
                 return results
             }
@@ -801,6 +797,20 @@ struct TripVoiceParser {
             }
         }
         
+        // 💡 針對「無公車字眼」的口語特例（如：284國立台北教育大學到）
+        if transport == .bus || transport == .coach {
+            // 抓取句首的數字+字母組合，且後方必須緊接中文字（如站名或方向詞）
+            let fallbackPattern = try? NSRegularExpression(pattern: "^([A-Za-z]?\\d{1,4}[A-Za-z]?)(?=\\p{Han})", options: [])
+            let nsRange = NSRange(textWithoutTime.startIndex..., in: textWithoutTime)
+            if let match = fallbackPattern?.firstMatch(in: textWithoutTime, options: [], range: nsRange),
+               let routeRange = Range(match.range(at: 1), in: textWithoutTime) {
+                let route = String(textWithoutTime[routeRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !route.isEmpty {
+                    return route.uppercased()
+                }
+            }
+        }
+        
         return nil
     }
     
@@ -828,11 +838,20 @@ struct TripVoiceParser {
         for rule in rules.stationPatterns {
             guard let regex = try? NSRegularExpression(pattern: rule.regex, options: []) else { continue }
             let nsRange = NSRange(textWithoutTime.startIndex..., in: textWithoutTime)
-            if let match = regex.firstMatch(in: textWithoutTime, options: [], range: nsRange),
-               let startRange = Range(match.range(at: 1), in: textWithoutTime),
-               let endRange = Range(match.range(at: 2), in: textWithoutTime) {
-                var startName = String(textWithoutTime[startRange]).trimmingCharacters(in: .whitespacesAndNewlines)
-                var endName = String(textWithoutTime[endRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            if let match = regex.firstMatch(in: textWithoutTime, options: [], range: nsRange) {
+                let r1 = match.range(at: 1)
+                let r2 = match.numberOfRanges > 2 ? match.range(at: 2) : NSRange(location: NSNotFound, length: 0)
+                
+                var startName = ""
+                var endName = ""
+                
+                if r1.location != NSNotFound, let range = Range(r1, in: textWithoutTime) {
+                    startName = String(textWithoutTime[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                
+                if r2.location != NSNotFound, let range = Range(r2, in: textWithoutTime) {
+                    endName = String(textWithoutTime[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+                }
 
                 // 基本清理（移除從/到、時間前綴、路線號碼等）
                 startName = sanitizeStationCandidate(startName, transport: transport)
@@ -904,6 +923,12 @@ struct TripVoiceParser {
         private static func sanitizeStationCandidate(_ text: String, transport: TransportType?) -> String {
             var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !result.isEmpty else { return result }
+
+            // 💡 雙重防護：清除站名尾部可能殘留的金額字眼 (例如 $138, 138元, 票價138)
+            if let priceSuffixRegex = try? NSRegularExpression(pattern: "(?:\\$|票價|花費|花了?|付了?)\\s*\\d+$", options: []) {
+                let nsRange = NSRange(result.startIndex..., in: result)
+                result = priceSuffixRegex.stringByReplacingMatches(in: result, options: [], range: nsRange, withTemplate: "").trimmingCharacters(in: .whitespacesAndNewlines)
+            }
 
             var previousResult = ""
             let digitChars = chineseDigitMap.keys.map { String($0) }.joined()

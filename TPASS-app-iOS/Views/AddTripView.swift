@@ -837,7 +837,26 @@ struct StationInputRow: View {
     @Binding var stationName: String
     let currentRegion: TPASSRegion
     var lineSelectionEnabled: Bool = true
+    var manualPlaceholderKey: LocalizedStringKey = "enter_station_name"
     @EnvironmentObject var themeManager: ThemeManager
+
+    init(
+        label: LocalizedStringKey,
+        type: TransportType,
+        lineCode: Binding<String>,
+        stationName: Binding<String>,
+        currentRegion: TPASSRegion,
+        lineSelectionEnabled: Bool = true,
+        manualPlaceholderKey: LocalizedStringKey = "enter_station_name"
+    ) {
+        self.label = label
+        self.type = type
+        self._lineCode = lineCode
+        self._stationName = stationName
+        self.currentRegion = currentRegion
+        self.lineSelectionEnabled = lineSelectionEnabled
+        self.manualPlaceholderKey = manualPlaceholderKey
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -1078,7 +1097,7 @@ struct StationInputRow: View {
             .frame(width: 50)
             .padding(.leading, 8)
         Divider()
-        TextField("enter_station_name", text: $stationName)
+        TextField(manualPlaceholderKey, text: $stationName)
             .padding(.horizontal, 12)
             .frame(maxWidth: .infinity)
             .foregroundColor(themeManager.primaryTextColor)
