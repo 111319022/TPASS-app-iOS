@@ -10270,6 +10270,38 @@
         }
       }
     },
+    "voice_unsupported_transport_alert_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsupported Transport"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不支援的運具"
+          }
+        }
+      }
+    },
+    "voice_unsupported_transport_alert_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The recognized transport mode is not supported in the current plan. Please re-record."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辨識到的運具不在目前方案可使用範圍內，請重新錄音辨識。"
+          }
+        }
+      }
+    },
     "voice_use_manual_instead" : {
       "localizations" : {
         "en" : {

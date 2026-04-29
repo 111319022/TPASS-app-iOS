@@ -49,6 +49,7 @@ struct VoiceQuickTripView: View {
     
     @State private var showSaveSuccess = false
     @State private var showTRAOutOfRangeAlert = false
+    @State private var showUnsupportedTransportAlert = false
     @State private var showCycleDateOutOfRangeAlert = false
     
     // 追蹤是否已成功儲存，用於 onDisappear 判斷「放棄」
@@ -155,9 +156,18 @@ struct VoiceQuickTripView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .alert(Text("voice_tra_out_of_range_title"), isPresented: $showTRAOutOfRangeAlert) {
-            Button("ok", role: .cancel) { }
+            Button("voice_retry", role: .cancel) {
+                retryRecording()
+            }
         } message: {
             Text("voice_tra_out_of_range_message")
+        }
+        .alert(Text("voice_unsupported_transport_alert_title"), isPresented: $showUnsupportedTransportAlert) {
+            Button("voice_retry", role: .cancel) {
+                retryRecording()
+            }
+        } message: {
+            Text("voice_unsupported_transport_alert_message")
         }
         .alert(Text("date_out_of_cycle_title"), isPresented: $showCycleDateOutOfRangeAlert) {
             Button("ok", role: .cancel) { }
@@ -1599,6 +1609,35 @@ struct VoiceQuickTripView: View {
                 )
             }
         } else {
+            // 🔒 辨識後驗證：運具是否在方案支援範圍內
+            let unsupportedSegment = segments.first { seg in
+                guard let type = seg.transportType else { return false }
+                return !currentSupportedModes.contains(type)
+            }
+            if unsupportedSegment != nil {
+                phase = .ready
+                showUnsupportedTransportAlert = true
+                HapticManager.shared.notification(type: .warning)
+                return
+            }
+            
+            // 🔒 辨識後驗證：台鐵站點是否在方案範圍內
+            let traOutOfRange = segments.contains { seg in
+                guard seg.transportType == .tra else { return false }
+                let hasStart = !seg.startStation.trimmingCharacters(in: .whitespaces).isEmpty
+                let hasEnd = !seg.endStation.trimmingCharacters(in: .whitespaces).isEmpty
+                if !hasStart && !hasEnd { return false }
+                let startOK = !hasStart || availableTRAStationIDs.contains(seg.startStation)
+                let endOK = !hasEnd || availableTRAStationIDs.contains(seg.endStation)
+                return !startOK || !endOK
+            }
+            if traOutOfRange {
+                phase = .ready
+                showTRAOutOfRangeAlert = true
+                HapticManager.shared.notification(type: .warning)
+                return
+            }
+            
             // 所有成功解析（不論單段/多段、欄位是否齊全）→ 時間軸視圖
             editingSegmentIndex = nil
             phase = .advancedEditor
@@ -1700,17 +1739,6 @@ struct VoiceQuickTripView: View {
         
         for seg in segmentsToSave {
             guard let transportType = seg.transportType else { continue }
-            
-            // 台鐵站點範圍驗證
-            if transportType == .tra {
-                let outOfRange = !availableTRAStationIDs.contains(seg.startStation) ||
-                                 !availableTRAStationIDs.contains(seg.endStation)
-                if outOfRange && !seg.startStation.isEmpty && !seg.endStation.isEmpty {
-                    showTRAOutOfRangeAlert = true
-                    HapticManager.shared.notification(type: .warning)
-                    return
-                }
-            }
             
             let originalPrice = Int(seg.price) ?? 0
             let paidPrice = calculatePaidPrice(
