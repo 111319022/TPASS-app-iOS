@@ -958,6 +958,7 @@ struct TripVoiceParser {
 
             // 5. 路線號碼前綴 (僅限公車/客運)
             if transport == .bus || transport == .coach {
+                prefixPatterns.append("^\\p{Han}{1,8}幹線")
                 prefixPatterns.append("^[A-Za-z0-9]{1,6}(?:路|號)?")
                 prefixPatterns.append("^[\(digitChars)0-9]{1,6}\\s*(?:號|路)?")
             }
