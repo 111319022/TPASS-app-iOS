@@ -694,6 +694,11 @@ struct TripVoiceParser {
             return .bus
         }
 
+        // B2. 幹線路線名稱強綁定（如「和平幹線」、「信義幹線」）
+        if lowercasedText.range(of: "\\p{Han}{1,8}幹線", options: .regularExpression) != nil {
+            return .bus
+        }
+
         // C. 特別保留：口語中常直接說「機捷」作為開頭
         if lowercasedText.contains("機捷") || lowercasedText.contains("機場捷運") {
             return .tymrt
@@ -745,6 +750,7 @@ struct TripVoiceParser {
 
         guard !cleaned.isEmpty,
               cleaned.allSatisfy({ $0.isNumber }) else {
+            if cleaned.hasSuffix("幹線") { return .bus }
             return nil
         }
 
