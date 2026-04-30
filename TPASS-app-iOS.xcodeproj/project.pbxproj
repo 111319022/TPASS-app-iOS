@@ -89,6 +89,7 @@
 		FB0A21832F8FB300405172 /* NTDLRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21802F8FB300405172 /* NTDLRT_StationData.json */; };
 		FB0A21842F8FB300405172 /* NTALRT_StationData.json in Resources */ = {isa = PBXBuildFile; fileRef = FB0A21812F8FB300405172 /* NTALRT_StationData.json */; };
 		FB0A21862F8FB300405172 /* LRTStationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0A217D2F8FB300405172 /* LRTStationData.swift */; };
+		FB1B3A6F2FA323B200473A5F /* old_IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1B3A6E2FA323AD00473A5F /* old_IntroView.swift */; };
 		FB4DD7152F9C8A6C007ED12B /* TransitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4DD7142F9C8A6C007ED12B /* TransitCard.swift */; };
 		FB4DD7172F9C8B51007ED12B /* TransitCardManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4DD7162F9C8B51007ED12B /* TransitCardManagementView.swift */; };
 		FB6BC0BC2F7042950011877D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB6BC0BB2F7042950011877D /* README.md */; };
@@ -194,6 +195,7 @@
 		FB0A21802F8FB300405172 /* NTDLRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTDLRT_StationData.json; sourceTree = "<group>"; };
 		FB0A21812F8FB300405172 /* NTALRT_StationData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NTALRT_StationData.json; sourceTree = "<group>"; };
 		FB0D94462F20BC1600B687D3 /* TPASS-app-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TPASS-app-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB1B3A6E2FA323AD00473A5F /* old_IntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = old_IntroView.swift; sourceTree = "<group>"; };
 		FB4DD7142F9C8A6C007ED12B /* TransitCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitCard.swift; sourceTree = "<group>"; };
 		FB4DD7162F9C8B51007ED12B /* TransitCardManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitCardManagementView.swift; sourceTree = "<group>"; };
 		FB6BC0BB2F7042950011877D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -324,6 +326,7 @@
 				FB0A21042F8F8EF100405172 /* FavoritesManagementView.swift */,
 				FB0A21052F8F8EF100405172 /* HomeStationSettingsView.swift */,
 				FB0A21062F8F8EF100405172 /* IntroView.swift */,
+				FB1B3A6E2FA323AD00473A5F /* old_IntroView.swift */,
 				FB0A21072F8F8EF100405172 /* MainTabView.swift */,
 				FB0A21082F8F8EF100405172 /* NotificationSettingsView.swift */,
 				FB0A21092F8F8EF100405172 /* OutboundStationSettingsView.swift */,
@@ -604,6 +607,7 @@
 				FB025E142F9AAEC200AEFB19 /* DevConsoleView.swift in Sources */,
 				FB025E102F9A7E2200AEFB19 /* DeveloperToolsPlaceholderView.swift in Sources */,
 				FB0A21732F8FAF8900405172 /* DeveloperAccessService.swift in Sources */,
+				FB1B3A6F2FA323B200473A5F /* old_IntroView.swift in Sources */,
 				FB0A21772F8FB100405172 /* IssueReportService.swift in Sources */,
 				FB0A21342F8F8EF100405172 /* KMRTFareService.swift in Sources */,
 				FB0A21352F8F8EF100405172 /* TransferIntroductionView.swift in Sources */,

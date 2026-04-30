@@ -20,6 +20,7 @@ struct DeveloperDashboardView: View {
 
     // Intro 重置
     @State private var showResetIntroAlert = false
+    @State private var showNewIntroPreview = false
 
     // 通知導航
     @State private var openIssueReportsFromNotification = false
@@ -177,6 +178,17 @@ struct DeveloperDashboardView: View {
                         subtitle: "清除登入狀態並顯示 Intro"
                     )
                 }
+
+                Button {
+                    showNewIntroPreview = true
+                } label: {
+                    settingsRow(
+                        icon: "sparkles",
+                        iconColor: .indigo,
+                        title: "預覽新版 Onboarding",
+                        subtitle: "全螢幕顯示新版 8 步驟 Intro（不影響登入狀態）"
+                    )
+                }
             }
         }
         .navigationTitle("開發者後台")
@@ -206,6 +218,21 @@ struct DeveloperDashboardView: View {
         .sheet(isPresented: $showSwiftDataAdmin) {
             NavigationStack {
                 SwiftDataManagementView()
+            }
+        }
+        .fullScreenCover(isPresented: $showNewIntroPreview) {
+            ZStack(alignment: .topTrailing) {
+                NewIntroView()
+                Button {
+                    showNewIntroPreview = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 30))
+                        .foregroundStyle(.white, Color.black.opacity(0.35))
+                        .padding(.top, 56)
+                        .padding(.trailing, 16)
+                }
+                .accessibilityLabel(Text("關閉預覽"))
             }
         }
     }
