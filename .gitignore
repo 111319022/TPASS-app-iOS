@@ -22,3 +22,4 @@
 
 # Ignore large data
 TRA_Fares_API.json
+.claude/
